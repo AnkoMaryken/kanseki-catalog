@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<title>更新日志 — 日本汉籍编目工具</title>
+<style>
+:root{--color-bg:#f7f4ee;--color-bg-alt:#ede8df;--color-surface:#fff;--color-surface-hover:#f0ece5;--color-primary:#1a2a4a;--color-primary-light:#2d4470;--color-accent:#8b6914;--color-accent-light:#b8942c;--color-text:#2d2a26;--color-text-secondary:#5c564d;--color-text-muted:#8a8278;--color-border:#d5cec2;--color-border-light:#e8e2d8;--color-divider:#ebe5da;--color-table-header:#1a2a4a;--color-table-header-text:#e8e2d8;--color-shadow:rgba(26,42,74,.08);--color-shadow-lg:rgba(26,42,74,.12);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms ease;--radius-sm:4px;--radius-md:8px;--radius-lg:12px;--shadow-sm:0 1px 3px var(--color-shadow);--shadow-md:0 4px 12px var(--color-shadow);--shadow-lg:0 8px 24px var(--color-shadow-lg)}
+[data-theme="dark"]{--color-bg:#1a1c1e;--color-bg-alt:#242629;--color-surface:#2a2d30;--color-surface-hover:#33363a;--color-primary:#8ba4d0;--color-primary-light:#a3b8db;--color-accent:#d4a843;--color-text:#e0dcd5;--color-text-secondary:#b0aaa0;--color-text-muted:#7a746c;--color-border:#4a4640;--color-border-light:#3a3632;--color-divider:#3a3632;--color-highlight:#3d3520}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+.app-header{background:var(--color-primary);color:var(--color-table-header-text);padding:.8rem 0;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
+.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:#fff;font-weight:700}
+.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:#e8e2d8;white-space:nowrap}
+.header-nav{display:flex;gap:.25rem;flex-shrink:0}
+.header-nav a{color:rgba(232,226,216,.65);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
+.header-nav a:hover{color:#e8e2d8;background:rgba(255,255,255,.08)}
+.header-nav a.active{color:#e8e2d8;background:rgba(255,255,255,.12);font-weight:600}
+.header-actions{margin-left:auto;display:flex;gap:.5rem}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(232,226,216,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
+.btn-icon:hover{background:rgba(255,255,255,.18)}
+
+.page{max-width:860px;margin:0 auto;padding:2rem 1.5rem 3rem;width:100%;flex:1}
+.page-head{margin-bottom:2rem}
+.page-head h2{font-family:var(--font-display);font-size:1.4rem;color:var(--color-primary);margin-bottom:.3rem}
+.page-head p{font-size:.85rem;color:var(--color-text-muted)}
+
+.cl-entry{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:1.25rem 1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow-sm)}
+.cl-entry .cl-head{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--color-divider)}
+.cl-entry .cl-ver{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--color-primary)}
+.cl-entry .cl-date{font-size:.8rem;color:var(--color-text-muted)}
+.cl-tag{font-size:.72rem;font-weight:600;padding:.12rem .5rem;border-radius:999px;color:#fff;white-space:nowrap}
+.cl-tag.t-new{background:#2d7a4f}.cl-tag.t-fix{background:#8b6914}.cl-tag.t-del{background:#a04a3a}.cl-tag.t-opt{background:#2d4470}
+.cl-entry ul{list-style:none;padding:0}
+.cl-entry li{font-size:.875rem;line-height:1.8;color:var(--color-text);padding-left:1.1em;position:relative}
+.cl-entry li::before{content:'';position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:var(--color-accent)}
+.cl-entry li + li{margin-top:.15rem}
+.cl-entry li b{color:var(--color-primary)}
+
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--color-primary-light);text-decoration:none;margin-bottom:1rem}
+.back-link:hover{color:var(--color-accent)}
+
+.app-footer{background:var(--color-bg-alt);border-top:1px solid var(--color-border-light);padding:1rem 0;margin-top:auto}
+.footer-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;text-align:center;font-size:.78rem;color:var(--color-text-muted)}
+
+@media(max-width:768px){
+  .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
+  .page{padding:1.25rem 1rem 2rem}.cl-entry{padding:1rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
+    <nav class="header-nav">
+      <a href="guide.html">使用介绍</a><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="changelog.html" class="active">更新日志</a>
+    </nav>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+  </div>
+</header>
+
+<main class="page">
+  <a href="index.html" class="back-link">← 返回纪年查询</a>
+  <div class="page-head">
+    <h2>更新日志</h2>
+    <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.5</span>
+      <span class="cl-date">2026-08-08</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>工作手册 PDF 在线阅读</b>：编目规范页新增「工作手册」标签页，可在线直接浏览《（修订）全球汉籍合璧工程精华编整理工作手册》PDF 原版，支持翻阅、缩放、打印，也可新窗口打开。</li>
+      <li><b>工作手册 PDF 更新</b>：替换为最新修订版 PDF 文件（2026-08-08 更新，文件大小与内容以 WPS 云盘源文件为准）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.4</span>
+      <span class="cl-date">2026-08-07</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>2023 舊版細則全文更新</b>：替换为《全球汉籍合璧工程编目工作细则》（2023.09 修订稿）完整原文，按原文结构呈现十个章节、参考著录格式与单书/丛书著录实例。</li>
+      <li><b>2025 新版細則全文更新</b>：替换为《全球漢籍合璧工程境外漢籍編目工作細則》（2025.10 修訂，徵求意見稿）完整原文，按原文结构呈现八个章节、文稿参考著录格式与编目实例。</li>
+      <li><b>大标题居中</b>：两版细则的文档大标题与次标题均改为居中显示，章节标题保持左对齐。</li>
+      <li><b>引号规范</b>：两版细则正文中的直角引号「」统一改为现代全角双引号“”。</li>
+      <li><b>排版增强</b>：细则正文新增引用示例块、参考著录格式代码块、列表项样式，阅读层级更清晰；顶部导航补充「更新日志」入口，四页导航统一。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.3</span>
+      <span class="cl-date">2026-08-07</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>使用介绍页</b>：顶部导航新增「使用介绍」入口（位于「纪年查询」左侧），点击进入独立介绍页面，详细说明各部分使用方法——纪年查询（如何查询、可查内容、输入方式、筛选、导出、岁时落款常识）、编目细则（两版细则查阅、类目表及介绍）、其他说明（更新日志、简繁切换、明暗主题等）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.2</span>
+      <span class="cl-date">2026-08-07</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>模糊关键词搜索</b>：搜索建议支持「年号 + 片段」灵活补全。输入「同治一」会提示「同治十一年」，输入「明治三」会提示「明治三十一年」「明治三十二年」等全部候选，输入「永乐一」会提示「永乐十一年」「永乐二十一年」。</li>
+      <li><b>搜索直达</b>：按回车或点「查找」时，若关键词无法精确匹配，自动启用模糊匹配，直接展示「年号 + 片段」对应的纪年结果。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.1.1</span>
+      <span class="cl-date">2026-08-06</span>
+      <span class="cl-tag t-fix">调整</span>
+    </div>
+    <ul>
+      <li><b>默认繁体显示</b>：进入纪年查询页面时默认显示繁体字（表头、数据、筛选标签、搜索提示、复制与导出内容均随之为繁体），可随时通过右上角「简/繁」按钮切换。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.1</span>
+      <span class="cl-date">2026-08-05</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>CSV 导出自定义</b>：导出前可自由勾选导出列（公历年份、干支、中国年号、中国朝代、在位皇帝、日本时代、日本年号、在位天皇、备注、生肖），并可选导出范围（全部筛选结果 / 仅当前页）。</li>
+      <li><b>更新日志入口</b>：页面底部新增「更新日志」小按钮，可查看历次更新记录。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.1</span>
+      <span class="cl-date">2026-08-05</span>
+      <span class="cl-tag t-fix">调整</span>
+    </div>
+    <ul>
+      <li><b>删除首页</b>：移除首页入口页面及顶部导航中的「首页」链接，直接进入纪年查询。</li>
+      <li><b>删除跳转年份按钮</b>：移除搜索框旁的「跳转年份」输入框与按钮（搜索框已支持年份直达，功能重复）。</li>
+      <li><b>标题条宽度统一</b>：纪年查询页与编目规范页的顶部标题条改为一致宽度与高度。</li>
+      <li><b>标题更名</b>：「中日历代纪年对照」更名为「日本汉籍编目工具」，标题左侧图标由「历」改为「汉」。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v1.0</span>
+      <span class="cl-date">2026-08-01</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li>中日历史纪年对照查询工具上线：以公历年份为基准轴，同步展示中国与日本朝代、年号、君主、干支、生肖等完整纪年信息。</li>
+      <li>支持全局检索（公历年份、干支、生肖、年号、君主名），带搜索建议与跳转高亮。</li>
+      <li>支持中国朝代 + 日本时代多维筛选、升序/降序排序、分页、CSV 导出。</li>
+      <li>编目规范查阅页上线：支持 2023 / 2025 版细则查阅与全文检索，以及四部分类表查询。</li>
+    </ul>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">日本汉籍编目工具 · 学术参考工具</div>
+</footer>
+
+<script>
+(function(){
+  function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
+  initTheme();
+  var tb=document.getElementById('themeToggle');
+  tb.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☾':'☀';
+  tb.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);
+    tb.textContent=n==='dark'?'☾':'☀';
+  });
+})();
+</script>
+</body>
+</html>

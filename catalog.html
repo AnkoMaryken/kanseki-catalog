@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-HK" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<title>日本漢籍編目工具 — 編目規範</title>
+<style>
+:root{--color-bg:#f7f4ee;--color-bg-alt:#ede8df;--color-surface:#fff;--color-surface-hover:#f0ece5;--color-primary:#1a2a4a;--color-primary-light:#2d4470;--color-accent:#8b6914;--color-accent-light:#b8942c;--color-text:#2d2a26;--color-text-secondary:#5c564d;--color-text-muted:#8a8278;--color-border:#d5cec2;--color-border-light:#e8e2d8;--color-divider:#ebe5da;--color-highlight:#fff3cd;--color-highlight-text:#8b6914;--color-table-header:#1a2a4a;--color-table-header-text:#e8e2d8;--color-shadow:rgba(26,42,74,.08);--color-shadow-lg:rgba(26,42,74,.12);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms ease;--radius-sm:4px;--radius-md:8px;--radius-lg:12px;--shadow-sm:0 1px 3px var(--color-shadow);--shadow-md:0 4px 12px var(--color-shadow);--shadow-lg:0 8px 24px var(--color-shadow-lg)}
+[data-theme="dark"]{--color-bg:#1a1c1e;--color-bg-alt:#242629;--color-surface:#2a2d30;--color-surface-hover:#33363a;--color-primary:#8ba4d0;--color-primary-light:#a3b8db;--color-accent:#d4a843;--color-text:#e0dcd5;--color-text-secondary:#b0aaa0;--color-text-muted:#7a746c;--color-border:#4a4640;--color-border-light:#3a3632;--color-divider:#3a3632;--color-highlight:#3d3520}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+.app-header{background:var(--color-primary);color:var(--color-table-header-text);padding:.8rem 0;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
+.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:#fff;font-weight:700}
+.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:#e8e2d8;white-space:nowrap}
+.header-nav{display:flex;gap:.25rem;flex-shrink:0}
+.header-nav a{color:rgba(232,226,216,.65);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
+.header-nav a:hover{color:#e8e2d8;background:rgba(255,255,255,.08)}
+.header-nav a.active{color:#e8e2d8;background:rgba(255,255,255,.12);font-weight:600}
+.header-actions{margin-left:auto;display:flex;gap:.5rem}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(232,226,216,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
+.btn-icon:hover{background:rgba(255,255,255,.18)}
+
+.tab-bar{background:var(--color-surface);border-bottom:1px solid var(--color-border-light);position:sticky;top:60px;z-index:90;box-shadow:var(--shadow-sm)}
+.tab-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex}
+.tab-btn{padding:.7rem 1.5rem;border:none;background:none;font-family:var(--font-body);font-size:.9rem;color:var(--color-text-secondary);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--transition-fast)}
+.tab-btn:hover{color:var(--color-text)}
+.tab-btn.active{color:var(--color-primary);border-bottom-color:var(--color-primary);font-weight:600}
+[data-theme="dark"] .tab-btn.active{color:var(--color-primary-light);border-bottom-color:var(--color-primary-light)}
+.tab-content{display:none;max-width:1400px;margin:0 auto;padding:1rem 1.5rem}
+.tab-content.active{display:block}
+
+/* Doc viewer */
+.doc-toolbar{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.doc-toolbar .ver-btn{padding:.4rem 1.2rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);font-family:var(--font-body);font-size:.85rem;cursor:pointer;transition:all var(--transition-fast)}
+.doc-toolbar .ver-btn.active{background:var(--color-primary);color:var(--color-table-header-text);border-color:var(--color-primary)}
+.doc-search{display:flex;gap:.35rem;align-items:center;margin-left:auto}
+.doc-search input{padding:.4rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.85rem;width:200px}
+.doc-search input:focus{outline:none;border-color:var(--color-primary)}
+.doc-search button,.doc-nav-btn{padding:.4rem .8rem;border:1px solid var(--color-primary);border-radius:var(--radius-sm);background:var(--color-primary);color:var(--color-table-header-text);font-family:var(--font-body);font-size:.82rem;cursor:pointer}
+.doc-nav-btn{padding:.3rem .5rem;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);font-size:.78rem}
+.doc-nav-btn:disabled{opacity:.35;cursor:default}
+.doc-body{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:1.5rem 2rem;max-height:calc(100vh - 240px);overflow-y:auto;line-height:2;font-size:.9rem}
+.doc-body p{margin-bottom:.6rem}
+.doc-body .stitle{font-size:1.05rem;font-weight:700;color:var(--color-primary);margin:1.4rem 0 .4rem;padding-bottom:.3rem;border-bottom:1px solid var(--color-divider)}
+.doc-body .stitle:first-child{margin-top:0}
+.doc-body .stitle.center{text-align:center;border-bottom:none;margin:1.2rem 0 .6rem}
+.doc-body .stitle.center:first-child{font-size:1.25rem;margin-top:0}
+.doc-body .doc-ex{background:var(--color-bg-alt);border-left:3px solid var(--color-accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem 1rem;margin:.5rem 0 .9rem;font-size:.88rem;line-height:1.9}
+.doc-body .doc-ex p{margin-bottom:.3rem}
+.doc-body .doc-ex p:last-child{margin-bottom:0}
+.doc-body .doc-code{background:var(--color-bg-alt);border:1px solid var(--color-border);border-radius:var(--radius-sm);padding:.8rem 1rem;margin:.5rem 0 .9rem;font-family:var(--font-display);font-size:.85rem;line-height:1.9;white-space:pre-wrap;overflow-x:auto}
+.doc-body .doc-item{margin-bottom:.35rem}
+.doc-body .doc-item:last-child{margin-bottom:.6rem}
+mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);padding:0 2px;border-radius:2px;font-weight:600}
+
+/* PDF viewer */
+.pdf-toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
+.pdf-name{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--color-primary)}
+.pdf-sub{font-size:.8rem;color:var(--color-text-muted)}
+.pdf-open{margin-left:auto;padding:.35rem .85rem;border:1px solid var(--color-primary);border-radius:var(--radius-sm);background:var(--color-primary);color:var(--color-table-header-text);font-size:.82rem;text-decoration:none;transition:all var(--transition-fast)}
+.pdf-open:hover{background:var(--color-primary-light)}
+.pdf-frame{width:100%;height:calc(100vh - 220px);min-height:480px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface)}
+
+/* Cat table */
+.cat-toolbar{display:flex;gap:.35rem;margin-bottom:.75rem;flex-wrap:wrap;align-items:center}
+.cat-toolbar .cfb{padding:.35rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);font-size:.8rem;font-family:var(--font-body);cursor:pointer;transition:all var(--transition-fast)}
+.cat-toolbar .cfb:hover{border-color:var(--color-primary)}
+.cat-toolbar .cfb.active{background:var(--color-primary);color:var(--color-table-header-text);border-color:var(--color-primary)}
+.cs{padding:.35rem .6rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.82rem;width:180px;margin-left:auto}
+.cs:focus{outline:none;border-color:var(--color-primary)}
+
+.ctbl{width:100%;border-collapse:collapse;background:var(--color-surface);font-size:.84rem}
+.ctbl th{background:var(--color-table-header);color:var(--color-table-header-text);padding:.45rem .6rem;text-align:left;font-weight:600;font-size:.76rem;position:sticky;top:0;z-index:5}
+.ctbl td{padding:.35rem .6rem;border-bottom:1px solid var(--color-divider);vertical-align:top;line-height:1.55}
+.ctbl tr:hover td{background:var(--color-surface-hover)}
+.ctbl .r-l1 td{background:var(--color-bg-alt);font-weight:700;color:var(--color-primary);font-size:.88rem;padding-top:.55rem}
+.ctbl .r-l2 td{font-weight:600}
+.ctbl .r-l3 td .l3-name{padding-left:1.2rem;font-size:.82rem}
+.ctbl .r-l3 td{font-size:.81rem;color:var(--color-text-secondary)}
+.ctbl td .desc{font-size:.78rem;color:var(--color-text-secondary)}
+
+@media(max-width:768px){
+  .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
+  .tab-btn{font-size:.8rem;padding:.5rem .8rem}.tab-content{padding:.75rem}
+  .doc-body{padding:1rem;font-size:.82rem}.doc-search{width:100%}.doc-search input{flex:1;width:auto}
+  .ctbl{font-size:.76rem}.cs{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a href="index.html" class="header-brand"><div class="bi">漢</div><h1>日本漢籍編目工具</h1></a>
+    <nav class="header-nav">
+      <a href="guide.html">使用介紹</a><a href="index.html">紀年查詢</a><a href="catalog.html" class="active">編目規範</a><a href="changelog.html">更新日誌</a>
+    </nav>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+  </div>
+</header>
+
+<div class="tab-bar"><div class="tab-inner">
+  <button class="tab-btn active" data-tab="0">細則查閱</button>
+  <button class="tab-btn" data-tab="1">分類表查詢</button>
+  <button class="tab-btn" data-tab="2">工作手冊</button>
+</div></div>
+<main id="m"></main>
+
+<script src="catalog_data.js"></script>
+<script>
+(function(){
+initTheme();document.getElementById('themeToggle').addEventListener('click',()=>{const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n)});
+let tab=0,curDoc='2023',sri=-1,sr=[],cS='';
+
+document.querySelector('.tab-inner').addEventListener('click',function(e){const b=e.target.closest('.tab-btn');if(!b)return;tab=parseInt(b.dataset.tab);document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()});
+render();
+
+function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
+function sc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function render(){if(tab===0)renderDoc();else if(tab===1)renderCat();else renderPdf()}
+
+// ==================== TAB 2: PDF Manual Viewer ====================
+function renderPdf(){
+  document.getElementById('m').innerHTML=`
+    <div class="tab-content active">
+      <div class="pdf-toolbar">
+        <span class="pdf-name">《全球汉籍合璧工程精华编》整理工作手册（修订）</span>
+        <span class="pdf-sub">PDF 原版 · 可直接翻阅、缩放、打印</span>
+        <a class="pdf-open" href="docs/manual.pdf" target="_blank">新窗口打开 ↗</a>
+      </div>
+      <iframe class="pdf-frame" src="docs/manual.pdf" title="《全球汉籍合璧工程精华编》整理工作手册"></iframe>
+    </div>`;
+}
+
+// ==================== TAB 0: Document Viewer ====================
+function renderDoc(){
+  const d=curDoc==='2025'?DOC2025:DOC2023;
+  let h='';
+  d.forEach((s,i)=>{h+='<div class="stitle'+(i<2?' center':'')+'">'+sc(s.title)+'</div>'+s.html;});
+  document.getElementById('m').innerHTML=`
+    <div class="tab-content active">
+      <div class="doc-toolbar">
+        <button class="ver-btn${curDoc==='2023'?' active':''}" data-d="2023">2023 舊版細則</button>
+        <button class="ver-btn${curDoc==='2025'?' active':''}" data-d="2025">2025 新版細則</button>
+        <div class="doc-search">
+          <input type="text" id="dsi" placeholder="檢索全文……" value="${sc(cS)}" autocomplete="off">
+          <button id="dsb">檢索</button>
+          <button class="doc-nav-btn" id="dsp" disabled>‹</button>
+          <span style="font-size:.8rem;color:var(--color-text-muted);min-width:40px;text-align:center" id="dsc"></span>
+          <button class="doc-nav-btn" id="dsn" disabled>›</button>
+        </div>
+      </div>
+      <div class="doc-body" id="db">${h}</div>
+    </div>`;
+  document.querySelectorAll('.ver-btn').forEach(b=>b.addEventListener('click',function(){curDoc=this.dataset.d;sri=-1;sr=[];cS='';renderDoc()}));
+  document.getElementById('dsb').addEventListener('click',srch);
+  document.getElementById('dsi').addEventListener('keydown',function(e){if(e.key==='Enter')srch()});
+  document.getElementById('dsp').addEventListener('click',()=>{if(sri>0){sri--;scrS()}});
+  document.getElementById('dsn').addEventListener('click',()=>{if(sri<sr.length-1){sri++;scrS()}});
+  function srch(){
+    const db=document.getElementById('db'),q=document.getElementById('dsi').value.trim();cS=q;
+    db.querySelectorAll('mark.doc-hl').forEach(m=>m.outerHTML=m.textContent);sr=[];
+    if(!q){updateN();return}
+    const re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    db.querySelectorAll('*').forEach(el=>{if(el.childNodes.length===1&&el.childNodes[0].nodeType===3&&re.test(el.textContent))sr.push(el)});
+    if(sr.length===0){updateN();return}
+    sri=0;sr.forEach(el=>el.innerHTML=el.textContent.replace(re,'<mark class="doc-hl">$1</mark>'));scrS();updateN()
+  }
+  function scrS(){if(sri<0||sri>=sr.length)return;sr[sri].scrollIntoView({behavior:'smooth',block:'center'});updateN()}
+  function updateN(){document.getElementById('dsc').textContent=sr.length?(sri+1)+'/'+sr.length:'0/0';document.getElementById('dsp').disabled=sri<=0;document.getElementById('dsn').disabled=sri>=sr.length-1}
+}
+
+// ==================== TAB 1: Catalog Table ====================
+const L3D={/* L3 descriptions */
+  '正文之屬':'經文白文及校勘本，不含注釋。',
+  '傳説之屬':'歷代注疏、傳注、集解等闡釋經義的著作。',
+  '圖説之屬':'以圖譜、圖表輔助解說經義的著作。',
+  '分篇之屬':'對經書中某一篇單獨進行注解的著作。',
+  '專著之屬':'就某一專題進行深入研究的專門著作。',
+  '易例之屬':'研究《周易》體例、卦序、義例的著作。',
+  '易占之屬':'《周易》占筮方法及其應用的著作。',
+  '文字音義之屬':'經書文字的音讀、訓詁、校勘著作。',
+  '古易之屬':'研究漢代以前古易學（如帛書《周易》）的著作。',
+  '書序之屬':'《尚書》各篇序文的研究著作。',
+  '逸書之屬':'輯錄已失傳《尚書》篇章的著作。',
+  '詩序之屬':'《詩經》序文（大序、小序）的研究著作。',
+  '三家詩之屬':'齊、魯、韓三家詩的輯佚與研究著作。',
+  '詩譜之屬':'《詩經》篇目年代譜系的著作。',
+  '通禮':'通論禮制的綜合性禮學著作，不限於某一禮經。',
+  '雜禮書':'私家禮儀、鄉約、家禮等雜禮著作。',
+  '律呂之屬':'研究樂律、音律理論的著作。',
+  '樂理之屬':'音樂理論、樂制研究的著作。',
+  '凡例之屬':'研究經書注釋體例、書法的著作。',
+  '緯書之屬':'讖緯類著作，附會經義言災異吉凶。',
+  '沿革之屬':'研究某學術領域歷史演變的著作。',
+  '叢編之屬':'該類目之下的叢書、彙編著作。',
+  '石經之屬':'石刻經文的拓本、釋文、考證著作。',
+  '群經總義類':'通論諸經的綜合性經學著作。',
+  '經濟':'經世濟民的政論、時務著作。',
+  '性理':'宋明理學家關於心性、天理的著作。',
+  '禮教':'儒家禮儀教化、修身養性類著作。',
+  '譜録類':'器物、草木、飲饌、蟲魚等譜錄著作（2025版新增）。',
+  '附錄之屬':'附錄性質的補充資料彙編。',
+  '名物制度之屬':'考證禮儀名物、典章制度的著作。',
+  '三禮圖之屬':'以圖譜解說三禮儀節、器物的著作。',
+  '目録之屬':'目錄、索引類工具性著作。',
+  '論説之屬':'論述、評說性質的著作。',
+  '通紀':'通代記載的史書或典制。',
+  '專志':'專門記載某一領域制度沿革的著作。',
+  '官制':'官職設置、沿革的著作。',
+  '官箴':'為官之道的箴言、規誡著作。',
+  '邦計之屬':'國家財政、經濟管理類著作。',
+  '軍政之屬':'軍事制度、邊防海防類著作。',
+  '刑法之屬':'刑法制度、律例判牘類著作。',
+  '考工之屬':'工程營造、器物製作類著作。',
+  '掌故瑣記之屬':'掌故軼事、筆記雜錄。',
+  '詔令之屬':'帝王頒佈的詔書、敕令。',
+  '奏議之屬':'朝臣上奏的章表、奏議。',
+  '公牘之屬':'官府往來公文、移牒。',
+  '總志之屬':'全國性或區域性總志。',
+  '方志之屬':'地方志書。',
+  '雜志之屬':'雜記地理、風土的著作。',
+  '山水之屬':'山水志、名勝志、遊記等。',
+  '專志之屬':'專門記載某類地理的著作（宮殿、園亭、寺觀、祠墓、書院等）。',
+  '遊記之屬':'紀行、紀勝類遊記著作。',
+  '中外雜紀之屬':'記述域外地理、風土的著作。',
+  '通論之屬':'目錄學通論、義例、考訂著作。',
+  '總錄之屬':'綜合性書目、史志目錄、公私藏書目。',
+  '書志之屬':'解題、提要、題跋類著作。',
+  '專錄之屬':'某一專題、專門的目錄著作。',
+  '版刻之屬':'版本目錄、書影版式類著作。',
+  '索引之屬':'字詞索引、篇目索引等工具。',
+  '金之屬':'青銅器銘文、拓本、考證著作。',
+  '石之屬':'碑刻、墓誌、摩崖等石刻文字著作。',
+  '錢幣之屬':'歷代錢幣圖錄、考證著作。',
+  '璽印之屬':'歷代印章、封泥的著錄與考證。',
+  '甲骨之屬':'甲骨文拓片、釋文、考證著作。',
+  '簡牘之屬':'簡牘帛書的圖版、釋文、研究著作。',
+  '玉之屬':'玉器銘文、圖錄類著作。',
+  '陶之屬':'陶文、磚瓦文字類著作。',
+  '圖像之屬':'以圖像為主的著錄。',
+  '文字之屬':'以文字考釋為主的金石著作。',
+  '通考之屬':'金石通論、綜合性考證著作。',
+  '題跋之屬':'金石拓片的題跋、觀款等。',
+  '雜著之屬':'金石雜記、隨筆等著作。',
+  '義法之屬':'論述史學理論、史書體例的著作。',
+  '議論之屬':'評論史事得失的著作。',
+  '考訂之屬':'考證史實真偽的著作。',
+  '詠史之屬':'以詩歌等形式詠歎史事的著作。',
+  '通錄之屬':'彙錄多人的綜合性傳記。',
+  '專錄之屬':'某一特定群體的專門傳記。',
+  '雜錄之屬':'日記、瑣記等雜錄性傳記資料。',
+  '日記之屬':'個人日記類著作。',
+  '瑣記之屬':'雜記瑣事的筆記類著作。',
+  '家乘之屬':'家族譜牒、家傳類著作。',
+  '姓名之屬':'姓氏、名字、別號等工具書。',
+  '科舉學校之屬':'科舉制度、學校教育類著作。',
+  '典禮之屬':'國家典禮儀制類著作。',
+  '通制之屬':'通論典章制度的著作。',
+  '儀制之屬':'禮儀制度類著作。',
+  '邦交之屬':'外交、國際關係類著作。',
+  '營田之屬':'屯田、營田類著作。',
+  '賦税之屬':'田賦、稅收制度類著作。',
+  '貿易之屬':'商業貿易類著作。',
+  '漕運鹽法之屬':'漕運、鹽政制度類著作。',
+  '貨幣之屬':'貨幣制度、錢法類著作。',
+  '户籍之屬':'戶口、戶籍制度類著作。',
+  '荒政之屬':'救荒、賑災類著作。',
+  '兵制之屬':'軍事編制、兵役制度類著作。',
+  '馬政之屬':'馬匹養殖、管理類著作。',
+  '保甲團練之屬':'地方治安、團練類著作。',
+  '江防海防之屬':'江防、海防類軍事著作。',
+  '邊政之屬':'邊疆治理類著作。',
+  '刑制之屬':'刑罰制度類著作。',
+  '律例之屬':'法律條文、判例彙編。',
+  '檢驗之屬':'司法檢驗、驗屍類著作。',
+  '治獄之屬':'審判、獄政管理類著作。',
+  '判牘之屬':'判詞、案例彙編。',
+  '營造之屬':'建築、營造技術類著作。',
+  '漢魏六朝别集':'漢、三國、晉、南北朝時期個人詩文集。',
+  '唐五代别集':'唐代及五代時期個人詩文集。',
+  '宋别集':'宋代個人詩文集。',
+  '金别集':'金代個人詩文集。',
+  '元别集':'元代個人詩文集。',
+  '明别集':'明代個人詩文集。',
+  '清别集':'清代個人詩文集。',
+  '史志':'史書中的藝文志、經籍志等目錄。',
+  '諸國史':'記述各國歷史的著作。',
+  '傳記':'人物傳記類著作（附新學類下）。',
+  '政法':'政治法律類新學著作。',
+  '軍事':'軍事科學類新學著作。',
+  '經濟類':'經濟學類新學著作。',
+  '教育':'教育學類新學著作。',
+  '哲學':'哲學類新學著作。',
+  '宗教':'宗教類新學著作。',
+  '自然科學':'自然科學類新學著作。',
+  '應用科學':'應用技術類新學著作。',
+  '語言文字':'語言學、文字學類新學著作。',
+  '文學':'文學類新學著作。',
+  '藝術':'藝術類新學著作。',
+  '歷史地理':'歷史地理類新學著作。',
+};
+
+const L3E={/* L3 examples */
+  '正文之屬':'《周易》白文本、《相臺五經》','傳説之屬':'《周易正義》《易傳》',
+  '圖説之屬':'《易圖說》《周易圖》','分篇之屬':'《禹貢指南》《洪範口義》',
+  '專著之屬':'《易學象數論》《易漢學》','易例之屬':'《周易義例》',
+  '易占之屬':'《焦氏易林》《京氏易傳》','文字音義之屬':'《經典釋文·周易音義》《周易音訓》',
+  '古易之屬':'《子夏易傳》輯本','書序之屬':'《尚書序》《書序考》',
+  '逸書之屬':'《尚書逸文》《古文尚書考》','詩序之屬':'《詩序》《毛詩序義》',
+  '通禮':'《禮書》《禮經會元》','雜禮書':'《朱子家禮》《司馬氏書儀》',
+  '律呂之屬':'《律呂新書》《樂律全書》','石經之屬':'《漢石經殘字》《唐石經》',
+  '經濟':'《皇朝經世文編》《校邠廬抗議》','性理':'《近思錄》《性理大全》',
+  '禮教':'《顏氏家訓》《袁氏世範》','譜録類':'《茶經》《考古圖》《洛陽牡丹記》',
+  '漢魏六朝别集':'《曹子建集》《陶淵明集》','唐五代别集':'《李太白集》《杜工部集》',
+  '宋别集':'《東坡全集》《臨川集》','金别集':'《遺山集》《滏水集》',
+  '元别集':'《靜修集》《道園學古錄》','明别集':'《遜志齋集》《弇州山人稿》',
+  '清别集':'《帶經堂集》《惜抱軒文集》',
+};
+
+const CAT_DESC={
+  '經部':'收錄儒家經典及其注疏、訓詁之著作。爲四部之首，亦稱甲部。',
+  '易類':'收錄《周易》經傳及其歷代注解、圖說、占筮等相關著作。',
+  '書類':'收錄《尚書》（《書經》）及其歷代注解、考證等著作。',
+  '詩類':'收錄《詩經》及其歷代注解、考證等著作。',
+  '周禮類':'收錄《周禮》（《周官》）及其注疏研究著作。',
+  '儀禮類':'收錄《儀禮》及其注解、圖說等著作。',
+  '禮記類':'收錄《禮記》及其注解研究著作。',
+  '大戴禮記類':'收錄《大戴禮記》及其注解研究著作。',
+  '三禮總義類':'收錄通論《周禮》《儀禮》《禮記》三書的綜合性著作。',
+  '通禮':'收錄通論禮制的著作，不分某經專論者。',
+  '雜禮書':'收錄私家禮書、鄉約、家禮等雜禮著作。',
+  '樂類':'收錄音樂理論、樂譜、樂律等著作。',
+  '春秋左傳類':'收錄《春秋左氏傳》及其注解研究著作。',
+  '春秋公羊傳類':'收錄《春秋公羊傳》及其注解研究著作。',
+  '春秋穀梁傳類':'收錄《春秋穀梁傳》及其注解研究著作。',
+  '春秋總義類':'收錄通論春秋三傳的綜合性著作。',
+  '孝經類':'收錄《孝經》及其注解研究著作。',
+  '四書類':'收錄《大學》《中庸》《論語》《孟子》及其注解著作。',
+  '群經總義類':'收錄通論諸經的綜合性著作。',
+  '小學類':'收錄文字、音韻、訓詁之學的著作。',
+  '史部':'收錄歷史、地理、政書、目錄等著作。亦稱乙部。',
+  '紀傳類':'收錄紀傳體史書，如《史記》《漢書》等正史。',
+  '編年類':'收錄編年體史書，如《資治通鑑》等。',
+  '紀事本末類':'收錄紀事本末體史書，按事件始末記述。',
+  '雜史類':'收錄體例不純的雜史著作。',
+  '載記類':'收錄偏霸割據政權的史書。',
+  '史表類':'收錄史書中的表譜類著作。',
+  '史抄類':'收錄摘抄史書而成的著作。',
+  '史評類':'收錄評論史事、史書的著作。',
+  '傳記類':'收錄人物傳記、年譜等著作。',
+  '政書類':'收錄典章制度類著作，如「十通」。',
+  '職官類':'收錄官制、官箴等著作。',
+  '詔令奏議類':'收錄帝王詔令及臣僚奏議。',
+  '時令類':'收錄歲時節令、月令等著作。',
+  '地理類':'收錄方志、山水志、遊記、邊疆地理等著作。',
+  '金石類':'收錄金石文字、碑刻拓本等著作。',
+  '目錄類':'收錄書目、題跋等目錄學著作。',
+  '子部':'收錄諸子百家、宗教、科技、藝術等著作。亦稱丙部。',
+  '儒家類':'收錄儒家學者著作（十三經以外），如《荀子》《朱子語類》。',
+  '道家類':'收錄道家著作，如《老子》《莊子》。',
+  '墨家類':'收錄墨家著作，如《墨子》。',
+  '名家類':'收錄名家（形名學）著作，如《公孫龍子》。',
+  '縱橫家類':'收錄縱橫家著作，如《鬼谷子》。',
+  '兵家類':'收錄軍事理論、兵法著作，如《孫子兵法》。',
+  '法家類':'收錄法家著作，如《韓非子》《商君書》。',
+  '農家農學類':'收錄農業技術、農書等著作，如《齊民要術》。',
+  '醫家類':'收錄中醫藥學著作，如《黃帝內經》《本草綱目》。',
+  '雜家類':'收錄兼收諸家之說的著作，如《呂氏春秋》《淮南子》。',
+  '小說家類':'收錄筆記小說、志怪、傳奇等著作。',
+  '天文曆算類':'收錄天文、曆法、數學著作，如《九章算術》。',
+  '術數類':'收錄占卜、命理、堪輿等著作。',
+  '藝術類':'收錄書畫、篆刻、琴譜等藝術著作。',
+  '工藝類':'收錄手工業技術、器用製作等著作，如《天工開物》。',
+  '譜録類':'收錄器物、草木、飲饌等譜錄著作（2025版新增）。',
+  '宗教類':'收錄佛道等宗教著作（不含道藏、漢譯佛經正文）。',
+  '集部':'收錄詩文總集、別集、詩文評、詞曲等文學著作。亦稱丁部。',
+  '楚辭類':'收錄屈原、宋玉等楚辭體作品及注釋。',
+  '別集類':'收錄個人詩文集，如《李太白集》《杜工部集》。',
+  '總集類':'收錄多人詩文合集，如《文選》《全唐詩》。',
+  '詩文評類':'收錄文學批評、詩話、文話等著作。',
+  '詞類':'收錄詞總集、別集、詞譜、詞話等著作。',
+  '曲類':'收錄散曲、劇曲等著作。',
+  '戲劇類':'收錄雜劇、傳奇等戲劇文本。',
+  '小說類':'收錄章回小說等白話小說著作（集部）。',
+  '類叢部':'收錄類書與叢書兩大類，爲工具性彙編著作。',
+  '類書類':'收錄分類彙編資料的工具書，如《太平御覽》《永樂大典》。',
+  '叢書類':'收錄彙集多種獨立著作的叢書，如《四庫全書》《四部叢刊》。',
+  '附新學類':'收錄清末民初引進的西學、新學著作，爲補充類目，不屬於傳統經史子集類叢五部分類體系。'
+};
+
+function descFor(name){
+  if(L3D[name])return L3D[name];
+  // Generate descriptions for 之屬 patterns
+  if(name.endsWith('之屬')||name.endsWith('之部')){
+    const base=name.replace(/[之屬之部]/g,'');
+    if(base.includes('文字音義'))return '經書文字的音讀、訓詁、校勘著作。';
+    if(base.includes('傳說')||base.includes('傳説'))return '歷代注解、闡釋經義的著作。';
+    if(base.includes('正文'))return '經文白文及校勘本，不含注釋。';
+    if(base.includes('圖說')||base.includes('圖説')||base.includes('圖譜'))return '以圖譜、圖表輔助解說的著作。';
+    if(base.includes('分篇'))return '對經書中某一篇單獨注解的著作。';
+    if(base.includes('專著'))return '就某一專題深入研究的專門著作。';
+    if(base.includes('凡例'))return '研究注釋體例的著作。';
+    if(base.includes('沿革'))return '研究歷史演變沿革的著作。';
+    if(base.includes('叢編'))return '該類目之下的叢書、彙編著作。';
+    if(base.includes('附錄')||base.includes('附录'))return '補充性附錄資料彙編。';
+    return base+'相關的專門著作。';
+  }
+  return CAT_DESC[name]||'';
+}
+
+function exFor(name){return L3E[name]||''}
+
+let catL1='all',catL2='all',$q='';
+
+function renderCat(){
+  let rows='';
+  for(const[l1,l2map]of Object.entries(CATALOG_TREE)){
+    if(catL1!=='all'&&l1!==catL1)continue;
+    const l1m=!$q||l1.includes($q)||(CAT_DESC[l1]||'').includes($q);
+    let l1shown=l1m;
+    let l1rows='';
+    for(const[l2,l3list]of Object.entries(l2map)){
+      if(catL2!=='all'&&l2!==catL2)continue;
+      const l2m=!$q||l2.includes($q)||(CAT_DESC[l2]||'').includes($q);
+      const l2d=CAT_DESC[l2]||'';
+      let l3m=false;
+      if(Array.isArray(l3list))for(const l3 of l3list)if(!$q||l3.includes($q)||(descFor(l3)||'').includes($q)){l3m=true;break}
+      if($q&&!l1m&&!l2m&&!l3m)continue;
+      l1shown=true;
+      const l3html=[];
+      if(Array.isArray(l3list))for(const l3 of l3list){
+        if($q&&!l3.includes($q)&&!(descFor(l3)||'').includes($q)&&!l2m&&!l1m)continue;
+        l3html.push(`<tr class="r-l3"><td></td><td></td><td><div class="l3-name">${hl(l3)}</div></td><td><div class="desc">${sc(descFor(l3))}</div></td><td style="font-style:italic;font-size:.78rem;color:var(--color-accent)">${sc(exFor(l3))}</td></tr>`);
+      }
+      l1rows+=`<tr class="r-l2"><td style="font-weight:600">${hl(l2)}</td><td>${sc(l2d)}</td><td></td><td></td><td></td></tr>${l3html.join('')}`;
+    }
+    if(l1shown||!$q){
+      rows+=`<tr class="r-l1"><td colspan="5">${hl(l1)}<span style="font-weight:400;font-size:.78rem;color:var(--color-text-secondary);margin-left:.5rem">${sc(CAT_DESC[l1]||'')}</span></td></tr>${l1rows}`;
+    }
+  }
+  
+  document.getElementById('m').innerHTML=`
+    <div class="tab-content active">
+      <div class="cat-toolbar">
+        <button class="cfb${catL1==='all'?' active':''}" data-f="all" data-type="l1">全部</button>
+        <button class="cfb${catL1==='經部'?' active':''}" data-f="經部" data-type="l1">經部</button>
+        <button class="cfb${catL1==='史部'?' active':''}" data-f="史部" data-type="l1">史部</button>
+        <button class="cfb${catL1==='子部'?' active':''}" data-f="子部" data-type="l1">子部</button>
+        <button class="cfb${catL1==='集部'?' active':''}" data-f="集部" data-type="l1">集部</button>
+        <button class="cfb${catL1==='類叢部'?' active':''}" data-f="類叢部" data-type="l1">類叢部</button>
+        <button class="cfb${catL1==='附新學類'?' active':''}" data-f="附新學類" data-type="l1">新學類</button>
+        <span style="color:var(--color-text-muted);font-size:.8rem;margin:0 .5rem">|</span>
+        <span style="font-size:.78rem;color:var(--color-text-secondary)">二級：</span>
+        <select class="cfb" id="l2sel" style="max-width:160px"><option value="all"${catL2==='all'?' selected':''}>全部二級</option></select>
+        <input type="text" class="cs" id="csi" placeholder="檢索類目名稱……" value="${sc($q)}" autocomplete="off">
+      </div>
+      <div style="max-height:calc(100vh - 240px);overflow-y:auto">
+      <table class="ctbl">
+        <thead><tr><th style="width:10%">二級類目</th><th style="width:28%">二級收錄說明</th><th style="width:12%">三級類目</th><th style="width:38%">三級收錄說明</th><th style="width:12%">典型文獻</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+    </div>`;
+  
+  // Populate L2 dropdown based on current L1 filter
+  const l2sel=document.getElementById('l2sel');
+  const l2set=new Set();
+  for(const[l1,l2map]of Object.entries(CATALOG_TREE)){
+    if(catL1!=='all'&&l1!==catL1)continue;
+    for(const l2 of Object.keys(l2map))l2set.add(l2);
+  }
+  [...l2set].sort((a,b)=>a.localeCompare(b,'zh')).forEach(l2=>{
+    const opt=document.createElement('option');opt.value=l2;opt.textContent=l2;
+    if(l2===catL2)opt.selected=true;l2sel.appendChild(opt);
+  });
+  
+  document.querySelectorAll('.cfb[data-type="l1"]').forEach(b=>b.addEventListener('click',function(){
+    catL1=this.dataset.f;catL2='all';$q='';renderCat();
+  }));
+  l2sel.addEventListener('change',function(){catL2=this.value;renderCat()});
+  document.getElementById('csi').addEventListener('input',function(){$q=this.value.trim();renderCat()});
+}
+
+function hl(t){return $q?t.replace(new RegExp('('+$q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark class="doc-hl">$1</mark>'):t}
+})();
+</script>
+</body>
+</html>

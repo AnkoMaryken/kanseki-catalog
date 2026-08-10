@@ -1,0 +1,392 @@
+[
+  {
+    "text": "编目工作细则",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "（2023.09修订稿）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "1.编目工作的对象主要是1912年之前手写、刊刻、排印、石印的，主要责任者为中国人的汉文文献（也包括这些文献的日本刻本、朝鲜刻本），包括道藏和汉译佛经。特种文献（如公文、契约、账单、地图、拓片等）、中国少数民族语文文献（如满文、藏文、蒙文等文献）的调查工作将在条件成熟时开展。如调查人员有相应工作基础，可先行开展部分调查工作。民国时期著名学者的手稿，下限可适当放宽至1930年代。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "2.应在实地调查、目验全部藏书的基础上，开展编目工作。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "3.目录分类采取经、史、子、集、类丛五部分类",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "经部：丛编 易类 书类 诗类 周礼类 仪礼类 礼记类 大戴礼记类 三礼总义类 乐类 春秋左传类 春秋公羊传类 春秋谷梁传类 春秋总义类 孝经类 四书类 群经总义类 小学类 谶纬类",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "史部：丛编 纪传类 编年类 纪事本末类 杂史类 载记类 史表类 史抄类 史评类 传记类 政书类 职官类 诏令奏议类 时令类 地理类 金石类 目录类",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "子部：丛编 儒家类 道家类 墨家类 名家类 纵横家类 兵家类 法家类 农家农学类 医家类 杂家类 杂著类 小说家类 天文历算类 术数类 艺术类 工艺类 宗教类 新学类",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "集部：丛编 楚辞类 别集类 总集类 诗文评类 词类 曲类 戏剧类 小说类",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "类丛部：类书类 丛书类",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "4.所有条目皆以繁体中文录入（除非有所特指，不使用日本汉字），著录项目包含以下10项内容（前9项必须著录，第10项可以根据实际情况自行选择）：",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（1）书名：以卷一大题为准（酌情参考序题、题签、扉页题，以及历代书目著录的通行书名），地方志、登科录、缙绅录等文献需著录纂修年代（原书已有的按原书著录，原书没有的应查考出年代）于书前，如（万历）绩溪县志、（康熙十六年）乡试录。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（2）卷数：注明该书应有的卷数，如原书不分卷，可直接著录为“不分卷”。如有残缺，参见（6）②。章回小说、戏曲等书，应同时著录卷数及章、回、折、出数。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（3）索书号。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（4）著者注者及著作方式：著者注者需参考本书卷端，但最终要结合历代书目和数据库著录的该书通行的作者、注者著录。姓名前须以“〔〕”括注朝代（其中西汉与东汉，北宋与南宋不作具体区分，而径用〔汉〕〔宋〕著录，但三国魏、蜀、吴需分别著录为〔三国魏〕〔三国蜀〕〔三国吴〕，南朝著录为〔南朝宋〕〔南朝齐〕〔南朝梁〕〔南朝陈〕，北朝著录为〔北魏〕〔北齐〕〔北周〕等），如著者非中国人，则以“（）”括注国籍，如（日本）（英国）；著者注者按通行的姓名著录，除以字号行世者外，一般不取字号别称；撰作方式按撰、编、辑、修等类别著录；注者方式按注、疏、校、重订等类别著录；特殊格式可依原题著录。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（5）版本：包括出版时代（年号纪年后括注公元纪年）、出版地（据原书客观著录，不必转化为现地名）、出版者（出版商）、出版方式（刻本、活字本、抄本、稿本、套印本、饾版印本、石印本、珂罗版印本、排印本等）。如果是翻刻或重刻，则应注明，如“日本延享二年（1745）翻刻明世德堂本”。版本项应有完整清晰的表述，如“清康熙四十一年（1702）席氏琴川書屋刻本”。如果是丛书零种，须注明丛书名；如有配补，需注明配补的版本。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（6）函册数与存缺情况：",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "①如果该书是完整的，须注明函册数。只有1函时，用“多少册1函”的字样表示；有2函以上时，用“第1函多少册，第2函多少册……”的字样表示；若是没有函套，只需注明册数即可。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "②如果该书有残缺，所缺部分没有超过全书的半数，用“缺卷几”“缺卷几、卷几……”“缺卷几-几”等字样表示；如果所缺部分超过半数，用“存卷几”“存卷几、卷几……”“存卷几-几”等字样表示。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "（7）版式：以“x行x字，小字双行同（或不等）”的形式注明半页行款，著录版心信息（如鱼尾、字数、刻工等）、边框、版框高广（以厘米为测量单位注明卷首首页半页板框的高度和宽度，非整书尺寸）等信息（也可视不同情况采用加专用标尺拍照的方式替代完成）；",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（8）扉页刊记：扉页题识（依次按照书名、作者、版元、年代的顺序著录，如：扉页刻“四书体朱讲义正宗全解；宛陵高溪胡期仙先生著；天郡宝翰楼梓；康熙辛未年镌”），刻书刊记（包括牌记、和刻本书尾刊记等）等信息。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（9）是否有纸背文献（无则不著录）。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "（10）附录：著录序跋信息（只节录重要内容）、纸张材质、批校、题跋、钤印等信息。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "5. 在同一类目中，各书按作者时代前后排序。同一时代的作者，按生卒年前后排序。先按生年前后排序，生年不详者，再按卒年前后排序。生卒年皆不详者，按成书先后排序。成书年亦不详者，按作者的大致活动时期排序。同一种书按版本产生的时代先后排序。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "6.自拟书名（应先查考历代书目和数据库）应以方括弧标明，如“[刑盗贼]”。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "7.如无法确定撰者（应先查考历代书目和数据库），则著录“佚名撰”。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "8.如无法确定具体刊刻、抄写时间，则不需括注公元纪年，如“明末刻本”“清乾隆刻本”“日本江户时代刻本”“朝鲜活字本”“日本平安时代写本”。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "9.丛书（包括道藏、佛藏）须在丛书名后一一注明其中的子目（参照以下例文），如为丛书零种，则不作为丛书著录，仅在经、史、子、集四部中著录。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "10.正确使用中文古籍著录用语和格式，可参照《美国哈佛大学哈佛燕京图书馆藏中文善本书志》、《中国古籍善本书目》，避免出现如“表纸”、“落张”等日本、韩国书志用语。对版本的著录应文字流畅、富有逻辑性，如不能著录为“西江米巷: 寿藤书屋 清道光7(1827)刊 刻本”而应该著录为“清道光七年（1827）京师西江米巷寿藤书屋刻本”；对著者的著录应厘清著者、编者、注者、辑者的关系，同时参照数据库，查询通行的著者，如《中庸章句大全》 不能著录为“宋朱熹集注”，而应该著录为“明胡广等奉敕辑”。",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "参考格式（要求繁体字著录，不得使用新体日文汉字等）：",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "书名/卷数：          索书号：",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "〔撰者时代〕撰（编、辑、修）者：   〔注者时代〕注（疏、校、重订）者：",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "出版时代：   出版地/出版者：  刻本（抄本、活字本、套印本、石印本等；如是翻刻应注明“翻刻某本”；如是日本刻本、朝鲜刻本也应标注）有无配补（根据实际情况，可著录装帧特点，如五孔装等）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "X册（缺存情况：缺第X卷 或 存第X卷）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "单节版：半页X行X字，小字双行同/不等（眉上鎸评／注，行X字）；",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "两节版：上下两栏，上栏行X字，下栏X行X字；",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "白口（或黑口）        鱼尾：（单黑鱼尾、双黑鱼尾、花鱼尾、白鱼尾）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "版框（左右双边、四周单边、四周双边） 版框高广（半页）：框高Xcm，寛Xcm；",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "版心鎸（字数/书名/卷次/页次/刻工/出版者）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "扉页鎸有XX ，有刊记：XX（根据实际情况）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "是否有纸背文献（无则不著录）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "附录：酌情著录序跋信息、书签书名、纸张材质、藏书印、前人批点校语跋语、是否有日文假名或谚文等信息。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "实例",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "（1）单书：",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "後漢書九十卷志三十卷  Chinois 37-39",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "〔南朝宋〕范曄撰，〔唐〕李賢注",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "明崇禎十六年（1643）常熟毛氏汲古閣刻本，配清抄本",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "26冊（缺第2卷）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "12行25字，小字雙行不等，眉上鎸評，行5字，白口，單黑魚尾，左右雙邊（框高21.7cm，寛15.3cm）。版心上鎸“汲古閣”，下鎸“毛氏正本”。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "扉页鎸“皇明崇禎十有二年歳在屠維單閼弦月；重九琴川毛氏開雕”，卷首卷末鎸有“琴川毛鳳苞氏審定宋本”長方牌記。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "有藏書印“樹經堂藏書”（朱文方印）。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "讀禮説三卷",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "〔清〕吕宣曾撰",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "清乾隆吕公滋刻本",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "10冊",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "9行20字，眉上鎸注，行4字，白口，單黑魚尾，四周雙邊（框高19cm，寬13.7cm）。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "版心上鎸“讀禮説”，下鎸卷次，頁次。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "扉頁鎸“讀禮説；新安吕楊祖著，男公滋敬刊；望柏堂藏板”。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "前有乾隆五年（1740）方楘如序，乾隆十二年（1747）王文清序等。",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "（2）丛书：",
+    "style": "Normal",
+    "is_heading": true
+  },
+  {
+    "text": "十三經注疏三百三十三卷",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "明崇禎毛氏汲古閣刻本",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "160册（缺《毛詩注疏》第3-4卷）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "9行21字，小字雙行同，白口，無魚尾，左右雙邊（框高21cm，寛16cm）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "版心下鎸“汲古閣”",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "前有崇禎十二年序",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "有藏書印“鎮江揚州寧國三郡太守”（朱文方印）",
+    "style": "Normal",
+    "is_heading": false
+  },
+  {
+    "text": "周易兼義九卷　魏王弼注　唐孔穎達正義",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "尚書注疏二十卷　漢孔安國傳　唐孔穎達疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "周禮注疏四十二卷　漢鄭玄注　唐陸德明音義　唐賈公彦疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "儀禮注疏十七卷　漢鄭玄注　唐賈公彦疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "禮記注疏六十三卷　漢鄭玄注　唐孔穎達疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "春秋左傳注疏存卷一至卷十八卷二十至卷六十　晉杜預注　唐陸德明音義",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "唐孔穎達疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "春秋公羊注疏二十八卷　漢何休注 唐徐彦疏 唐陸德明音義",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "春秋穀梁注疏二十卷　晉范甯集解　唐楊士勛疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "論語注疏解經二十卷　魏何晏集解　宋邢昺疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  },
+  {
+    "text": "爾雅注疏十一卷　晉郭璞注、宋邢昺疏",
+    "style": "HTML Preformatted",
+    "is_heading": false
+  }
+]

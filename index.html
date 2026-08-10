@@ -1,0 +1,3467 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="日本汉籍编目工具 — 中日历史纪年对照查询，以公历年份为基准轴，同步展示中国与日本朝代、年号、君主、干支、生肖等完整纪年信息">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<title>日本汉籍编目工具 — 纪年查询</title>
+<style>
+/* ============================================
+   CSS Custom Properties / Design Tokens
+   ============================================ */
+:root {
+  --color-bg: #f7f4ee;
+  --color-bg-alt: #ede8df;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0ece5;
+  --color-primary: #1a2a4a;
+  --color-primary-light: #2d4470;
+  --color-primary-muted: #3d5a8a;
+  --color-accent: #8b6914;
+  --color-accent-light: #b8942c;
+  --color-text: #2d2a26;
+  --color-text-secondary: #5c564d;
+  --color-text-muted: #8a8278;
+  --color-border: #d5cec2;
+  --color-border-light: #e8e2d8;
+  --color-divider: #ebe5da;
+  --color-highlight: #fff3cd;
+  --color-highlight-text: #8b6914;
+  --color-focus-ring: #2d4470;
+  --color-table-stripe: #faf7f1;
+  --color-table-header: #1a2a4a;
+  --color-table-header-text: #e8e2d8;
+  --color-btn-bg: #ffffff;
+  --color-btn-hover: #f0ece5;
+  --color-btn-active: #1a2a4a;
+  --color-btn-active-text: #f7f4ee;
+  --color-input-bg: #ffffff;
+  --color-input-border: #c5bdaa;
+  --color-input-focus: #1a2a4a;
+  --color-shadow: rgba(26, 42, 74, 0.08);
+  --color-shadow-lg: rgba(26, 42, 74, 0.12);
+  --color-overlay: rgba(26, 42, 74, 0.4);
+  --color-scrollbar: #c5bdaa;
+  --color-scrollbar-hover: #8a8278;
+  --color-tag-bg: #ede8df;
+  --color-tag-text: #5c564d;
+  --color-tag-active-bg: #1a2a4a;
+  --color-tag-active-text: #f7f4ee;
+  --color-china-accent: #8b2e1f;
+  --color-japan-accent: #1f5a8b;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 3px var(--color-shadow);
+  --shadow-md: 0 4px 12px var(--color-shadow);
+  --shadow-lg: 0 8px 24px var(--color-shadow-lg);
+  --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', 'STSong', serif;
+  --font-body: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-md: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --color-bg: #1a1c1e;
+  --color-bg-alt: #242629;
+  --color-surface: #2a2d30;
+  --color-surface-hover: #33363a;
+  --color-primary: #8ba4d0;
+  --color-primary-light: #a3b8db;
+  --color-primary-muted: #6b8ab5;
+  --color-accent: #d4a843;
+  --color-accent-light: #e0bc62;
+  --color-text: #e0dcd5;
+  --color-text-secondary: #b0aaa0;
+  --color-text-muted: #7a746c;
+  --color-border: #4a4640;
+  --color-border-light: #3a3632;
+  --color-divider: #3a3632;
+  --color-highlight: #3d3520;
+  --color-highlight-text: #d4a843;
+  --color-focus-ring: #8ba4d0;
+  --color-table-stripe: #242629;
+  --color-table-header: #1a2744;
+  --color-table-header-text: #c5bfb5;
+  --color-btn-bg: #2a2d30;
+  --color-btn-hover: #33363a;
+  --color-btn-active: #8ba4d0;
+  --color-btn-active-text: #1a1c1e;
+  --color-input-bg: #2a2d30;
+  --color-input-border: #4a4640;
+  --color-input-focus: #8ba4d0;
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  --color-shadow-lg: rgba(0, 0, 0, 0.3);
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-scrollbar: #4a4640;
+  --color-scrollbar-hover: #7a746c;
+  --color-tag-bg: #33363a;
+  --color-tag-text: #b0aaa0;
+  --color-tag-active-bg: #8ba4d0;
+  --color-tag-active-text: #1a1c1e;
+}
+
+/* ============================================
+   Reset & Base
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  background: var(--color-bg);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Scrollbar
+   ============================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-scrollbar); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-scrollbar-hover); }
+
+/* ============================================
+   Focus
+   ============================================ */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.3; color: var(--color-primary); }
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: var(--color-text); }
+
+a { color: var(--color-primary-light); text-decoration: none; }
+a:hover { color: var(--color-accent); }
+
+/* ============================================
+   Layout
+   ============================================ */
+.app-container { max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 1.5rem; flex: 1; }
+
+/* ============================================
+   Header / Top Bar
+   ============================================ */
+.app-header {
+  background: var(--color-primary);
+  color: var(--color-table-header-text);
+  padding: 0.78rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.header-brand h1 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8e2d8;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.header-brand .brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 700;
+}
+.header-nav { display: flex; gap: 0.25rem; flex-shrink: 0; }
+.header-nav .nav-link {
+  color: rgba(232,226,216,0.65); text-decoration: none;
+  font-size: 0.85rem; font-weight: 500; font-family: var(--font-body);
+  padding: 0.35rem 0.75rem; border-radius: var(--radius-sm);
+  transition: all var(--transition-fast); white-space: nowrap;
+}
+.header-nav .nav-link:hover { color: #e8e2d8; background: rgba(255,255,255,0.08); }
+.header-nav .nav-link.active { color: #e8e2d8; background: rgba(255,255,255,0.12); font-weight: 600; }
+.header-search {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+}
+.header-search input {
+  width: 100%;
+  padding: 0.38rem 4.5rem 0.38rem 2.75rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  background: rgba(255,255,255,0.1);
+  color: #e8e2d8;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
+}
+.header-search input::placeholder { color: rgba(232,226,216,0.5); }
+.header-search input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.35);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+}
+.header-search .search-btn {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.28rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.header-search .search-btn:hover { background: var(--color-accent-light); }
+.header-search .search-btn:active { transform: translateY(-50%) scale(0.95); }
+.header-search .search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(232,226,216,0.6);
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+}
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 200;
+}
+.search-suggestions.active { display: block; }
+.search-suggestion-item {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--color-divider);
+}
+.search-suggestion-item:last-child { border-bottom: none; }
+.search-suggestion-item:hover, .search-suggestion-item.focused { background: var(--color-surface-hover); }
+.search-suggestion-item mark { background: var(--color-highlight); color: var(--color-highlight-text); padding: 0 2px; border-radius: 2px; font-weight: 600; }
+
+.header-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+/* 简繁切换 segmented control */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.lang-switch button {
+  border: none;
+  background: transparent;
+  color: rgba(232,226,216,0.55);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1;
+  white-space: nowrap;
+}
+.lang-switch button:hover { color: #e8e2d8; background: rgba(255,255,255,0.1); }
+.lang-switch button.active {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-icon {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: rgba(232,226,216,0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  font-size: 1.1rem;
+}
+.btn-icon:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); }
+.btn-icon:active { transform: scale(0.95); }
+
+/* ============================================
+   Filter Bar
+   ============================================ */
+.filter-bar {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+  box-shadow: var(--shadow-sm);
+}
+.filter-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  min-width: 60px;
+}
+.filter-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.filter-tag {
+  padding: 0.3rem 0.7rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+.filter-tag:hover { border-color: var(--color-primary-muted); background: var(--color-surface-hover); }
+.filter-tag.active {
+  background: var(--color-tag-active-bg);
+  color: var(--color-tag-active-text);
+  border-color: var(--color-tag-active-bg);
+}
+.filter-tag.china.active { background: var(--color-china-accent); border-color: var(--color-china-accent); }
+.filter-tag.japan.active { background: var(--color-japan-accent); border-color: var(--color-japan-accent); }
+.filter-clear {
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.filter-clear:hover { background: var(--color-surface-hover); color: var(--color-text); border-color: var(--color-text-muted); }
+
+/* Mobile filter toggle */
+.filter-toggle-mobile {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-btn-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.filter-toggle-mobile:hover { background: var(--color-btn-hover); }
+
+/* Mobile filter panel */
+.filter-panel-mobile {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--color-surface);
+  z-index: 300;
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform var(--transition-md);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.filter-panel-mobile.open { transform: translateX(0); }
+.filter-panel-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 299;
+}
+.filter-panel-overlay.open { display: block; }
+.filter-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.filter-panel-header h3 { font-size: 1.1rem; }
+.filter-panel-section { margin-bottom: 1.5rem; }
+
+/* ============================================
+   Stats Bar
+   ============================================ */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.stats-info {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+.stats-info strong { color: var(--color-primary); font-weight: 600; }
+[data-theme="dark"] .stats-info strong { color: var(--color-accent); }
+
+.stats-actions { display: flex; align-items: center; gap: 0.5rem; }
+.btn {
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-btn-bg);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.btn:hover { background: var(--color-btn-hover); border-color: var(--color-text-muted); }
+.btn:active { transform: scale(0.97); }
+.btn.active { background: var(--color-btn-active); color: var(--color-btn-active-text); border-color: var(--color-btn-active); }
+
+.per-page-select {
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-btn-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* ============================================
+   Table
+   ============================================ */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+  table-layout: auto;
+}
+.table-wrapper thead { position: sticky; top: 0; z-index: 10; }
+.table-wrapper th {
+  background: var(--color-table-header);
+  color: var(--color-table-header-text);
+  padding: 0.7rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  letter-spacing: 0.02em;
+}
+.table-wrapper th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast);
+}
+.table-wrapper th.sortable:hover { background: var(--color-primary-light); }
+.table-wrapper th .sort-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+.table-wrapper th .sort-arrow.active { opacity: 1; }
+.table-wrapper th.col-year { min-width: 80px; text-align: center; position: sticky; left: 0; z-index: 15; }
+.table-wrapper th.col-ganzhi { min-width: 70px; text-align: center; }
+.table-wrapper th.col-zodiac { min-width: 60px; text-align: center; }
+.table-wrapper th.col-cn-dynasty { min-width: 100px; }
+.table-wrapper th.col-cn-era { min-width: 140px; }
+.table-wrapper th.col-cn-ruler { min-width: 80px; }
+.table-wrapper th.col-jp-period { min-width: 80px; }
+.table-wrapper th.col-jp-era { min-width: 140px; }
+.table-wrapper th.col-jp-ruler { min-width: 90px; }
+.table-wrapper th.col-notes { min-width: 180px; }
+
+.table-wrapper td {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--color-divider);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.table-wrapper tbody tr:nth-child(even) td { background: var(--color-table-stripe); }
+.table-wrapper tbody tr:hover td { background: var(--color-surface-hover); }
+.table-wrapper tbody tr:last-child td { border-bottom: none; }
+
+/* Column-specific */
+td.cell-year {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-primary);
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 5;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+}
+[data-theme="dark"] td.cell-year { color: var(--color-accent); }
+tbody tr:nth-child(even) td.cell-year { background: var(--color-table-stripe); }
+tbody tr:hover td.cell-year { background: var(--color-surface-hover); }
+td.cell-ganzhi { text-align: center; font-weight: 500; }
+td.cell-zodiac { text-align: center; }
+td.cell-cn-dynasty { font-weight: 500; }
+td.cell-cn-era { font-weight: 600; color: var(--color-china-accent); }
+td.cell-jp-era { font-weight: 600; color: var(--color-japan-accent); }
+td.cell-notes { font-size: 0.8rem; color: var(--color-text-secondary); }
+
+/* Multi-era divider */
+.era-divider {
+  border-top: 1px dashed var(--color-border);
+  margin: 3px 0;
+}
+.era-entry { padding: 2px 0; position: relative; display: inline-flex; align-items: center; gap: 3px; }
+.era-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+  padding: 0;
+  flex-shrink: 0;
+}
+tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
+.era-copy-btn:hover {
+  background: var(--color-btn-hover);
+  border-color: var(--color-border);
+  color: var(--color-primary);
+}
+.era-copy-btn:active { transform: scale(0.85); }
+.era-copy-btn.copied { color: var(--color-accent); border-color: var(--color-accent); background: var(--color-highlight); }
+
+/* ============================================
+   Knowledge Panel — 书画纪时常识悬浮模块
+   ============================================ */
+.knowledge-btn {
+  position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 200;
+  width: 42px; height: 42px;
+  min-width: 42px; max-width: 180px;
+  border-radius: 100px;
+  background: var(--color-primary);
+  color: var(--color-table-header-text);
+  border: none; cursor: pointer;
+  font-family: var(--font-body); font-size: 0.8rem;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.35rem; padding: 0;
+}
+.knowledge-btn .kb-text { max-width: 0; overflow: hidden; opacity: 0; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.knowledge-btn .kb-icon { flex-shrink: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; }
+.knowledge-btn:hover { width: auto; min-width: 170px; padding: 0 0.85rem; background: var(--color-primary-light); }
+.knowledge-btn:hover .kb-text { max-width: 140px; opacity: 1; }
+.knowledge-btn.locked { background: var(--color-accent); }
+
+.knowledge-panel {
+  position: fixed; bottom: 5rem; right: 7rem; z-index: 190;
+  width: 680px; max-width: calc(100vw - 8rem);
+  max-height: 80vh;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px var(--color-shadow-lg);
+  display: flex;
+  opacity: 0; visibility: hidden;
+  transform: translateX(12px);
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+  overflow: hidden;
+}
+.knowledge-panel.show { opacity: 1; visibility: visible; transform: translateX(0); }
+
+.knowledge-nav {
+  width: 140px; min-width: 120px; flex-shrink: 0;
+  background: var(--color-bg-alt);
+  border-right: 1px solid var(--color-border-light);
+  padding: 0.75rem 0;
+  overflow-y: auto;
+}
+.knowledge-nav-item {
+  display: block; width: 100%;
+  padding: 0.5rem 1rem;
+  border: none; background: none;
+  text-align: left;
+  font-family: var(--font-body); font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+.knowledge-nav-item:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.knowledge-nav-item.active {
+  color: var(--color-primary); font-weight: 600;
+  border-left-color: var(--color-primary); background: var(--color-surface);
+}
+[data-theme="dark"] .knowledge-nav-item.active { color: var(--color-primary-light); border-left-color: var(--color-primary-light); }
+
+.knowledge-content {
+  flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem;
+  min-height: 0;
+}
+.knowledge-content h3 { font-size: 1.1rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-divider); color: var(--color-primary); }
+.knowledge-content h4 { font-size: 0.9rem; margin: 1rem 0 0.5rem; color: var(--color-text); }
+.knowledge-content .sub-section { margin-bottom: 1.2rem; }
+.knowledge-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.82rem; }
+.knowledge-content table td, .knowledge-content table th { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border-light); text-align: left; vertical-align: top; }
+.knowledge-content table th { background: var(--color-bg-alt); font-weight: 600; font-size: 0.78rem; }
+.knowledge-content .kw { font-weight: 700; color: var(--color-primary); }
+.knowledge-content .pinyin { font-size: 0.78rem; color: var(--color-text-muted); margin-left: 2px; }
+
+.knowledge-panel-close { display: none; }
+
+/* Mobile: bottom drawer */
+@media (max-width: 768px) {
+  .knowledge-btn { bottom: 4.5rem; right: 1rem; width: auto; min-width: 42px; padding: 0 0.75rem; }
+  .knowledge-btn .kb-text { max-width: 140px; opacity: 1; }
+  .knowledge-panel {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+    width: 100%; max-width: 100%; max-height: 100vh;
+    border-radius: 0; transform: translateY(100%);
+    flex-direction: column;
+  }
+  .knowledge-panel.show { transform: translateY(0); }
+  .knowledge-nav {
+    width: 100%; min-width: 0; border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
+    display: flex; overflow-x: auto; padding: 0; flex-shrink: 0;
+  }
+  .knowledge-nav-item { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; font-size: 0.78rem; padding: 0.6rem 0.75rem; }
+  .knowledge-nav-item.active { border-left-color: transparent; border-bottom-color: var(--color-primary); }
+  .knowledge-content { padding: 1rem; }
+  .knowledge-panel-close {
+    display: flex !important; align-items: center; justify-content: center;
+    width: 100%; padding: 0.6rem;
+    border: none; background: var(--color-bg-alt);
+    color: var(--color-text); font-family: var(--font-body);
+    font-size: 0.9rem; cursor: pointer;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+mark.search-highlight {
+  background: var(--color-highlight);
+  color: var(--color-highlight-text);
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.empty-state.active { display: flex; }
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+.empty-state h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+.empty-state p {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  max-width: 400px;
+}
+
+/* ============================================
+   Pagination
+   ============================================ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1.5rem 0 2rem;
+  flex-wrap: wrap;
+}
+.pagination .page-btn {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-btn-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0 0.6rem;
+}
+.pagination .page-btn:hover:not(:disabled):not(.active) {
+  background: var(--color-btn-hover);
+  border-color: var(--color-text-muted);
+}
+.pagination .page-btn.active {
+  background: var(--color-btn-active);
+  color: var(--color-btn-active-text);
+  border-color: var(--color-btn-active);
+  font-weight: 600;
+}
+.pagination .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.pagination .page-ellipsis {
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.app-footer {
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border-light);
+  padding: 1.25rem 0;
+  margin-top: auto;
+}
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.footer-notes { line-height: 1.6; }
+.footer-changelog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.footer-changelog-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent-light);
+  background: var(--color-surface-hover);
+}
+
+/* ============================================
+   Export Dialog
+   ============================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(20, 24, 38, 0.45);
+  backdrop-filter: blur(2px);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-divider);
+}
+.modal-head h3 {
+  font-size: 1rem;
+  color: var(--color-primary);
+}
+.modal-close {
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+.modal-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.modal-body { padding: 1rem 1.25rem; }
+.exp-section { margin-bottom: 1rem; }
+.exp-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+.exp-cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.35rem 1rem;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+.exp-col {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  white-space: nowrap;
+}
+.exp-col input { accent-color: var(--color-accent); cursor: pointer; }
+.exp-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.exp-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.exp-btn:hover { border-color: var(--color-accent-light); color: var(--color-accent); }
+.exp-ranges { display: flex; flex-direction: column; gap: 0.35rem; }
+.exp-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+.exp-range input { accent-color: var(--color-accent); cursor: pointer; }
+.exp-count {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  padding: 0.5rem 0.6rem;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--color-divider);
+}
+
+/* ============================================
+   Toast
+   ============================================ */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--color-primary);
+  color: var(--color-table-header-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-lg);
+  z-index: 500;
+  transition: transform var(--transition-md);
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+.loading-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+  align-items: center;
+  justify-content: center;
+}
+.loading-overlay.active { display: flex; }
+[data-theme="dark"] .loading-overlay { background: rgba(26,28,30,0.6); }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 1024px) {
+  .app-container { padding: 0 1rem; }
+  .header-inner { padding: 0 1rem; }
+  .filter-inner { padding: 0 1rem; }
+  .filter-tags { gap: 0.25rem; }
+  .filter-tag { font-size: 0.75rem; padding: 0.25rem 0.55rem; }
+  .table-wrapper { border-radius: var(--radius-sm); }
+  .table-wrapper td, .table-wrapper th { padding: 0.45rem 0.6rem; font-size: 0.8rem; }
+}
+
+@media (max-width: 768px) {
+  .header-brand h1 { font-size: 0.85rem; }
+  .header-brand .brand-icon { width: 28px; height: 28px; font-size: 0.9rem; }
+  .header-search { min-width: 160px; order: 10; flex-basis: 100%; }
+  .header-search input { padding: 0.5rem 0.85rem 0.5rem 2.3rem; font-size: 0.85rem; }
+  
+  .filter-bar { top: auto; position: relative; }
+  .filter-desktop { display: none; }
+  .filter-toggle-mobile { display: flex; }
+  .filter-panel-mobile, .filter-panel-overlay { display: block; }
+  
+  .stats-bar { flex-direction: column; align-items: flex-start; }
+  .stats-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-wrapper table { min-width: 900px; }
+  .table-wrapper td, .table-wrapper th { padding: 0.4rem 0.5rem; font-size: 0.78rem; }
+  
+  .pagination { gap: 0.2rem; }
+  .pagination .page-btn { min-width: 32px; height: 32px; font-size: 0.78rem; }
+  
+  .footer-inner { flex-direction: column; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .header-inner { gap: 0.5rem; }
+  .header-search input { font-size: 0.8rem; }
+  .btn { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+  .btn-icon { width: 34px; height: 34px; }
+  .table-wrapper td, .table-wrapper th { font-size: 0.72rem; padding: 0.35rem 0.4rem; }
+}
+
+/* ============================================
+   Print
+   ============================================ */
+@media print {
+  .app-header, .filter-bar, .stats-bar, .pagination, .app-footer, .btn-icon, .filter-toggle-mobile { display: none !important; }
+  .table-wrapper { box-shadow: none; border: 1px solid #ccc; }
+  body { background: #fff; color: #000; }
+}
+</style>
+</head>
+<body>
+<!-- ============================================
+     Header / Top Bar
+     ============================================ -->
+<header class="app-header" role="banner">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="brand-icon" aria-hidden="true">汉</div>
+      <h1>日本汉籍编目工具</h1>
+    </div>
+    <nav class="header-nav">
+      <a href="guide.html" class="nav-link">使用介绍</a>
+      <a href="index.html" class="nav-link active">纪年查询</a>
+      <a href="catalog.html" class="nav-link">编目规范</a>
+      <a href="changelog.html" class="nav-link">更新日志</a>
+    </nav>
+    <div class="header-search" role="search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="globalSearch" data-placeholder-cn="搜索：公历年份、干支、年号、君主名……" placeholder="搜索：公曆年份、干支、年號、君主名……" aria-label="全局检索" autocomplete="off">
+      <button class="search-btn" id="searchBtn" aria-label="执行搜索" title="搜索并跳转">查找</button>
+      <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="搜索建议"></div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="显示字形切换">
+        <button id="langBtnS" type="button" title="显示简体字">简</button>
+        <button id="langBtnT" class="active" type="button" title="显示繁体字">繁</button>
+      </div>
+      <button class="btn-icon" id="themeToggle" aria-label="切换暗色模式" title="切换暗色/亮色模式">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================
+     Filter Bar (Desktop)
+     ============================================ -->
+<div class="filter-bar filter-desktop" role="region" aria-label="筛选条件">
+  <div class="filter-inner">
+    <div class="filter-group">
+      <span class="filter-label">中国朝代</span>
+      <div class="filter-tags" id="chinaFilterTags"></div>
+    </div>
+    <div class="filter-group" id="cnEraSubFilter" style="display:none;">
+      <span class="filter-label" style="color:var(--color-accent);">年号</span>
+      <div class="filter-tags" id="chinaEraTags"></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">日本时代</span>
+      <div class="filter-tags" id="japanFilterTags"></div>
+    </div>
+    <button class="filter-clear" id="filterClearBtn" aria-label="清空所有筛选">清空筛选</button>
+  </div>
+</div>
+
+<!-- ============================================
+     Mobile Filter Toggle
+     ============================================ -->
+<div class="filter-bar" style="display:none" id="mobileFilterBar">
+  <div class="filter-inner">
+    <button class="filter-toggle-mobile" id="filterToggleMobile" aria-label="打开筛选面板">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+      筛选条件
+    </button>
+    <button class="filter-clear" id="filterClearBtnMobile" aria-label="清空所有筛选">清空</button>
+  </div>
+</div>
+
+<!-- Mobile filter overlay & panel -->
+<div class="filter-panel-overlay" id="filterPanelOverlay"></div>
+<div class="filter-panel-mobile" id="filterPanelMobile" role="dialog" aria-label="筛选面板">
+  <div class="filter-panel-header">
+    <h3>筛选条件</h3>
+    <button class="btn-icon" id="filterPanelClose" aria-label="关闭筛选面板" style="color:var(--color-text);border-color:var(--color-border);background:var(--color-btn-bg);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="filter-panel-section">
+    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-china-accent);">中国朝代</h4>
+    <div class="filter-tags" id="chinaFilterTagsMobile"></div>
+  </div>
+  <div class="filter-panel-section" id="cnEraSubFilterMobile" style="display:none;">
+    <h4 style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--color-accent);">年号筛选</h4>
+    <div class="filter-tags" id="chinaEraTagsMobile"></div>
+  </div>
+  <div class="filter-panel-section">
+    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-japan-accent);">日本时代</h4>
+    <div class="filter-tags" id="japanFilterTagsMobile"></div>
+  </div>
+  <button class="btn" id="filterApplyMobile" style="width:100%;margin-top:1rem;justify-content:center;font-weight:600;">应用筛选</button>
+</div>
+
+<!-- ============================================
+     Main Content
+     ============================================ -->
+<main class="app-container" role="main">
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stats-info" id="statsInfo">
+      共 <strong id="totalCount">0</strong> 条记录
+    </div>
+    <div class="stats-actions">
+      <span style="font-size:0.8rem;color:var(--color-text-secondary);">每页</span>
+      <select class="per-page-select" id="perPageSelect" aria-label="每页显示条数">
+        <option value="20">20条</option>
+        <option value="50" selected>50条</option>
+        <option value="100">100条</option>
+      </select>
+      <button class="btn" id="exportBtn" aria-label="导出为 CSV">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
+    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+    <table role="table" aria-label="中日历史纪年对照表">
+      <thead id="tableHead">
+        <tr role="row">
+          <th class="col-year sortable" data-sort="year" scope="col" aria-sort="ascending">
+            公历年份 <span class="sort-arrow active">▲</span>
+          </th>
+          <th class="col-ganzhi" scope="col">干支</th>
+          <th class="col-cn-era" scope="col">中国年号</th>
+          <th class="col-cn-dynasty" scope="col">中国朝代</th>
+          <th class="col-cn-ruler" scope="col">在位皇帝</th>
+          <th class="col-jp-period" scope="col">日本时代</th>
+          <th class="col-jp-era" scope="col">日本年号</th>
+          <th class="col-jp-ruler" scope="col">在位天皇</th>
+          <th class="col-notes" scope="col">备注</th>
+          <th class="col-zodiac" scope="col">生肖</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon" aria-hidden="true">&#x1F50D;</div>
+    <h3>未找到匹配的记录</h3>
+    <p id="emptyStateMsg">请尝试调整搜索关键词或放宽筛选条件</p>
+  </div>
+
+  <!-- Pagination -->
+  <nav class="pagination" id="pagination" aria-label="分页导航"></nav>
+</main>
+
+<!-- ============================================
+     Footer
+     ============================================ -->
+<footer class="app-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-notes">
+      数据覆盖：中国自西周共和元年（公元前841年）至清朝灭亡（公元1912年）；
+      日本自飞鸟时代大化年间（公元645年）至令和时代。
+      干支与生肖依农历推算，具体年份可能有±1年偏差。
+      并立政权年号均已尽可能完整罗列。
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+      <a href="changelog.html" class="footer-changelog-btn" aria-label="查看更新日志">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        更新日志
+      </a>
+      <span style="white-space:nowrap;">v1.1 · 学术参考工具</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Export Dialog -->
+<div class="modal-overlay" id="exportDialog" role="dialog" aria-modal="true" aria-label="导出 CSV">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>导出 CSV</h3>
+      <button class="modal-close" id="exportDialogClose" aria-label="关闭">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="exp-section">
+        <div class="exp-title">选择导出列</div>
+        <div class="exp-cols"></div>
+        <div class="exp-actions">
+          <button type="button" class="exp-btn" id="expSelectAll">全选</button>
+          <button type="button" class="exp-btn" id="expSelectNone">清空</button>
+        </div>
+      </div>
+      <div class="exp-section">
+        <div class="exp-title">选择导出范围</div>
+        <div class="exp-ranges"></div>
+      </div>
+      <div class="exp-count"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="exportDialogCancel">取消</button>
+      <button class="btn btn-primary" id="exportDialogConfirm" style="background:var(--color-accent);border-color:var(--color-accent);color:#fff;">确认导出</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<!-- ============================================
+     JavaScript: Data + App Logic
+     ============================================ -->
+<script>
+(function() {
+'use strict';
+
+// ========================================
+// 简繁转换 (映射表来自 conv_tables.js, 由 build_conv_tables.py 生成)
+// ========================================
+// 全局转换器: 读取 conv_tables.js 定义的 S2T_MAP / T2S_MAP
+function getConvTables() {
+  const t = typeof S2T_MAP !== 'undefined' ? S2T_MAP : {};
+  const f = typeof T2S_MAP !== 'undefined' ? T2S_MAP : {};
+  return { s2t: t, t2s: f };
+}
+
+// 生成排序后的键列表 (长键优先) — 惰性缓存
+let _s2tKeys = null, _t2sKeys = null;
+function getKeys(mapObj) {
+  return Object.keys(mapObj).sort((a, b) => b.length - a.length || a.localeCompare(b, 'zh'));
+}
+
+// 核心转换: 按最长键匹配替换
+function convertText(text, mapObj) {
+  if (!text || !mapObj) return text;
+  if (mapObj === getConvTables().s2t) {
+    if (!_s2tKeys) _s2tKeys = getKeys(mapObj);
+  } else if (mapObj === getConvTables().t2s) {
+    if (!_t2sKeys) _t2sKeys = getKeys(mapObj);
+  }
+  const keys = (mapObj === getConvTables().s2t) ? _s2tKeys : _t2sKeys;
+  if (!keys || keys.length === 0) return text;
+  
+  let result = '';
+  let i = 0;
+  const n = text.length;
+  while (i < n) {
+    let matched = false;
+    for (const k of keys) {
+      if (text.startsWith(k, i)) {
+        result += mapObj[k];
+        i += k.length;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      result += text[i];
+      i += 1;
+    }
+  }
+  return result;
+}
+
+// 简体 -> 繁体
+function toTraditional(text) {
+  return convertText(text, getConvTables().s2t);
+}
+// 繁体 -> 简体
+function toSimplified(text) {
+  return convertText(text, getConvTables().t2s);
+}
+
+// ========================================
+// 显示字形状态: 's' 简体 | 't' 繁体
+// 数据内嵌为简体, 显示/复制时按此状态转换
+// 默认繁体: init() 中通过 setDisplayLang('t') 初始化 (v1.1 起)
+// ========================================
+let displayLang = 's';
+
+function toDisplay(text) {
+  return displayLang === 't' ? toTraditional(text) : text;
+}
+// 显式目标字形转换: 切繁体用 s2t, 切简体用 t2s (UI 静态文本用, 双向可靠)
+function toLang(text, lang) {
+  if (lang === 't') return toTraditional(text);
+  return toSimplified(text);
+}
+// 转换含 HTML 的字符串 (转换标签间文本 + data-copy 属性值, 保留标签结构)
+function toDisplayHtml(html) {
+  if (displayLang !== 't' || !html) return html;
+  return html
+    // 标签间文本
+    .replace(/>([^<]*)</g, (m, text) => '>' + toTraditional(text) + '<')
+    // data-copy 属性值 (复制文本)
+    .replace(/(data-copy=")([^"]*)(")/g, (m, pre, val, post) => pre + toTraditional(val) + post)
+    // title/aria-label 属性值
+    .replace(/(title=")([^"]*)(")/g, (m, pre, val, post) => pre + toTraditional(val) + post)
+    .replace(/(aria-label=")([^"]*)(")/g, (m, pre, val, post) => pre + toTraditional(val) + post);
+}
+// 高亮查询词的字形适配: 跟随当前显示字形
+function queryForDisplay(q) {
+  return displayLang === 't' ? toTraditional(toSimplified(q)) : q;
+}
+
+// 设置显示字形并刷新界面
+function setDisplayLang(lang) {
+  if (displayLang === lang) return;
+  displayLang = lang;
+  
+  // 更新切换按钮高亮
+  document.getElementById('langBtnS').classList.toggle('active', lang === 's');
+  document.getElementById('langBtnT').classList.toggle('active', lang === 't');
+  
+  // 表头 (只处理文本节点, 保留 sort-arrow)
+  document.querySelectorAll('#tableHead th').forEach(th => {
+    th.childNodes.forEach(n => {
+      if (n.nodeType === 3 && n.textContent.trim()) {
+        n.textContent = toLang(n.textContent.trim(), lang);
+      }
+    });
+  });
+  
+  // 筛选标签 (重新渲染以跟随字形)
+  renderFilterTags();
+  // 筛选按钮/提示
+  document.querySelectorAll('#filterClearBtn, #filterClearBtnMobile, #filterToggleMobile').forEach(btn => {
+    if (btn.textContent.trim()) btn.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = toLang(n.textContent.trim(), lang); });
+  });
+  
+  // 移动端筛选面板标题
+  const panelTitle = document.querySelector('.filter-panel-header h3');
+  if (panelTitle) panelTitle.textContent = toLang(panelTitle.textContent, lang);
+  document.querySelectorAll('.filter-panel-section h4').forEach(h => {
+    h.textContent = toLang(h.textContent, lang);
+  });
+  const applyMobile = document.getElementById('filterApplyMobile');
+  if (applyMobile) applyMobile.childNodes.forEach(n => { if (n.nodeType === 3) n.textContent = toLang(n.textContent.trim(), lang); });
+  
+  // 搜索框 placeholder (始终基于简体 data 属性转换)
+  const searchInput = document.getElementById('globalSearch');
+  if (searchInput) searchInput.placeholder = toLang(searchInput.dataset.placeholderCn, lang);
+  
+  // 统计栏 "共 X 条记录" 与 "每页"
+  const statsInfo = document.getElementById('statsInfo');
+  if (statsInfo) {
+    statsInfo.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent.trim(), lang); });
+  }
+  document.querySelectorAll('.stats-actions span').forEach(el => {
+    el.textContent = toLang(el.textContent, lang);
+  });
+  document.querySelectorAll('#perPageSelect option').forEach(opt => {
+    opt.textContent = toLang(opt.textContent, lang);
+  });
+  updateStats();
+  
+  // 空状态消息 (若当前可见)
+  const emptyTitle = document.querySelector('.empty-state h3');
+  if (emptyTitle) emptyTitle.textContent = toLang(emptyTitle.textContent, lang);
+  
+  // footer 文本 (更新日志按钮等静态文本)
+  document.querySelectorAll('.footer-changelog-btn').forEach(btn => {
+    btn.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent.trim(), lang); });
+  });
+  document.querySelectorAll('.app-footer [style*="white-space"]').forEach(el => {
+    el.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent.trim(), lang); });
+  });
+  
+  // 表格重渲染 (显示字形)
+  renderTable();
+}
+
+// ========================================
+// 干支 & 生肖
+// ========================================
+const GANZHI = ['甲子','乙丑','丙寅','丁卯','戊辰','己巳','庚午','辛未','壬申','癸酉',
+  '甲戌','乙亥','丙子','丁丑','戊寅','己卯','庚辰','辛巳','壬午','癸未',
+  '甲申','乙酉','丙戌','丁亥','戊子','己丑','庚寅','辛卯','壬辰','癸巳',
+  '甲午','乙未','丙申','丁酉','戊戌','己亥','庚子','辛丑','壬寅','癸卯',
+  '甲辰','乙巳','丙午','丁未','戊申','己酉','庚戌','辛亥','壬子','癸丑',
+  '甲寅','乙卯','丙辰','丁巳','戊午','己未','庚申','辛酉','壬戌','癸亥'];
+const ZODIAC = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+
+function getGanzhi(year) {
+  return GANZHI[((year - 4) % 60 + 60) % 60];
+}
+function getZodiac(year) {
+  return ZODIAC[((year - 4) % 12 + 12) % 12];
+}
+
+// ========================================
+// 中国朝代数据 (range: [start, end], inclusive for both)
+// ========================================
+const CN_DYNASTIES = [
+  { id:'cn_zhou_west', name:'西周', group:'先秦', range:[-1046,-771],
+    eras:[
+      {name:'共和', ruler:'周召共和', r:[-841,-828]},
+      {name:'宣王', ruler:'周宣王(姬静)', r:[-827,-782]},
+      {name:'幽王', ruler:'周幽王(姬宫湦)', r:[-781,-771]}
+    ]},
+  { id:'cn_spring_autumn', name:'春秋', group:'先秦', range:[-770,-476],
+    eras:[
+      {name:'平王', ruler:'周平王(姬宜臼)', r:[-770,-720]},
+      {name:'桓王', ruler:'周桓王(姬林)', r:[-719,-697]},
+      {name:'庄王', ruler:'周庄王(姬佗)', r:[-696,-682]},
+      {name:'僖王', ruler:'周僖王(姬胡齐)', r:[-681,-677]},
+      {name:'惠王', ruler:'周惠王(姬阆)', r:[-676,-652]},
+      {name:'襄王', ruler:'周襄王(姬郑)', r:[-651,-619]},
+      {name:'顷王', ruler:'周顷王(姬壬臣)', r:[-618,-613]},
+      {name:'匡王', ruler:'周匡王(姬班)', r:[-612,-607]},
+      {name:'定王', ruler:'周定王(姬瑜)', r:[-606,-586]},
+      {name:'简王', ruler:'周简王(姬夷)', r:[-585,-572]},
+      {name:'灵王', ruler:'周灵王(姬泄心)', r:[-571,-545]},
+      {name:'景王', ruler:'周景王(姬贵)', r:[-544,-520]},
+      {name:'敬王', ruler:'周敬王(姬匄)', r:[-519,-476]}
+    ]},
+  { id:'cn_warring_states', name:'战国', group:'先秦', range:[-475,-221],
+    eras:[
+      {name:'元王', ruler:'周元王(姬仁)', r:[-475,-469]},
+      {name:'贞定王', ruler:'周贞定王(姬介)', r:[-468,-441]},
+      {name:'考王', ruler:'周考王(姬嵬)', r:[-440,-426]},
+      {name:'威烈王', ruler:'周威烈王(姬午)', r:[-425,-402]},
+      {name:'安王', ruler:'周安王(姬骄)', r:[-401,-376]},
+      {name:'烈王', ruler:'周烈王(姬喜)', r:[-375,-369]},
+      {name:'显王', ruler:'周显王(姬扁)', r:[-368,-321]},
+      {name:'慎靓王', ruler:'周慎靓王(姬定)', r:[-320,-315]},
+      {name:'赧王', ruler:'周赧王(姬延)', r:[-314,-256]},
+      {name:'秦王政', ruler:'秦王政(嬴政)', r:[-246,-221], notes:'秦灭六国'}
+    ]},
+  { id:'cn_qin', name:'秦', group:'秦汉', range:[-221,-207],
+    eras:[
+      {name:'始皇', ruler:'秦始皇(嬴政)', r:[-221,-210]},
+      {name:'二世', ruler:'秦二世(胡亥)', r:[-209,-207]}
+    ]},
+  { id:'cn_han_west', name:'西汉', group:'秦汉', range:[-206,8],
+    eras:[
+      {name:'高祖', ruler:'汉高祖(刘邦)', r:[-206,-195]},
+      {name:'惠帝', ruler:'汉惠帝(刘盈)', r:[-194,-188]},
+      {name:'高后', ruler:'吕后(吕雉)', r:[-187,-180]},
+      {name:'文帝', ruler:'汉文帝(刘恒)', r:[-179,-157], subEras:[{name:'前元',r:[-179,-164]},{name:'后元',r:[-163,-157]}]},
+      {name:'景帝', ruler:'汉景帝(刘启)', r:[-156,-141], subEras:[{name:'前元',r:[-156,-150]},{name:'中元',r:[-149,-144]},{name:'后元',r:[-143,-141]}]},
+      {name:'建元', ruler:'汉武帝(刘彻)', r:[-140,-87], subEras:[
+        {name:'建元',r:[-140,-135]},{name:'元光',r:[-134,-129]},{name:'元朔',r:[-128,-123]},
+        {name:'元狩',r:[-122,-117]},{name:'元鼎',r:[-116,-111]},{name:'元封',r:[-110,-105]},
+        {name:'太初',r:[-104,-101]},{name:'天汉',r:[-100,-97]},{name:'太始',r:[-96,-93]},
+        {name:'征和',r:[-92,-89]},{name:'后元',r:[-88,-87]}
+      ]},
+      {name:'始元', ruler:'汉昭帝(刘弗陵)', r:[-86,-74], subEras:[
+        {name:'始元',r:[-86,-80]},{name:'元凤',r:[-80,-75]},{name:'元平',r:[-74,-74]}
+      ]},
+      {name:'本始', ruler:'汉宣帝(刘询)', r:[-73,-49], subEras:[
+        {name:'本始',r:[-73,-70]},{name:'地节',r:[-69,-66]},{name:'元康',r:[-65,-61]},
+        {name:'神爵',r:[-61,-58]},{name:'五凤',r:[-57,-54]},{name:'甘露',r:[-53,-50]},
+        {name:'黄龙',r:[-49,-49]}
+      ]},
+      {name:'初元', ruler:'汉元帝(刘奭)', r:[-48,-33], subEras:[
+        {name:'初元',r:[-48,-44]},{name:'永光',r:[-43,-39]},{name:'建昭',r:[-38,-34]},{name:'竟宁',r:[-33,-33]}
+      ]},
+      {name:'建始', ruler:'汉成帝(刘骜)', r:[-32,-7], subEras:[
+        {name:'建始',r:[-32,-28]},{name:'河平',r:[-28,-25]},{name:'阳朔',r:[-24,-21]},
+        {name:'鸿嘉',r:[-20,-17]},{name:'永始',r:[-16,-13]},{name:'元延',r:[-12,-9]},{name:'绥和',r:[-8,-7]}
+      ]},
+      {name:'建平', ruler:'汉哀帝(刘欣)', r:[-6,1], subEras:[
+        {name:'建平',r:[-6,-3]},{name:'元寿',r:[-2,1]}
+      ]},
+      {name:'元始', ruler:'汉平帝(刘衎)', r:[1,5], subEras:[{name:'元始',r:[1,5]}]},
+      {name:'居摄', ruler:'孺子婴', r:[6,8], subEras:[{name:'居摄',r:[6,8]}]}
+    ]},
+  { id:'cn_xin', name:'新', group:'秦汉', range:[9,23],
+    eras:[
+      {name:'始建国', ruler:'王莽', r:[9,13]},
+      {name:'天凤', ruler:'王莽', r:[14,19]},
+      {name:'地皇', ruler:'王莽', r:[20,23]}
+    ]},
+  { id:'cn_han_east', name:'东汉', group:'秦汉', range:[25,220],
+    eras:[
+      {name:'建武', ruler:'汉光武帝(刘秀)', r:[25,56], subEras:[{name:'建武',r:[25,56]},{name:'建武中元',r:[56,57]}]},
+      {name:'永平', ruler:'汉明帝(刘庄)', r:[58,75]},
+      {name:'建初', ruler:'汉章帝(刘炟)', r:[76,88], subEras:[{name:'建初',r:[76,84]},{name:'元和',r:[84,87]},{name:'章和',r:[87,88]}]},
+      {name:'永元', ruler:'汉和帝(刘肇)', r:[89,105], subEras:[{name:'永元',r:[89,105]},{name:'元兴',r:[105,105]}]},
+      {name:'延平', ruler:'汉殇帝(刘隆)', r:[106,106]},
+      {name:'永初', ruler:'汉安帝(刘祜)', r:[107,125], subEras:[{name:'永初',r:[107,113]},{name:'元初',r:[114,120]},{name:'永宁',r:[120,121]},{name:'建光',r:[121,122]},{name:'延光',r:[122,125]}]},
+      {name:'永建', ruler:'汉顺帝(刘保)', r:[126,144], subEras:[{name:'永建',r:[126,132]},{name:'阳嘉',r:[132,135]},{name:'永和',r:[136,141]},{name:'汉安',r:[142,144]},{name:'建康',r:[144,144]}]},
+      {name:'永憙', ruler:'汉冲帝(刘炳)', r:[145,145]},
+      {name:'本初', ruler:'汉质帝(刘缵)', r:[146,146]},
+      {name:'建和', ruler:'汉桓帝(刘志)', r:[147,167], subEras:[
+        {name:'建和',r:[147,149]},{name:'和平',r:[150,150]},{name:'元嘉',r:[151,153]},
+        {name:'永兴',r:[153,154]},{name:'永寿',r:[155,158]},{name:'延熹',r:[158,167]},{name:'永康',r:[167,167]}
+      ]},
+      {name:'建宁', ruler:'汉灵帝(刘宏)', r:[168,189], subEras:[
+        {name:'建宁',r:[168,172]},{name:'熹平',r:[172,178]},{name:'光和',r:[178,184]},{name:'中平',r:[184,189]}
+      ]},
+      {name:'初平', ruler:'汉献帝(刘协)', r:[190,220], subEras:[
+        {name:'初平',r:[190,193]},{name:'兴平',r:[194,195]},{name:'建安',r:[196,220]},{name:'延康',r:[220,220]}
+      ]}
+    ]},
+  { id:'cn_three_kingdoms', name:'三国', group:'魏晋南北朝', range:[220,280],
+    eras:[
+      {name:'黄初', ruler:'魏文帝(曹丕)', r:[220,226], subEras:[{name:'黄初',r:[220,226]}]},
+      {name:'太和', ruler:'魏明帝(曹叡)', r:[227,239], subEras:[{name:'太和',r:[227,233]},{name:'青龙',r:[233,237]},{name:'景初',r:[237,239]}]},
+      {name:'正始', ruler:'魏齐王(曹芳)', r:[240,254], subEras:[{name:'正始',r:[240,249]},{name:'嘉平',r:[249,254]}]},
+      {name:'正元', ruler:'魏高贵乡公(曹髦)', r:[254,260], subEras:[{name:'正元',r:[254,256]},{name:'甘露',r:[256,260]}]},
+      {name:'景元', ruler:'魏元帝(曹奂)', r:[260,265], subEras:[{name:'景元',r:[260,264]},{name:'咸熙',r:[264,265]}]},
+      // Shu Han
+      {name:'章武', ruler:'蜀汉昭烈帝(刘备)', r:[221,223]},
+      {name:'建兴', ruler:'蜀汉后主(刘禅)', r:[223,263], subEras:[{name:'建兴',r:[223,237]},{name:'延熙',r:[238,257]},{name:'景耀',r:[258,263]},{name:'炎兴',r:[263,263]}]},
+      // Wu
+      {name:'黄武', ruler:'吴大帝(孙权)', r:[222,252], subEras:[{name:'黄武',r:[222,229]},{name:'黄龙',r:[229,231]},{name:'嘉禾',r:[232,238]},{name:'赤乌',r:[238,251]},{name:'太元',r:[251,252]},{name:'神凤',r:[252,252]}]},
+      {name:'建兴', ruler:'吴会稽王(孙亮)', r:[252,258], subEras:[{name:'建兴',r:[252,253]},{name:'五凤',r:[254,256]},{name:'太平',r:[256,258]}]},
+      {name:'永安', ruler:'吴景帝(孙休)', r:[258,264]},
+      {name:'元兴', ruler:'吴末帝(孙皓)', r:[264,280], subEras:[{name:'元兴',r:[264,265]},{name:'甘露',r:[265,266]},{name:'宝鼎',r:[266,269]},{name:'建衡',r:[269,271]},{name:'凤凰',r:[272,274]},{name:'天册',r:[275,276]},{name:'天玺',r:[276,276]},{name:'天纪',r:[277,280]}]},
+    ]},
+  { id:'cn_jin_west', name:'西晋', group:'魏晋南北朝', range:[265,316],
+    eras:[
+      {name:'泰始', ruler:'晋武帝(司马炎)', r:[265,290], subEras:[{name:'泰始',r:[265,274]},{name:'咸宁',r:[275,280]},{name:'太康',r:[280,289]},{name:'太熙',r:[290,290]}]},
+      {name:'永熙', ruler:'晋惠帝(司马衷)', r:[290,306], subEras:[{name:'永熙',r:[290,291]},{name:'永平',r:[291,291]},{name:'元康',r:[291,299]},{name:'永康',r:[300,301]},{name:'永宁',r:[301,302]},{name:'太安',r:[302,303]},{name:'永安',r:[304,304]},{name:'建武',r:[304,304]},{name:'永兴',r:[304,306]},{name:'光熙',r:[306,306]}]},
+      {name:'永嘉', ruler:'晋怀帝(司马炽)', r:[307,313]},
+      {name:'建兴', ruler:'晋愍帝(司马邺)', r:[313,316]}
+    ]},
+  { id:'cn_jin_east', name:'东晋', group:'魏晋南北朝', range:[317,420],
+    eras:[
+      {name:'建武', ruler:'晋元帝(司马睿)', r:[317,322], subEras:[{name:'建武',r:[317,318]},{name:'大兴',r:[318,321]},{name:'永昌',r:[322,322]}]},
+      {name:'太宁', ruler:'晋明帝(司马绍)', r:[323,325]},
+      {name:'咸和', ruler:'晋成帝(司马衍)', r:[326,342], subEras:[{name:'咸和',r:[326,334]},{name:'咸康',r:[335,342]}]},
+      {name:'建元', ruler:'晋康帝(司马岳)', r:[343,344]},
+      {name:'永和', ruler:'晋穆帝(司马聃)', r:[345,361], subEras:[{name:'永和',r:[345,356]},{name:'升平',r:[357,361]}]},
+      {name:'隆和', ruler:'晋哀帝(司马丕)', r:[362,365], subEras:[{name:'隆和',r:[362,363]},{name:'兴宁',r:[363,365]}]},
+      {name:'太和', ruler:'晋废帝(司马奕)', r:[366,371]},
+      {name:'咸安', ruler:'晋简文帝(司马昱)', r:[371,372]},
+      {name:'宁康', ruler:'晋孝武帝(司马曜)', r:[373,396], subEras:[{name:'宁康',r:[373,375]},{name:'太元',r:[376,396]}]},
+      {name:'隆安', ruler:'晋安帝(司马德宗)', r:[397,418], subEras:[{name:'隆安',r:[397,401]},{name:'元兴',r:[402,404]},{name:'义熙',r:[405,418]}]},
+      {name:'元熙', ruler:'晋恭帝(司马德文)', r:[419,420]}
+    ]},
+  { id:'cn_south_north', name:'南北朝', group:'魏晋南北朝', range:[420,589],
+    eras:[
+      // Liu Song
+      {name:'永初', ruler:'宋武帝(刘裕)', r:[420,422]},
+      {name:'景平', ruler:'宋少帝(刘义符)', r:[423,424]},
+      {name:'元嘉', ruler:'宋文帝(刘义隆)', r:[424,453]},
+      {name:'孝建', ruler:'宋孝武帝(刘骏)', r:[454,464], subEras:[{name:'孝建',r:[454,456]},{name:'大明',r:[457,464]}]},
+      {name:'泰始', ruler:'宋明帝(刘彧)', r:[465,472], subEras:[{name:'永光',r:[465,465]},{name:'景和',r:[465,465]},{name:'泰始',r:[465,472]}]},
+      {name:'元徽', ruler:'宋后废帝(刘昱)', r:[473,477]},
+      {name:'升明', ruler:'宋顺帝(刘准)', r:[477,479]},
+      // Southern Qi
+      {name:'建元', ruler:'齐高帝(萧道成)', r:[479,482]},
+      {name:'永明', ruler:'齐武帝(萧赜)', r:[483,493]},
+      {name:'建武', ruler:'齐明帝(萧鸾)', r:[494,498], subEras:[{name:'隆昌',r:[494,494]},{name:'延兴',r:[494,494]},{name:'建武',r:[494,498]},{name:'永泰',r:[498,498]}]},
+      {name:'永元', ruler:'齐东昏侯(萧宝卷)', r:[499,501]},
+      {name:'中兴', ruler:'齐和帝(萧宝融)', r:[501,502]},
+      // Liang
+      {name:'天监', ruler:'梁武帝(萧衍)', r:[502,549], subEras:[{name:'天监',r:[502,519]},{name:'普通',r:[520,527]},{name:'大通',r:[527,529]},{name:'中大通',r:[529,534]},{name:'大同',r:[535,546]},{name:'中大同',r:[546,547]},{name:'太清',r:[547,549]}]},
+      {name:'大宝', ruler:'梁简文帝(萧纲)', r:[550,551]},
+      {name:'承圣', ruler:'梁元帝(萧绎)', r:[552,555]},
+      {name:'太平', ruler:'梁敬帝(萧方智)', r:[556,557]},
+      // Northern Wei
+      {name:'登国', ruler:'北魏道武帝(拓跋珪)', r:[386,409], subEras:[{name:'登国',r:[386,396]},{name:'皇始',r:[396,398]},{name:'天兴',r:[398,404]},{name:'天赐',r:[404,409]}]},
+      {name:'永兴', ruler:'北魏明元帝(拓跋嗣)', r:[409,423], subEras:[{name:'永兴',r:[409,413]},{name:'神瑞',r:[414,416]},{name:'泰常',r:[416,423]}]},
+      {name:'始光', ruler:'北魏太武帝(拓跋焘)', r:[424,452], subEras:[{name:'始光',r:[424,428]},{name:'神䴥',r:[428,431]},{name:'延和',r:[432,434]},{name:'太延',r:[435,440]},{name:'太平真君',r:[440,451]},{name:'正平',r:[451,452]}]},
+      {name:'兴安', ruler:'北魏文成帝(拓跋濬)', r:[452,465], subEras:[{name:'兴安',r:[452,454]},{name:'兴光',r:[454,455]},{name:'太安',r:[455,459]},{name:'和平',r:[460,465]}]},
+      {name:'天安', ruler:'北魏献文帝(拓跋弘)', r:[466,471], subEras:[{name:'天安',r:[466,467]},{name:'皇兴',r:[467,471]}]},
+      {name:'延兴', ruler:'北魏孝文帝(拓跋宏/元宏)', r:[471,499], subEras:[{name:'延兴',r:[471,476]},{name:'承明',r:[476,476]},{name:'太和',r:[477,499]}]},
+      {name:'景明', ruler:'北魏宣武帝(元恪)', r:[500,515], subEras:[{name:'景明',r:[500,503]},{name:'正始',r:[504,508]},{name:'永平',r:[508,512]},{name:'延昌',r:[512,515]}]},
+      {name:'熙平', ruler:'北魏孝明帝(元诩)', r:[516,528], subEras:[{name:'熙平',r:[516,518]},{name:'神龟',r:[518,520]},{name:'正光',r:[520,525]},{name:'孝昌',r:[525,527]},{name:'武泰',r:[528,528]}]},
+      // Eastern Wei, Western Wei
+      {name:'天平', ruler:'东魏孝静帝(元善见)', r:[534,550], subEras:[{name:'天平',r:[534,537]},{name:'元象',r:[538,539]},{name:'兴和',r:[539,542]},{name:'武定',r:[543,550]}]},
+      {name:'大统', ruler:'西魏文帝(元宝炬)', r:[535,551], notes:'西魏'},
+      // Northern Qi, Northern Zhou
+      {name:'天保', ruler:'北齐文宣帝(高洋)', r:[550,559]},
+      {name:'武成', ruler:'北周明帝(宇文毓)', r:[559,560], notes:'北周'},
+      {name:'保定', ruler:'北周武帝(宇文邕)', r:[561,578], subEras:[{name:'保定',r:[561,565]},{name:'天和',r:[566,572]},{name:'建德',r:[572,578]},{name:'宣政',r:[578,578]}]},
+      {name:'大成', ruler:'北周宣帝(宇文赟)', r:[579,579]},
+      {name:'大象', ruler:'北周静帝(宇文阐)', r:[579,581]},
+      // Chen
+      {name:'永定', ruler:'陈武帝(陈霸先)', r:[557,559]},
+      {name:'天嘉', ruler:'陈文帝(陈蒨)', r:[560,566], subEras:[{name:'天嘉',r:[560,566]},{name:'天康',r:[566,566]}]},
+      {name:'光大', ruler:'陈废帝(陈伯宗)', r:[567,568]},
+      {name:'太建', ruler:'陈宣帝(陈顼)', r:[569,582]},
+      {name:'至德', ruler:'陈后主(陈叔宝)', r:[583,589], subEras:[{name:'至德',r:[583,586]},{name:'祯明',r:[587,589]}]}
+    ]},
+  { id:'cn_sui', name:'隋', group:'隋唐五代', range:[581,618],
+    eras:[
+      {name:'开皇', ruler:'隋文帝(杨坚)', r:[581,600]},
+      {name:'仁寿', ruler:'隋文帝(杨坚)', r:[601,604]},
+      {name:'大业', ruler:'隋炀帝(杨广)', r:[605,618]}
+    ]},
+  { id:'cn_tang', name:'唐', group:'隋唐五代', range:[618,907],
+    eras:[
+      {name:'武德', ruler:'唐高祖(李渊)', r:[618,626]},
+      {name:'贞观', ruler:'唐太宗(李世民)', r:[627,649]},
+      {name:'永徽', ruler:'唐高宗(李治)', r:[650,683], subEras:[{name:'永徽',r:[650,655]},{name:'显庆',r:[656,661]},{name:'龙朔',r:[661,663]},{name:'麟德',r:[664,665]},{name:'乾封',r:[666,668]},{name:'总章',r:[668,670]},{name:'咸亨',r:[670,674]},{name:'上元',r:[674,676]},{name:'仪凤',r:[676,679]},{name:'调露',r:[679,680]},{name:'永隆',r:[680,681]},{name:'开耀',r:[681,682]},{name:'永淳',r:[682,683]},{name:'弘道',r:[683,683]}]},
+      {name:'嗣圣', ruler:'唐中宗(李显)/睿宗(李旦)', r:[684,690], subEras:[{name:'嗣圣',r:[684,684]},{name:'文明',r:[684,684]},{name:'光宅',r:[684,684]},{name:'垂拱',r:[685,689]},{name:'永昌',r:[689,689]},{name:'载初',r:[689,690]}]},
+      {name:'天授', ruler:'武周武则天', r:[690,705], subEras:[{name:'天授',r:[690,692]},{name:'如意',r:[692,692]},{name:'长寿',r:[692,694]},{name:'延载',r:[694,694]},{name:'证圣',r:[695,695]},{name:'天册万岁',r:[695,696]},{name:'万岁登封',r:[696,696]},{name:'万岁通天',r:[696,697]},{name:'神功',r:[697,697]},{name:'圣历',r:[698,700]},{name:'久视',r:[700,701]},{name:'大足',r:[701,701]},{name:'长安',r:[701,705]},{name:'神龙',r:[705,705]}], notes:'武周政权'},
+      {name:'神龙', ruler:'唐中宗(李显)复辟', r:[705,710], subEras:[{name:'神龙',r:[705,707]},{name:'景龙',r:[707,710]}]},
+      {name:'景云', ruler:'唐睿宗(李旦)复辟', r:[710,712], subEras:[{name:'唐隆',r:[710,710]},{name:'景云',r:[710,712]},{name:'太极',r:[712,712]},{name:'延和',r:[712,712]}]},
+      {name:'先天', ruler:'唐玄宗(李隆基)', r:[712,756], subEras:[{name:'先天',r:[712,713]},{name:'开元',r:[713,741]},{name:'天宝',r:[742,756]}]},
+      {name:'至德', ruler:'唐肃宗(李亨)', r:[756,762], subEras:[{name:'至德',r:[756,758]},{name:'乾元',r:[758,760]},{name:'上元',r:[760,762]},{name:'宝应',r:[762,762]}]},
+      {name:'广德', ruler:'唐代宗(李豫)', r:[763,779], subEras:[{name:'广德',r:[763,764]},{name:'永泰',r:[765,766]},{name:'大历',r:[766,779]}]},
+      {name:'建中', ruler:'唐德宗(李适)', r:[780,805], subEras:[{name:'建中',r:[780,783]},{name:'兴元',r:[784,784]},{name:'贞元',r:[785,805]}]},
+      {name:'永贞', ruler:'唐顺宗(李诵)', r:[805,805]},
+      {name:'元和', ruler:'唐宪宗(李纯)', r:[806,820]},
+      {name:'长庆', ruler:'唐穆宗(李恒)', r:[821,824]},
+      {name:'宝历', ruler:'唐敬宗(李湛)', r:[825,827]},
+      {name:'太和', ruler:'唐文宗(李昂)', r:[827,840], subEras:[{name:'太和',r:[827,835]},{name:'开成',r:[836,840]}]},
+      {name:'会昌', ruler:'唐武宗(李炎)', r:[841,846]},
+      {name:'大中', ruler:'唐宣宗(李忱)', r:[847,859]},
+      {name:'咸通', ruler:'唐懿宗(李漼)', r:[860,874]},
+      {name:'乾符', ruler:'唐僖宗(李儇)', r:[874,888], subEras:[{name:'乾符',r:[874,879]},{name:'广明',r:[880,881]},{name:'中和',r:[881,885]},{name:'光启',r:[885,888]},{name:'文德',r:[888,888]}]},
+      {name:'龙纪', ruler:'唐昭宗(李晔)', r:[889,904], subEras:[{name:'龙纪',r:[889,889]},{name:'大顺',r:[890,891]},{name:'景福',r:[892,893]},{name:'乾宁',r:[894,898]},{name:'光化',r:[898,901]},{name:'天复',r:[901,904]},{name:'天祐',r:[904,904]}]},
+      {name:'天祐', ruler:'唐哀帝(李柷)', r:[904,907]}
+    ]},
+  { id:'cn_five_dynasties', name:'五代十国', group:'隋唐五代', range:[907,960],
+    eras:[
+      {name:'开平', ruler:'后梁太祖(朱温)', r:[907,912], subEras:[{name:'开平',r:[907,911]},{name:'乾化',r:[911,912]}]},
+      {name:'乾化', ruler:'后梁末帝(朱友贞)', r:[913,923], subEras:[{name:'凤历',r:[913,913]},{name:'乾化',r:[913,915]},{name:'贞明',r:[915,921]},{name:'龙德',r:[921,923]}]},
+      {name:'同光', ruler:'后唐庄宗(李存勖)', r:[923,926]},
+      {name:'天成', ruler:'后唐明宗(李嗣源)', r:[926,933], subEras:[{name:'天成',r:[926,930]},{name:'长兴',r:[930,933]}]},
+      {name:'应顺', ruler:'后唐闵帝(李从厚)', r:[934,934]},
+      {name:'清泰', ruler:'后唐末帝(李从珂)', r:[934,936]},
+      {name:'天福', ruler:'后晋高祖(石敬瑭)', r:[936,942]},
+      {name:'天福', ruler:'后晋出帝(石重贵)', r:[943,947], subEras:[{name:'天福',r:[943,944]},{name:'开运',r:[944,947]}]},
+      {name:'天福', ruler:'后汉高祖(刘知远)', r:[947,948]},
+      {name:'乾祐', ruler:'后汉隐帝(刘承祐)', r:[948,950]},
+      {name:'广顺', ruler:'后周太祖(郭威)', r:[951,954]},
+      {name:'显德', ruler:'后周世宗(柴荣)/恭帝', r:[954,960]},
+      // Ten Kingdoms key entries
+      {name:'武义', ruler:'南吴高祖(杨隆演)', r:[919,920], notes:'十国·南吴'},
+      {name:'大和', ruler:'南吴睿帝(杨溥)', r:[929,937], notes:'十国·南吴'},
+      {name:'升元', ruler:'南唐烈祖(李昪)', r:[937,943], notes:'十国·南唐'},
+      {name:'保大', ruler:'南唐元宗(李璟)', r:[943,958], notes:'十国·南唐'},
+      {name:'乾亨', ruler:'南汉高祖(刘䶮)', r:[917,925], notes:'十国·南汉'},
+      {name:'永平', ruler:'前蜀高祖(王建)', r:[911,915], notes:'十国·前蜀'},
+      {name:'明德', ruler:'后蜀高祖(孟知祥)', r:[934,937], notes:'十国·后蜀'},
+    ]},
+  { id:'cn_song_north', name:'北宋', group:'宋辽金夏', range:[960,1127],
+    eras:[
+      {name:'建隆', ruler:'宋太祖(赵匡胤)', r:[960,976], subEras:[{name:'建隆',r:[960,963]},{name:'乾德',r:[963,968]},{name:'开宝',r:[968,976]}]},
+      {name:'太平兴国', ruler:'宋太宗(赵光义)', r:[976,997], subEras:[{name:'太平兴国',r:[976,984]},{name:'雍熙',r:[984,987]},{name:'端拱',r:[988,989]},{name:'淳化',r:[990,994]},{name:'至道',r:[995,997]}]},
+      {name:'咸平', ruler:'宋真宗(赵恒)', r:[998,1022], subEras:[{name:'咸平',r:[998,1003]},{name:'景德',r:[1004,1007]},{name:'大中祥符',r:[1008,1016]},{name:'天禧',r:[1017,1021]},{name:'乾兴',r:[1022,1022]}]},
+      {name:'天圣', ruler:'宋仁宗(赵祯)', r:[1023,1063], subEras:[{name:'天圣',r:[1023,1032]},{name:'明道',r:[1032,1033]},{name:'景祐',r:[1034,1038]},{name:'宝元',r:[1038,1040]},{name:'康定',r:[1040,1041]},{name:'庆历',r:[1041,1048]},{name:'皇祐',r:[1049,1054]},{name:'至和',r:[1054,1056]},{name:'嘉祐',r:[1056,1063]}]},
+      {name:'治平', ruler:'宋英宗(赵曙)', r:[1064,1067]},
+      {name:'熙宁', ruler:'宋神宗(赵顼)', r:[1068,1085], subEras:[{name:'熙宁',r:[1068,1077]},{name:'元丰',r:[1078,1085]}]},
+      {name:'元祐', ruler:'宋哲宗(赵煦)', r:[1086,1100], subEras:[{name:'元祐',r:[1086,1094]},{name:'绍圣',r:[1094,1098]},{name:'元符',r:[1098,1100]}]},
+      {name:'建中靖国', ruler:'宋徽宗(赵佶)', r:[1101,1125], subEras:[{name:'建中靖国',r:[1101,1101]},{name:'崇宁',r:[1102,1106]},{name:'大观',r:[1107,1110]},{name:'政和',r:[1111,1118]},{name:'重和',r:[1118,1119]},{name:'宣和',r:[1119,1125]}]},
+      {name:'靖康', ruler:'宋钦宗(赵桓)', r:[1126,1127]}
+    ]},
+  { id:'cn_liao', name:'辽', group:'宋辽金夏', range:[907,1125],
+    eras:[
+      {name:'神册', ruler:'辽太祖(耶律阿保机)', r:[907,926], subEras:[{name:'-',r:[907,915]},{name:'神册',r:[916,922]},{name:'天赞',r:[922,926]},{name:'天显',r:[926,926]}]},
+      {name:'天显', ruler:'辽太宗(耶律德光)', r:[927,947], subEras:[{name:'天显',r:[927,938]},{name:'会同',r:[938,947]},{name:'大同',r:[947,947]}]},
+      {name:'天禄', ruler:'辽世宗(耶律阮)', r:[947,951]},
+      {name:'应历', ruler:'辽穆宗(耶律璟)', r:[951,969]},
+      {name:'保宁', ruler:'辽景宗(耶律贤)', r:[969,982], subEras:[{name:'保宁',r:[969,979]},{name:'乾亨',r:[979,982]}]},
+      {name:'统和', ruler:'辽圣宗(耶律隆绪)', r:[983,1031], subEras:[{name:'统和',r:[983,1012]},{name:'开泰',r:[1012,1021]},{name:'太平',r:[1021,1031]}]},
+      {name:'景福', ruler:'辽兴宗(耶律宗真)', r:[1031,1055], subEras:[{name:'景福',r:[1031,1032]},{name:'重熙',r:[1032,1055]}]},
+      {name:'清宁', ruler:'辽道宗(耶律洪基)', r:[1055,1101], subEras:[{name:'清宁',r:[1055,1064]},{name:'咸雍',r:[1065,1074]},{name:'大康',r:[1075,1084]},{name:'大安',r:[1085,1094]},{name:'寿昌',r:[1095,1101]}]},
+      {name:'乾统', ruler:'辽天祚帝(耶律延禧)', r:[1101,1125], subEras:[{name:'乾统',r:[1101,1110]},{name:'天庆',r:[1111,1120]},{name:'保大',r:[1121,1125]}]}
+    ]},
+  { id:'cn_xixia', name:'西夏', group:'宋辽金夏', range:[1038,1227],
+    eras:[
+      {name:'显道', ruler:'夏景宗(李元昊)', r:[1032,1048], subEras:[{name:'显道',r:[1032,1034]},{name:'开运',r:[1035,1035]},{name:'广运',r:[1035,1036]},{name:'大庆',r:[1036,1038]},{name:'天授礼法延祚',r:[1038,1048]}]},
+      {name:'延嗣宁国', ruler:'夏毅宗(李谅祚)', r:[1049,1067], subEras:[{name:'延嗣宁国',r:[1049,1049]},{name:'天祐垂圣',r:[1050,1052]},{name:'福圣承道',r:[1053,1056]},{name:'奲都',r:[1057,1062]},{name:'拱化',r:[1063,1067]}]},
+      {name:'乾道', ruler:'夏惠宗(李秉常)', r:[1068,1086], subEras:[{name:'乾道',r:[1068,1069]},{name:'天赐礼盛国庆',r:[1070,1074]},{name:'大安',r:[1075,1085]},{name:'天安礼定',r:[1086,1086]}]},
+      {name:'天仪治平', ruler:'夏崇宗(李乾顺)', r:[1086,1139], subEras:[{name:'天仪治平',r:[1086,1089]},{name:'天祐民安',r:[1090,1097]},{name:'永安',r:[1098,1100]},{name:'贞观',r:[1101,1113]},{name:'雍宁',r:[1114,1118]},{name:'元德',r:[1119,1127]},{name:'正德',r:[1127,1134]},{name:'大德',r:[1135,1139]}]},
+      {name:'大庆', ruler:'夏仁宗(李仁孝)', r:[1140,1193], subEras:[{name:'大庆',r:[1140,1144]},{name:'人庆',r:[1144,1148]},{name:'天盛',r:[1149,1169]},{name:'乾祐',r:[1170,1193]}]},
+      {name:'天庆', ruler:'夏桓宗(李纯祐)', r:[1194,1206]},
+      {name:'应天', ruler:'夏襄宗(李安全)', r:[1206,1211]},
+      {name:'光定', ruler:'夏神宗(李遵顼)', r:[1211,1223]},
+      {name:'乾定', ruler:'夏献宗(李德旺)', r:[1223,1226]},
+      {name:'宝义', ruler:'夏末帝(李睍)', r:[1226,1227]}
+    ]},
+  { id:'cn_jin', name:'金', group:'宋辽金夏', range:[1115,1234],
+    eras:[
+      {name:'收国', ruler:'金太祖(完颜阿骨打)', r:[1115,1123], subEras:[{name:'收国',r:[1115,1116]},{name:'天辅',r:[1117,1123]}]},
+      {name:'天会', ruler:'金太宗(完颜晟)', r:[1123,1135]},
+      {name:'天眷', ruler:'金熙宗(完颜亶)', r:[1135,1149], subEras:[{name:'天会',r:[1135,1137]},{name:'天眷',r:[1138,1140]},{name:'皇统',r:[1141,1149]}]},
+      {name:'天德', ruler:'金海陵王(完颜亮)', r:[1149,1161], subEras:[{name:'天德',r:[1149,1153]},{name:'贞元',r:[1153,1156]},{name:'正隆',r:[1156,1161]}]},
+      {name:'大定', ruler:'金世宗(完颜雍)', r:[1161,1189]},
+      {name:'明昌', ruler:'金章宗(完颜璟)', r:[1190,1208], subEras:[{name:'明昌',r:[1190,1196]},{name:'承安',r:[1196,1200]},{name:'泰和',r:[1201,1208]}]},
+      {name:'大安', ruler:'金卫绍王(完颜永济)', r:[1209,1213], subEras:[{name:'大安',r:[1209,1211]},{name:'崇庆',r:[1212,1213]},{name:'至宁',r:[1213,1213]}]},
+      {name:'贞祐', ruler:'金宣宗(完颜珣)', r:[1213,1223], subEras:[{name:'贞祐',r:[1213,1217]},{name:'兴定',r:[1217,1222]},{name:'元光',r:[1222,1223]}]},
+      {name:'正大', ruler:'金哀宗(完颜守绪)', r:[1224,1234], subEras:[{name:'正大',r:[1224,1232]},{name:'开兴',r:[1232,1232]},{name:'天兴',r:[1232,1234]}]}
+    ]},
+  { id:'cn_song_south', name:'南宋', group:'宋辽金夏', range:[1127,1279],
+    eras:[
+      {name:'建炎', ruler:'宋高宗(赵构)', r:[1127,1162], subEras:[{name:'建炎',r:[1127,1130]},{name:'绍兴',r:[1131,1162]}]},
+      {name:'隆兴', ruler:'宋孝宗(赵昚)', r:[1163,1189], subEras:[{name:'隆兴',r:[1163,1164]},{name:'乾道',r:[1165,1173]},{name:'淳熙',r:[1174,1189]}]},
+      {name:'绍熙', ruler:'宋光宗(赵惇)', r:[1190,1194]},
+      {name:'庆元', ruler:'宋宁宗(赵扩)', r:[1195,1224], subEras:[{name:'庆元',r:[1195,1200]},{name:'嘉泰',r:[1201,1204]},{name:'开禧',r:[1205,1207]},{name:'嘉定',r:[1208,1224]}]},
+      {name:'宝庆', ruler:'宋理宗(赵昀)', r:[1225,1264], subEras:[{name:'宝庆',r:[1225,1227]},{name:'绍定',r:[1228,1233]},{name:'端平',r:[1234,1236]},{name:'嘉熙',r:[1237,1240]},{name:'淳祐',r:[1241,1252]},{name:'宝祐',r:[1253,1258]},{name:'开庆',r:[1259,1259]},{name:'景定',r:[1260,1264]}]},
+      {name:'咸淳', ruler:'宋度宗(赵禥)', r:[1265,1274]},
+      {name:'德祐', ruler:'宋恭帝(赵㬎)', r:[1275,1276]},
+      {name:'景炎', ruler:'宋端宗(赵昰)', r:[1276,1278]},
+      {name:'祥兴', ruler:'宋幼主(赵昺)', r:[1278,1279]}
+    ]},
+  { id:'cn_yuan', name:'元', group:'元明清', range:[1271,1368],
+    eras:[
+      {name:'中统', ruler:'元世祖(忽必烈)', r:[1260,1294], subEras:[{name:'中统',r:[1260,1264]},{name:'至元',r:[1264,1294]}]},
+      {name:'元贞', ruler:'元成宗(铁穆耳)', r:[1295,1307], subEras:[{name:'元贞',r:[1295,1297]},{name:'大德',r:[1297,1307]}]},
+      {name:'至大', ruler:'元武宗(海山)', r:[1308,1311]},
+      {name:'皇庆', ruler:'元仁宗(爱育黎拔力八达)', r:[1312,1320], subEras:[{name:'皇庆',r:[1312,1314]},{name:'延祐',r:[1314,1320]}]},
+      {name:'至治', ruler:'元英宗(硕德八剌)', r:[1321,1323]},
+      {name:'泰定', ruler:'元泰定帝(也孙铁木儿)', r:[1324,1328], subEras:[{name:'泰定',r:[1324,1328]},{name:'致和',r:[1328,1328]}]},
+      {name:'天顺', ruler:'元天顺帝(阿速吉八)', r:[1328,1328]},
+      {name:'天历', ruler:'元文宗(图帖睦尔)', r:[1328,1332], subEras:[{name:'天历',r:[1328,1330]},{name:'至顺',r:[1330,1332]}]},
+      {name:'元统', ruler:'元惠宗(妥懽帖睦尔)', r:[1333,1368], subEras:[{name:'元统',r:[1333,1335]},{name:'至元',r:[1335,1340]},{name:'至正',r:[1341,1368]}]}
+    ]},
+  { id:'cn_ming', name:'明', group:'元明清', range:[1368,1644],
+    eras:[
+      {name:'洪武', ruler:'明太祖(朱元璋)', r:[1368,1398]},
+      {name:'建文', ruler:'明惠帝(朱允炆)', r:[1399,1402]},
+      {name:'永乐', ruler:'明成祖(朱棣)', r:[1403,1424]},
+      {name:'洪熙', ruler:'明仁宗(朱高炽)', r:[1425,1425]},
+      {name:'宣德', ruler:'明宣宗(朱瞻基)', r:[1426,1435]},
+      {name:'正统', ruler:'明英宗(朱祁镇)', r:[1436,1449]},
+      {name:'景泰', ruler:'明代宗(朱祁钰)', r:[1450,1457]},
+      {name:'天顺', ruler:'明英宗复辟(朱祁镇)', r:[1457,1464]},
+      {name:'成化', ruler:'明宪宗(朱见深)', r:[1465,1487]},
+      {name:'弘治', ruler:'明孝宗(朱祐樘)', r:[1488,1505]},
+      {name:'正德', ruler:'明武宗(朱厚照)', r:[1506,1521]},
+      {name:'嘉靖', ruler:'明世宗(朱厚熜)', r:[1522,1566]},
+      {name:'隆庆', ruler:'明穆宗(朱载坖)', r:[1567,1572]},
+      {name:'万历', ruler:'明神宗(朱翊钧)', r:[1573,1620]},
+      {name:'泰昌', ruler:'明光宗(朱常洛)', r:[1620,1620]},
+      {name:'天启', ruler:'明熹宗(朱由校)', r:[1621,1627]},
+      {name:'崇祯', ruler:'明思宗(朱由检)', r:[1628,1644]}
+    ]},
+  { id:'cn_qing', name:'清', group:'元明清', range:[1644,1912],
+    eras:[
+      {name:'顺治', ruler:'清世祖(福临)', r:[1644,1661]},
+      {name:'康熙', ruler:'清圣祖(玄烨)', r:[1662,1722]},
+      {name:'雍正', ruler:'清世宗(胤禛)', r:[1723,1735]},
+      {name:'乾隆', ruler:'清高宗(弘历)', r:[1736,1795]},
+      {name:'嘉庆', ruler:'清仁宗(颙琰)', r:[1796,1820]},
+      {name:'道光', ruler:'清宣宗(旻宁)', r:[1821,1850]},
+      {name:'咸丰', ruler:'清文宗(奕詝)', r:[1851,1861]},
+      {name:'同治', ruler:'清穆宗(载淳)', r:[1862,1874]},
+      {name:'光绪', ruler:'清德宗(载湉)', r:[1875,1908]},
+      {name:'宣统', ruler:'清末帝(溥仪)', r:[1909,1912]}
+    ]}
+];
+
+// ========================================
+// 日本时代数据
+// ========================================
+const JP_PERIODS = [
+  { id:'jp_asuka', name:'飞鸟', range:[592,710],
+    eras:[
+      {name:'大化', ruler:'孝德天皇', r:[645,650]},
+      {name:'白雉', ruler:'孝德天皇', r:[650,654]},
+      {name:'—', ruler:'齐明天皇', r:[655,661], notes:'无年号'},
+      {name:'—', ruler:'天智天皇', r:[662,671], notes:'无年号'},
+      {name:'—', ruler:'弘文天皇', r:[672,672]},
+      {name:'—', ruler:'天武天皇', r:[673,686], notes:'无年号'},
+      {name:'朱鸟', ruler:'天武天皇', r:[686,686]},
+      {name:'—', ruler:'持统天皇', r:[687,697], notes:'无年号'},
+      {name:'—', ruler:'文武天皇', r:[697,701], notes:'无年号'},
+      {name:'大宝', ruler:'文武天皇', r:[701,704]},
+      {name:'庆云', ruler:'文武/元明天皇', r:[704,708]},
+      {name:'和铜', ruler:'元明天皇', r:[708,715]}
+    ]},
+  { id:'jp_nara', name:'奈良', range:[710,794],
+    eras:[
+      {name:'和铜', ruler:'元明天皇', r:[708,715]},
+      {name:'灵龟', ruler:'元正天皇', r:[715,717]},
+      {name:'养老', ruler:'元正天皇', r:[717,724]},
+      {name:'神龟', ruler:'圣武天皇', r:[724,729]},
+      {name:'天平', ruler:'圣武天皇', r:[729,749]},
+      {name:'天平感宝', ruler:'圣武天皇', r:[749,749]},
+      {name:'天平胜宝', ruler:'孝谦天皇', r:[749,757]},
+      {name:'天平宝字', ruler:'孝谦/淳仁天皇', r:[757,765]},
+      {name:'天平神护', ruler:'称德天皇(孝谦重祚)', r:[765,767]},
+      {name:'神护景云', ruler:'称德天皇', r:[767,770]},
+      {name:'宝龟', ruler:'光仁天皇', r:[770,781]},
+      {name:'天应', ruler:'光仁天皇', r:[781,782]},
+      {name:'延历', ruler:'桓武天皇', r:[782,806]}
+    ]},
+  { id:'jp_heian', name:'平安', range:[794,1185],
+    eras:[
+      {name:'延历', ruler:'桓武天皇', r:[782,806]},
+      {name:'大同', ruler:'平城/嵯峨天皇', r:[806,810]},
+      {name:'弘仁', ruler:'嵯峨/淳和天皇', r:[810,824]},
+      {name:'天长', ruler:'淳和/仁明天皇', r:[824,834]},
+      {name:'承和', ruler:'仁明天皇', r:[834,848]},
+      {name:'嘉祥', ruler:'仁明/文德天皇', r:[848,851]},
+      {name:'仁寿', ruler:'文德天皇', r:[851,854]},
+      {name:'齐衡', ruler:'文德天皇', r:[854,857]},
+      {name:'天安', ruler:'文德/清和天皇', r:[857,859]},
+      {name:'贞观', ruler:'清和/阳成天皇', r:[859,877]},
+      {name:'元庆', ruler:'阳成/光孝天皇', r:[877,885]},
+      {name:'仁和', ruler:'光孝/宇多天皇', r:[885,889]},
+      {name:'宽平', ruler:'宇多天皇', r:[889,898]},
+      {name:'昌泰', ruler:'醍醐天皇', r:[898,901]},
+      {name:'延喜', ruler:'醍醐天皇', r:[901,923]},
+      {name:'延长', ruler:'醍醐/朱雀天皇', r:[923,931]},
+      {name:'承平', ruler:'朱雀天皇', r:[931,938]},
+      {name:'天庆', ruler:'朱雀天皇', r:[938,947]},
+      {name:'天历', ruler:'村上天皇', r:[947,957]},
+      {name:'天德', ruler:'村上天皇', r:[957,961]},
+      {name:'应和', ruler:'村上天皇', r:[961,964]},
+      {name:'康保', ruler:'村上/冷泉天皇', r:[964,968]},
+      {name:'安和', ruler:'冷泉/圆融天皇', r:[968,970]},
+      {name:'天禄', ruler:'圆融天皇', r:[970,973]},
+      {name:'天延', ruler:'圆融天皇', r:[973,976]},
+      {name:'贞元', ruler:'圆融天皇', r:[976,978]},
+      {name:'天元', ruler:'圆融天皇', r:[978,983]},
+      {name:'永观', ruler:'圆融/花山天皇', r:[983,985]},
+      {name:'宽和', ruler:'花山/一条天皇', r:[985,987]},
+      {name:'永延', ruler:'一条天皇', r:[987,989]},
+      {name:'永祚', ruler:'一条天皇', r:[989,990]},
+      {name:'正历', ruler:'一条天皇', r:[990,995]},
+      {name:'长德', ruler:'一条天皇', r:[995,999]},
+      {name:'长保', ruler:'一条天皇', r:[999,1004]},
+      {name:'宽弘', ruler:'一条/三条天皇', r:[1004,1012]},
+      {name:'长和', ruler:'三条/后一条天皇', r:[1012,1017]},
+      {name:'宽仁', ruler:'后一条天皇', r:[1017,1021]},
+      {name:'治安', ruler:'后一条天皇', r:[1021,1024]},
+      {name:'万寿', ruler:'后一条天皇', r:[1024,1028]},
+      {name:'长元', ruler:'后一条/后朱雀天皇', r:[1028,1037]},
+      {name:'长历', ruler:'后朱雀天皇', r:[1037,1040]},
+      {name:'长久', ruler:'后朱雀天皇', r:[1040,1044]},
+      {name:'宽德', ruler:'后朱雀/后冷泉天皇', r:[1044,1046]},
+      {name:'永承', ruler:'后冷泉天皇', r:[1046,1053]},
+      {name:'天喜', ruler:'后冷泉天皇', r:[1053,1058]},
+      {name:'康平', ruler:'后冷泉天皇', r:[1058,1065]},
+      {name:'治历', ruler:'后冷泉/后三条天皇', r:[1065,1069]},
+      {name:'延久', ruler:'后三条/白河天皇', r:[1069,1074]},
+      {name:'承保', ruler:'白河天皇', r:[1074,1077]},
+      {name:'承历', ruler:'白河天皇', r:[1077,1081]},
+      {name:'永保', ruler:'白河天皇', r:[1081,1084]},
+      {name:'应德', ruler:'白河/堀河天皇', r:[1084,1087]},
+      {name:'宽治', ruler:'堀河天皇', r:[1087,1094]},
+      {name:'嘉保', ruler:'堀河天皇', r:[1094,1096]},
+      {name:'永长', ruler:'堀河天皇', r:[1096,1097]},
+      {name:'承德', ruler:'堀河天皇', r:[1097,1099]},
+      {name:'康和', ruler:'堀河天皇', r:[1099,1104]},
+      {name:'长治', ruler:'堀河天皇', r:[1104,1106]},
+      {name:'嘉承', ruler:'堀河/鸟羽天皇', r:[1106,1108]},
+      {name:'天仁', ruler:'鸟羽天皇', r:[1108,1110]},
+      {name:'天永', ruler:'鸟羽天皇', r:[1110,1113]},
+      {name:'永久', ruler:'鸟羽天皇', r:[1113,1118]},
+      {name:'元永', ruler:'鸟羽天皇', r:[1118,1120]},
+      {name:'保安', ruler:'鸟羽/崇德天皇', r:[1120,1124]},
+      {name:'天治', ruler:'崇德天皇', r:[1124,1126]},
+      {name:'大治', ruler:'崇德天皇', r:[1126,1131]},
+      {name:'天承', ruler:'崇德天皇', r:[1131,1132]},
+      {name:'长承', ruler:'崇德天皇', r:[1132,1135]},
+      {name:'保延', ruler:'崇德天皇', r:[1135,1141]},
+      {name:'永治', ruler:'崇德天皇', r:[1141,1142]},
+      {name:'康治', ruler:'近卫天皇', r:[1142,1144]},
+      {name:'天养', ruler:'近卫天皇', r:[1144,1145]},
+      {name:'久安', ruler:'近卫天皇', r:[1145,1151]},
+      {name:'仁平', ruler:'近卫天皇', r:[1151,1154]},
+      {name:'久寿', ruler:'近卫/后白河天皇', r:[1154,1156]},
+      {name:'保元', ruler:'后白河天皇', r:[1156,1159]},
+      {name:'平治', ruler:'二条天皇', r:[1159,1160]},
+      {name:'永历', ruler:'二条天皇', r:[1160,1161]},
+      {name:'应保', ruler:'二条天皇', r:[1161,1163]},
+      {name:'长宽', ruler:'二条天皇', r:[1163,1165]},
+      {name:'永万', ruler:'六条天皇', r:[1165,1166]},
+      {name:'仁安', ruler:'六条/高仓天皇', r:[1166,1169]},
+      {name:'嘉应', ruler:'高仓天皇', r:[1169,1171]},
+      {name:'承安', ruler:'高仓天皇', r:[1171,1175]},
+      {name:'安元', ruler:'高仓天皇', r:[1175,1177]},
+      {name:'治承', ruler:'高仓/安德天皇', r:[1177,1181]},
+      {name:'养和', ruler:'安德天皇', r:[1181,1182]},
+      {name:'寿永', ruler:'安德/后鸟羽天皇', r:[1182,1185]}
+    ]},
+  { id:'jp_kamakura', name:'镰仓', range:[1185,1333],
+    eras:[
+      {name:'元历', ruler:'后鸟羽天皇', r:[1184,1185]},
+      {name:'文治', ruler:'后鸟羽天皇', r:[1185,1190]},
+      {name:'建久', ruler:'后鸟羽/土御门天皇', r:[1190,1199]},
+      {name:'正治', ruler:'土御门天皇', r:[1199,1201]},
+      {name:'建仁', ruler:'土御门天皇', r:[1201,1204]},
+      {name:'元久', ruler:'土御门天皇', r:[1204,1206]},
+      {name:'建永', ruler:'土御门天皇', r:[1206,1207]},
+      {name:'承元', ruler:'土御门/顺德天皇', r:[1207,1211]},
+      {name:'建历', ruler:'顺德天皇', r:[1211,1213]},
+      {name:'建保', ruler:'顺德天皇', r:[1213,1219]},
+      {name:'承久', ruler:'顺德/仲恭天皇', r:[1219,1222]},
+      {name:'贞应', ruler:'后堀河天皇', r:[1222,1224]},
+      {name:'元仁', ruler:'后堀河天皇', r:[1224,1225]},
+      {name:'嘉禄', ruler:'后堀河天皇', r:[1225,1227]},
+      {name:'安贞', ruler:'后堀河天皇', r:[1227,1229]},
+      {name:'宽喜', ruler:'后堀河天皇', r:[1229,1232]},
+      {name:'贞永', ruler:'后堀河/四条天皇', r:[1232,1233]},
+      {name:'天福', ruler:'四条天皇', r:[1233,1234]},
+      {name:'文历', ruler:'四条天皇', r:[1234,1235]},
+      {name:'嘉祯', ruler:'四条天皇', r:[1235,1238]},
+      {name:'历仁', ruler:'四条天皇', r:[1238,1239]},
+      {name:'延应', ruler:'四条天皇', r:[1239,1240]},
+      {name:'仁治', ruler:'四条/后嵯峨天皇', r:[1240,1243]},
+      {name:'宽元', ruler:'后嵯峨/后深草天皇', r:[1243,1247]},
+      {name:'宝治', ruler:'后深草天皇', r:[1247,1249]},
+      {name:'建长', ruler:'后深草天皇', r:[1249,1256]},
+      {name:'康元', ruler:'后深草天皇', r:[1256,1257]},
+      {name:'正嘉', ruler:'后深草天皇', r:[1257,1259]},
+      {name:'正元', ruler:'后深草/龟山天皇', r:[1259,1260]},
+      {name:'文应', ruler:'龟山天皇', r:[1260,1261]},
+      {name:'弘长', ruler:'龟山天皇', r:[1261,1264]},
+      {name:'文永', ruler:'龟山/后宇多天皇', r:[1264,1275]},
+      {name:'建治', ruler:'后宇多天皇', r:[1275,1278]},
+      {name:'弘安', ruler:'后宇多/伏见天皇', r:[1278,1288]},
+      {name:'正应', ruler:'伏见天皇', r:[1288,1293]},
+      {name:'永仁', ruler:'伏见/后伏见天皇', r:[1293,1299]},
+      {name:'正安', ruler:'后伏见/后二条天皇', r:[1299,1302]},
+      {name:'乾元', ruler:'后二条天皇', r:[1302,1303]},
+      {name:'嘉元', ruler:'后二条天皇', r:[1303,1307]},
+      {name:'德治', ruler:'后二条/花园天皇', r:[1307,1308]},
+      {name:'延庆', ruler:'花园天皇', r:[1308,1311]},
+      {name:'应长', ruler:'花园天皇', r:[1311,1312]},
+      {name:'正和', ruler:'花园天皇', r:[1312,1317]},
+      {name:'文保', ruler:'花园/后醍醐天皇', r:[1317,1319]},
+      {name:'元应', ruler:'后醍醐天皇', r:[1319,1321]},
+      {name:'元亨', ruler:'后醍醐天皇', r:[1321,1324]},
+      {name:'正中', ruler:'后醍醐天皇', r:[1324,1326]},
+      {name:'嘉历', ruler:'后醍醐天皇', r:[1326,1329]},
+      {name:'元德', ruler:'后醍醐天皇', r:[1329,1332]},
+      {name:'元弘', ruler:'后醍醐天皇', r:[1331,1334]},
+      {name:'正庆', ruler:'光严天皇(北朝)', r:[1332,1334]}
+    ]},
+  { id:'jp_nanbokucho', name:'南北朝', range:[1333,1392],
+    eras:[
+      {name:'建武', ruler:'后醍醐天皇(南朝)', r:[1334,1336], notes:'南朝'},
+      {name:'延元', ruler:'后醍醐/后村上天皇(南朝)', r:[1336,1340], subEras:[{name:'延元',r:[1336,1340]},{name:'兴国',r:[1340,1346]},{name:'正平',r:[1346,1370]}]},
+      {name:'建德', ruler:'长庆天皇(南朝)', r:[1370,1372], notes:'南朝'},
+      {name:'文中', ruler:'长庆天皇(南朝)', r:[1372,1375], notes:'南朝'},
+      {name:'天授', ruler:'长庆天皇(南朝)', r:[1375,1381], notes:'南朝'},
+      {name:'弘和', ruler:'后龟山天皇(南朝)', r:[1381,1384], notes:'南朝'},
+      {name:'元中', ruler:'后龟山天皇(南朝)', r:[1384,1392], notes:'南朝'},
+      {name:'历应', ruler:'光明天皇(北朝)', r:[1338,1342], notes:'北朝'},
+      {name:'康永', ruler:'光明天皇(北朝)', r:[1342,1345], notes:'北朝'},
+      {name:'贞和', ruler:'光明天皇(北朝)', r:[1345,1350], notes:'北朝'},
+      {name:'观应', ruler:'崇光天皇(北朝)', r:[1350,1352], notes:'北朝'},
+      {name:'文和', ruler:'后光严天皇(北朝)', r:[1352,1356], notes:'北朝'},
+      {name:'延文', ruler:'后光严天皇(北朝)', r:[1356,1361], notes:'北朝'},
+      {name:'康安', ruler:'后光严天皇(北朝)', r:[1361,1362], notes:'北朝'},
+      {name:'贞治', ruler:'后光严天皇(北朝)', r:[1362,1368], notes:'北朝'},
+      {name:'应安', ruler:'后光严/后圆融天皇(北朝)', r:[1368,1375], notes:'北朝'},
+      {name:'永和', ruler:'后圆融天皇(北朝)', r:[1375,1379], notes:'北朝'},
+      {name:'康历', ruler:'后圆融天皇(北朝)', r:[1379,1381], notes:'北朝'},
+      {name:'永德', ruler:'后圆融/后小松天皇(北朝)', r:[1381,1384], notes:'北朝'},
+      {name:'至德', ruler:'后小松天皇(北朝)', r:[1384,1387], notes:'北朝'},
+      {name:'嘉庆', ruler:'后小松天皇(北朝)', r:[1387,1389], notes:'北朝'},
+      {name:'康应', ruler:'后小松天皇(北朝)', r:[1389,1390], notes:'北朝'},
+      {name:'明德', ruler:'后小松天皇(北朝)', r:[1390,1394], notes:'北朝'}
+    ]},
+  { id:'jp_muromachi', name:'室町', range:[1336,1573],
+    eras:[
+      {name:'明德', ruler:'后小松天皇', r:[1390,1394]},
+      {name:'应永', ruler:'后小松/称光天皇', r:[1394,1428]},
+      {name:'正长', ruler:'称光/后花园天皇', r:[1428,1429]},
+      {name:'永享', ruler:'后花园天皇', r:[1429,1441]},
+      {name:'嘉吉', ruler:'后花园天皇', r:[1441,1444]},
+      {name:'文安', ruler:'后花园天皇', r:[1444,1449]},
+      {name:'宝德', ruler:'后花园天皇', r:[1449,1452]},
+      {name:'享德', ruler:'后花园天皇', r:[1452,1455]},
+      {name:'康正', ruler:'后花园天皇', r:[1455,1457]},
+      {name:'长禄', ruler:'后花园天皇', r:[1457,1460]},
+      {name:'宽正', ruler:'后花园/后土御门天皇', r:[1460,1466]},
+      {name:'文正', ruler:'后土御门天皇', r:[1466,1467]},
+      {name:'应仁', ruler:'后土御门天皇', r:[1467,1469]},
+      {name:'文明', ruler:'后土御门天皇', r:[1469,1487]},
+      {name:'长享', ruler:'后土御门天皇', r:[1487,1489]},
+      {name:'延德', ruler:'后土御门天皇', r:[1489,1492]},
+      {name:'明应', ruler:'后土御门/后柏原天皇', r:[1492,1501]},
+      {name:'文龟', ruler:'后柏原天皇', r:[1501,1504]},
+      {name:'永正', ruler:'后柏原天皇', r:[1504,1521]},
+      {name:'大永', ruler:'后柏原/后奈良天皇', r:[1521,1528]},
+      {name:'享禄', ruler:'后奈良天皇', r:[1528,1532]},
+      {name:'天文', ruler:'后奈良天皇', r:[1532,1555]},
+      {name:'弘治', ruler:'后奈良/正亲町天皇', r:[1555,1558]},
+      {name:'永禄', ruler:'正亲町天皇', r:[1558,1570]},
+      {name:'元龟', ruler:'正亲町天皇', r:[1570,1573]}
+    ]},
+  { id:'jp_azuchi', name:'安土桃山', range:[1573,1603],
+    eras:[
+      {name:'天正', ruler:'正亲町/后阳成天皇', r:[1573,1592]},
+      {name:'文禄', ruler:'后阳成天皇', r:[1592,1596]},
+      {name:'庆长', ruler:'后阳成天皇', r:[1596,1615]}
+    ]},
+  { id:'jp_edo', name:'江户', range:[1603,1868],
+    eras:[
+      {name:'庆长', ruler:'后阳成/后水尾天皇', r:[1596,1615]},
+      {name:'元和', ruler:'后水尾天皇', r:[1615,1624]},
+      {name:'宽永', ruler:'后水尾/明正/后光明天皇', r:[1624,1644]},
+      {name:'正保', ruler:'后光明天皇', r:[1644,1648]},
+      {name:'庆安', ruler:'后光明天皇', r:[1648,1652]},
+      {name:'承应', ruler:'后光明/后西天皇', r:[1652,1655]},
+      {name:'明历', ruler:'后西天皇', r:[1655,1658]},
+      {name:'万治', ruler:'后西天皇', r:[1658,1661]},
+      {name:'宽文', ruler:'后西/灵元天皇', r:[1661,1673]},
+      {name:'延宝', ruler:'灵元天皇', r:[1673,1681]},
+      {name:'天和', ruler:'灵元天皇', r:[1681,1684]},
+      {name:'贞享', ruler:'灵元/东山天皇', r:[1684,1688]},
+      {name:'元禄', ruler:'东山天皇', r:[1688,1704]},
+      {name:'宝永', ruler:'东山/中御门天皇', r:[1704,1711]},
+      {name:'正德', ruler:'中御门天皇', r:[1711,1716]},
+      {name:'享保', ruler:'中御门/樱町天皇', r:[1716,1736]},
+      {name:'元文', ruler:'樱町天皇', r:[1736,1741]},
+      {name:'宽保', ruler:'樱町天皇', r:[1741,1744]},
+      {name:'延享', ruler:'樱町/桃园天皇', r:[1744,1748]},
+      {name:'宽延', ruler:'桃园天皇', r:[1748,1751]},
+      {name:'宝历', ruler:'桃园/后樱町天皇', r:[1751,1764]},
+      {name:'明和', ruler:'后樱町/后桃园天皇', r:[1764,1772]},
+      {name:'安永', ruler:'后桃园/光格天皇', r:[1772,1781]},
+      {name:'天明', ruler:'光格天皇', r:[1781,1789]},
+      {name:'宽政', ruler:'光格天皇', r:[1789,1801]},
+      {name:'享和', ruler:'光格天皇', r:[1801,1804]},
+      {name:'文化', ruler:'光格/仁孝天皇', r:[1804,1818]},
+      {name:'文政', ruler:'仁孝天皇', r:[1818,1830]},
+      {name:'天保', ruler:'仁孝天皇', r:[1830,1844]},
+      {name:'弘化', ruler:'仁孝/孝明天皇', r:[1844,1848]},
+      {name:'嘉永', ruler:'孝明天皇', r:[1848,1854]},
+      {name:'安政', ruler:'孝明天皇', r:[1854,1860]},
+      {name:'万延', ruler:'孝明天皇', r:[1860,1861]},
+      {name:'文久', ruler:'孝明天皇', r:[1861,1864]},
+      {name:'元治', ruler:'孝明天皇', r:[1864,1865]},
+      {name:'庆应', ruler:'孝明/明治天皇', r:[1865,1868]}
+    ]},
+  { id:'jp_modern', name:'近现代', range:[1868,2026],
+    eras:[
+      {name:'明治', ruler:'明治天皇', r:[1868,1912]},
+      {name:'大正', ruler:'大正天皇', r:[1912,1926]},
+      {name:'昭和', ruler:'昭和天皇', r:[1926,1989]},
+      {name:'平成', ruler:'今上天皇(明仁)', r:[1989,2019]},
+      {name:'令和', ruler:'今上天皇(德仁)', r:[2019,2026]}
+    ]}
+];
+
+// ========================================
+// 构建年份对照数据
+// ========================================
+// 数字转中文序数（年号用）
+function yearNumToChinese(n) {
+  if (n <= 0) return '';
+  if (n === 1) return '元年';
+  const digits = ['', '一','二','三','四','五','六','七','八','九'];
+  const units = ['', '十','百','千'];
+  if (n < 10) return digits[n] + '年';
+  if (n < 20) return '十' + (n === 10 ? '年' : digits[n % 10] + '年');
+  if (n < 100) return digits[Math.floor(n / 10)] + '十' + (n % 10 === 0 ? '年' : digits[n % 10] + '年');
+  return n + '年';
+}
+
+function buildFullDataset() {
+  const data = [];
+  
+  // Determine year ranges
+  // China data: -841 to 1912
+  // Japan data: 645 to 2026
+  // Combined: -841 to 2026
+  const startYear = -841;
+  const endYear = 2026;
+
+  // Pre-process Chinese era data for quick lookup
+  const cnEraMap = new Map(); // year -> [{dynasty, eraName, eraFull, ruler, notes}]
+  
+  for (const dynasty of CN_DYNASTIES) {
+    for (const era of dynasty.eras) {
+      const yrStart = era.r[0];
+      const yrEnd = era.r[1] || yrStart;
+      
+      // Handle sub-eras first
+      if (era.subEras) {
+        for (const sub of era.subEras) {
+          const sStart = sub.r[0];
+          const sEnd = sub.r[1] || sStart;
+          for (let y = sStart; y <= sEnd; y++) {
+            if (!cnEraMap.has(y)) cnEraMap.set(y, []);
+            cnEraMap.get(y).push({
+              dynasty: dynasty.name,
+              eraName: sub.name,
+              eraFull: sub.name + yearNumToChinese(y - sStart + 1),
+              ruler: era.ruler,
+              notes: era.notes || dynasty.name
+            });
+          }
+        }
+      } else {
+        for (let y = yrStart; y <= yrEnd; y++) {
+          if (!cnEraMap.has(y)) cnEraMap.set(y, []);
+          cnEraMap.get(y).push({
+            dynasty: dynasty.name,
+            eraName: era.name,
+            eraFull: era.name + yearNumToChinese(y - yrStart + 1),
+            ruler: era.ruler,
+            notes: era.notes || dynasty.name
+          });
+        }
+      }
+    }
+  }
+
+  // Pre-process Japanese era data
+  const jpEraMap = new Map(); // year -> [{period, eraName, eraFull, ruler, notes}]
+  
+  for (const period of JP_PERIODS) {
+    for (const era of period.eras) {
+      const yrStart = era.r[0];
+      const yrEnd = era.r[1] || yrStart;
+      
+      if (era.subEras) {
+        for (const sub of era.subEras) {
+          const sStart = sub.r[0];
+          const sEnd = sub.r[1] || sStart;
+          for (let y = sStart; y <= sEnd; y++) {
+            if (!jpEraMap.has(y)) jpEraMap.set(y, []);
+            jpEraMap.get(y).push({
+              period: period.name,
+              eraName: sub.name,
+              eraFull: sub.name + yearNumToChinese(y - sStart + 1),
+              ruler: era.ruler,
+              notes: era.notes || ''
+            });
+          }
+        }
+      } else {
+        for (let y = yrStart; y <= yrEnd; y++) {
+          if (!jpEraMap.has(y)) jpEraMap.set(y, []);
+          jpEraMap.get(y).push({
+            period: period.name,
+            eraName: era.name,
+            eraFull: era.name + yearNumToChinese(y - yrStart + 1),
+            ruler: era.ruler,
+            notes: era.notes || ''
+          });
+        }
+      }
+    }
+  }
+
+  // Build year by year — every year is ONE row, eras merged in cells
+  for (let year = startYear; year <= endYear; year++) {
+    const yearStr = year < 0 ? '前' + Math.abs(year) : String(year);
+    const ganzhi = getGanzhi(year);
+    const zodiac = getZodiac(year);
+    
+    const cnEntries = cnEraMap.get(year) || [];
+    const jpEntries = jpEraMap.get(year) || [];
+    const hasJapanData = year >= 645;
+    
+    // Sort Chinese entries by dynasty group then era name
+    cnEntries.sort((a, b) => {
+      const order = ['先秦','秦汉','魏晋南北朝','隋唐五代','宋辽金夏','元明清'];
+      const aGrp = CN_DYNASTIES.find(d => d.name === a.dynasty);
+      const bGrp = CN_DYNASTIES.find(d => d.name === b.dynasty);
+      const aIdx = aGrp ? order.indexOf(aGrp.group) : 99;
+      const bIdx = bGrp ? order.indexOf(bGrp.group) : 99;
+      if (aIdx !== bIdx) return aIdx - bIdx;
+      return a.eraName.localeCompare(b.eraName, 'zh');
+    });
+    
+    // Merge Chinese entries into single cell: era name only (dynasty in separate col)
+    const cnDynastyArr = [...new Set(cnEntries.map(e => e.dynasty))];
+    const cnEraBaseNames = [...new Set(cnEntries.map(e => e.eraName))]; // raw era names for filtering
+    const cnEraLines = cnEntries.length > 0
+      ? cnEntries.map(e => {
+          const yrDisplay = year < 0 ? '前' + Math.abs(year) : year;
+          const copyText = e.eraFull + '（' + yrDisplay + '）';
+          return `<span class="era-entry"><span class="era-text">${e.eraFull}</span><button class="era-copy-btn" data-copy="${escapeHtml(copyText)}" title="复制 ${copyText}" aria-label="复制年号"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span>`;
+        }).join('<br>')
+      : '—';
+    const cnRulerArr = [...new Set(cnEntries.map(e => e.ruler))];
+    const cnNotesArr = [...new Set(cnEntries.map(e => e.notes).filter(Boolean))];
+    
+    // Merge Japanese entries
+    const jpPeriodArr = [...new Set(jpEntries.map(e => e.period))];
+    const jpEraLines = jpEntries.length > 0
+      ? jpEntries.map(e => {
+          const yrDisplay = year < 0 ? '前' + Math.abs(year) : year;
+          const copyText = e.eraFull + '（' + yrDisplay + '）';
+          return `<span class="era-entry"><span class="era-text">${e.period}·${e.eraFull}</span><button class="era-copy-btn" data-copy="${escapeHtml(copyText)}" title="复制 ${copyText}" aria-label="复制日本年号"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span>`;
+        }).join('<br>')
+      : (hasJapanData ? '—' : '—');
+    const jpRulerArr = [...new Set(jpEntries.map(e => e.ruler))];
+    const jpNotesArr = [...new Set(jpEntries.map(e => e.notes).filter(Boolean))];
+    
+    const allNotes = [...cnNotesArr, ...jpNotesArr];
+    
+    // 模糊补全候选 (简体): 年号全名 (如"同治十一年") 与 年号+干支 (如"同治戊戌")
+    // 用于搜索建议: 输入"同治一"提示"同治十一年/二十一年", 输入"同治戊"提示"同治戊戌/戊寅"
+    const eraFullCandidates = [...new Set(cnEntries.map(e => e.eraFull).concat(jpEntries.map(e => e.eraFull)))]
+      .filter(s => s && s.length >= 2);
+    const eraGzCandidates = [...new Set(
+      cnEntries.map(e => e.eraName + getGanzhi(year)).concat(jpEntries.map(e => e.eraName + getGanzhi(year)))
+    )].filter(s => s && s.length >= 3);
+    
+    // 简体归一化搜索串: 用于繁简无差别检索 (一次构建, 长期复用)
+    // 包含 eraFull (如"万历十一年") 以便"万历十一年"这类写法也能命中
+    const cnEraFullNames = [...new Set(cnEntries.map(e => e.eraFull))];
+    const jpEraFullNames = [...new Set(jpEntries.map(e => e.eraFull))];
+    const searchKeyParts = [
+      yearStr, ganzhi, zodiac,
+      cnDynastyArr.join('、'), cnEraBaseNames.join('、'), cnEraFullNames.join('、'), cnRulerArr.join('、'),
+      jpPeriodArr.join('、'),
+      jpEntries.map(e => e.eraName).join('、'), jpEraFullNames.join('、'), jpRulerArr.join('、'),
+      allNotes.join('；')
+    ].filter(Boolean);
+    // 统一转为简体, 保证"萬曆"也能匹配"万历"
+    const searchKey = toSimplified(searchKeyParts.join(' '));
+    
+    data.push({
+      year,
+      yearStr,
+      ganzhi,
+      zodiac,
+      // 简体归一化检索串 (全字段, 用于繁简无差别匹配)
+      searchKey,
+      // 模糊补全候选 (简体): "年号全名" 与 "年号+干支" 列表
+      eraFullCandidates,
+      eraGzCandidates,
+      // for filtering (arrays)
+      cnDynasties: cnDynastyArr.length > 0 ? cnDynastyArr : ['—'],
+      cnEraNames: cnEraBaseNames.length > 0 ? cnEraBaseNames : ['—'],
+      jpEraNames: [...new Set(jpEntries.map(e => e.eraName))].filter(Boolean).length > 0
+        ? [...new Set(jpEntries.map(e => e.eraName))].filter(Boolean) : ['—'],
+      jpPeriods: jpPeriodArr.length > 0 ? jpPeriodArr : (hasJapanData ? ['—'] : ['—']),
+      // for display (strings with HTML)
+      cnDynasty: cnDynastyArr.length > 0 ? cnDynastyArr.join('、') : '—',
+      cnEra: cnEraLines,
+      cnRuler: cnRulerArr.length > 0 ? cnRulerArr.join('、') : '—',
+      jpPeriod: jpPeriodArr.length > 0 ? jpPeriodArr.join('、') : (hasJapanData ? '—' : '—'),
+      jpEra: jpEraLines,
+      jpRuler: jpRulerArr.length > 0 ? jpRulerArr.join('、') : (hasJapanData ? '—' : '—'),
+      notes: allNotes.join('；')
+    });
+  }
+  
+  return data;
+}
+
+// Initialize global data
+let FULL_DATA = [];
+let filteredData = [];
+let currentPage = 1;
+let perPage = 50;
+let sortDir = 'asc'; // 'asc' or 'desc'
+let searchQuery = '';
+let selectedChinaFilters = new Set();
+let selectedChinaEras = new Set();
+let selectedJapanFilters = new Set();
+
+// Build data on load
+FULL_DATA = buildFullDataset();
+
+// ========================================
+// Filter definitions for UI
+// ========================================
+const CHINA_FILTER_GROUPS = [
+  {name:'先秦', dynasties:['西周','春秋','战国','秦']},
+  {name:'秦汉', dynasties:['西汉','新','东汉']},
+  {name:'魏晋南北朝', dynasties:['三国','西晋','东晋','南北朝']},
+  {name:'隋唐五代', dynasties:['隋','唐','五代十国']},
+  {name:'宋辽金夏', dynasties:['北宋','辽','西夏','金','南宋']},
+  {name:'元明清', dynasties:['元','明','清']}
+];
+
+const JAPAN_FILTER_GROUPS = [
+  {name:'古代', periods:['飞鸟','奈良','平安']},
+  {name:'中世', periods:['镰仓','南北朝','室町']},
+  {name:'近世', periods:['安土桃山','江户']},
+  {name:'近现代', periods:['近现代']}
+];
+
+// ========================================
+// Generate filter tags
+// ========================================
+function renderFilterTags() {
+  // China dynasty tags - desktop
+  const chinaContainer = document.getElementById('chinaFilterTags');
+  const chinaContainerMobile = document.getElementById('chinaFilterTagsMobile');
+  
+  const chinaTags = [];
+  CHINA_FILTER_GROUPS.forEach(group => {
+    group.dynasties.forEach(dyn => {
+      const tag = createFilterTag(dyn, 'china', selectedChinaFilters.has(dyn));
+      chinaTags.push(tag);
+    });
+  });
+  
+  if (chinaContainer) {
+    chinaContainer.innerHTML = '';
+    chinaTags.forEach(t => chinaContainer.appendChild(t.cloneNode(true)));
+  }
+  if (chinaContainerMobile) {
+    chinaContainerMobile.innerHTML = '';
+    chinaTags.forEach(t => chinaContainerMobile.appendChild(t));
+  }
+  
+  // Japan period tags
+  const japanContainer = document.getElementById('japanFilterTags');
+  const japanContainerMobile = document.getElementById('japanFilterTagsMobile');
+  
+  const japanTags = [];
+  JAPAN_FILTER_GROUPS.forEach(group => {
+    group.periods.forEach(per => {
+      const tag = createFilterTag(per, 'japan', selectedJapanFilters.has(per));
+      japanTags.push(tag);
+    });
+  });
+  
+  if (japanContainer) {
+    japanContainer.innerHTML = '';
+    japanTags.forEach(t => japanContainer.appendChild(t.cloneNode(true)));
+  }
+  if (japanContainerMobile) {
+    japanContainerMobile.innerHTML = '';
+    japanTags.forEach(t => japanContainerMobile.appendChild(t));
+  }
+  
+  // Render era sub-filters
+  renderEraSubFilters();
+  
+  // Attach events
+  attachFilterEvents();
+}
+
+// Compute and render era name sub-filter tags based on selected dynasties
+function renderEraSubFilters() {
+  const eraDesktop = document.getElementById('chinaEraTags');
+  const eraDesktopGroup = document.getElementById('cnEraSubFilter');
+  const eraMobile = document.getElementById('chinaEraTagsMobile');
+  const eraMobileGroup = document.getElementById('cnEraSubFilterMobile');
+  
+  if (selectedChinaFilters.size === 0) {
+    if (eraDesktopGroup) eraDesktopGroup.style.display = 'none';
+    if (eraMobileGroup) eraMobileGroup.style.display = 'none';
+    if (eraDesktop) eraDesktop.innerHTML = '';
+    if (eraMobile) eraMobile.innerHTML = '';
+    return;
+  }
+  
+  // Collect unique era base names from FULL_DATA rows matching selected dynasties
+  const eraSet = new Set();
+  for (const row of FULL_DATA) {
+    const hasDynasty = row.cnDynasties.some(d => selectedChinaFilters.has(d));
+    if (hasDynasty) {
+      row.cnEraNames.forEach(e => { if (e && e !== '—') eraSet.add(e); });
+    }
+  }
+  
+  const eraNames = [...eraSet].sort((a, b) => a.localeCompare(b, 'zh'));
+  
+  if (eraNames.length === 0) {
+    if (eraDesktopGroup) eraDesktopGroup.style.display = 'none';
+    if (eraMobileGroup) eraMobileGroup.style.display = 'none';
+    if (eraDesktop) eraDesktop.innerHTML = '';
+    if (eraMobile) eraMobile.innerHTML = '';
+    return;
+  }
+  
+  // Show desktop sub-filter
+  if (eraDesktopGroup) eraDesktopGroup.style.display = '';
+  if (eraDesktop) {
+    eraDesktop.innerHTML = '';
+    eraNames.forEach(name => {
+      eraDesktop.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
+    });
+  }
+  
+  // Show mobile sub-filter
+  if (eraMobileGroup) eraMobileGroup.style.display = '';
+  if (eraMobile) {
+    eraMobile.innerHTML = '';
+    eraNames.forEach(name => {
+      eraMobile.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
+    });
+  }
+}
+
+function createFilterTag(label, type, isActive) {
+  const span = document.createElement('span');
+  span.className = `filter-tag ${type}${isActive ? ' active' : ''}`;
+  // 标签显示跟随当前字形, 但 data-value 始终存简体 (用于筛选匹配)
+  span.textContent = toDisplay(label);
+  span.dataset.type = type;
+  span.dataset.value = label;
+  return span;
+}
+
+function attachFilterEvents() {
+  document.querySelectorAll('.filter-tag').forEach(tag => {
+    tag.addEventListener('click', function() {
+      const type = this.dataset.type;
+      const value = this.dataset.value;
+      
+      if (type === 'china') {
+        if (selectedChinaFilters.has(value)) {
+          selectedChinaFilters.delete(value);
+        } else {
+          selectedChinaFilters.add(value);
+        }
+        // Clear era sub-filters when dynasty selection changes
+        selectedChinaEras.clear();
+      } else if (type === 'china-era') {
+        if (selectedChinaEras.has(value)) {
+          selectedChinaEras.delete(value);
+        } else {
+          selectedChinaEras.add(value);
+        }
+      } else {
+        if (selectedJapanFilters.has(value)) {
+          selectedJapanFilters.delete(value);
+        } else {
+          selectedJapanFilters.add(value);
+        }
+      }
+      renderFilterTags();
+      applyFilters();
+    });
+  });
+}
+
+// ========================================
+// Filter + Search Logic
+// ========================================
+
+// 干支解析: 识别查询词中的干支 (支持简体/繁体写法)
+// 返回: { ganzhi: '癸未' } 或 null (无干支)
+// 支持格式: '癸未' / '癸未年' / '万历癸未' / '萬曆癸未'
+const GZ_TIANGAN_S = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const GZ_TIANGAN_T = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']; // 天干繁简相同
+const GZ_DIZHI_S = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const GZ_DIZHI_T = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']; // 地支繁简相同
+// 地支繁体别名 (罕见, 但兼容输入)
+const DIZHI_T_ALIAS = {};
+
+function extractGanzhi(query) {
+  // 先归一化为简体再解析 (干支繁简同形, 但保险起见)
+  const q = toSimplified(query.trim());
+  const re = /([甲乙丙丁戊己庚辛壬癸])([子丑寅卯辰巳午未申酉戌亥])/g;
+  let match;
+  while ((match = re.exec(q)) !== null) {
+    const gz = match[1] + match[2];
+    // 校验是否为有效干支组合 (阳干配阳支, 阴干配阴支)
+    const tgIdx = GZ_TIANGAN_S.indexOf(match[1]);
+    const dzIdx = GZ_DIZHI_S.indexOf(match[2]);
+    if (tgIdx >= 0 && dzIdx >= 0 && ((tgIdx % 2) === (dzIdx % 2))) {
+      return { ganzhi: gz };
+    }
+    if (match.index + 2 < q.length && re.lastIndex === match.index + 2) continue;
+  }
+  return null;
+}
+
+// 判断查询词中是否包含干支 (用于"万历癸未"这类年号+干支组合)
+function queryContainsGanzhi(q) {
+  return extractGanzhi(q) !== null;
+}
+
+// 行级搜索命中判定
+// fuzzy=false: 精确匹配 (干支语义 + searchKey 包含 + 公元前特判)
+// fuzzy=true:  精确为空时启用模糊补全 (年号前缀+片段)
+function rowSearchHit(row, q, fuzzy) {
+  // --- 干支语义解析 ---
+  const gzMatch = extractGanzhi(q);
+  if (gzMatch) {
+    const gz = gzMatch.ganzhi;
+    // 纯干支查询: 只要年份干支匹配即命中
+    const ganzhiHit = row.ganzhi === gz;
+    
+    // 提取干支前后可能的年号关键词 (如"万历癸未"中的"万历")
+    const before = q.slice(0, q.indexOf(gz[0]));
+    const after = q.slice(q.indexOf(gz[1]) + 1);
+    const eraKeyword = (before + after).trim();
+    
+    if (eraKeyword) {
+      // 年号+干支组合查询: 需同时满足年号与干支
+      const eraHit = row.cnEraNames.some(e => e.includes(eraKeyword)) ||
+                     row.jpEraNames.some(j => j.includes(eraKeyword)) ||
+                     row.jpPeriods.some(p => p.includes(eraKeyword)) ||
+                     row.cnDynasties.some(d => d.includes(eraKeyword));
+      if (ganzhiHit && eraHit) return true;
+      // 组合查询失败时不额外放行, 继续走常规搜索
+    } else {
+      // 纯干支: 命中即返回
+      if (ganzhiHit) return true;
+    }
+  }
+  
+  // --- 常规文本匹配 (基于预构建的简体 searchKey) ---
+  if (row.searchKey && row.searchKey.includes(q)) return true;
+  
+  // --- 模糊匹配: "年号 + 片段" (如"同治一"→同治十一年, "同治戊"→同治戊辰) ---
+  if (fuzzy && q.length >= 3 && row.searchKey) {
+    if (eraPrefixHit(row, q)) return true;
+  }
+  
+  // 公元前年份特判
+  if (row.year < 0) {
+    const bcStr = '前' + Math.abs(row.year);
+    if (bcStr.includes(q) || String(row.year).includes(q)) return true;
+  }
+  
+  return false;
+}
+
+// 模糊命中判定: 查询拆为"年号前缀+片段", 行内任一候选包含该片段
+// 例: q="同治一" -> 同治十一年/二十一年; q="同治戊" -> 同治戊戌/戊寅
+function eraPrefixHit(row, q) {
+  const eraNames = [];
+  if (row.cnEraNames) row.cnEraNames.forEach(e => { if (e && e !== '—') eraNames.push(e); });
+  if (row.jpEraNames) row.jpEraNames.forEach(j => { if (j && j !== '—') eraNames.push(j); });
+  if (row.jpPeriods) row.jpPeriods.forEach(p => { if (p && p !== '—') eraNames.push(p); });
+  for (const name of eraNames) {
+    if (!name || name.length < 2 || !q.startsWith(name) || q.length <= name.length) continue;
+    const rest = q.slice(name.length);
+    if (!rest) continue;
+    // 年号全名候选或年号+干支候选, 包含剩余片段即命中
+    if (row.eraFullCandidates && row.eraFullCandidates.some(c => c.startsWith(name) && c.includes(rest))) return true;
+    if (row.eraGzCandidates && row.eraGzCandidates.some(c => c.startsWith(name) && c.includes(rest))) return true;
+  }
+  return false;
+}
+
+function applyFilters() {
+  // 1. 先按筛选器 (朝代/年号/时代) 过滤
+  let base = FULL_DATA.filter(row => {
+    // China dynasty filter — check against array
+    if (selectedChinaFilters.size > 0) {
+      const cnMatch = row.cnDynasties.some(d => selectedChinaFilters.has(d));
+      if (!cnMatch) return false;
+    }
+    // China era name filter — check against array
+    if (selectedChinaEras.size > 0) {
+      const eraMatch = row.cnEraNames.some(e => selectedChinaEras.has(e));
+      if (!eraMatch) return false;
+    }
+    // Japan period filter — check against array
+    if (selectedJapanFilters.size > 0) {
+      const jpMatch = row.jpPeriods.some(p => selectedJapanFilters.has(p));
+      if (!jpMatch) return false;
+    }
+    return true;
+  });
+  
+  // 2. 搜索词两阶段匹配 (精确优先, 精确为空时才启用模糊补全)
+  //    避免"万历十一年"被模糊片段误匹配到"万历二十一年"等行
+  if (searchQuery.trim()) {
+    // 查询词转简体后匹配 (繁简无差别)
+    const q = toSimplified(searchQuery.trim()).toLowerCase();
+    const exact = base.filter(r => rowSearchHit(r, q, false));
+    filteredData = exact.length > 0 ? exact : base.filter(r => rowSearchHit(r, q, true));
+  } else {
+    filteredData = base;
+  }
+  
+  sortData();
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+  updateStats();
+}
+
+function sortData() {
+  filteredData.sort((a, b) => {
+    if (sortDir === 'asc') return a.year - b.year;
+    return b.year - a.year;
+  });
+}
+
+// ========================================
+// Table Rendering
+// ========================================
+function highlightText(text, query) {
+  if (!query || !query.trim() || !text) return escapeHtml(String(text));
+  const q = query.trim();
+  const escaped = escapeHtml(String(text));
+  // Simple case-insensitive highlight
+  const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const tableWrapper = document.getElementById('tableWrapper');
+  const pagination = document.getElementById('pagination');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  
+  if (!filteredData || filteredData.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.classList.add('active');
+    tableWrapper.style.display = 'none';
+    pagination.style.display = 'none';
+    
+    let msg = '未找到匹配的记录';
+    if (searchQuery.trim()) {
+      msg = '未找到包含"' + searchQuery.trim() + '"的记录，请尝试其他关键词';
+    } else if (selectedChinaFilters.size > 0 || selectedJapanFilters.size > 0) {
+      msg = '当前筛选条件下没有匹配记录，请放宽筛选条件';
+    }
+    document.getElementById('emptyStateMsg').textContent = msg;
+    return;
+  }
+  
+  emptyState.classList.remove('active');
+  tableWrapper.style.display = '';
+  pagination.style.display = '';
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredData.length / perPage);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const startIdx = (currentPage - 1) * perPage;
+  const pageData = filteredData.slice(startIdx, startIdx + perPage);
+  
+  loadingOverlay.classList.add('active');
+  
+  // Each row now maps to exactly one year — eras merged in cells, no multi-row
+  requestAnimationFrame(() => {
+    const q = queryForDisplay(searchQuery);
+    const fragments = pageData.map(row => {
+      const yearClass = row.year < 0 ? 'cell-year bc' : 'cell-year';
+      return `<tr role="row">
+        <td class="${yearClass}">${highlightText(toDisplay(row.yearStr), q)}</td>
+        <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
+        <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
+        <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
+        <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
+        <td class="cell-jp-period">${highlightText(toDisplay(row.jpPeriod), q)}</td>
+        <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
+        <td class="cell-jp-ruler">${highlightText(toDisplay(row.jpRuler), q)}</td>
+        <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
+        <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
+      </tr>`;
+    });
+    
+    tbody.innerHTML = fragments.join('');
+    loadingOverlay.classList.remove('active');
+  });
+}
+
+// Highlight text that may contain HTML tags (preserve tags, highlight only text)
+function highlightHtml(html, query) {
+  if (!query || !query.trim() || !html || html === '—') return html;
+  const q = query.trim();
+  return html.replace(/>([^<]*)</g, (match, text) => {
+    const highlighted = text.replace(
+      new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+      '<mark class="search-highlight">$1</mark>'
+    );
+    return '>' + highlighted + '<';
+  });
+}
+
+// ========================================
+// Pagination
+// ========================================
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  const totalPages = Math.ceil(filteredData.length / perPage);
+  
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  let html = '';
+  
+  // Prev button
+  html += `<button class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} data-page="${currentPage - 1}" aria-label="上一页">‹</button>`;
+  
+  // Page numbers
+  const maxButtons = 7;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  if (endPage - startPage < maxButtons - 1) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+  
+  if (startPage > 1) {
+    html += `<button class="page-btn" data-page="1">1</button>`;
+    if (startPage > 2) html += `<span class="page-ellipsis">…</span>`;
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    html += `<button class="page-btn${i === currentPage ? ' active' : ''}" data-page="${i}">${i}</button>`;
+  }
+  
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) html += `<span class="page-ellipsis">…</span>`;
+    html += `<button class="page-btn" data-page="${totalPages}">${totalPages}</button>`;
+  }
+  
+  // Next button
+  html += `<button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} data-page="${currentPage + 1}" aria-label="下一页">›</button>`;
+  
+  container.innerHTML = html;
+  
+  // Attach events
+  container.querySelectorAll('.page-btn:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const page = parseInt(this.dataset.page);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        renderTable();
+        renderPagination();
+        document.getElementById('tableWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    });
+  });
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent = filteredData.length.toLocaleString();
+}
+
+// ========================================
+// Search
+// ========================================
+let searchDebounceTimer = null;
+
+function handleSearch(value) {
+  searchQuery = value.trim();
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    applyFilters();
+    updateSuggestions(value);
+  }, 200);
+}
+
+// Execute search AND jump to first matching result
+function performSearchAndJump() {
+  const input = document.getElementById('globalSearch');
+  searchQuery = input.value.trim();
+  document.getElementById('searchSuggestions').classList.remove('active');
+  applyFilters();
+  updateSuggestions(input.value);
+  
+  // If there's a search query and results exist, jump to the first match
+  if (searchQuery && filteredData.length > 0) {
+    jumpToYear(filteredData[0].year);
+  } else if (searchQuery && filteredData.length === 0) {
+    showToast('未找到匹配"' + searchQuery + '"的记录');
+  }
+}
+
+// 模糊补全: 从查询中拆出"年号前缀 + 片段", 对候选做 contains 匹配
+// 例: "同治一" -> 同治十一年/同治二十一年... ; "同治戊" -> 同治戊戌/同治戊寅...
+// 返回: [{type:'field', value, year, yearStr}]
+function suggestEraPrefixMatches(q, maxResults) {
+  const results = [];
+  if (!q || q.length < 3) return results;
+  
+  // 年号前缀集合 (从数据中收集, 简体), 按长度降序 (先试长年号)
+  const eraNames = new Set();
+  for (const row of FULL_DATA) {
+    if (results.length >= maxResults) break;
+    for (const e of row.cnEraNames) {
+      if (e && e !== '—' && e.length >= 2) eraNames.add(e);
+    }
+    for (const j of (row.jpEraNames || [])) {
+      if (j && j !== '—' && j.length >= 2) eraNames.add(j);
+    }
+    for (const p of row.jpPeriods) {
+      if (p && p !== '—' && p.length >= 2) eraNames.add(p);
+    }
+  }
+  
+  // 找出作为 q 前缀的年号 (如"同治"), 越长越优先
+  const prefixes = Array.from(eraNames)
+    .filter(name => q.startsWith(name) && q.length > name.length)
+    .sort((a, b) => b.length - a.length);
+  
+  for (const prefix of prefixes) {
+    const rest = q.slice(prefix.length);
+    const seen = new Set();
+    // 在全部数据中搜索 "prefix + 片段" 候选
+    for (const row of FULL_DATA) {
+      if (results.length >= maxResults) break;
+      const candSet = new Set();
+      // 年号全名候选: "同治十一年" 等
+      if (row.eraFullCandidates) row.eraFullCandidates.forEach(c => {
+        if (c.startsWith(prefix) && c.includes(rest)) candSet.add(c);
+      });
+      // 年号+干支候选: "同治戊戌" 等
+      if (row.eraGzCandidates) row.eraGzCandidates.forEach(c => {
+        if (c.startsWith(prefix) && c.includes(rest)) candSet.add(c);
+      });
+      for (const c of candSet) {
+        if (seen.has(c)) continue;
+        seen.add(c);
+        if (results.length >= maxResults) break;
+        results.push({ type:'field', value: c, year: row.year, yearStr: row.yearStr });
+      }
+    }
+    if (results.length > 0) break; // 最长年号前缀已命中则不再尝试更短前缀
+  }
+  
+  return results;
+}
+
+function updateSuggestions(query) {
+  const container = document.getElementById('searchSuggestions');
+  if (!query.trim() || query.trim().length < 1) {
+    container.classList.remove('active');
+    return;
+  }
+  
+  // 繁简归一化: 查询词与数据均转简体匹配
+  const q = toSimplified(query.trim()).toLowerCase();
+  const suggestions = new Set();
+  const maxResults = 15;
+  
+  // 干支语义建议: 若查询为纯干支, 只提示干支年 (避免与常规建议重复)
+  const gzMatch = extractGanzhi(q);
+  if (gzMatch) {
+    const gz = gzMatch.ganzhi;
+    // 只有纯干支查询时 (无其他关键词) 才走干支建议
+    const before = q.slice(0, q.indexOf(gz[0]));
+    const after = q.slice(q.indexOf(gz[1]) + 1);
+    const isPureGanzhi = !(before + after).trim();
+    if (isPureGanzhi) {
+      for (const row of FULL_DATA) {
+        if (suggestions.size >= maxResults) break;
+        if (row.ganzhi === gz) {
+          suggestions.add(JSON.stringify({type:'ganzhi', value:gz + '年（' + row.yearStr + '）', year:row.year, yearStr:row.yearStr}));
+        }
+      }
+      // 纯干支时直接输出建议, 不走常规匹配
+      if (suggestions.size > 0) {
+        return renderSuggestions(container, suggestions, maxResults, query);
+      }
+    }
+  }
+  
+  // --- 模糊补全: "年号 + 片段" (如"同治一"→同治十一年/二十一年, "同治戊"→同治戊戌/戊寅) ---
+  // 拆出查询中的年号前缀 (最长匹配), 剩余片段对候选做 contains 匹配
+  const eraCand = suggestEraPrefixMatches(q, maxResults);
+  if (eraCand.length > 0) {
+    eraCand.forEach(item => suggestions.add(JSON.stringify(item)));
+  }
+  
+  // 常规字段匹配 (基于 searchKey), 带匹配质量分
+  const suggestionItems = []; // {score, data}
+  if (suggestions.size < maxResults) {
+    for (const row of FULL_DATA) {
+      if (suggestionItems.length >= maxResults * 3) break;
+      if (!row.searchKey) continue;
+      const idx = row.searchKey.indexOf(q);
+      if (idx >= 0) {
+        // 提取命中的可读字段 (优先年号/干支)
+        let value = row.ganzhi + ' ' + row.yearStr;
+        let score = 5; // 基础分
+        let matchLen = 99; // 年号名长度 (短者优先)
+        const eraHit = row.cnEraNames.find(e => e && e !== '—' && e.includes(q)) ||
+                       row.jpPeriods.find(p => p && p !== '—' && p.includes(q));
+        if (eraHit) {
+          value = eraHit;
+          matchLen = eraHit.length;
+          // 年号名: 前缀匹配最高分, 包含次之
+          if (eraHit.startsWith(q)) score = 100;
+          else score = 60;
+        } else if (row.ganzhi === q) {
+          score = 90; // 干支精确匹配
+          matchLen = 2;
+        } else if (row.yearStr === q) {
+          score = 85; // 年份精确匹配
+          matchLen = 4;
+        }
+        suggestionItems.push({ score, matchLen, value, year: row.year, yearStr: row.yearStr });
+      }
+    }
+    // 按质量分降序, 同分按年号名长度升序 (短名优先), 再按年份
+    suggestionItems.sort((a, b) => b.score - a.score || a.matchLen - b.matchLen || a.year - b.year);
+    suggestionItems.slice(0, maxResults).forEach(item => {
+      suggestions.add(JSON.stringify({type:'field', value:item.value, year:item.year, yearStr:item.yearStr}));
+    });
+  }
+  
+  if (suggestions.size === 0) {
+    container.innerHTML = '<div class="search-suggestion-item" style="color:var(--color-text-muted);cursor:default;">无匹配建议</div>';
+    container.classList.add('active');
+    return;
+  }
+  
+  renderSuggestions(container, suggestions, maxResults, query);
+}
+
+// 渲染搜索建议 (显示跟随当前字形)
+function renderSuggestions(container, suggestions, maxResults, query) {
+  container.innerHTML = Array.from(suggestions).slice(0, maxResults).map(s => {
+    const item = JSON.parse(s);
+    // 建议显示跟随当前字形 (繁体模式下显示繁体)
+    const displayValue = toDisplay(item.value);
+    const displayYear = toDisplay(item.yearStr);
+    const dispQuery = queryForDisplay(query.trim());
+    return `<div class="search-suggestion-item" role="option" data-year="${item.year}">
+      <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-muted);min-width:50px;">${displayYear}</span>
+      <span>${highlightText(displayValue, dispQuery)}</span>
+    </div>`;
+  }).join('');
+  
+  container.classList.add('active');
+  
+  // Click event
+  container.querySelectorAll('.search-suggestion-item[data-year]').forEach(el => {
+    el.addEventListener('click', function() {
+      const year = parseInt(this.dataset.year);
+      jumpToYear(year);
+      container.classList.remove('active');
+    });
+  });
+}
+
+function jumpToYear(year) {
+  // Each year has exactly one row now
+  const idx = filteredData.findIndex(r => r.year === year);
+  if (idx >= 0) {
+    currentPage = Math.floor(idx / perPage) + 1;
+    renderTable();
+    renderPagination();
+    // Scroll to table
+    document.getElementById('tableWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+    
+    // After render, highlight the row briefly
+    setTimeout(() => {
+      const rows = document.querySelectorAll('#tableBody tr');
+      rows.forEach(r => {
+        if (r.querySelector('.cell-year') && r.querySelector('.cell-year').textContent.trim() === (year < 0 ? '前'+Math.abs(year) : String(year))) {
+          r.style.background = 'var(--color-highlight)';
+          setTimeout(() => { r.style.background = ''; }, 2000);
+        }
+      });
+    }, 100);
+  }
+}
+
+// ========================================
+// Export CSV (可自定义列与范围)
+// ========================================
+// 列定义: key / 简体标签 / 取值函数
+const CSV_COLUMNS = [
+  { key:'year',    label:'公历年份', get: row => row.yearStr },
+  { key:'ganzhi',  label:'干支',     get: row => row.ganzhi },
+  { key:'cnEra',   label:'中国年号', get: row => stripHtml(row.cnEra) },
+  { key:'cnDyn',   label:'中国朝代', get: row => row.cnDynasty },
+  { key:'cnRuler', label:'在位皇帝', get: row => row.cnRuler },
+  { key:'jpPeriod',label:'日本时代', get: row => row.jpPeriod },
+  { key:'jpEra',   label:'日本年号', get: row => stripHtml(row.jpEra) },
+  { key:'jpRuler', label:'在位天皇', get: row => row.jpRuler },
+  { key:'notes',   label:'备注',     get: row => row.notes.replace(/；/g, ';') },
+  { key:'zodiac',  label:'生肖',     get: row => row.zodiac },
+];
+let exportSelectedCols = new Set(CSV_COLUMNS.map(c => c.key));
+let exportRange = 'filtered'; // 'filtered' | 'page'
+
+function stripHtml(s) {
+  return String(s).replace(/<br\s*\/?>/gi, '; ').replace(/<[^>]*>/g, '').trim();
+}
+
+// 打开导出对话框
+function exportCSV() {
+  const dlg = document.getElementById('exportDialog');
+  if (!dlg) return;
+  
+  // 对话框静态文本跟随当前字形
+  const langLabel = displayLang === 't' ? toTraditional : s => s;
+  dlg.querySelectorAll('.modal-head h3, .modal-foot .btn, .exp-btn, .exp-title, .exp-actions .exp-btn').forEach(el => {
+    el.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = langLabel(n.textContent.trim()); });
+  });
+  const closeBtn = dlg.querySelector('.modal-close');
+  if (closeBtn) closeBtn.setAttribute('aria-label', langLabel(closeBtn.getAttribute('aria-label') || '关闭'));
+  
+  // 生成列勾选 (跟随当前字形)
+  const colsHtml = CSV_COLUMNS.map(c => {
+    const checked = exportSelectedCols.has(c.key) ? 'checked' : '';
+    return `<label class="exp-col">
+      <input type="checkbox" data-col="${c.key}" ${checked}> ${langLabel(c.label)}
+    </label>`;
+  }).join('');
+  
+  // 范围单选
+  const total = filteredData.length;
+  const pageRows = renderTableRowsCount();
+  const rangeHtml = `
+    <label class="exp-range">
+      <input type="radio" name="expRange" value="filtered" ${exportRange === 'filtered' ? 'checked' : ''}>
+      <span>${langLabel('全部筛选结果')}（${total} 条）</span>
+    </label>
+    <label class="exp-range">
+      <input type="radio" name="expRange" value="page" ${exportRange === 'page' ? 'checked' : ''}>
+      <span>${langLabel('仅当前页')}（${pageRows} 条）</span>
+    </label>`;
+  
+  dlg.querySelector('.exp-cols').innerHTML = colsHtml;
+  dlg.querySelector('.exp-ranges').innerHTML = rangeHtml;
+  updateExportCount();
+  dlg.classList.add('open');
+}
+
+// 当前页行数 (按当前分页状态计算)
+function renderTableRowsCount() {
+  const start = (currentPage - 1) * perPage;
+  return Math.min(perPage, Math.max(0, filteredData.length - start));
+}
+
+// 更新导出对话框统计
+function updateExportCount() {
+  const dlg = document.getElementById('exportDialog');
+  if (!dlg) return;
+  const nCols = dlg.querySelectorAll('.exp-col input[type="checkbox"]:checked').length;
+  const range = dlg.querySelector('input[name="expRange"]:checked');
+  const nRows = range && range.value === 'page' ? renderTableRowsCount() : filteredData.length;
+  const countEl = dlg.querySelector('.exp-count');
+  if (countEl) countEl.textContent = `${toDisplay('将导出')} ${nRows} ${toDisplay('行')} × ${nCols} ${toDisplay('列')}`;
+}
+
+// 执行导出
+function doExportCSV() {
+  const dlg = document.getElementById('exportDialog');
+  // 收集勾选列
+  exportSelectedCols = new Set();
+  dlg.querySelectorAll('.exp-col input[type="checkbox"]:checked').forEach(cb => {
+    exportSelectedCols.add(cb.dataset.col);
+  });
+  if (exportSelectedCols.size === 0) {
+    showToast('请至少选择一列');
+    return;
+  }
+  // 收集范围
+  const checked = dlg.querySelector('input[name="expRange"]:checked');
+  exportRange = checked ? checked.value : 'filtered';
+  
+  const BOM = '\uFEFF';
+  const selCols = CSV_COLUMNS.filter(c => exportSelectedCols.has(c.key));
+  const headers = selCols.map(c => toDisplay(c.label));
+  
+  // 取数
+  let dataRows;
+  if (exportRange === 'page') {
+    const start = (currentPage - 1) * perPage;
+    dataRows = filteredData.slice(start, start + perPage);
+  } else {
+    dataRows = filteredData;
+  }
+  
+  const rows = dataRows.map(row =>
+    selCols.map(c => `"${String(toDisplay(c.get(row))).replace(/"/g, '""')}"`).join(',')
+  );
+  
+  const csv = BOM + headers.join(',') + '\n' + rows.join('\n');
+  
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `日本汉籍编目工具_纪年对照_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  closeExportDialog();
+  showToast('CSV 导出成功');
+}
+
+function closeExportDialog() {
+  const dlg = document.getElementById('exportDialog');
+  if (dlg) dlg.classList.remove('open');
+}
+
+// ========================================
+// Toast
+// ========================================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ========================================
+// Theme Toggle
+// ========================================
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+// ========================================
+// Mobile Filter Panel
+// ========================================
+function initMobileFilter() {
+  const panel = document.getElementById('filterPanelMobile');
+  const overlay = document.getElementById('filterPanelOverlay');
+  const toggleBtn = document.getElementById('filterToggleMobile');
+  const closeBtn = document.getElementById('filterPanelClose');
+  const applyBtn = document.getElementById('filterApplyMobile');
+  
+  function open() {
+    panel.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function close() {
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  
+  if (toggleBtn) toggleBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (overlay) overlay.addEventListener('click', close);
+  if (applyBtn) applyBtn.addEventListener('click', () => {
+    applyFilters();
+    close();
+  });
+}
+
+// ========================================
+// Check mobile and adjust layout
+// ========================================
+function adjustForMobile() {
+  const isMobile = window.innerWidth <= 768;
+  const filterDesktop = document.querySelector('.filter-bar.filter-desktop');
+  const filterMobile = document.getElementById('mobileFilterBar');
+  
+  if (isMobile) {
+    if (filterDesktop) filterDesktop.style.display = 'none';
+    if (filterMobile) filterMobile.style.display = '';
+  } else {
+    if (filterDesktop) filterDesktop.style.display = '';
+    if (filterMobile) filterMobile.style.display = 'none';
+  }
+}
+
+// ========================================
+// Scroll to Top Button
+// ========================================
+function initScrollToTop() {
+  const btn = document.createElement('button');
+  btn.id = 'scrollTopBtn';
+  btn.className = 'btn-icon';
+  btn.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;opacity:0;visibility:hidden;transition:opacity var(--transition-md),visibility var(--transition-md);transform:rotate(0deg);background:var(--color-primary);border-color:var(--color-primary);color:var(--color-table-header-text);width:42px;height:42px;border-radius:50%;box-shadow:var(--shadow-lg);';
+  btn.setAttribute('aria-label', '回到顶部');
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>';
+  document.body.appendChild(btn);
+  
+  btn.addEventListener('click', () => {
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  
+  let scrollTimer;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      if (window.scrollY > 400) {
+        btn.style.opacity = '1';
+        btn.style.visibility = 'visible';
+      } else {
+        btn.style.opacity = '0';
+        btn.style.visibility = 'hidden';
+      }
+    }, 100);
+  }, {passive:true});
+}
+
+// ========================================
+// Initialization
+// ========================================
+function init() {
+  // Theme
+  initTheme();
+  
+  // 默认繁体显示 (v1.1 起): 初始化表头/筛选标签/placeholder/统计栏等全部 UI
+  setDisplayLang('t');
+  
+  // Render filter tags
+  renderFilterTags();
+  
+  // Initial filter
+  sortData();
+  filteredData = [...FULL_DATA];
+  applyFilters();
+  
+  // Adjust for mobile
+  adjustForMobile();
+  
+  // Event listeners
+  // Search
+  document.getElementById('globalSearch').addEventListener('input', function(e) {
+    handleSearch(this.value);
+  });
+  document.getElementById('globalSearch').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      performSearchAndJump();
+    }
+  });
+  
+  // Search button click
+  document.getElementById('searchBtn').addEventListener('click', function() {
+    performSearchAndJump();
+  });
+  document.getElementById('globalSearch').addEventListener('blur', function() {
+    setTimeout(() => document.getElementById('searchSuggestions').classList.remove('active'), 200);
+  });
+  
+  // Close suggestions on click outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.header-search')) {
+      document.getElementById('searchSuggestions').classList.remove('active');
+    }
+  });
+  
+  // Per page
+  document.getElementById('perPageSelect').addEventListener('change', function() {
+    perPage = parseInt(this.value);
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+  });
+  
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', exportCSV);
+  // Export dialog events
+  document.getElementById('exportDialogClose').addEventListener('click', closeExportDialog);
+  document.getElementById('exportDialogCancel').addEventListener('click', closeExportDialog);
+  document.getElementById('exportDialogConfirm').addEventListener('click', doExportCSV);
+  document.getElementById('expSelectAll').addEventListener('click', function() {
+    document.querySelectorAll('#exportDialog .exp-col input[type="checkbox"]').forEach(cb => cb.checked = true);
+    updateExportCount();
+  });
+  document.getElementById('expSelectNone').addEventListener('click', function() {
+    document.querySelectorAll('#exportDialog .exp-col input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateExportCount();
+  });
+  document.getElementById('exportDialog').addEventListener('click', function(e) {
+    if (e.target === this) closeExportDialog();
+  });
+  // 勾选变化时更新统计
+  document.getElementById('exportDialog').addEventListener('change', function(e) {
+    if (e.target.matches('.exp-col input') || e.target.matches('.exp-range input')) {
+      updateExportCount();
+    }
+  });
+  
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  
+  // 简繁切换
+  document.getElementById('langBtnS').addEventListener('click', function() { setDisplayLang('s'); });
+  document.getElementById('langBtnT').addEventListener('click', function() { setDisplayLang('t'); });
+  // 将搜索框的简体 placeholder 存到 data 属性 (供切换用)
+  document.getElementById('globalSearch').dataset.placeholderCn = '搜索：公历年份、干支、年号、君主名……';
+  
+  // Filter clear
+  document.getElementById('filterClearBtn').addEventListener('click', function() {
+    selectedChinaFilters.clear();
+    selectedChinaEras.clear();
+    selectedJapanFilters.clear();
+    renderFilterTags();
+    applyFilters();
+  });
+  
+  const filterClearMobile = document.getElementById('filterClearBtnMobile');
+  if (filterClearMobile) {
+    filterClearMobile.addEventListener('click', function() {
+      selectedChinaFilters.clear();
+      selectedJapanFilters.clear();
+      renderFilterTags();
+      applyFilters();
+    });
+  }
+  
+  // Sort
+  document.querySelector('#tableHead th.sortable').addEventListener('click', function() {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    const arrow = this.querySelector('.sort-arrow');
+    if (arrow) {
+      arrow.textContent = sortDir === 'asc' ? '▲' : '▼';
+      arrow.classList.add('active');
+    }
+    sortData();
+    currentPage = 1;
+    applyFilters();
+  });
+  
+  // Mobile filter
+  initMobileFilter();
+  
+  // Window resize
+  window.addEventListener('resize', adjustForMobile);
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('globalSearch').focus();
+    }
+    if (e.key === 'Escape') {
+      document.getElementById('searchSuggestions').classList.remove('active');
+      document.getElementById('filterPanelMobile').classList.remove('open');
+      document.getElementById('filterPanelOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+  
+  // Scroll to top
+  initScrollToTop();
+  // Knowledge panel
+  initKnowledgePanel();
+  
+  // Initial stats
+  updateStats();
+  
+  // Era copy button — event delegation
+  document.getElementById('tableBody').addEventListener('click', function(e) {
+    const btn = e.target.closest('.era-copy-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    
+    // 按当前字形输出 (简体/繁体)
+    const copyText = toDisplay(btn.dataset.copy);
+    if (!copyText) return;
+    
+    navigator.clipboard.writeText(copyText).then(() => {
+      btn.classList.add('copied');
+      showToast('已复制：' + copyText);
+      setTimeout(() => btn.classList.remove('copied'), 1500);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = copyText;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.classList.add('copied');
+      showToast('已复制：' + copyText);
+      setTimeout(() => btn.classList.remove('copied'), 1500);
+    });
+  });
+  
+  console.log('%c日本汉籍编目工具 — 纪年查询系统已就绪%c\n共' + FULL_DATA.length.toLocaleString() + '条记录 | Ctrl+K 快速搜索 | 支持公元前年份查询',
+    'font-weight:bold;color:#1a2a4a;font-size:14px;', 'color:#5c564d;');
+}
+
+// Boot
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+</script>
+<script src="conv_tables.js"></script>
+<script src="knowledge.js"></script>
+<!-- ============================================
+     Knowledge Panel — 书画纪时常识
+     ============================================ -->
+<div class="knowledge-panel" id="knowledgePanel" role="dialog" aria-label="岁时落款常识面板">
+  <nav class="knowledge-nav" id="knowledgeNav" role="tablist" aria-label="分类导航">
+    <button class="knowledge-nav-item active" data-cat="0" role="tab" aria-selected="true">干支别称</button>
+    <button class="knowledge-nav-item" data-cat="1" role="tab">月份雅称</button>
+    <button class="knowledge-nav-item" data-cat="2" role="tab">季令节令</button>
+    <button class="knowledge-nav-item" data-cat="3" role="tab">落款规范</button>
+    <button class="knowledge-nav-item" data-cat="4" role="tab">年龄称谓</button>
+  </nav>
+  <div class="knowledge-content" id="knowledgeContent" role="tabpanel"></div>
+  <button class="knowledge-panel-close" id="knowledgeClose" aria-label="关闭常识面板">关闭</button>
+</div>
+</body>
+</html>

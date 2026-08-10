@@ -1,0 +1,7 @@
+# 工作区内部数据（记忆/截图/构建中间产物）
+.workbuddy/
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+*.log
