@@ -6,26 +6,26 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
 <title>更新日志 — 日本汉籍编目工具</title>
 <style>
-:root{--color-bg:#f7f4ee;--color-bg-alt:#ede8df;--color-surface:#fff;--color-surface-hover:#f0ece5;--color-primary:#1a2a4a;--color-primary-light:#2d4470;--color-accent:#8b6914;--color-accent-light:#b8942c;--color-text:#2d2a26;--color-text-secondary:#5c564d;--color-text-muted:#8a8278;--color-border:#d5cec2;--color-border-light:#e8e2d8;--color-divider:#ebe5da;--color-table-header:#1a2a4a;--color-table-header-text:#e8e2d8;--color-shadow:rgba(26,42,74,.08);--color-shadow-lg:rgba(26,42,74,.12);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms ease;--radius-sm:4px;--radius-md:8px;--radius-lg:12px;--shadow-sm:0 1px 3px var(--color-shadow);--shadow-md:0 4px 12px var(--color-shadow);--shadow-lg:0 8px 24px var(--color-shadow-lg)}
-[data-theme="dark"]{--color-bg:#1a1c1e;--color-bg-alt:#242629;--color-surface:#2a2d30;--color-surface-hover:#33363a;--color-primary:#8ba4d0;--color-primary-light:#a3b8db;--color-accent:#d4a843;--color-text:#e0dcd5;--color-text-secondary:#b0aaa0;--color-text-muted:#7a746c;--color-border:#4a4640;--color-border-light:#3a3632;--color-divider:#3a3632;--color-highlight:#3d3520}
+:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
+[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
 :focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 
-.app-header{background:var(--color-primary);color:var(--color-table-header-text);padding:.8rem 0;position:sticky;top:0;z-index:100}
+.app-header{background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--color-text);padding:.8rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--color-border-light)}
 .header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
 .header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
-.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:#fff;font-weight:700}
-.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:#e8e2d8;white-space:nowrap}
+.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:var(--color-bg);font-weight:700}
+.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:var(--color-text);white-space:nowrap}
 .header-nav{display:flex;gap:.25rem;flex-shrink:0}
-.header-nav a{color:rgba(232,226,216,.65);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
-.header-nav a:hover{color:#e8e2d8;background:rgba(255,255,255,.08)}
-.header-nav a.active{color:#e8e2d8;background:rgba(255,255,255,.12);font-weight:600}
+.header-nav a{color:var(--color-text-muted);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
+.header-nav a:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.header-nav a.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
 .header-actions{margin-left:auto;display:flex;gap:.5rem}
-.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(232,226,216,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
-.btn-icon:hover{background:rgba(255,255,255,.18)}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
+.btn-icon:hover{background:var(--color-surface-hover);color:var(--color-text)}
 
 .page{max-width:860px;margin:0 auto;padding:2rem 1.5rem 3rem;width:100%;flex:1}
 .page-head{margin-bottom:2rem}
@@ -37,7 +37,8 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .cl-entry .cl-ver{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--color-primary)}
 .cl-entry .cl-date{font-size:.8rem;color:var(--color-text-muted)}
 .cl-tag{font-size:.72rem;font-weight:600;padding:.12rem .5rem;border-radius:999px;color:#fff;white-space:nowrap}
-.cl-tag.t-new{background:#2d7a4f}.cl-tag.t-fix{background:#8b6914}.cl-tag.t-del{background:#a04a3a}.cl-tag.t-opt{background:#2d4470}
+.cl-tag.t-new{background:#171717}.cl-tag.t-fix{background:#525252}.cl-tag.t-del{background:#737373}.cl-tag.t-opt{background:#404040}
+[data-theme="dark"] .cl-tag.t-new{background:#fafafa;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-fix{background:#d4d4d4;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-del{background:#a3a3a3;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-opt{background:#e5e5e5;color:#0a0a0a}
 .cl-entry ul{list-style:none;padding:0}
 .cl-entry li{font-size:.875rem;line-height:1.8;color:var(--color-text);padding-left:1.1em;position:relative}
 .cl-entry li::before{content:'';position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:var(--color-accent)}
@@ -54,6 +55,27 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
   .page{padding:1.25rem 1rem 2rem}.cl-entry{padding:1rem 1rem}
 }
+/* v2.2 进入动画 */
+body{transition:background-color .3s ease,color .3s ease}
+.app-header{animation:hdrIn .5s var(--ease-spring)}
+@keyframes hdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.page{animation:pageIn .45s var(--ease-spring) .08s backwards}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* v3.0 导航下拉菜单 (说明文档) */
+.nav-dropdown{position:relative;flex-shrink:0}
+.nav-dropdown-btn{display:inline-flex;align-items:center;gap:.1rem;color:var(--color-text-muted);font-size:.85rem;font-weight:500;font-family:var(--font-body);padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap;border:none;background:none;cursor:pointer}
+.nav-dropdown-btn:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.nav-dropdown-btn.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
+.nav-dropdown-btn svg{transition:transform var(--transition-fast)}
+.nav-dropdown:hover .nav-dropdown-btn svg,.nav-dropdown:focus-within .nav-dropdown-btn svg{transform:rotate(180deg)}
+.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:132px;padding:.3rem;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease-spring),visibility .18s var(--ease-spring),transform .18s var(--ease-spring);z-index:210}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
+.nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
+
 </style>
 </head>
 <body>
@@ -62,7 +84,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   <div class="header-inner">
     <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
     <nav class="header-nav">
-      <a href="guide.html">使用介绍</a><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="changelog.html" class="active">更新日志</a>
+      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">嵌入</a>
     </nav>
     <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
   </div>
@@ -73,6 +95,97 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v3.2</span>
+      <span class="cl-date">2026-08-14</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>「嵌入」功能</b>：顶部导航新增「嵌入」入口，进入网站嵌入页后输入任意网址，即可在页面内直接打开目标网站（如本站 GitHub Pages 线上版、Animate UI 文档等），无需离开当前站点。</li>
+      <li><b>嵌入兼容检测</b>：打开前自动检测目标网站是否允许被嵌入（X-Frame-Options / CSP frame-ancestors），不允许嵌入的网站会提示改用新窗口打开，避免出现空白页。</li>
+      <li><b>快捷入口</b>：嵌入页内置本站 GitHub Pages、工作手册 PDF、Animate UI、shadcn 文档等常用快捷入口，一键打开。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v3.1</span>
+      <span class="cl-date">2026-08-13</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>2025 新版细则改为简体</b>：编目规范页「细则查阅」中 2025 新版细则全文由繁体转为简体，与 2023 旧版保持一致，便于阅读与检索。</li>
+      <li><b>分类表/工作手册布局扩展</b>：这两个栏目没有右侧「在本页」目录，内容区自动扩展填满，不再显得窄小。</li>
+      <li><b>工作手册题头精简</b>：删除「PDF 原版 · 可直接翻阅、缩放、打印」副标题文字。</li>
+      <li><b>卷数计算器改为弹窗</b>：点击「卷」按钮弹出居中模态弹窗（支持点击遮罩/关闭按钮/Esc 关闭），操作更清晰。</li>
+      <li><b>计算过程预览</b>：弹窗内新增计算过程预览条，实时显示算式与结果（如「12 ＋ 7 ＝ 19」），每步运算一目了然。</li>
+      <li><b>修复按钮遮挡</b>：卷数计算器按钮上移至知识按钮上方，不再遮挡右下角「回到顶部」按钮。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v3.0</span>
+      <span class="cl-date">2026-08-13</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>「说明文档」下拉菜单</b>：「使用介绍」与「更新日志」合并为顶部导航的「说明文档」入口，鼠标悬停展开下拉菜单，可分别进入使用介绍或更新日志；四页导航统一更新。</li>
+      <li><b>编目规范页全面重做（文档站风格）</b>：采用三栏文档站布局——左侧深色导航栏（Animate UI / shadcn Create 风格圆角配置卡片）、中央文档区、右侧「在本页」目录。</li>
+      <li><b>深色侧栏导航</b>：左侧栏以深色底承载「细则查阅 / 分类表查询 / 工作手册」三个内容入口，下方实时显示当前文档的章节锚点列表或分类快捷导航，底部为「返回纪年查询」「切换主题」按钮组。</li>
+      <li><b>章节锚点导航</b>：细则文档每个章节自动生成锚点，点击侧栏或右侧目录条目即可平滑滚动至对应章节；滚动时自动高亮当前章节（scroll-spy）。</li>
+      <li><b>「在本页」目录</b>：右侧新增随文档滚动定位的章节目录（过滤文档大标题与副标题），细则查阅时实时跟随。</li>
+      <li><b>布局响应式</b>：三栏布局在中等屏幕自动隐藏右侧目录，窄屏转为单列堆叠，侧栏导航保持可用。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v2.2</span>
+      <span class="cl-date">2026-08-12</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>全新黑白极简界面</b>：全站配色改为以黑白灰为主的现代极简风格（浅色模式为纯白/浅灰，深色模式为纯黑/深灰），整体视觉更简洁、高级，接近现代化设计系统。</li>
+      <li><b>毛玻璃顶栏</b>：页面顶栏与筛选栏改为半透明毛玻璃效果（backdrop-filter），内容滚动时呈现细腻的模糊过渡。</li>
+      <li><b>全站动效升级</b>：新增页面进入动画（顶栏下滑、内容区依次淡入）、搜索建议弹出动画、筛选标签点按弹性反馈、对话框缩放进入、表格渲染淡入等微动效，交互更流畅自然。</li>
+      <li><b>滚动进度指示</b>：页面顶部新增 2px 滚动进度条，随页面滚动实时指示阅读位置。</li>
+      <li><b>主题切换平滑过渡</b>：明暗主题切换时背景与文字颜色平滑渐变，不再生硬跳变；并遵循系统「减少动画」偏好设置。</li>
+      <li><b>表格视觉优化</b>：表头改为浅色细线风格、行悬停反馈更细腻、圆角与阴影全面精修，数据可读性更强。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v2.1</span>
+      <span class="cl-date">2026-08-12</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>年份拼音检索</b>：输入年份读音全拼（如「erlingerliu」→ 2026）或首字母缩写（如「ell」→ 2000 年代系列年份）即可检索对应年份，候选直接定位到该年的纪年记录。</li>
+      <li><b>干支拼音检索</b>：输入干支读音（如「wuchen」→ 戊辰年、「jz」→ 甲子年）即可检索该干支对应的全部纪年，60 组干支全拼、缩写均可查询。</li>
+      <li><b>搜索历史</b>：搜索框支持记录最近 10 条搜索内容（浏览器本地保存），点击搜索框即可查看历史记录，点击条目可回填并重新搜索，支持一键清空。</li>
+      <li><b>卷数计算器</b>：右下角新增「卷」按钮（位于岁时落款常识按钮下方），悬停展开迷你计算器，可随时做丛书卷数加减运算，支持键盘输入与结果清空，方便编目时合计卷册。</li>
+      <li><b>简繁兼容</b>：新增功能（搜索历史标签、计算器界面等）在繁体模式下同样正常显示与使用。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v2.0</span>
+      <span class="cl-date">2026-08-12</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>拼音检索年号</b>：输入拼音（如「jingtai」）或首字母缩写（如「jt」「wl」）即可检索对应年号，输入过程中即时提示候选，无需敲完即可跳转。</li>
+      <li><b>候选按年号顺序排列</b>：输入单字时（如「景」），候选不再按年份逐年罗列，而是按年号顺序聚合展示——「春秋·景王」「汉景帝」「三国·景初」「唐·景龙」……方便快速定位。</li>
+      <li><b>候选带朝代前缀</b>：候选栏年号前统一标注朝代/时代，如「明·景泰」「明·万历」「近现代·明治」「清·同治十一年」，中日年号一目了然。</li>
+      <li><b>帝王名候选</b>：候选栏同步收录帝王/天皇名（如「汉景帝」「辽景宗」「孝德」），输入人名亦能快速定位对应纪年。</li>
+      <li><b>内置拼音数据</b>：新增 pinyin_data.js 拼音映射数据（1392 词条），覆盖全部年号、朝代、时代与君主名，繁简切换下拼音检索均可用。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

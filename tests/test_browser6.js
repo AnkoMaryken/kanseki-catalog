@@ -70,10 +70,12 @@ const BASE = 'http://localhost:8765';
   const clNav = (await page.locator('.header-nav a').allTextContents()).map(t => t.trim());
   check('changelog 导航含"使用介绍"', clNav.includes('使用介绍'), JSON.stringify(clNav));
 
-  // ===== 5. 从 index 点击使用介绍跳转 =====
+  // ===== 5. 从 index 点击使用介绍跳转 (V3: 位于说明文档下拉菜单内) =====
   await page.goto(BASE + '/index.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(400);
-  await page.click('.header-nav a[href="guide.html"]');
+  await page.hover('.header-nav .nav-dropdown');
+  await page.waitForTimeout(300);
+  await page.click('.nav-dropdown-menu a[href="guide.html"]');
   await page.waitForTimeout(800);
   check('点击使用介绍跳转到 guide.html', page.url().includes('guide.html'), page.url());
 

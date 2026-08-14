@@ -5,3 +5,6 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# 调试临时脚本
+debug_*.js

@@ -8,17 +8,18 @@ const BASE = 'http://localhost:8765/';
   const results = [];
   const check = (n, c, e = '') => results.push((c ? 'PASS' : 'FAIL') + ' | ' + n + (e ? ' | ' + e : ''));
 
-  // 四页导航
+  // 四页导航 (V3: 使用介绍+更新日志 合并为「说明文档」下拉菜单)
   const pages = ['guide.html', 'index.html', 'catalog.html', 'changelog.html'];
   for (const p of pages) {
     await page.goto(BASE + p, { waitUntil: 'networkidle', timeout: 30000 });
     await page.waitForTimeout(300);
     const nav = await page.locator('.header-nav a').allTextContents();
-    const ok4 = nav.length === 4;
-    const hasGuide = nav.some(t => t.includes('使用介绍') || t.includes('使用介紹'));
+    const hasDropdown = await page.locator('.header-nav .nav-dropdown-btn').count() === 1;
     const hasCat = nav.some(t => t.includes('编目规范') || t.includes('編目規範'));
+    const hasChrono = nav.some(t => t.includes('纪年查询') || t.includes('紀年查詢'));
+    const hasGuide = nav.some(t => t.includes('使用介绍') || t.includes('使用介紹'));
     const hasCl = nav.some(t => t.includes('更新日志') || t.includes('更新日誌'));
-    check(p + ' 导航4项', ok4 && hasGuide && hasCat && hasCl, JSON.stringify(nav));
+    check(p + ' 导航含说明文档下拉+纪年+编目', hasDropdown && hasChrono && hasCat && hasGuide && hasCl, JSON.stringify(nav));
   }
 
   // changelog 页条目检查（v1.4 起：首条为最新版本，条目数随版本递增）
@@ -40,10 +41,12 @@ const BASE = 'http://localhost:8765/';
   check('v1.4 含标题居中说明', v14Text.includes('大标题居中'));
   check('v1.4 含引号规范说明', v14Text.includes('引号规范') || v14Text.includes('引號規範'));
 
-  // 编目页导航点击跳转
+  // 编目页导航点击跳转 (changelog 在下拉菜单内，需先展开)
   await page.goto(BASE + 'catalog.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(300);
-  await page.click('.header-nav a[href="changelog.html"]');
+  await page.hover('.nav-dropdown');
+  await page.waitForTimeout(300);
+  await page.click('.nav-dropdown-menu a[href="changelog.html"]');
   await page.waitForTimeout(600);
   check('catalog 导航可跳转 changelog', page.url().includes('changelog.html'), page.url());
 

@@ -56,8 +56,8 @@ const URL = 'http://localhost:8765/catalog.html';
   await page.click('.ver-btn[data-d="2025"]');
   await page.waitForTimeout(400);
   const titles2025 = await page.locator('#db .stitle').allTextContents();
-  check('2025 首标题繁体细则全名', titles2025[0] === '全球漢籍合璧工程境外漢籍編目工作細則', titles2025[0]);
-  check('2025 次标题徵求意見稿', titles2025[1] === '（2025.10修訂，徵求意見稿）', titles2025[1]);
+  check('2025 首标题简体细则全名', titles2025[0] === '全球汉籍合璧工程境外汉籍编目工作细则', titles2025[0]);
+  check('2025 次标题征求意见稿', titles2025[1] === '（2025.10修订，征求意见稿）', titles2025[1]);
   const centers2025 = await page.evaluate(() => {
     const els = [...document.querySelectorAll('#db .stitle')];
     return els.slice(0, 2).map(e => getComputedStyle(e).textAlign);
@@ -69,17 +69,17 @@ const URL = 'http://localhost:8765/catalog.html';
   check('2025 正文无「', !bodyText25.includes('「'));
   check('2025 正文无」', !bodyText25.includes('」'));
   check('2025 卷数子目示例', bodyText25.includes('存五卷：一至五'));
-  check('2025 版本示例', bodyText25.includes('清道光七年（1827）京師西江米巷壽藤書屋刻本'));
-  check('2025 附注项', bodyText25.includes('内封A面：練江汪文伯集'));
-  check('2025 编目实例十三經', bodyText25.includes('十三經注疏十三種三百三十三卷'));
-  check('2025 孟子註疏', bodyText25.includes('孟子註疏解經十四卷'));
+  check('2025 版本示例', bodyText25.includes('清道光七年（1827）京师西江米巷寿藤书屋刻本'));
+  check('2025 附注项', bodyText25.includes('内封A面：练江汪文伯集'));
+  check('2025 编目实例十三经', bodyText25.includes('十三经注疏十三种三百三十三卷'));
+  check('2025 孟子注疏', bodyText25.includes('孟子注疏解经十四卷'));
 
-  // ===== 7. 全文检索回归 (2025 版为繁体文档, 用繁体词检索) =====
-  await page.fill('#dsi', '附注項');
+  // ===== 7. 全文检索回归 (V3.1 起 2025 版为简体文档, 用简体词检索) =====
+  await page.fill('#dsi', '附注项');
   await page.click('#dsb');
   await page.waitForTimeout(300);
   const hlCount = await page.locator('#db mark.doc-hl').count();
-  check('检索"附注項"有高亮', hlCount >= 1, 'hl=' + hlCount);
+  check('检索"附注项"有高亮', hlCount >= 1, 'hl=' + hlCount);
   const navText = await page.locator('#dsc').textContent();
   check('检索计数显示', /\/\d+/.test(navText), navText);
 

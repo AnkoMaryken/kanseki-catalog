@@ -9,100 +9,106 @@
 <style>
 /* ============================================
    CSS Custom Properties / Design Tokens
+   v2.2 — 黑白极简配色 (shadcn neutral 风格)
    ============================================ */
 :root {
-  --color-bg: #f7f4ee;
-  --color-bg-alt: #ede8df;
+  --color-bg: #fafafa;
+  --color-bg-alt: #f5f5f5;
   --color-surface: #ffffff;
-  --color-surface-hover: #f0ece5;
-  --color-primary: #1a2a4a;
-  --color-primary-light: #2d4470;
-  --color-primary-muted: #3d5a8a;
-  --color-accent: #8b6914;
-  --color-accent-light: #b8942c;
-  --color-text: #2d2a26;
-  --color-text-secondary: #5c564d;
-  --color-text-muted: #8a8278;
-  --color-border: #d5cec2;
-  --color-border-light: #e8e2d8;
-  --color-divider: #ebe5da;
-  --color-highlight: #fff3cd;
-  --color-highlight-text: #8b6914;
-  --color-focus-ring: #2d4470;
-  --color-table-stripe: #faf7f1;
-  --color-table-header: #1a2a4a;
-  --color-table-header-text: #e8e2d8;
+  --color-surface-hover: #f5f5f5;
+  --color-primary: #171717;
+  --color-primary-light: #404040;
+  --color-primary-muted: #525252;
+  --color-accent: #171717;
+  --color-accent-light: #404040;
+  --color-text: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-border-light: #eeeeee;
+  --color-divider: #f0f0f0;
+  --color-highlight: #f5f5f5;
+  --color-highlight-text: #0a0a0a;
+  --color-focus-ring: #a3a3a3;
+  --color-table-stripe: #fafafa;
+  --color-table-header: #171717;
+  --color-table-header-text: #fafafa;
   --color-btn-bg: #ffffff;
-  --color-btn-hover: #f0ece5;
-  --color-btn-active: #1a2a4a;
-  --color-btn-active-text: #f7f4ee;
+  --color-btn-hover: #f5f5f5;
+  --color-btn-active: #171717;
+  --color-btn-active-text: #fafafa;
   --color-input-bg: #ffffff;
-  --color-input-border: #c5bdaa;
-  --color-input-focus: #1a2a4a;
-  --color-shadow: rgba(26, 42, 74, 0.08);
-  --color-shadow-lg: rgba(26, 42, 74, 0.12);
-  --color-overlay: rgba(26, 42, 74, 0.4);
-  --color-scrollbar: #c5bdaa;
-  --color-scrollbar-hover: #8a8278;
-  --color-tag-bg: #ede8df;
-  --color-tag-text: #5c564d;
-  --color-tag-active-bg: #1a2a4a;
-  --color-tag-active-text: #f7f4ee;
-  --color-china-accent: #8b2e1f;
-  --color-japan-accent: #1f5a8b;
-  --radius-sm: 4px;
+  --color-input-border: #e5e5e5;
+  --color-input-focus: #171717;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  --color-shadow-lg: rgba(0, 0, 0, 0.09);
+  --color-overlay: rgba(10, 10, 10, 0.45);
+  --color-scrollbar: #d4d4d4;
+  --color-scrollbar-hover: #a3a3a3;
+  --color-tag-bg: #f5f5f5;
+  --color-tag-text: #525252;
+  --color-tag-active-bg: #171717;
+  --color-tag-active-text: #fafafa;
+  --color-china-accent: #171717;
+  --color-japan-accent: #525252;
+  --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --shadow-sm: 0 1px 3px var(--color-shadow);
-  --shadow-md: 0 4px 12px var(--color-shadow);
-  --shadow-lg: 0 8px 24px var(--color-shadow-lg);
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --shadow-sm: 0 1px 2px var(--color-shadow);
+  --shadow-md: 0 2px 8px -2px var(--color-shadow), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 30px -6px var(--color-shadow-lg), 0 2px 8px rgba(0,0,0,0.04);
   --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', 'STSong', serif;
   --font-body: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-md: 250ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* v2.2 动效曲线 (motion spring 近似) */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphasized: cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 
 [data-theme="dark"] {
-  --color-bg: #1a1c1e;
-  --color-bg-alt: #242629;
-  --color-surface: #2a2d30;
-  --color-surface-hover: #33363a;
-  --color-primary: #8ba4d0;
-  --color-primary-light: #a3b8db;
-  --color-primary-muted: #6b8ab5;
-  --color-accent: #d4a843;
-  --color-accent-light: #e0bc62;
-  --color-text: #e0dcd5;
-  --color-text-secondary: #b0aaa0;
-  --color-text-muted: #7a746c;
-  --color-border: #4a4640;
-  --color-border-light: #3a3632;
-  --color-divider: #3a3632;
-  --color-highlight: #3d3520;
-  --color-highlight-text: #d4a843;
-  --color-focus-ring: #8ba4d0;
-  --color-table-stripe: #242629;
-  --color-table-header: #1a2744;
-  --color-table-header-text: #c5bfb5;
-  --color-btn-bg: #2a2d30;
-  --color-btn-hover: #33363a;
-  --color-btn-active: #8ba4d0;
-  --color-btn-active-text: #1a1c1e;
-  --color-input-bg: #2a2d30;
-  --color-input-border: #4a4640;
-  --color-input-focus: #8ba4d0;
-  --color-shadow: rgba(0, 0, 0, 0.2);
-  --color-shadow-lg: rgba(0, 0, 0, 0.3);
-  --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-scrollbar: #4a4640;
-  --color-scrollbar-hover: #7a746c;
-  --color-tag-bg: #33363a;
-  --color-tag-text: #b0aaa0;
-  --color-tag-active-bg: #8ba4d0;
-  --color-tag-active-text: #1a1c1e;
+  --color-bg: #0a0a0a;
+  --color-bg-alt: #141414;
+  --color-surface: #171717;
+  --color-surface-hover: #262626;
+  --color-primary: #e5e5e5;
+  --color-primary-light: #fafafa;
+  --color-primary-muted: #d4d4d4;
+  --color-accent: #fafafa;
+  --color-accent-light: #e5e5e5;
+  --color-text: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-light: rgba(255, 255, 255, 0.07);
+  --color-divider: rgba(255, 255, 255, 0.07);
+  --color-highlight: #262626;
+  --color-highlight-text: #fafafa;
+  --color-focus-ring: #737373;
+  --color-table-stripe: #121212;
+  --color-table-header: #0a0a0a;
+  --color-table-header-text: #e5e5e5;
+  --color-btn-bg: #171717;
+  --color-btn-hover: #262626;
+  --color-btn-active: #fafafa;
+  --color-btn-active-text: #0a0a0a;
+  --color-input-bg: #171717;
+  --color-input-border: rgba(255, 255, 255, 0.1);
+  --color-input-focus: #fafafa;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-lg: rgba(0, 0, 0, 0.45);
+  --color-overlay: rgba(0, 0, 0, 0.65);
+  --color-scrollbar: #333333;
+  --color-scrollbar-hover: #525252;
+  --color-tag-bg: #262626;
+  --color-tag-text: #d4d4d4;
+  --color-tag-active-bg: #fafafa;
+  --color-tag-active-text: #0a0a0a;
+  --color-china-accent: #fafafa;
+  --color-japan-accent: #a3a3a3;
 }
 
 /* ============================================
@@ -156,15 +162,23 @@ a:hover { color: var(--color-accent); }
 
 /* ============================================
    Header / Top Bar
+   v2.2 — 白底毛玻璃, 底边框分隔 (shadcn 风格)
    ============================================ */
 .app-header {
-  background: var(--color-primary);
-  color: var(--color-table-header-text);
+  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--color-text);
   padding: 0.78rem 0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--shadow-md);
+  border-bottom: 1px solid var(--color-border-light);
+  animation: headerSlideDown 0.5s var(--ease-spring);
+}
+@keyframes headerSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .header-inner {
   max-width: 1400px;
@@ -185,7 +199,7 @@ a:hover { color: var(--color-accent); }
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e8e2d8;
+  color: var(--color-text);
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
@@ -193,24 +207,25 @@ a:hover { color: var(--color-accent); }
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  background: var(--color-accent);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-size: 1rem;
-  color: #fff;
+  color: var(--color-bg);
   font-weight: 700;
 }
 .header-nav { display: flex; gap: 0.25rem; flex-shrink: 0; }
 .header-nav .nav-link {
-  color: rgba(232,226,216,0.65); text-decoration: none;
+  color: var(--color-text-muted); text-decoration: none;
   font-size: 0.85rem; font-weight: 500; font-family: var(--font-body);
   padding: 0.35rem 0.75rem; border-radius: var(--radius-sm);
   transition: all var(--transition-fast); white-space: nowrap;
+  position: relative;
 }
-.header-nav .nav-link:hover { color: #e8e2d8; background: rgba(255,255,255,0.08); }
-.header-nav .nav-link.active { color: #e8e2d8; background: rgba(255,255,255,0.12); font-weight: 600; }
+.header-nav .nav-link:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.header-nav .nav-link.active { color: var(--color-text); background: var(--color-bg-alt); font-weight: 600; }
 .header-search {
   flex: 1;
   min-width: 280px;
@@ -219,21 +234,21 @@ a:hover { color: var(--color-accent); }
 .header-search input {
   width: 100%;
   padding: 0.38rem 4.5rem 0.38rem 2.75rem;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: rgba(255,255,255,0.1);
-  color: #e8e2d8;
+  background: var(--color-bg-alt);
+  color: var(--color-text);
   font-family: var(--font-body);
   font-size: 0.9375rem;
   transition: all var(--transition-fast);
-  backdrop-filter: blur(8px);
 }
-.header-search input::placeholder { color: rgba(232,226,216,0.5); }
+.header-search input::placeholder { color: var(--color-text-muted); }
+.header-search input:hover { border-color: var(--color-scrollbar-hover); }
 .header-search input:focus {
   outline: none;
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.35);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+  background: var(--color-surface);
+  border-color: var(--color-input-focus);
+  box-shadow: 0 0 0 3px var(--color-highlight);
 }
 .header-search .search-btn {
   position: absolute;
@@ -243,8 +258,8 @@ a:hover { color: var(--color-accent); }
   padding: 0.28rem 0.75rem;
   border-radius: var(--radius-md);
   border: none;
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-bg);
   font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
@@ -252,14 +267,14 @@ a:hover { color: var(--color-accent); }
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
-.header-search .search-btn:hover { background: var(--color-accent-light); }
+.header-search .search-btn:hover { background: var(--color-primary-light); }
 .header-search .search-btn:active { transform: translateY(-50%) scale(0.95); }
 .header-search .search-icon {
   position: absolute;
   left: 0.9rem;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(232,226,216,0.6);
+  color: var(--color-text-muted);
   pointer-events: none;
   width: 18px;
   height: 18px;
@@ -270,16 +285,23 @@ a:hover { color: var(--color-accent); }
   top: 100%;
   left: 0;
   right: 0;
-  margin-top: 4px;
+  margin-top: 6px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   max-height: 320px;
   overflow-y: auto;
   z-index: 200;
 }
-.search-suggestions.active { display: block; }
+.search-suggestions.active {
+  display: block;
+  animation: suggestFadeIn 0.18s var(--ease-spring);
+}
+@keyframes suggestFadeIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 .search-suggestion-item {
   padding: 0.6rem 1rem;
   cursor: pointer;
@@ -293,22 +315,54 @@ a:hover { color: var(--color-accent); }
 .search-suggestion-item:last-child { border-bottom: none; }
 .search-suggestion-item:hover, .search-suggestion-item.focused { background: var(--color-surface-hover); }
 .search-suggestion-item mark { background: var(--color-highlight); color: var(--color-highlight-text); padding: 0 2px; border-radius: 2px; font-weight: 600; }
+/* v2.1 搜索历史浮层 */
+.search-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-divider);
+  user-select: none;
+}
+.search-history-clear {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+.search-history-clear:hover { background: var(--color-surface-hover); }
+.search-history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.search-history-icon {
+  flex-shrink: 0;
+  opacity: 0.55;
+  display: flex;
+}
 
 .header-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 /* 简繁切换 segmented control */
 .lang-switch {
   display: flex;
   align-items: center;
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: rgba(255,255,255,0.06);
+  background: var(--color-bg-alt);
   flex-shrink: 0;
 }
 .lang-switch button {
   border: none;
   background: transparent;
-  color: rgba(232,226,216,0.55);
+  color: var(--color-text-muted);
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
@@ -318,17 +372,17 @@ a:hover { color: var(--color-accent); }
   line-height: 1;
   white-space: nowrap;
 }
-.lang-switch button:hover { color: #e8e2d8; background: rgba(255,255,255,0.1); }
+.lang-switch button:hover { color: var(--color-text); background: var(--color-surface-hover); }
 .lang-switch button.active {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-bg);
 }
 .btn-icon {
   width: 34px; height: 34px;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.08);
-  color: rgba(232,226,216,0.85);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -336,20 +390,26 @@ a:hover { color: var(--color-accent); }
   transition: all var(--transition-fast);
   font-size: 1.1rem;
 }
-.btn-icon:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); }
+.btn-icon:hover { background: var(--color-surface-hover); border-color: var(--color-scrollbar-hover); color: var(--color-text); }
 .btn-icon:active { transform: scale(0.95); }
 
 /* ============================================
    Filter Bar
    ============================================ */
 .filter-bar {
-  background: var(--color-surface);
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border-light);
   padding: 0.75rem 0;
   position: sticky;
   top: 60px;
   z-index: 90;
-  box-shadow: var(--shadow-sm);
+  animation: fadeSlideIn 0.45s var(--ease-spring) 0.08s backwards;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .filter-inner {
   max-width: 1400px;
@@ -387,17 +447,24 @@ a:hover { color: var(--color-accent); }
   font-family: var(--font-body);
   cursor: pointer;
   border: 1px solid var(--color-border);
-  background: var(--color-tag-bg);
+  background: var(--color-surface);
   color: var(--color-tag-text);
   transition: all var(--transition-fast);
   white-space: nowrap;
   user-select: none;
 }
-.filter-tag:hover { border-color: var(--color-primary-muted); background: var(--color-surface-hover); }
+.filter-tag:hover { border-color: var(--color-scrollbar-hover); background: var(--color-surface-hover); transform: translateY(-1px); }
+.filter-tag:active { transform: scale(0.96); }
 .filter-tag.active {
   background: var(--color-tag-active-bg);
   color: var(--color-tag-active-text);
   border-color: var(--color-tag-active-bg);
+  animation: tagPop 0.25s var(--ease-emphasized);
+}
+@keyframes tagPop {
+  0% { transform: scale(0.92); }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); }
 }
 .filter-tag.china.active { background: var(--color-china-accent); border-color: var(--color-china-accent); }
 .filter-tag.japan.active { background: var(--color-japan-accent); border-color: var(--color-japan-accent); }
@@ -480,13 +547,13 @@ a:hover { color: var(--color-accent); }
   padding: 0.75rem 0;
   flex-wrap: wrap;
   gap: 0.75rem;
+  animation: fadeSlideIn 0.45s var(--ease-spring) 0.16s backwards;
 }
 .stats-info {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
 }
-.stats-info strong { color: var(--color-primary); font-weight: 600; }
-[data-theme="dark"] .stats-info strong { color: var(--color-accent); }
+.stats-info strong { color: var(--color-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .stats-actions { display: flex; align-items: center; gap: 0.5rem; }
 .btn {
@@ -504,7 +571,7 @@ a:hover { color: var(--color-accent); }
   align-items: center;
   gap: 0.4rem;
 }
-.btn:hover { background: var(--color-btn-hover); border-color: var(--color-text-muted); }
+.btn:hover { background: var(--color-btn-hover); border-color: var(--color-scrollbar-hover); transform: translateY(-1px); }
 .btn:active { transform: scale(0.97); }
 .btn.active { background: var(--color-btn-active); color: var(--color-btn-active-text); border-color: var(--color-btn-active); }
 
@@ -521,14 +588,15 @@ a:hover { color: var(--color-accent); }
 
 /* ============================================
    Table
+   v2.2 — 浅色细线表头 (shadcn Table 风格)
    ============================================ */
 .table-wrapper {
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
   position: relative;
+  animation: fadeSlideIn 0.45s var(--ease-spring) 0.24s backwards;
 }
 .table-wrapper table {
   width: 100%;
@@ -538,27 +606,28 @@ a:hover { color: var(--color-accent); }
 }
 .table-wrapper thead { position: sticky; top: 0; z-index: 10; }
 .table-wrapper th {
-  background: var(--color-table-header);
-  color: var(--color-table-header-text);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
   padding: 0.7rem 0.75rem;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   text-align: left;
   white-space: nowrap;
-  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid var(--color-border);
   letter-spacing: 0.02em;
 }
 .table-wrapper th.sortable {
   cursor: pointer;
   user-select: none;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
 }
-.table-wrapper th.sortable:hover { background: var(--color-primary-light); }
+.table-wrapper th.sortable:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .table-wrapper th .sort-arrow {
   display: inline-block;
   margin-left: 4px;
   font-size: 0.7rem;
   opacity: 0.5;
+  transition: transform var(--transition-fast);
 }
 .table-wrapper th .sort-arrow.active { opacity: 1; }
 .table-wrapper th.col-year { min-width: 80px; text-align: center; position: sticky; left: 0; z-index: 15; }
@@ -578,7 +647,9 @@ a:hover { color: var(--color-accent); }
   border-bottom: 1px solid var(--color-divider);
   vertical-align: top;
   line-height: 1.55;
+  transition: background var(--transition-fast);
 }
+.table-wrapper tbody tr { transition: background var(--transition-fast); }
 .table-wrapper tbody tr:nth-child(even) td { background: var(--color-table-stripe); }
 .table-wrapper tbody tr:hover td { background: var(--color-surface-hover); }
 .table-wrapper tbody tr:last-child td { border-bottom: none; }
@@ -588,14 +659,13 @@ td.cell-year {
   font-family: var(--font-mono);
   font-weight: 700;
   text-align: center;
-  color: var(--color-primary);
+  color: var(--color-text);
   position: sticky;
   left: 0;
   background: var(--color-surface);
   z-index: 5;
-  box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+  box-shadow: 2px 0 6px var(--color-shadow);
 }
-[data-theme="dark"] td.cell-year { color: var(--color-accent); }
 tbody tr:nth-child(even) td.cell-year { background: var(--color-table-stripe); }
 tbody tr:hover td.cell-year { background: var(--color-surface-hover); }
 td.cell-ganzhi { text-align: center; font-weight: 500; }
@@ -644,21 +714,111 @@ tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
   min-width: 42px; max-width: 180px;
   border-radius: 100px;
   background: var(--color-primary);
-  color: var(--color-table-header-text);
+  color: var(--color-bg);
   border: none; cursor: pointer;
   font-family: var(--font-body); font-size: 0.8rem;
   box-shadow: var(--shadow-lg);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s var(--ease-spring);
   white-space: nowrap;
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   gap: 0.35rem; padding: 0;
 }
-.knowledge-btn .kb-text { max-width: 0; overflow: hidden; opacity: 0; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.knowledge-btn .kb-text { max-width: 0; overflow: hidden; opacity: 0; transition: all 0.35s var(--ease-spring); }
 .knowledge-btn .kb-icon { flex-shrink: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; }
 .knowledge-btn:hover { width: auto; min-width: 170px; padding: 0 0.85rem; background: var(--color-primary-light); }
 .knowledge-btn:hover .kb-text { max-width: 140px; opacity: 1; }
 .knowledge-btn.locked { background: var(--color-accent); }
+
+/* v2.1 卷数计算器按钮 (位于知识按钮上方, 同款交互)
+   V3.1: bottom 8.3rem 上移, 与知识按钮/回到顶部按钮纵向排开, 不再遮挡 */
+.calc-btn { bottom: 8.3rem; }
+.calc-btn:hover { min-width: 140px; }
+.calc-btn:hover .kb-text { max-width: 110px; }
+.calc-btn:hover, .calc-btn:hover .kb-text { transition-delay: 0s; }
+/* V3.1: 计算器改为居中弹窗 (modal) */
+.calc-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .25s var(--ease-spring), visibility .25s var(--ease-spring);
+}
+.calc-overlay.show { opacity: 1; visibility: visible; }
+.calc-panel {
+  position: relative; z-index: 401;
+  width: 300px; max-width: calc(100vw - 3rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 64px rgba(0,0,0,.28);
+  padding: 1.1rem 1.15rem 1.15rem;
+  transform: translateY(14px) scale(.97);
+  transition: transform .28s var(--ease-spring);
+}
+.calc-overlay.show .calc-panel { transform: translateY(0) scale(1); }
+.calc-head {
+  font-size: 0.85rem; font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: var(--color-primary);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.calc-close {
+  border: none; background: none; cursor: pointer;
+  font-size: 1rem; line-height: 1; color: var(--color-text-muted);
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.calc-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
+/* 计算过程预览 */
+.calc-steps {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.7rem;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  min-height: 1.7rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.calc-steps:empty::before { content: '计算过程将在此预览'; color: var(--color-text-muted); opacity: .7; }
+.calc-display {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  text-align: right;
+  margin-bottom: 0.6rem;
+  min-height: 2.5rem;
+  line-height: 1.5;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
+.calc-grid button {
+  border: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: background var(--transition-fast);
+}
+.calc-grid button:hover { background: var(--color-surface-hover); }
+.calc-grid .calc-op { background: var(--color-bg-alt); font-weight: 600; }
+.calc-grid .calc-op-c { color: var(--color-accent); font-family: var(--font-body); }
+.calc-grid .calc-eq { background: var(--color-primary); color: var(--color-bg); font-weight: 600; }
+.calc-grid .calc-eq:hover { background: var(--color-primary-light); }
+.calc-grid .calc-zero { grid-column: span 2; }
 
 .knowledge-panel {
   position: fixed; bottom: 5rem; right: 7rem; z-index: 190;
@@ -666,15 +826,15 @@ tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
   max-height: 80vh;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 12px 40px var(--color-shadow-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   display: flex;
   opacity: 0; visibility: hidden;
-  transform: translateX(12px);
-  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+  transform: translateX(12px) scale(0.98);
+  transition: opacity 0.25s var(--ease-spring), visibility 0.25s var(--ease-spring), transform 0.25s var(--ease-spring);
   overflow: hidden;
 }
-.knowledge-panel.show { opacity: 1; visibility: visible; transform: translateX(0); }
+.knowledge-panel.show { opacity: 1; visibility: visible; transform: translateX(0) scale(1); }
 
 .knowledge-nav {
   width: 140px; min-width: 120px; flex-shrink: 0;
@@ -696,22 +856,21 @@ tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
 }
 .knowledge-nav-item:hover { color: var(--color-text); background: var(--color-surface-hover); }
 .knowledge-nav-item.active {
-  color: var(--color-primary); font-weight: 600;
+  color: var(--color-text); font-weight: 600;
   border-left-color: var(--color-primary); background: var(--color-surface);
 }
-[data-theme="dark"] .knowledge-nav-item.active { color: var(--color-primary-light); border-left-color: var(--color-primary-light); }
 
 .knowledge-content {
   flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem;
   min-height: 0;
 }
-.knowledge-content h3 { font-size: 1.1rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-divider); color: var(--color-primary); }
+.knowledge-content h3 { font-size: 1.1rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-divider); color: var(--color-text); }
 .knowledge-content h4 { font-size: 0.9rem; margin: 1rem 0 0.5rem; color: var(--color-text); }
 .knowledge-content .sub-section { margin-bottom: 1.2rem; }
 .knowledge-content table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.82rem; }
 .knowledge-content table td, .knowledge-content table th { padding: 0.35rem 0.6rem; border: 1px solid var(--color-border-light); text-align: left; vertical-align: top; }
 .knowledge-content table th { background: var(--color-bg-alt); font-weight: 600; font-size: 0.78rem; }
-.knowledge-content .kw { font-weight: 700; color: var(--color-primary); }
+.knowledge-content .kw { font-weight: 700; color: var(--color-text); }
 .knowledge-content .pinyin { font-size: 0.78rem; color: var(--color-text-muted); margin-left: 2px; }
 
 .knowledge-panel-close { display: none; }
@@ -880,17 +1039,23 @@ mark.search-highlight {
   position: fixed;
   inset: 0;
   z-index: 300;
-  background: rgba(20, 24, 38, 0.45);
-  backdrop-filter: blur(2px);
+  background: var(--color-overlay);
+  backdrop-filter: blur(3px);
   align-items: center;
   justify-content: center;
   padding: 1rem;
 }
-.modal-overlay.open { display: flex; }
+.modal-overlay.open { display: flex; animation: overlayFadeIn 0.2s var(--ease-spring); }
+@keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-overlay.open .modal { animation: modalScaleIn 0.28s var(--ease-spring); }
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 .modal {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 480px;
@@ -906,7 +1071,7 @@ mark.search-highlight {
 }
 .modal-head h3 {
   font-size: 1rem;
-  color: var(--color-primary);
+  color: var(--color-text);
 }
 .modal-close {
   border: none;
@@ -996,7 +1161,7 @@ mark.search-highlight {
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: var(--color-primary);
-  color: var(--color-table-header-text);
+  color: var(--color-bg);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-lg);
   font-size: 0.85rem;
@@ -1022,7 +1187,7 @@ mark.search-highlight {
   justify-content: center;
 }
 .loading-overlay.active { display: flex; }
-[data-theme="dark"] .loading-overlay { background: rgba(26,28,30,0.6); }
+[data-theme="dark"] .loading-overlay { background: rgba(10,10,10,0.6); }
 .spinner {
   width: 32px; height: 32px;
   border: 3px solid var(--color-border);
@@ -1085,9 +1250,78 @@ mark.search-highlight {
   .table-wrapper { box-shadow: none; border: 1px solid #ccc; }
   body { background: #fff; color: #000; }
 }
+
+/* ============================================
+   v2.2 Motion & Polish
+   主题切换平滑过渡 / 滚动进度条 / 表格行入场
+   ============================================ */
+body { transition: background-color 0.3s ease, color 0.3s ease; }
+.table-wrapper, .filter-bar, .app-footer, .modal, .search-suggestions,
+.knowledge-panel, .calc-panel, .toast { transition-property: background-color, border-color, color, opacity, transform, visibility; }
+.table-wrapper { transition-duration: 0.3s; }
+
+/* 滚动进度条 (页面顶部 2px) */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--color-primary);
+  z-index: 400;
+  transition: width 80ms linear;
+  pointer-events: none;
+}
+
+/* 表格行入场 (渲染时整体淡入; 不对 tr 用 transform 以免破坏粘性年份列) */
+.table-wrapper tbody { animation: tbodyFadeIn 0.25s var(--ease-spring); }
+@keyframes tbodyFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 尊重系统减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* v3.0 导航下拉菜单 (说明文档) */
+.nav-dropdown { position: relative; flex-shrink: 0; }
+.nav-dropdown-btn {
+  display: inline-flex; align-items: center; gap: 0.1rem;
+  color: var(--color-text-muted); text-decoration: none;
+  font-size: 0.85rem; font-weight: 500; font-family: var(--font-body);
+  padding: 0.35rem 0.75rem; border-radius: var(--radius-sm);
+  transition: all var(--transition-fast); white-space: nowrap;
+  border: none; background: transparent; cursor: pointer;
+}
+.nav-dropdown-btn:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.nav-dropdown-btn.active { color: var(--color-text); background: var(--color-bg-alt); font-weight: 600; }
+.nav-dropdown-btn svg { transition: transform var(--transition-fast); }
+.nav-dropdown:hover .nav-dropdown-btn svg, .nav-dropdown:focus-within .nav-dropdown-btn svg { transform: rotate(180deg); }
+.nav-dropdown-menu {
+  position: absolute; top: 100%; left: 0; margin-top: 6px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  min-width: 132px; padding: 0.3rem;
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity 0.18s var(--ease-spring), visibility 0.18s var(--ease-spring), transform 0.18s var(--ease-spring);
+  z-index: 210;
+}
+.nav-dropdown:hover .nav-dropdown-menu, .nav-dropdown:focus-within .nav-dropdown-menu {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.nav-dropdown-menu a {
+  display: block; padding: 0.45rem 0.75rem; border-radius: var(--radius-sm);
+  color: var(--color-text-secondary); font-size: 0.85rem; text-decoration: none;
+  transition: all var(--transition-fast); white-space: nowrap;
+}
+.nav-dropdown-menu a:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.nav-dropdown-menu a.active { color: var(--color-text); font-weight: 600; background: var(--color-bg-alt); }
+
 </style>
 </head>
 <body>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <!-- ============================================
      Header / Top Bar
      ============================================ -->
@@ -1098,10 +1332,7 @@ mark.search-highlight {
       <h1>日本汉籍编目工具</h1>
     </div>
     <nav class="header-nav">
-      <a href="guide.html" class="nav-link">使用介绍</a>
-      <a href="index.html" class="nav-link active">纪年查询</a>
-      <a href="catalog.html" class="nav-link">编目规范</a>
-      <a href="changelog.html" class="nav-link">更新日志</a>
+      <div class="nav-dropdown"><button class="nav-link nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html" class="nav-link active">纪年查询</a><a href="catalog.html" class="nav-link">编目规范</a><a href="embed.html" class="nav-link">嵌入</a>
     </nav>
     <div class="header-search" role="search">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -1297,6 +1528,8 @@ mark.search-highlight {
 <!-- ============================================
      JavaScript: Data + App Logic
      ============================================ -->
+<!-- 拼音数据 (v2.0): 需在主逻辑之前加载 -->
+<script src="pinyin_data.js"></script>
 <script>
 (function() {
 'use strict';
@@ -2328,8 +2561,284 @@ let selectedChinaFilters = new Set();
 let selectedChinaEras = new Set();
 let selectedJapanFilters = new Set();
 
+// ========================================
+// v2.0 候选索引: 按"年号/帝王名"聚合的去重候选, 供建议栏展示
+// 年号候选带朝代前缀 (明·景泰); 帝王名候选不带前缀 (周景王/汉景帝)
+// 排序: 按历史顺序(年份升序) — 如"景"-> 景王(-544)/汉景帝(-156)/景初(237)...
+// ========================================
+let ERA_CANDIDATES = [];   // 全部候选(年号+帝王名), 已排序
+let PY_HINT_MAP = null;    // 拼音前缀/缩写键(小写) -> [candidate, ...]
+let WORD_PY_PREFIX = null; // 词 -> 拼音前缀集合 (供行过滤用)
+
+// 生成某词条的全部读音组合 (每字取一个候选读音)
+function pyCombos(pyCells) {
+  let combos = [[]];
+  for (const cells of pyCells) {
+    const next = [];
+    for (const combo of combos) {
+      for (const p of cells) next.push(combo.concat([p]));
+    }
+    combos = next;
+  }
+  return combos;
+}
+
+function buildEraCandidates() {
+  const cand = [];
+  const seen = new Map(); // key: prefix + '|' + era -> 最早年份
+  const eraSet = new Set(); // 全部年号名 (供帝王名去重)
+  const addCand = (era, prefix, type, year, yearStr) => {
+    if (!era || era === '—') return;
+    const key = prefix + '|' + era;
+    if (seen.has(key)) {
+      // 同 prefix+era 只保留最早年份
+      if (year < seen.get(key).year) seen.get(key).year = year;
+      return;
+    }
+    const obj = { era, prefix, type, year, yearStr };
+    seen.set(key, obj);
+    cand.push(obj);
+  };
+  for (const row of FULL_DATA) {
+    // 中国年号 + 朝代
+    const dyns = (row.cnDynasties || []).filter(d => d && d !== '—');
+    (row.cnEraNames || []).forEach((e, i) => {
+      if (!e || e === '—') return;
+      addCand(e, dyns[Math.min(i, dyns.length - 1)] || '', 'cn', row.year, row.yearStr);
+      eraSet.add(e);
+    });
+    // 日本年号 + 时代
+    const pers = (row.jpPeriods || []).filter(p => p && p !== '—');
+    (row.jpEraNames || []).forEach((e, i) => {
+      if (!e || e === '—') return;
+      addCand(e, pers[Math.min(i, pers.length - 1)] || '', 'jp', row.year, row.yearStr);
+      eraSet.add(e);
+    });
+  }
+  // 中国帝王名 (去括号取主名; 与年号重名则跳过 — 年号候选已覆盖)
+  for (const row of FULL_DATA) {
+    const dyn = (row.cnDynasties || []).find(d => d && d !== '—') || '';
+    (row.cnRuler || '').split(/[、,，]/).forEach(r => {
+      let nm = (r || '').split('(')[0].trim();
+      if (!nm || nm === '—') return;
+      // 跳过与年号重名的"朝代字+名"形式 (周景王 -> 景王 已在年号)
+      if (nm.length >= 2 && '周汉唐宋元明清'.includes(nm[0]) && eraSet.has(nm.slice(1))) return;
+      if (eraSet.has(nm)) return; // 与年号完全重名
+      addCand(nm, '', 'cnRuler', row.year, row.yearStr);
+    });
+  }
+  // 日本天皇名 (去"天皇"后缀, 前缀留空; 与年号重名则跳过 — 年号候选已覆盖)
+  for (const row of FULL_DATA) {
+    const per = (row.jpPeriods || []).find(p => p && p !== '—') || '';
+    (row.jpRuler || '').split(/[、,，]/).forEach(r => {
+      let nm = (r || '').split('(')[0].trim().replace(/天皇/g, '');
+      if (!nm || nm === '—') return;
+      if (eraSet.has(nm)) return; // 明治天皇 -> 明治 与年号重名
+      addCand(nm, '', 'jpRuler', row.year, row.yearStr);
+    });
+  }
+  // 排序: 按年份升序 (历史顺序), 同年按名称
+  cand.sort((a, b) => a.year - b.year || a.era.localeCompare(b.era, 'zh'));
+  ERA_CANDIDATES = cand;
+  // 拼音索引: 每个候选生成 全拼/缩写 的前缀键
+  PY_HINT_MAP = new Map();
+  for (const c of cand) {
+    const term = PINYIN_TERMS.find(t => t.w === c.era);
+    if (!term) continue;
+    const combos = pyCombos(term.py);
+    const keys = new Set();
+    const fulls = new Set();
+    const inis = new Set();
+    const sylPrefixes = new Set();
+    for (const combo of combos) {
+      const full = combo.join('').toLowerCase();
+      const ini = combo.map(p => p[0]).join('').toLowerCase();
+      fulls.add(full);
+      inis.add(ini);
+      // 全拼逐字符前缀
+      for (let l = 1; l <= full.length; l++) keys.add(full.slice(0, l));
+      // 缩写逐字符前缀
+      for (let l = 1; l <= ini.length; l++) keys.add(ini.slice(0, l));
+      // 音节前缀: 查询词长度>=4 时启用 (如 "jingt" 前缀匹配 "jingtai")
+      if (full.length >= 4) {
+        let acc = '';
+        for (const syl of combo) {
+          acc += syl;
+          sylPrefixes.add(acc);
+        }
+      }
+    }
+    c.pyFulls = fulls;
+    c.pyInis = inis;
+    c.pySylPrefixes = sylPrefixes;
+    for (const k of keys) {
+      if (!PY_HINT_MAP.has(k)) PY_HINT_MAP.set(k, []);
+      const arr = PY_HINT_MAP.get(k);
+      if (!arr.includes(c)) arr.push(c);
+    }
+  }
+  // 词级拼音前缀集合: 行过滤时直接查 (词 -> 前缀集合)
+  WORD_PY_PREFIX = new Map();
+  for (const t of PINYIN_TERMS) {
+    const combos = pyCombos(t.py);
+    const set = new Set();
+    for (const combo of combos) {
+      const full = combo.join('').toLowerCase();
+      const ini = combo.map(p => p[0]).join('').toLowerCase();
+      for (let l = 1; l <= full.length; l++) set.add(full.slice(0, l));
+      for (let l = 1; l <= ini.length; l++) set.add(ini.slice(0, l));
+    }
+    WORD_PY_PREFIX.set(t.w, set);
+  }
+
+  // ================================================
+  // v2.1 年份/干支拼音候选 (运行时生成, 并入统一索引)
+  // ================================================
+  buildExtraPinyinIndex();
+}
+
+// 干支拼音表: 60 组干支 -> 全拼 (含首字母)
+const GANZHI_PY = {
+  '甲子':'jiazi','乙丑':'yichou','丙寅':'bingyin','丁卯':'dingmao','戊辰':'wuchen','己巳':'jisi',
+  '庚午':'gengwu','辛未':'xinwei','壬申':'renshen','癸酉':'guiyou','甲戌':'jiaxu','乙亥':'yihai',
+  '丙子':'bingzi','丁丑':'dingchou','戊寅':'wuyin','己卯':'jimao','庚辰':'gengchen','辛巳':'xinsi',
+  '壬午':'renwu','癸未':'guiwei','甲申':'jiashen','乙酉':'yiyou','丙戌':'bingxu','丁亥':'dinghai',
+  '戊子':'wuzi','己丑':'jichou','庚寅':'gengyin','辛卯':'xinmao','壬辰':'renchen','癸巳':'guisi',
+  '甲午':'jiawu','乙未':'yiwei','丙申':'bingshen','丁酉':'dingyou','戊戌':'wuxu','己亥':'jihai',
+  '庚子':'gengzi','辛丑':'xinchou','壬寅':'renyin','癸卯':'guimao','甲辰':'jiachen','乙巳':'yisi',
+  '丙午':'bingwu','丁未':'dingwei','戊申':'wushen','己酉':'jiyou','庚戌':'gengxu','辛亥':'xinhai',
+  '壬子':'renzi','癸丑':'guichou','甲寅':'jiayin','乙卯':'yimao','丙辰':'bingchen','丁巳':'dingsi',
+  '戊午':'wuwu','己未':'jiwei','庚申':'gengshen','辛酉':'xinyou','壬戌':'renxu','癸亥':'guihai'
+};
+// 汉字数字拼音 (年份如"万历十一年"中数字检索用; 这里主要用于年份的汉字写法)
+const CN_NUM_PY = { '0':'ling','〇':'ling','零':'ling','1':'yi','一':'yi','2':'er','二':'er','3':'san','三':'san',
+  '4':'si','四':'si','5':'wu','五':'wu','6':'liu','六':'liu','7':'qi','七':'qi','8':'ba','八':'ba',
+  '9':'jiu','九':'jiu','十':'shi','百':'bai','千':'qian' };
+
+// 年份/干支拼音候选索引 (v2.1):
+//   YEAR_PY_MAP  : 拼音前缀/缩写 -> [年份候选 {year, yearStr}]
+//   GZ_PY_MAP    : 干支拼音 -> 干支 (全拼精确 + 缩写)
+let YEAR_PY_MAP = null;
+let GZ_PY_MAP = null;
+
+function buildExtraPinyinIndex() {
+  // --- 年份: 把年份字符串 (如 "2026") 映射到汉字数字读法拼音 ---
+  // 例: 2026 -> 二零二六 -> er ling er liu; 前缀 er/erl/erli...; 缩写 elerl
+  YEAR_PY_MAP = new Map();
+  GZ_PY_MAP = new Map();
+  const addKey = (map, key, obj) => {
+    if (!key) return;
+    key = key.toLowerCase();
+    if (!map.has(key)) map.set(key, []);
+    const arr = map.get(key);
+    if (!arr.some(x => x.year === obj.year && x.value === obj.value)) arr.push(obj);
+  };
+  // 年份数字拼音 (支持正负年份, 前N年 -> 前+n)
+  for (const row of FULL_DATA) {
+    const y = row.year;
+    const digits = String(Math.abs(y)).split('').map(d => CN_NUM_PY[d] || d);
+    const full = (y < 0 ? 'qian' : '') + digits.join('');
+    const ini = (y < 0 ? 'q' : '') + digits.map(p => p[0]).join('');
+    const base = { year: y, yearStr: row.yearStr, value: '公元' + row.yearStr + '年', full, ini };
+    // 前缀键
+    for (let l = 1; l <= full.length; l++) addKey(YEAR_PY_MAP, full.slice(0, l), base);
+    for (let l = 1; l <= ini.length; l++) addKey(YEAR_PY_MAP, ini.slice(0, l), base);
+  }
+  // 干支拼音: 全拼精确 + 前缀 + 缩写
+  const jzMap = { '甲':'j','乙':'y','丙':'b','丁':'d','戊':'w','己':'j','庚':'g','辛':'x','壬':'r','癸':'g',
+                  '子':'z','丑':'c','寅':'y','卯':'m','辰':'c','巳':'s','午':'w','未':'w','申':'s','酉':'y','戌':'x','亥':'h' };
+  for (const [gz, py] of Object.entries(GANZHI_PY)) {
+    const ini2 = gz.split('').map(ch => jzMap[ch] || ch).join(''); // 逐字首字母缩写 (甲子 -> jz)
+    const base = { gz, value: gz + '年', py, ini: ini2 };
+    addKey(GZ_PY_MAP, py, base);            // 完整全拼
+    addKey(GZ_PY_MAP, ini2, base);          // 缩写
+    for (let l = 1; l < py.length; l++) addKey(GZ_PY_MAP, py.slice(0, l), base); // 前缀
+  }
+}
+
+// 拼音匹配: 查询词为纯拼音/首字母缩写时返回候选列表 (按匹配质量排序)
+// 匹配规则 (统一评分, 跨年号/年份/干支三类):
+//   完整全拼 == q (4分) > 完整缩写 == q (3分) > 全拼音节前缀 (2分) > 缩写前缀 (1分)
+// 干支命中需展开为该干支的全部年份; 年份按单行候选
+function matchPinyinCandidates(q, maxResults) {
+  const scored = []; // {score, cand, sortYear}
+  const seen = new Set();
+  const pushScored = (score, c, sortYear) => {
+    const k = (c.prefix || '') + '|' + (c.era || c.value || '') + '|' + c.year;
+    if (seen.has(k)) return;
+    seen.add(k);
+    scored.push({ score, c, sortYear });
+  };
+
+  // 1) 干支拼音: 全拼精确=4, 缩写精确=3, 前缀=1; 命中后展开全部该干支年份
+  const gzHits = (GZ_PY_MAP && GZ_PY_MAP.get(q)) || [];
+  for (const g of gzHits) {
+    let score;
+    if (g.py === q) score = 4;
+    else if (g.ini === q) score = 3;
+    else score = 1;
+    const gzRows = FULL_DATA.filter(r => r.ganzhi === g.gz);
+    gzRows.forEach(r => pushScored(score, { era: g.value, prefix: '', type: 'gz', year: r.year, yearStr: r.yearStr }, r.year));
+  }
+  // 2) 年份拼音: 全拼精确=4, 缩写精确=3, 前缀=1
+  const yearHits = (YEAR_PY_MAP && YEAR_PY_MAP.get(q)) || [];
+  for (const y of yearHits) {
+    let score;
+    if (y.full === q) score = 4;
+    else if (y.ini === q) score = 3;
+    else score = 1;
+    pushScored(score, { era: y.value, prefix: '', type: 'year', year: y.year, yearStr: y.yearStr }, y.year);
+  }
+  // 3) 年号/帝王名拼音 (v2.0 评分逻辑)
+  const hits = PY_HINT_MAP.get(q) || [];
+  for (const c of hits) {
+    let score = 0;
+    if (c.pyFulls && c.pyFulls.has(q)) score = 4;
+    else if (c.pyInis && c.pyInis.has(q)) score = 3;
+    else if (c.pySylPrefixes && c.pySylPrefixes.has(q)) score = 2;
+    else score = 1;
+    pushScored(score, c, c.year);
+  }
+  // 统一排序: 评分降序 (精确优先), 同级按年份升序 (历史顺序)
+  scored.sort((a, b) => b.score - a.score || a.sortYear - b.sortYear);
+  return scored.slice(0, maxResults).map(x => x.c);
+}
+
+// 拼音匹配判定 (用于行过滤): 行内年号/帝王名/干支/年份的拼音前缀含 q 即命中
+function rowPinyinHit(row, q) {
+  if (!/^[a-z]+$/.test(q) || q.length < 1) return false;
+  // v2.1: 干支拼音 (如 wuchen -> 戊辰年)
+  if (GZ_PY_MAP && GZ_PY_MAP.has(q) && row.ganzhi) {
+    const gzHits = GZ_PY_MAP.get(q);
+    if (gzHits.some(g => g.gz === row.ganzhi)) return true;
+  }
+  // v2.1: 年份拼音 (如 erlingerliu -> 2026年)
+  if (YEAR_PY_MAP && YEAR_PY_MAP.has(q)) {
+    const yrHits = YEAR_PY_MAP.get(q);
+    if (yrHits.some(y => y.year === row.year)) return true;
+  }
+  if (!WORD_PY_PREFIX) return false;
+  const names = [];
+  (row.cnEraNames || []).forEach(n => { if (n && n !== '—') names.push(n); });
+  (row.jpEraNames || []).forEach(n => { if (n && n !== '—') names.push(n); });
+  (row.cnRuler || '').split(/[、,，]/).forEach(r => {
+    const nm = (r || '').split('(')[0].trim();
+    if (nm && nm !== '—') names.push(nm);
+  });
+  (row.jpRuler || '').split(/[、,，]/).forEach(r => {
+    let nm = (r || '').split('(')[0].trim().replace(/天皇/g, '');
+    if (nm && nm !== '—') names.push(nm);
+  });
+  for (const n of names) {
+    const pre = WORD_PY_PREFIX.get(n);
+    if (pre && pre.has(q)) return true;
+  }
+  return false;
+}
+
 // Build data on load
 FULL_DATA = buildFullDataset();
+buildEraCandidates();
 
 // ========================================
 // Filter definitions for UI
@@ -2627,8 +3136,14 @@ function applyFilters() {
   if (searchQuery.trim()) {
     // 查询词转简体后匹配 (繁简无差别)
     const q = toSimplified(searchQuery.trim()).toLowerCase();
-    const exact = base.filter(r => rowSearchHit(r, q, false));
-    filteredData = exact.length > 0 ? exact : base.filter(r => rowSearchHit(r, q, true));
+    // v2.0: 拼音/首字母查询走拼音行匹配 (如 "jingtai" -> 景泰年间)
+    if (/^[a-z]+$/.test(q)) {
+      const pinyinRows = base.filter(r => rowPinyinHit(r, q));
+      filteredData = pinyinRows.length > 0 ? pinyinRows : base.filter(r => rowSearchHit(r, q, true));
+    } else {
+      const exact = base.filter(r => rowSearchHit(r, q, false));
+      filteredData = exact.length > 0 ? exact : base.filter(r => rowSearchHit(r, q, true));
+    }
   } else {
     filteredData = base;
   }
@@ -2804,6 +3319,80 @@ function updateStats() {
 // ========================================
 let searchDebounceTimer = null;
 
+// ===== v2.1 搜索历史 (localStorage) =====
+const SEARCH_HISTORY_KEY = 'kanseki_search_history';
+const SEARCH_HISTORY_MAX = 10;
+
+function getSearchHistory() {
+  try {
+    const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter(x => typeof x === 'string' && x.trim()) : [];
+  } catch (e) { return []; }
+}
+
+function saveSearchHistory(arr) {
+  try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(arr.slice(0, SEARCH_HISTORY_MAX))); }
+  catch (e) { /* localStorage 不可用时静默 */ }
+}
+
+// 记录一次搜索 (去重后置顶, 上限 10 条)
+function pushSearchHistory(q) {
+  const term = (q || '').trim();
+  if (!term || term.length > 60) return;
+  const arr = getSearchHistory().filter(x => x !== term);
+  arr.unshift(term);
+  saveSearchHistory(arr);
+}
+
+function clearSearchHistory() {
+  saveSearchHistory([]);
+  renderSearchHistory();
+}
+
+// 渲染搜索历史浮层 (空值聚焦时显示)
+function renderSearchHistory() {
+  const input = document.getElementById('globalSearch');
+  const container = document.getElementById('searchSuggestions');
+  if (!input || !container) return;
+  if (input.value.trim()) { // 有输入时显示建议, 不显示历史
+    container.classList.remove('active');
+    return;
+  }
+  const arr = getSearchHistory();
+  if (arr.length === 0) {
+    container.classList.remove('active');
+    return;
+  }
+  const historyLabel = toDisplay('搜索历史');
+  const clearLabel = toDisplay('清空');
+  container.innerHTML =
+    '<div class="search-history-head"><span>' + historyLabel + '</span>' +
+    '<button type="button" class="search-history-clear" id="searchHistoryClear">' + clearLabel + '</button></div>' +
+    arr.map((term, i) =>
+      '<div class="search-suggestion-item search-history-item" role="option" data-term="' +
+      term.replace(/"/g, '&quot;') + '" data-idx="' + i + '">' +
+      '<svg class="search-history-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+      '<span>' + toDisplay(term) + '</span></div>'
+    ).join('');
+  container.classList.add('active');
+  // 历史条目点击: 回填 + 搜索
+  container.querySelectorAll('.search-history-item').forEach(el => {
+    el.addEventListener('click', function() {
+      const term = this.dataset.term;
+      input.value = term;
+      // 回填后按当前字形显示 (繁体模式下输入框保持用户键入原文)
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      performSearchAndJump();
+    });
+  });
+  const clearBtn = document.getElementById('searchHistoryClear');
+  if (clearBtn) clearBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    clearSearchHistory();
+  });
+}
+
 function handleSearch(value) {
   searchQuery = value.trim();
   clearTimeout(searchDebounceTimer);
@@ -2817,6 +3406,8 @@ function handleSearch(value) {
 function performSearchAndJump() {
   const input = document.getElementById('globalSearch');
   searchQuery = input.value.trim();
+  // v2.1: 记录搜索历史
+  if (searchQuery) pushSearchHistory(searchQuery);
   document.getElementById('searchSuggestions').classList.remove('active');
   applyFilters();
   updateSuggestions(input.value);
@@ -2875,7 +3466,13 @@ function suggestEraPrefixMatches(q, maxResults) {
         if (seen.has(c)) continue;
         seen.add(c);
         if (results.length >= maxResults) break;
-        results.push({ type:'field', value: c, year: row.year, yearStr: row.yearStr });
+        // v2.0: 定位该行的朝代/时代前缀 (如"同治十一年" -> "清·同治十一年")
+        let pre = '';
+        const isCn = (row.cnEraNames || []).some(e => e === prefix);
+        const isJp = (row.jpEraNames || []).some(e => e === prefix);
+        if (isCn) pre = ((row.cnDynasties || []).find(d => d && d !== '—') || '') + '·';
+        else if (isJp) pre = ((row.jpPeriods || []).find(p => p && p !== '—') || '') + '·';
+        results.push({ type:'field', value: pre + c, year: row.year, yearStr: row.yearStr });
       }
     }
     if (results.length > 0) break; // 最长年号前缀已命中则不再尝试更短前缀
@@ -2887,14 +3484,34 @@ function suggestEraPrefixMatches(q, maxResults) {
 function updateSuggestions(query) {
   const container = document.getElementById('searchSuggestions');
   if (!query.trim() || query.trim().length < 1) {
-    container.classList.remove('active');
+    // v2.1: 空查询时显示搜索历史 (如有)
+    renderSearchHistory();
     return;
   }
   
   // 繁简归一化: 查询词与数据均转简体匹配
-  const q = toSimplified(query.trim()).toLowerCase();
+  const rawQ = query.trim();
+  const q = toSimplified(rawQ).toLowerCase();
   const suggestions = new Set();
   const maxResults = 15;
+  
+  // ========== v2.0/v2.1 拼音/首字母检索 (纯字母查询) ==========
+  if (/^[a-z]+$/.test(q)) {
+    const cands = matchPinyinCandidates(q, maxResults);
+    cands.forEach(c => {
+      // v2.1: 干支/年份候选 era 已是完整显示文本 (如"戊辰年""公元2026年"), 年号候选需拼朝代前缀
+      let value = c.era;
+      if (c.type !== 'gz' && c.type !== 'year' && c.prefix) value = c.prefix + '·' + c.era;
+      suggestions.add(JSON.stringify({
+        type: c.type === 'gz' ? 'ganzhi' : (c.type === 'year' ? 'field' : 'pinyin'),
+        value: value, year: c.year, yearStr: c.yearStr
+      }));
+    });
+    if (suggestions.size > 0) {
+      return renderSuggestions(container, suggestions, maxResults, query);
+    }
+    // 拼音无命中时继续走汉字逻辑 (兜底)
+  }
   
   // 干支语义建议: 若查询为纯干支, 只提示干支年 (避免与常规建议重复)
   const gzMatch = extractGanzhi(q);
@@ -2918,8 +3535,33 @@ function updateSuggestions(query) {
     }
   }
   
+  // ========== v2.0 汉字候选: 按年号聚合 + 朝代前缀 ==========
+  // 单字/双字: 按年号顺序列出候选 (如"景" -> 景王/汉景帝/景初...)
+  if (q.length >= 1 && q.length <= 2 && /^[\u4e00-\u9fff]+$/.test(q)) {
+    const matched = [];
+    for (const c of ERA_CANDIDATES) {
+      if (matched.length >= maxResults) break;
+      // 年号本身前缀匹配 (如"景"匹配"景王""景初"), 君主名/帝王名包含匹配
+      if (c.era.startsWith(q) || c.era.includes(q)) {
+        const prefix = c.prefix ? c.prefix + '·' : '';
+        matched.push({ value: prefix + c.era, year: c.year, yearStr: c.yearStr });
+      }
+    }
+    // 去重 (同年号同前缀只留最早年份)
+    const seenVal = new Set();
+    for (const m of matched) {
+      const k = m.value + '|' + m.year;
+      if (seenVal.has(k)) continue;
+      seenVal.add(k);
+      suggestions.add(JSON.stringify({ type:'field', value:m.value, year:m.year, yearStr:m.yearStr }));
+    }
+    // 单字/双字查询: 命中即返回 (避免逐年重复的常规匹配干扰)
+    if (suggestions.size > 0) {
+      return renderSuggestions(container, suggestions, maxResults, query);
+    }
+  }
+  
   // --- 模糊补全: "年号 + 片段" (如"同治一"→同治十一年/二十一年, "同治戊"→同治戊戌/戊寅) ---
-  // 拆出查询中的年号前缀 (最长匹配), 剩余片段对候选做 contains 匹配
   const eraCand = suggestEraPrefixMatches(q, maxResults);
   if (eraCand.length > 0) {
     eraCand.forEach(item => suggestions.add(JSON.stringify(item)));
@@ -2976,12 +3618,21 @@ function renderSuggestions(container, suggestions, maxResults, query) {
   container.innerHTML = Array.from(suggestions).slice(0, maxResults).map(s => {
     const item = JSON.parse(s);
     // 建议显示跟随当前字形 (繁体模式下显示繁体)
-    const displayValue = toDisplay(item.value);
     const displayYear = toDisplay(item.yearStr);
     const dispQuery = queryForDisplay(query.trim());
+    // v2.0: 带朝代前缀的候选 (如"明·景泰") 前缀弱化显示, 年号部分高亮
+    let mainHtml = '';
+    if (item.value && item.value.includes('·')) {
+      const sep = item.value.indexOf('·');
+      const prefix = toDisplay(item.value.slice(0, sep + 1));
+      const body = toDisplay(item.value.slice(sep + 1));
+      mainHtml = `<span style="color:var(--color-text-muted);font-size:0.8rem;">${prefix}</span><span>${highlightText(body, dispQuery)}</span>`;
+    } else {
+      mainHtml = `<span>${highlightText(toDisplay(item.value), dispQuery)}</span>`;
+    }
     return `<div class="search-suggestion-item" role="option" data-year="${item.year}">
       <span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-muted);min-width:50px;">${displayYear}</span>
-      <span>${highlightText(displayValue, dispQuery)}</span>
+      ${mainHtml}
     </div>`;
   }).join('');
   
@@ -3232,15 +3883,17 @@ function initScrollToTop() {
   const btn = document.createElement('button');
   btn.id = 'scrollTopBtn';
   btn.className = 'btn-icon';
-  btn.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;opacity:0;visibility:hidden;transition:opacity var(--transition-md),visibility var(--transition-md);transform:rotate(0deg);background:var(--color-primary);border-color:var(--color-primary);color:var(--color-table-header-text);width:42px;height:42px;border-radius:50%;box-shadow:var(--shadow-lg);';
+  btn.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;opacity:0;visibility:hidden;transition:opacity var(--transition-md),visibility var(--transition-md);transform:rotate(0deg);background:var(--color-primary);border-color:var(--color-primary);color:var(--color-bg);width:42px;height:42px;border-radius:50%;box-shadow:var(--shadow-lg);';
   btn.setAttribute('aria-label', '回到顶部');
   btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>';
   document.body.appendChild(btn);
-  
+
   btn.addEventListener('click', () => {
     window.scrollTo({top:0, behavior:'smooth'});
   });
-  
+
+  // v2.2 滚动进度条
+  const progressBar = document.getElementById('scrollProgress');
   let scrollTimer;
   window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
@@ -3252,7 +3905,11 @@ function initScrollToTop() {
         btn.style.opacity = '0';
         btn.style.visibility = 'hidden';
       }
-    }, 100);
+      if (progressBar) {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progressBar.style.width = max > 0 ? (Math.min(window.scrollY / max, 1) * 100) + '%' : '0';
+      }
+    }, 50);
   }, {passive:true});
 }
 
@@ -3281,6 +3938,10 @@ function init() {
   // Search
   document.getElementById('globalSearch').addEventListener('input', function(e) {
     handleSearch(this.value);
+  });
+  document.getElementById('globalSearch').addEventListener('focus', function() {
+    // v2.1: 聚焦且为空时显示搜索历史
+    if (!this.value.trim()) renderSearchHistory();
   });
   document.getElementById('globalSearch').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
@@ -3449,6 +4110,7 @@ if (document.readyState === 'loading') {
 </script>
 <script src="conv_tables.js"></script>
 <script src="knowledge.js"></script>
+<script src="calc.js"></script>
 <!-- ============================================
      Knowledge Panel — 书画纪时常识
      ============================================ -->
@@ -3462,6 +4124,38 @@ if (document.readyState === 'loading') {
   </nav>
   <div class="knowledge-content" id="knowledgeContent" role="tabpanel"></div>
   <button class="knowledge-panel-close" id="knowledgeClose" aria-label="关闭常识面板">关闭</button>
+</div>
+<!-- ============================================
+     v2.1 卷数计算器 (丛书卷数加减计算)
+     V3.1: 居中弹窗 + 计算过程预览
+     ============================================ -->
+<div class="calc-overlay" id="calcOverlay" role="dialog" aria-modal="true" aria-label="卷数计算器">
+  <div class="calc-panel">
+    <div class="calc-head">
+      <span>卷数计算</span>
+      <span style="font-weight:400;font-size:0.72rem;color:var(--color-text-muted);">丛书卷数加减</span>
+      <button type="button" class="calc-close" id="calcClose" aria-label="关闭计算器">✕</button>
+    </div>
+    <div class="calc-steps" id="calcSteps" aria-live="polite"></div>
+    <div class="calc-display" id="calcDisplay" aria-live="polite">0</div>
+    <div class="calc-grid">
+      <button type="button" data-key="7">7</button>
+      <button type="button" data-key="8">8</button>
+      <button type="button" data-key="9">9</button>
+      <button type="button" class="calc-op calc-op-c" data-key="C">C</button>
+      <button type="button" data-key="4">4</button>
+      <button type="button" data-key="5">5</button>
+      <button type="button" data-key="6">6</button>
+      <button type="button" class="calc-op" data-key="+">＋</button>
+      <button type="button" data-key="1">1</button>
+      <button type="button" data-key="2">2</button>
+      <button type="button" data-key="3">3</button>
+      <button type="button" class="calc-op" data-key="-">－</button>
+      <button type="button" class="calc-zero" data-key="0">0</button>
+      <button type="button" class="calc-op" data-key="←">⌫</button>
+      <button type="button" class="calc-eq" data-key="=">＝</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
