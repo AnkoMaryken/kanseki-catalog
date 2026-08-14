@@ -38,6 +38,13 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   let src = await page.locator('#embedFrame').getAttribute('src');
   check('同源相对路径 src 生效', src === 'guide.html', src);
   check('iframe 已加载', await page.locator('#embedFrame').evaluate(f => f.contentDocument && f.contentDocument.body !== null));
+  // iframe 高度须铺满容器 (修复 height:100% 在 flex 下失效为 150px 的问题)
+  const h = await page.evaluate(() => {
+    const f = document.getElementById('embedFrame');
+    const s = document.querySelector('.embed-stage');
+    return { fh: Math.round(f.getBoundingClientRect().height), sh: Math.round(s.getBoundingClientRect().height) };
+  });
+  check('iframe 高度铺满容器', h.fh > 300 && Math.abs(h.fh - h.sh) <= 2, JSON.stringify(h));
   let statusOk = await page.locator('#embedStatus').textContent();
   check('同源加载状态 ok', statusOk.includes('已加载'), statusOk);
 
