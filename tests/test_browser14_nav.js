@@ -17,7 +17,7 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   await page.waitForTimeout(700);
   let links = await page.locator('.header-nav > a.nav-link').allTextContents();
   check('index 导航直链无「使用介绍」', !links.some(t => t.trim() === '使用介绍') && links.some(t => t.includes('纪年查询')), JSON.stringify(links));
-  check('index 导航含「嵌入」', links.some(t => t.trim() === '嵌入'), JSON.stringify(links));
+  check('index 导航含「快速跳转」', links.some(t => t.trim() === '快速跳转'), JSON.stringify(links));
   let btnText = await page.locator('.nav-dropdown-btn').textContent();
   check('index 有「说明文档」按钮', btnText.includes('说明文档'), btnText);
   // hover 展开

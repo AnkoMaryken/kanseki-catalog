@@ -84,7 +84,7 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="header-inner">
     <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
     <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">嵌入</a>
+      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">快速跳转</a>
     </nav>
     <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
   </div>
@@ -95,6 +95,22 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v4.0</span>
+      <span class="cl-date">2026-08-14</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>「嵌入」页重做为「快速跳转」页</b>：顶部导航「嵌入」改为「快速跳转」。页面全面重做，不再使用 iframe 内嵌，改为直接跳转目标网站，为将来桌面版/手机版 APP 化铺路。</li>
+      <li><b>自定义页面跳转</b>：页面右上角新增一体化搜索栏（输入框＋跳转按钮，毛玻璃浮动样式），输入网址或域名即可自动补全协议并在新标签页打开；支持 Enter 快捷提交，空输入有友好提示。</li>
+      <li><b>快捷页面跳转（浮动侧边栏）</b>：左侧新增毛玻璃浮动侧边栏，内置 7 个常用网站（典津全球汉籍影像开放集成系统、国学大全、日本所藏中文古籍数据库、日本国立公文书馆、古籍觅宝、PaddleOCR、GitHub），点击即达。</li>
+      <li><b>侧边栏可收缩为标签按钮组</b>：侧边栏可一键收缩为竖排标签按钮组（图标共享边框样式，hover 显示名称），再次点击展开；收缩状态自动记忆，窄屏默认收缩。</li>
+      <li><b>快捷网站卡片网格</b>：页面主体新增 7 张快捷网站卡片（图标＋名称＋网址），悬停上浮动效，点击同样直达目标网站。</li>
+      <li><b>跳转成功提示</b>：跳转后在右下角弹出轻量提示条，2.4 秒自动消失。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

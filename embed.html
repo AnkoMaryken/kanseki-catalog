@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
-<title>网站嵌入 — 日本汉籍编目工具</title>
+<title>快速跳转 — 日本汉籍编目工具</title>
 <style>
-:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
-[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
+:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
+[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-accent-light:#fff;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;transition:background-color .3s ease,color .3s ease}
@@ -42,54 +42,91 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
 
-/* ===== 嵌入页主体 ===== */
-.page{max-width:1400px;margin:0 auto;padding:1.25rem 1.5rem 2.5rem;width:100%;flex:1;animation:pageIn .45s var(--ease-spring) .08s backwards;display:flex;flex-direction:column}
+/* ===== 快速跳转页 ===== */
+.page{max-width:1400px;margin:0 auto;padding:1.5rem 1.5rem 2.5rem;width:100%;flex:1;animation:pageIn .45s var(--ease-spring) .08s backwards}
 @keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.page-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+.page-head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
 .page-head h2{font-family:var(--font-display);font-size:1.3rem;color:var(--color-primary)}
 .page-head p{font-size:.82rem;color:var(--color-text-muted)}
 
-/* 地址栏 */
-.embed-bar{display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}
-.embed-input{flex:1;min-width:240px;padding:.55rem .9rem;border:1px solid var(--color-border);border-radius:10px;background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.88rem;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
-.embed-input:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-highlight)}
-.embed-go{padding:.55rem 1.3rem;border:none;border-radius:10px;background:var(--color-primary);color:var(--color-bg);font-family:var(--font-body);font-size:.88rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast)}
-.embed-go:hover{background:var(--color-primary-light)}
-.embed-go:disabled{opacity:.5;cursor:default}
+/* ---- 右上角浮动搜索栏 (自定义页面跳转, ButtonGroup 一体化样式) ---- */
+.jump-bar{position:fixed;top:76px;right:24px;z-index:95;animation:barIn .5s var(--ease-spring) .2s backwards}
+@keyframes barIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.jump-bar .button-group{display:inline-flex;align-items:stretch;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:box-shadow var(--transition-fast)}
+.jump-bar .button-group:focus-within{box-shadow:var(--shadow-lg),0 0 0 3px color-mix(in srgb,var(--color-primary) 12%,transparent);border-color:var(--color-primary)}
+.jump-input{width:260px;padding:.55rem .9rem;border:none;background:transparent;color:var(--color-text);font-family:var(--font-body);font-size:.86rem;outline:none}
+.jump-input::placeholder{color:var(--color-text-muted)}
+.jump-go{padding:.55rem 1.2rem;border:none;border-left:1px solid var(--color-border);background:var(--color-primary);color:var(--color-bg);font-family:var(--font-body);font-size:.86rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast);white-space:nowrap}
+.jump-go:hover{background:var(--color-primary-light)}
+.jump-go:disabled{opacity:.5;cursor:default}
+.jump-hint{position:fixed;top:122px;right:24px;z-index:95;font-size:.78rem;color:var(--color-text-secondary);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.4rem .75rem;box-shadow:var(--shadow-md);opacity:0;transform:translateY(-4px);transition:all .2s var(--ease-spring);pointer-events:none}
+.jump-hint.show{opacity:1;transform:translateY(0)}
+.jump-hint.err{color:#b91c1c;border-color:color-mix(in srgb,#dc2626 35%,transparent)}
+[data-theme="dark"] .jump-hint.err{color:#fca5a5}
 
-/* 快捷入口 */
-.embed-quick{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem;align-items:center}
-.embed-quick .eq-label{font-size:.78rem;color:var(--color-text-muted);margin-right:.2rem}
-.embed-quick a{display:inline-flex;align-items:center;gap:.25rem;font-size:.78rem;color:var(--color-text-secondary);text-decoration:none;border:1px solid var(--color-border);border-radius:999px;padding:.22rem .7rem;background:var(--color-surface);transition:all var(--transition-fast)}
-.embed-quick a:hover{background:var(--color-surface-hover);border-color:var(--color-primary);color:var(--color-primary)}
+/* ---- 左侧浮动侧边栏 (快捷页面跳转) ---- */
+.side-dock{position:fixed;left:24px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;width:252px;max-height:calc(100dvh - 140px);background:color-mix(in srgb,var(--color-surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);transition:width .3s var(--ease-spring);animation:dockIn .5s var(--ease-spring) .12s backwards;overflow:hidden}
+@keyframes dockIn{from{opacity:0;transform:translateY(calc(-50% - 12px))}to{opacity:1;transform:translateY(-50%)}}
+.dock-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.65rem .8rem;border-bottom:1px solid var(--color-border-light);flex-shrink:0}
+.dock-title{font-size:.8rem;font-weight:600;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.dock-toggle{width:26px;height:26px;flex:0 0 26px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:.8rem;padding:0}
+.dock-toggle:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.dock-toggle svg{transition:transform .3s var(--ease-spring)}
+.dock-list{display:flex;flex-direction:column;gap:.35rem;padding:.7rem .7rem .75rem;overflow-y:auto;overflow-x:hidden}
+.dock-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .55rem;border-radius:var(--radius-md);text-decoration:none;color:var(--color-text-secondary);transition:all var(--transition-fast);flex-shrink:0;min-height:44px}
+.dock-item:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.dock-item .di-icon{width:34px;height:34px;flex:0 0 34px;border-radius:var(--radius-sm);background:var(--color-primary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.82rem;font-weight:700;letter-spacing:-.02em}
+.dock-item .di-text{min-width:0}
+.dock-item .di-name{font-size:.82rem;font-weight:500;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
+.dock-item .di-url{font-size:.7rem;color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
 
-/* 状态提示 */
-.embed-status{display:none;font-size:.82rem;border-radius:8px;padding:.5rem .8rem;margin-bottom:.8rem;line-height:1.7}
-.embed-status.show{display:block}
-.embed-status.ok{background:color-mix(in srgb,var(--color-primary) 7%,transparent);border:1px solid var(--color-border);color:var(--color-text-secondary)}
-.embed-status.warn{background:color-mix(in srgb,#d97706 9%,transparent);border:1px solid color-mix(in srgb,#d97706 40%,transparent);color:#b45309}
-.embed-status.err{background:color-mix(in srgb,#dc2626 8%,transparent);border:1px solid color-mix(in srgb,#dc2626 35%,transparent);color:#b91c1c}
-[data-theme="dark"] .embed-status.warn{color:#fbbf24}
-[data-theme="dark"] .embed-status.err{color:#fca5a5}
-.embed-status a{color:inherit;font-weight:600}
-.embed-status .sicon{margin-right:.3rem}
+/* 收缩态: 竖排标签按钮组 (共享边框 ButtonGroup 样式) */
+.side-dock.collapsed{width:56px}
+.side-dock.collapsed .dock-head{justify-content:center;padding:.6rem .5rem}
+.side-dock.collapsed .dock-title{opacity:0;width:0;pointer-events:none}
+.side-dock.collapsed .dock-toggle svg{transform:rotate(180deg)}
+.side-dock.collapsed .dock-list{gap:0;padding:.4rem .5rem .6rem}
+.side-dock.collapsed .dock-item{justify-content:center;padding:.45rem 0;gap:0;border-radius:0;border:1px solid var(--color-border);border-top-width:0;min-height:40px}
+.side-dock.collapsed .dock-item:first-child{border-top-width:1px;border-radius:var(--radius-md) var(--radius-md) 0 0}
+.side-dock.collapsed .dock-item:last-child{border-radius:0 0 var(--radius-md) var(--radius-md)}
+.side-dock.collapsed .dock-item .di-text{display:none}
+.side-dock.collapsed .dock-item .di-icon{width:30px;height:30px;flex:0 0 30px;font-size:.75rem}
 
-/* 嵌入框架 */
-.embed-stage{flex:1;min-height:60vh;border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;background:var(--color-surface);position:relative;box-shadow:var(--shadow-sm)}
-.embed-stage.empty .embed-placeholder{display:flex}
-.embed-placeholder{display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:.6rem;color:var(--color-text-muted);text-align:center;padding:1rem}
-.embed-placeholder .ph-ic{width:56px;height:56px;border-radius:16px;background:var(--color-bg-alt);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:1.6rem}
-.embed-placeholder .ph-t{font-size:.9rem}
-.embed-placeholder .ph-s{font-size:.78rem;max-width:420px;line-height:1.8}
-.embed-frame{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;background:#fff}
-.embed-stage.loading::after{content:'加载中…';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--color-surface) 65%,transparent);backdrop-filter:blur(2px);font-size:.85rem;color:var(--color-text-muted);z-index:5}
+/* ---- 主体: 快捷网站卡片网格 ---- */
+.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.9rem;margin-top:.5rem}
+.jump-card{display:flex;flex-direction:column;gap:.55rem;padding:1rem;border-radius:var(--radius-xl);border:1px solid var(--color-border);background:var(--color-surface);text-decoration:none;color:var(--color-text);transition:all .2s var(--ease-spring);animation:cardIn .4s var(--ease-spring) backwards;position:relative}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.jump-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--color-primary)}
+.jump-card .jc-top{display:flex;align-items:center;gap:.6rem}
+.jump-card .jc-icon{width:40px;height:40px;flex:0 0 40px;border-radius:var(--radius-md);background:var(--color-primary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:.95rem;font-weight:700}
+.jump-card .jc-name{font-size:.88rem;font-weight:600;line-height:1.4}
+.jump-card .jc-url{font-size:.75rem;color:var(--color-text-muted);word-break:break-all;line-height:1.5}
+.jump-card .jc-arrow{position:absolute;top:.8rem;right:.8rem;font-size:.75rem;color:var(--color-text-muted);opacity:0;transition:all var(--transition-fast)}
+.jump-card:hover .jc-arrow{opacity:1}
+
+/* ---- 跳转成功提示 (toast 简化版) ---- */
+.jump-toast{position:fixed;bottom:24px;right:24px;z-index:120;display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-lg);font-size:.84rem;color:var(--color-text);opacity:0;transform:translateY(8px);transition:all .25s var(--ease-spring);pointer-events:none}
+.jump-toast.show{opacity:1;transform:translateY(0)}
+.jump-toast .jt-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;flex:0 0 7px}
 
 .app-footer{background:var(--color-bg-alt);border-top:1px solid var(--color-border-light);padding:1rem 0;margin-top:auto}
 .footer-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;text-align:center;font-size:.78rem;color:var(--color-text-muted)}
 
+@media(max-width:900px){
+  .side-dock{left:12px}
+  .jump-bar{right:12px}
+}
 @media(max-width:768px){
   .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
-  .page{padding:1rem .9rem 2rem}.embed-stage{min-height:50vh}
+  .page{padding:1rem .9rem 2rem}
+  .jump-bar{position:fixed;top:auto;bottom:14px;left:12px;right:12px;z-index:95}
+  .jump-bar .button-group{display:flex;width:100%}
+  .jump-input{flex:1;width:auto;min-width:0}
+  .jump-hint{top:auto;bottom:60px;right:12px}
+  .jump-toast{bottom:70px}
+  .side-dock{left:10px;top:auto;bottom:70px;transform:none;max-height:calc(100dvh - 220px);animation:none}
+  @keyframes dockInMobile{from{opacity:0}to{opacity:1}}
+  .side-dock{animation:dockInMobile .4s var(--ease-spring) .12s backwards}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
 </style>
@@ -100,116 +137,156 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   <div class="header-inner">
     <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
     <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="embed.html" class="active">嵌入</a>
+      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="embed.html" class="active">快速跳转</a>
     </nav>
     <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
   </div>
 </header>
 
+<!-- 左侧浮动侧边栏: 快捷页面跳转 -->
+<aside class="side-dock" id="sideDock" aria-label="快捷跳转">
+  <div class="dock-head">
+    <span class="dock-title">快捷跳转</span>
+    <button class="dock-toggle" id="dockToggle" type="button" title="收起/展开侧边栏" aria-label="收起/展开侧边栏">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+  </div>
+  <nav class="dock-list" id="dockList"></nav>
+</aside>
+
+<!-- 右上角浮动搜索栏: 自定义页面跳转 -->
+<div class="jump-bar" id="jumpBar">
+  <div class="button-group" role="group">
+    <input type="text" id="jumpInput" class="jump-input" placeholder="输入网址，如 guji99.com" autocomplete="off" spellcheck="false" aria-label="自定义页面跳转">
+    <button class="jump-go" id="jumpGo" type="button">跳转</button>
+  </div>
+</div>
+<div class="jump-hint" id="jumpHint" role="status"></div>
+
 <main class="page">
   <div class="page-head">
-    <h2>网站嵌入</h2>
-    <p>输入网址，将目标网站在此页内直接打开；同源页面或允许嵌入的网站均可正常显示。</p>
+    <h2>快速跳转</h2>
+    <p>右上角输入网址直达任意网站；左侧浮动侧边栏一键跳转常用网站，点击上方按钮可收起为标签栏。</p>
   </div>
-
-  <div class="embed-bar">
-    <input type="url" id="embedInput" class="embed-input" placeholder="输入网址，如 https://example.com（可省略 https://）" autocomplete="off" spellcheck="false">
-    <button class="embed-go" id="embedGo" type="button">打开</button>
-  </div>
-
-  <div class="embed-quick">
-    <span class="eq-label">快捷入口：</span>
-    <a href="javascript:void(0)" data-url="https://ankomaryken.github.io/kanseki-catalog/">本站 GitHub Pages</a>
-    <a href="javascript:void(0)" data-url="docs/manual.pdf">工作手册 PDF</a>
-    <a href="javascript:void(0)" data-url="https://animate-ui.com/docs/installation">Animate UI 文档</a>
-    <a href="javascript:void(0)" data-url="https://ui.shadcn.com/docs">shadcn/ui 文档</a>
-  </div>
-
-  <div class="embed-status" id="embedStatus" role="status"></div>
-
-  <div class="embed-stage empty" id="embedStage">
-    <div class="embed-placeholder">
-      <div class="ph-ic">🔗</div>
-      <div class="ph-t">输入网址后点击「打开」</div>
-      <div class="ph-s">提示：部分网站（如 Google、维基百科、百度等）会通过响应头禁止被嵌入，此时将自动提示，您可改用「新窗口打开」。</div>
-    </div>
-    <iframe class="embed-frame" id="embedFrame" title="嵌入网站" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"></iframe>
-  </div>
+  <div class="jump-grid" id="jumpGrid"></div>
 </main>
 
 <footer class="app-footer">
   <div class="footer-inner">日本汉籍编目工具 · 学术参考工具</div>
 </footer>
 
+<div class="jump-toast" id="jumpToast" role="status" aria-live="polite"><span class="jt-dot"></span><span id="jumpToastText">已在新标签页打开</span></div>
+
 <script>
 (function(){
+  // ===== 主题 =====
   function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
   initTheme();
-  document.getElementById('themeToggle').addEventListener('click',()=>{const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n)});
+  document.getElementById('themeToggle').addEventListener('click',()=>{
+    const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);
+  });
 
-  const input=document.getElementById('embedInput');
-  const go=document.getElementById('embedGo');
-  const stage=document.getElementById('embedStage');
-  const frame=document.getElementById('embedFrame');
-  const status=document.getElementById('embedStatus');
+  // ===== 预置快捷网站 =====
+  const QUICK_LINKS=[
+    {name:'典津全球汉籍影像开放集成系统',url:'https://guji.cckb.cn/',icon:'典'},
+    {name:'国学大全',url:'https://www.gxdq.com/',icon:'国'},
+    {name:'日本所藏中文古籍数据库',url:'https://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=',icon:'漢'},
+    {name:'日本国立公文书馆检索页面',url:'https://www.digital.archives.go.jp/',icon:'文'},
+    {name:'古籍觅宝',url:'https://guji99.com/',icon:'觅'},
+    {name:'PaddleOCR',url:'https://aistudio.baidu.com/paddleocr',icon:'OCR'},
+    {name:'GitHub',url:'https://github.com/',icon:'Gh'}
+  ];
 
-  function setStatus(type,html){
-    status.className='embed-status show '+type;
-    status.innerHTML=html;
-  }
-  function clearStatus(){status.className='embed-status';status.innerHTML=''}
-
+  // ===== 跳转核心 =====
   function normalizeUrl(raw){
-    let u=raw.trim();
+    let u=(raw||'').trim();
     if(!u)return null;
     // 相对路径 (本站文件, 含子目录如 docs/manual.pdf)
     if(/^\.?\//.test(u)||/^[^/]+(\.html?|\.pdf|\.txt)$/i.test(u)||/^[\w-]+\/[\w.\/-]+\.(html?|pdf|txt)$/i.test(u))return u;
     if(!/^https?:\/\//i.test(u))u='https://'+u;
     return u;
   }
-
-  // 检测是否允许被 iframe 嵌入 (仅同源可读响应头)
-  async function checkEmbeddable(url){
-    try{
-      const r=await fetch(url,{method:'HEAD',mode:'cors'});
-      const xfo=r.headers.get('x-frame-options');
-      const csp=r.headers.get('content-security-policy')||'';
-      const frm=csp.match(/frame-ancestors\s+([^;]+)/i);
-      if(xfo&&/deny/i.test(xfo))return {ok:false,why:'X-Frame-Options: DENY'};
-      if(xfo&&/sameorigin/i.test(xfo))return {ok:false,why:'X-Frame-Options: SAMEORIGIN'};
-      if(frm&&/none/i.test(frm[1]))return {ok:false,why:'CSP frame-ancestors none'};
-      if(frm&&!/(\*|'self')/.test(frm[1]))return {ok:false,why:'CSP frame-ancestors '+frm[1].trim()};
-      return {ok:true};
-    }catch(e){
-      // 跨域无法读响应头 — 无法预判, 直接尝试 (可能被浏览器拦截)
-      return {ok:true,unknown:true};
-    }
+  function showHint(msg,isErr){
+    const h=document.getElementById('jumpHint');
+    h.textContent=msg;h.className='jump-hint show'+(isErr?' err':'');
+    clearTimeout(showHint._t);
+    showHint._t=setTimeout(()=>{h.className='jump-hint'},2600);
   }
-
-  function loadUrl(raw){
+  function showToast(msg){
+    const t=document.getElementById('jumpToast');
+    document.getElementById('jumpToastText').textContent=msg;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t=setTimeout(()=>{t.classList.remove('show')},2400);
+  }
+  function openUrl(url){
+    if(!url)return;
+    // 用 <a target="_blank"> 编程点击: 与真实点击链接行为一致, 弹窗拦截规则统一 (window.open 返回 null 时降级 location.href 会把主页面一起导航走)
+    const a=document.createElement('a');
+    a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    showToast('已在新的标签页打开：'+url);
+  }
+  function goJump(raw){
     const url=normalizeUrl(raw);
-    if(!url){setStatus('warn','<span class="sicon">⚠️</span>请输入有效网址');return}
-    clearStatus();
-    stage.classList.remove('empty');
-    stage.classList.add('loading');
-    frame.removeAttribute('src');
-    frame.setAttribute('src',url);
-    frame.onload=()=>{stage.classList.remove('loading');setStatus('ok','<span class="sicon">✓</span>已加载：<b>'+url+'</b>　<a href="'+url+'" target="_blank" rel="noopener">新窗口打开 ↗</a>')};
-    frame.onerror=()=>{stage.classList.remove('loading');setStatus('err','<span class="sicon">✗</span>加载失败：<b>'+url+'</b>　<a href="'+url+'" target="_blank" rel="noopener">新窗口打开 ↗</a>')};
-    // 异步预检 (仅同源有效)
-    checkEmbeddable(url).then(res=>{
-      if(!res.ok){
-        stage.classList.remove('loading');
-        setStatus('err','<span class="sicon">⚠️</span>该网站设置了 <b>'+res.why+'</b>，禁止被嵌入显示。<a href="'+url+'" target="_blank" rel="noopener">点击这里在新窗口打开 ↗</a>');
-      }
-    });
+    if(!url){showHint('请输入有效网址',true);return}
+    openUrl(url);
   }
 
-  go.addEventListener('click',()=>loadUrl(input.value));
-  input.addEventListener('keydown',e=>{if(e.key==='Enter')loadUrl(input.value)});
-  document.querySelectorAll('.embed-quick a[data-url]').forEach(a=>{
-    a.addEventListener('click',()=>{input.value=a.dataset.url;loadUrl(a.dataset.url)});
+  // ===== 渲染侧边栏与卡片 =====
+  const dockList=document.getElementById('dockList');
+  const jumpGrid=document.getElementById('jumpGrid');
+  QUICK_LINKS.forEach((link,i)=>{
+    const a=document.createElement('a');
+    a.className='dock-item';
+    a.href=link.url; a.target='_blank'; a.rel='noopener noreferrer';
+    a.title=link.name;
+    a.innerHTML='<span class="di-icon" aria-hidden="true">'+link.icon+'</span>'+
+      '<span class="di-text"><span class="di-name">'+link.name+'</span>'+
+      '<span class="di-url">'+link.url.replace(/^https?:\/\//,'')+'</span></span>';
+    a.style.animationDelay=(i*0.04)+'s';
+    dockList.appendChild(a);
+    // 卡片
+    const c=document.createElement('a');
+    c.className='jump-card';
+    c.href=link.url; c.target='_blank'; c.rel='noopener noreferrer';
+    c.style.animationDelay=(i*0.05)+'s';
+    c.innerHTML='<div class="jc-top"><span class="jc-icon" aria-hidden="true">'+link.icon+'</span>'+
+      '<span class="jc-name">'+link.name+'</span></div>'+
+      '<span class="jc-url">'+link.url.replace(/^https?:\/\//,'')+'</span>'+
+      '<span class="jc-arrow" aria-hidden="true">↗</span>';
+    jumpGrid.appendChild(c);
   });
+
+  // ===== 搜索栏跳转 =====
+  const input=document.getElementById('jumpInput');
+  document.getElementById('jumpGo').addEventListener('click',()=>goJump(input.value));
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const u=normalizeUrl(input.value);
+      if(!u){showHint('请输入有效网址',true);return}
+      openUrl(u);
+    }
+  });
+
+  // ===== 侧边栏收缩 =====
+  const dock=document.getElementById('sideDock');
+  const toggle=document.getElementById('dockToggle');
+  function setCollapsed(c){
+    dock.classList.toggle('collapsed',c);
+    toggle.title=c?'展开侧边栏':'收起侧边栏';
+    toggle.setAttribute('aria-label',toggle.title);
+    localStorage.setItem('dockCollapsed',c?'1':'0');
+  }
+  toggle.addEventListener('click',()=>setCollapsed(!dock.classList.contains('collapsed')));
+  // 初始: 记忆 > 窄屏默认收缩
+  const saved=localStorage.getItem('dockCollapsed');
+  if(saved!==null)setCollapsed(saved==='1');
+  else if(window.innerWidth<=900)setCollapsed(true);
 })();
 </script>
 </body>
