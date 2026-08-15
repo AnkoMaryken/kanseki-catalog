@@ -706,6 +706,110 @@ tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
 .era-copy-btn.copied { color: var(--color-accent); border-color: var(--color-accent); background: var(--color-highlight); }
 
 /* ============================================
+   V4.2 精确查询增强
+   1) 临近年份「猜你会需要」分组行
+   2) 日本年号命中闪烁提醒
+   3) 相同年号高亮提醒框
+   ============================================ */
+/* 临近行 (弱化, 与精准行区分) */
+tr.nearby-row {
+  opacity: 0.78;
+}
+tr.nearby-row td {
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent) !important;
+  color: var(--color-text-secondary);
+}
+tr.nearby-row td.cell-year { background: color-mix(in srgb, var(--color-bg) 60%, transparent) !important; }
+tr.nearby-row:hover td { background: var(--color-surface-hover) !important; }
+tr.nearby-row td.cell-cn-era,
+tr.nearby-row td.cell-jp-era { color: var(--color-text-secondary); font-weight: 500; }
+/* 分组标签行 (隔行, 作为"猜你会需要"标识) */
+tr.nearby-sep-row td {
+  padding: 0.15rem 0.75rem;
+  background: color-mix(in srgb, var(--color-bg) 40%, transparent) !important;
+  border-bottom: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+tr.nearby-sep-row:hover td { background: color-mix(in srgb, var(--color-bg) 40%, transparent) !important; }
+.nearby-sep {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.12rem 0.6rem;
+  border-radius: 100px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.nearby-sep::before { content: '↕'; font-size: 0.72rem; }
+/* 精准行强调 (轻微描边, 提示这是查询命中的年份) */
+tr.precise-hit-row td { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+tr.precise-hit-row td.cell-year { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+
+/* 日本年号命中闪烁 (jp-era 单元格 + 提示条) */
+.jp-flash-cell {
+  animation: jpFlashCell 1.6s ease-in-out 2;
+  border-radius: var(--radius-sm);
+}
+@keyframes jpFlashCell {
+  0%, 100% { background: transparent; }
+  30% { background: color-mix(in srgb, var(--color-japan-accent) 22%, transparent); }
+  60% { background: color-mix(in srgb, var(--color-japan-accent) 14%, transparent); }
+}
+.jp-flash-hint {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--color-japan-accent) 16%, transparent);
+  color: var(--color-japan-accent);
+  border: 1px solid color-mix(in srgb, var(--color-japan-accent) 35%, transparent);
+  white-space: nowrap;
+}
+.jp-flash-hint::before { content: 'ⓙ'; font-size: 0.72rem; }
+
+/* 相同年号高亮提醒框 (表头上方) */
+.era-alert {
+  display: none;
+  margin: 0 0 0.9rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 7%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+  border-left: 3px solid var(--color-accent);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  animation: alertIn 0.3s var(--ease-spring);
+}
+.era-alert.show { display: block; }
+@keyframes alertIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.era-alert .ea-title {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-right: 0.4rem;
+}
+.era-alert .ea-title::before { content: '⚠'; font-size: 0.85rem; }
+.era-alert .ea-tag {
+  display: inline-block;
+  padding: 0.05rem 0.5rem;
+  margin: 0 0.2rem 0.15rem 0;
+  border-radius: 100px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+.era-alert .ea-jp { background: color-mix(in srgb, var(--color-japan-accent) 14%, transparent); border-color: color-mix(in srgb, var(--color-japan-accent) 32%, transparent); color: var(--color-japan-accent); }
+
+/* ============================================
    Knowledge Panel — 书画纪时常识悬浮模块
    ============================================ */
 .knowledge-btn {
@@ -1367,6 +1471,10 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
       <span class="filter-label" style="color:var(--color-accent);">年号</span>
       <div class="filter-tags" id="chinaEraTags"></div>
     </div>
+    <div class="filter-group" id="eraQuickFilter" style="display:none;">
+      <span class="filter-label" style="color:var(--color-accent);">常用年号</span>
+      <div class="filter-tags" id="eraQuickTags"></div>
+    </div>
     <div class="filter-group">
       <span class="filter-label">日本时代</span>
       <div class="filter-tags" id="japanFilterTags"></div>
@@ -1405,6 +1513,10 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
     <h4 style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--color-accent);">年号筛选</h4>
     <div class="filter-tags" id="chinaEraTagsMobile"></div>
   </div>
+  <div class="filter-panel-section" id="eraQuickFilterMobile" style="display:none;">
+    <h4 style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--color-accent);">常用年号</h4>
+    <div class="filter-tags" id="eraQuickTagsMobile"></div>
+  </div>
   <div class="filter-panel-section">
     <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-japan-accent);">日本时代</h4>
     <div class="filter-tags" id="japanFilterTagsMobile"></div>
@@ -1434,6 +1546,9 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
       </button>
     </div>
   </div>
+
+  <!-- 相同年号高亮提醒框 (V4.2, 表头上方) -->
+  <div class="era-alert" id="eraAlert" role="alert" aria-live="polite"></div>
 
   <!-- Table -->
   <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
@@ -2840,6 +2955,16 @@ function rowPinyinHit(row, q) {
 FULL_DATA = buildFullDataset();
 buildEraCandidates();
 
+// V4.2: 中日年号全集 (用于判断某年号是否专属日本/重名)
+const ALL_CN_ERAS = new Set();
+const ALL_JP_ERAS = new Set();
+(function buildEraSets() {
+  for (const row of FULL_DATA) {
+    (row.cnEraNames || []).forEach(e => { if (e && e !== '—') ALL_CN_ERAS.add(e); });
+    (row.jpEraNames || []).forEach(e => { if (e && e !== '—') ALL_JP_ERAS.add(e); });
+  }
+})();
+
 // ========================================
 // Filter definitions for UI
 // ========================================
@@ -2907,9 +3032,46 @@ function renderFilterTags() {
   
   // Render era sub-filters
   renderEraSubFilters();
+  // V4.2: 常用年号快捷区 (贞观等高频年号直选, 无需先选朝代)
+  renderEraQuickTags();
   
   // Attach events
   attachFilterEvents();
+}
+
+// ========================================
+// V4.2 常用年号快捷区: 跨朝代高频年号直选
+// 触发: 无筛选条件时展示 (或用户展开); 点击即筛选对应年号
+// ========================================
+const ERA_QUICK_LIST = [
+  '贞观', '开元', '天宝', '建中', '贞元', '元和', '长庆', '会昌', '大中', '咸通',
+  '建隆', '太平兴国', '咸平', '景德', '天圣', '庆历', '嘉祐', '熙宁', '元祐', '崇宁', '政和', '宣和', '建炎', '绍兴', '乾道', '淳熙', '嘉定', '宝庆', '绍定', '端平', '嘉熙', '淳祐', '宝祐', '开庆', '景定', '咸淳', '德祐', '祥兴',
+  '至元', '大德', '至大', '皇庆', '延祐', '至治', '泰定', '天历', '至顺', '元统', '至正', '洪武', '建文', '永乐', '洪熙', '宣德', '正统', '景泰', '天顺', '成化', '弘治', '正德', '嘉靖', '隆庆', '万历', '泰昌', '天启', '崇祯', '顺治', '康熙', '雍正', '乾隆', '嘉庆', '道光', '咸丰', '同治', '光绪', '宣统'
+];
+
+function renderEraQuickTags() {
+  const desktop = document.getElementById('eraQuickTags');
+  const desktopGroup = document.getElementById('eraQuickFilter');
+  const mobile = document.getElementById('eraQuickTagsMobile');
+  const mobileGroup = document.getElementById('eraQuickFilterMobile');
+  
+  const show = (selectedChinaFilters.size === 0 && selectedChinaEras.size === 0);
+  if (desktopGroup) desktopGroup.style.display = show ? '' : 'none';
+  if (mobileGroup) mobileGroup.style.display = show ? '' : 'none';
+  
+  if (!show) return;
+  if (desktop) {
+    desktop.innerHTML = '';
+    ERA_QUICK_LIST.forEach(name => {
+      desktop.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
+    });
+  }
+  if (mobile) {
+    mobile.innerHTML = '';
+    ERA_QUICK_LIST.forEach(name => {
+      mobile.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
+    });
+  }
 }
 
 // Compute and render era name sub-filter tags based on selected dynasties
@@ -3148,18 +3310,288 @@ function applyFilters() {
     filteredData = base;
   }
   
+  // V4.2: 精准查询检测 (排序前, filteredData 均为真实行)
+  let preciseHit = null;
+  if (searchQuery.trim() && filteredData.length > 0) {
+    const q = toSimplified(searchQuery.trim()).toLowerCase();
+    preciseHit = detectPreciseHit(q, filteredData);
+  }
+  
   sortData();
   currentPage = 1;
+  
+  // V4.2: 精准命中 → 排序后插入临近年份 (紧跟命中行)
+  // 注意: insertNearbyRows 仅在首次 (无临近块) 时插入, 幂等
+  if (preciseHit && !filteredData.some(r => isNearbySep(r))) {
+    filteredData = insertNearbyRows(filteredData, preciseHit);
+  }
+  
   renderTable();
   renderPagination();
   updateStats();
 }
 
+// V4.2: 真实行 (剔除临近行/分隔行) 计数与列表
+function realFilteredCount() {
+  return filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r)).length;
+}
+function realFilteredRows() {
+  return filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+}
+
+// ========================================
+// V4.2 精准查询检测: 年号+年份 / 年号+干支 命中单一目标行
+// 返回 { index, year, isJp } 或 null
+// ========================================
+function detectPreciseHit(q, rows) {
+  if (!q || q.length < 3) return null;
+  const gzMatch = extractGanzhi(q);
+  let eraKeyword = '';
+  let yearNum = null;
+  
+  if (gzMatch) {
+    // 年号+干支: "道光丁酉" -> 道光 + 丁酉
+    const gz = gzMatch.ganzhi;
+    const before = q.slice(0, q.indexOf(gz[0]));
+    const after = q.slice(q.indexOf(gz[1]) + 1);
+    eraKeyword = (before + after).trim();
+    if (!eraKeyword) return null; // 纯干支不触发
+    // 目标年: 该干支年份中, 年号命中且最接近
+    const gzRows = rows.filter(r => r.ganzhi === gz);
+    let hit = null;
+    for (const r of gzRows) {
+      const eraHit = (r.cnEraNames || []).some(e => e && e.includes(eraKeyword)) ||
+                     (r.jpEraNames || []).some(j => j && j.includes(eraKeyword)) ||
+                     (r.jpPeriods || []).some(p => p && p.includes(eraKeyword)) ||
+                     (r.cnDynasties || []).some(d => d && d.includes(eraKeyword));
+      if (eraHit) { hit = r; break; }
+    }
+    if (!hit) return null;
+    return { index: rows.indexOf(hit), year: hit.year, isJp: isJapanEraHit(hit, eraKeyword) };
+  }
+  
+  // 年号+年份: "道光三年" / "道光 3" / "道光1843"
+  const eraNames = [];
+  for (const row of FULL_DATA) {
+    (row.cnEraNames || []).forEach(e => { if (e && e !== '—' && e.length >= 2) eraNames.push(e); });
+    (row.jpEraNames || []).forEach(e => { if (e && e !== '—' && e.length >= 2) eraNames.push(e); });
+  }
+  const uniqEras = [...new Set(eraNames)].sort((a, b) => b.length - a.length);
+  for (const era of uniqEras) {
+    if (!q.startsWith(era) || q.length <= era.length) continue;
+    const rest = q.slice(era.length);
+    // 中文数字年份: 道光三年 / 道光十一年 / 道光二十三年
+    const cnNumMatch = rest.match(/^([〇零一二三四五六七八九十百]+)年?$/);
+    if (cnNumMatch) {
+      const n = chineseNumToInt(cnNumMatch[1]);
+      if (n >= 1 && n <= 60) {
+        // 目标年 = 年号起始年 + n - 1 (按公历推算; 若行命中则直接取行)
+        // 先尝试: rows 中 cnEra/jpEra 含 era 的起始行
+        const eraRows = rows.filter(r =>
+          (r.cnEraNames || []).some(e => e === era) || (r.jpEraNames || []).some(e => e === era));
+        if (eraRows.length > 0) {
+          const startRow = eraRows[0];
+          const targetYear = startRow.year + n - 1;
+          const hit = eraRows.find(r => r.year === targetYear);
+          if (hit) {
+            return { index: rows.indexOf(hit), year: hit.year, isJp: isJapanEraHit(hit, era) };
+          }
+          // 目标年不在结果集 (可能被筛选过滤) — 用起始年所在行
+          return { index: rows.indexOf(startRow), year: startRow.year, isJp: isJapanEraHit(startRow, era) };
+        }
+      }
+    }
+    // 阿拉伯数字年份: 道光3 / 道光1843
+    const numMatch = rest.match(/^(\d+)$/);
+    if (numMatch) {
+      const n = parseInt(numMatch[1], 10);
+      if (n >= 1000 && n <= 3000) {
+        const hit = rows.find(r => r.year === n &&
+          ((r.cnEraNames || []).some(e => e === era) || (r.jpEraNames || []).some(e => e === era)));
+        if (hit) return { index: rows.indexOf(hit), year: hit.year, isJp: isJapanEraHit(hit, era) };
+      }
+    }
+  }
+  return null;
+}
+
+// 中文数字转整数 (一~九十九; 支持 十/廿/三十/四十三 等)
+function chineseNumToInt(s) {
+  const digits = { '〇':0,'零':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,
+    '十':10,'廿':20,'卅':30 };
+  if (s === '十') return 10;
+  if (s === '廿') return 20;
+  if (s === '卅') return 30;
+  if (s.length === 1) return digits[s] !== undefined ? digits[s] : NaN;
+  // 两位/三位: X十Y / 十Y / X十
+  const hasShi = s.indexOf('十');
+  if (hasShi === -1) {
+    // 纯数字串 (十以下)
+    let n = 0;
+    for (const ch of s) { if (digits[ch] === undefined || digits[ch] >= 10) return NaN; n = n * 10 + digits[ch]; }
+    return n;
+  }
+  let n = 0;
+  if (hasShi === 0) {
+    n = 10;
+  } else {
+    const first = digits[s[0]];
+    if (first === undefined || first >= 10) return NaN;
+    n = first * 10;
+  }
+  if (hasShi === s.length - 1) return n;
+  const last = digits[s[s.length - 1]];
+  if (last === undefined || last >= 10) return NaN;
+  return n + last;
+}
+
+// 该行是否命中日本年号关键词 (用于闪烁提醒)
+function isJapanEraHit(row, keyword) {
+  return (row.jpEraNames || []).some(j => j && j !== '—' && j.includes(keyword)) ||
+         (row.jpPeriods || []).some(p => p && p !== '—' && p.includes(keyword));
+}
+
+// V4.2: 精准命中行标记 (模块级, 不污染 FULL_DATA)
+// key: row 对象引用 -> { precise: true, jpFlash: bool }
+let preciseHitMark = new Map();
+
+// V4.2: 在命中行后插入前后各 N 年的临近行 (隔行分隔, 去重)
+// 注意: 不修改 FULL_DATA 行对象, 临近行以克隆形式插入, 精准/闪烁标记用模块级状态
+function insertNearbyRows(rows, hitMeta) {
+  const N = 2; // 前后各 2 年
+  const hitYear = hitMeta.year;
+  const nearby = [];
+  const seen = new Set();
+  for (let y = hitYear - N; y <= hitYear + N; y++) {
+    if (y === hitYear) continue;
+    const r = FULL_DATA.find(x => x.year === y);
+    if (r && !seen.has(y)) { seen.add(y); nearby.push({ row: r, offset: y - hitYear }); }
+  }
+  
+  // 记录命中行标记 (精准描边 + 日本闪烁)
+  const hitRow = rows[hitMeta.index];
+  if (hitRow) {
+    preciseHitMark.set(hitRow, { precise: true, jpFlash: !!hitMeta.isJp });
+  }
+  if (nearby.length === 0) return rows;
+  
+  const out = [];
+  for (let i = 0; i < rows.length; i++) {
+    if (i === hitMeta.index) {
+      out.push(rows[i]);
+      // 隔行插入分组标签
+      out.push({ __nearbySep: true });
+      nearby.forEach(n => out.push(Object.assign({}, n.row, { __nearby: n.offset })));
+    } else {
+      out.push(rows[i]);
+    }
+  }
+  return out;
+}
+
+// V4.2: 渲染时判断行是否临近行/分隔行
+function isNearbyRow(row) { return !!(row && row.__nearby); }
+function isNearbySep(row) { return !!(row && row.__nearbySep); }
+function nearbyOffset(row) { return row.__nearby || 0; }
+
+// V4.2: 重名年号提醒框 (表头上方)
+// 命中重名年号 (中国内部跨朝代 或 中日之间) 时展示
+let lastEraAlert = null; // { name, html } 缓存去重
+function updateEraAlert(query) {
+  const alertEl = document.getElementById('eraAlert');
+  if (!alertEl) return;
+  if (!query || !query.trim()) {
+    alertEl.classList.remove('show');
+    alertEl.innerHTML = '';
+    lastEraAlert = null;
+    return;
+  }
+  const q = toSimplified(query.trim()).toLowerCase();
+  // 提取查询中的年号关键词 (从搜索词中找命中的年号)
+  const eraName = findEraNameInQuery(q);
+  if (!eraName) {
+    alertEl.classList.remove('show');
+    alertEl.innerHTML = '';
+    lastEraAlert = null;
+    return;
+  }
+  
+  // 收集该年号所有出现 (中国朝代 + 日本时代 + 年份区间)
+  const cnOcc = new Map(); // 朝代 -> [minYear, maxYear]
+  const jpOcc = new Map(); // 时代 -> [minYear, maxYear]
+  for (const row of FULL_DATA) {
+    const cnHit = (row.cnEraNames || []).some(e => e === eraName);
+    const jpHit = (row.jpEraNames || []).some(e => e === eraName);
+    if (cnHit) {
+      (row.cnDynasties || []).forEach(d => {
+        if (!d || d === '—') return;
+        if (!cnOcc.has(d)) cnOcc.set(d, [row.year, row.year]);
+        else { const r = cnOcc.get(d); r[0] = Math.min(r[0], row.year); r[1] = Math.max(r[1], row.year); }
+      });
+    }
+    if (jpHit) {
+      (row.jpPeriods || []).forEach(p => {
+        if (!p || p === '—') return;
+        if (!jpOcc.has(p)) jpOcc.set(p, [row.year, row.year]);
+        else { const r = jpOcc.get(p); r[0] = Math.min(r[0], row.year); r[1] = Math.max(r[1], row.year); }
+      });
+    }
+  }
+  
+  const totalOcc = cnOcc.size + jpOcc.size;
+  const hasCrossCn = cnOcc.size > 1;          // 中国内部跨朝代重名
+  const hasCrossJp = jpOcc.size > 1;          // 日本内部跨时代重名
+  const hasCnJp = cnOcc.size > 0 && jpOcc.size > 0; // 中日重名
+  
+  if (totalOcc <= 1) {
+    alertEl.classList.remove('show');
+    alertEl.innerHTML = '';
+    lastEraAlert = null;
+    return;
+  }
+  
+  const fmtRange = r => (r[0] < 0 ? '前' + Math.abs(r[0]) : r[0]) + '–' + (r[1] < 0 ? '前' + Math.abs(r[1]) : r[1]);
+  const cnTags = [...cnOcc.entries()].map(([d, r]) =>
+    `<span class="ea-tag">${toDisplay(d)} ${fmtRange(r)}</span>`).join('');
+  const jpTags = [...jpOcc.entries()].map(([p, r]) =>
+    `<span class="ea-tag ea-jp">${toDisplay(p)} ${fmtRange(r)}</span>`).join('');
+  
+  let reason = '';
+  if (hasCnJp) reason = '「' + toDisplay(eraName) + '」同時是中國與日本年號，請注意區分所查對象！';
+  else if (hasCrossCn) reason = '「' + toDisplay(eraName) + '」在中國歷史上被多個朝代使用，請確認朝代！';
+  else if (hasCrossJp) reason = '「' + toDisplay(eraName) + '」在日本歷史上被多個時代使用，請確認時代！';
+  else reason = '「' + toDisplay(eraName) + '」存在重名，請注意區分！';
+  
+  const html = `<span class="ea-title">年號提醒</span>${reason}<br><span style="color:var(--color-text-secondary);">出現：</span>${cnTags}${jpTags}`;
+  if (lastEraAlert && lastEraAlert.name === eraName) return; // 同一年号不重复重绘
+  lastEraAlert = { name: eraName };
+  alertEl.innerHTML = html;
+  alertEl.classList.add('show');
+}
+
+// 从查询词中提取年号关键词 (最长匹配)
+function findEraNameInQuery(q) {
+  if (!q) return null;
+  const eraNames = new Set();
+  for (const row of FULL_DATA) {
+    (row.cnEraNames || []).forEach(e => { if (e && e !== '—') eraNames.add(e); });
+    (row.jpEraNames || []).forEach(e => { if (e && e !== '—') eraNames.add(e); });
+  }
+  const list = [...eraNames].sort((a, b) => b.length - a.length);
+  for (const era of list) {
+    if (q.includes(era)) return era;
+  }
+  return null;
+}
+
 function sortData() {
-  filteredData.sort((a, b) => {
+  // V4.2: 临近行/分隔行不参与排序 (保持跟随命中行的相对顺序)
+  const real = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+  real.sort((a, b) => {
     if (sortDir === 'asc') return a.year - b.year;
     return b.year - a.year;
   });
+  filteredData = real;
 }
 
 // ========================================
@@ -3187,6 +3619,9 @@ function renderTable() {
   const pagination = document.getElementById('pagination');
   const loadingOverlay = document.getElementById('loadingOverlay');
   
+  // V4.2: 重名年号提醒框 (表头上方)
+  updateEraAlert(searchQuery);
+  
   if (!filteredData || filteredData.length === 0) {
     tbody.innerHTML = '';
     emptyState.classList.add('active');
@@ -3207,27 +3642,80 @@ function renderTable() {
   tableWrapper.style.display = '';
   pagination.style.display = '';
   
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredData.length / perPage);
+  // 计算分页 — 注意: 临近行/分隔行不计入分页计数
+  const realRows = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+  const totalPages = Math.ceil(realRows.length / perPage);
   if (currentPage > totalPages) currentPage = totalPages;
   const startIdx = (currentPage - 1) * perPage;
-  const pageData = filteredData.slice(startIdx, startIdx + perPage);
+  
+  // 精确分页窗口: 仅取当前页真实行
+  const pageReal = realRows.slice(startIdx, startIdx + perPage);
+  const pageRealSet = new Set(pageReal);
+  
+  // 扩展: 附加当前页命中行后的临近行/分隔行 (不跨页, 不重复)
+  const pageData = [];
+  let prevRealRowRef = null; // 上一个真实行 (用于判断临近块归属)
+  for (const r of filteredData) {
+    if (isNearbyRow(r) || isNearbySep(r)) {
+      // 临近块跟随其前一个真实行; 若该真实行在本页 → 附加
+      if (pageRealSet.has(prevRealRowRef)) pageData.push(r);
+    } else {
+      prevRealRowRef = r;
+      if (pageRealSet.has(r)) pageData.push(r);
+    }
+  }
+  // 兜底: 若扩展后为空 (理论上不会), 退化为纯真实行
+  const finalPage = pageData.length > 0 ? pageData : pageReal;
   
   loadingOverlay.classList.add('active');
   
   // Each row now maps to exactly one year — eras merged in cells, no multi-row
   requestAnimationFrame(() => {
     const q = queryForDisplay(searchQuery);
-    const fragments = pageData.map(row => {
+    const fragments = finalPage.map(row => {
+      // V4.2: 分隔行 (猜你会需要 标签)
+      if (isNearbySep(row)) {
+        return `<tr class="nearby-sep-row" role="row"><td colspan="10"><span class="nearby-sep">${toDisplay('猜你会需要')}</span></td></tr>`;
+      }
+      // V4.2: 临近行 (弱化)
+      if (isNearbyRow(row)) {
+        const off = nearbyOffset(row);
+        const offLabel = (off > 0 ? '+' : '') + off;
+        return `<tr class="nearby-row" role="row" data-nearby-offset="${off}">
+          <td class="cell-year">${highlightText(toDisplay(row.yearStr), q)}</td>
+          <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
+          <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
+          <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
+          <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
+          <td class="cell-jp-period">${highlightText(toDisplay(row.jpPeriod), q)}</td>
+          <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
+          <td class="cell-jp-ruler">${highlightText(toDisplay(row.jpRuler), q)}</td>
+          <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
+          <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
+        </tr>`;
+      }
+      // V4.2: 精准命中行标记 (描边 + 日本闪烁)
+      const mark = preciseHitMark.get(row) || null;
+      const preciseCls = mark && mark.precise ? ' precise-hit-row' : '';
+      let jpFlash = mark && mark.jpFlash ? ' jp-flash-cell' : '';
+      // 日本专属年号整体命中: 若行内日本年号含查询年号且非中国年号 → 闪烁
+      if (!jpFlash && searchQuery.trim()) {
+        const qq = toSimplified(searchQuery.trim()).toLowerCase();
+        const eraN = findEraNameInQuery(qq);
+        if (eraN && !ALL_CN_ERAS.has(eraN) && ALL_JP_ERAS.has(eraN) &&
+            (row.jpEraNames || []).some(e => e === eraN)) {
+          jpFlash = ' jp-flash-cell';
+        }
+      }
       const yearClass = row.year < 0 ? 'cell-year bc' : 'cell-year';
-      return `<tr role="row">
+      return `<tr role="row" class="${preciseCls.trim()}">
         <td class="${yearClass}">${highlightText(toDisplay(row.yearStr), q)}</td>
         <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
         <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
         <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
         <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
         <td class="cell-jp-period">${highlightText(toDisplay(row.jpPeriod), q)}</td>
-        <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
+        <td class="cell-jp-era${jpFlash}">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
         <td class="cell-jp-ruler">${highlightText(toDisplay(row.jpRuler), q)}</td>
         <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
         <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
@@ -3311,7 +3799,9 @@ function renderPagination() {
 }
 
 function updateStats() {
-  document.getElementById('totalCount').textContent = filteredData.length.toLocaleString();
+  // V4.2: 统计排除临近行/分隔行
+  const n = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r)).length;
+  document.getElementById('totalCount').textContent = n.toLocaleString();
 }
 
 // ========================================
@@ -3649,8 +4139,9 @@ function renderSuggestions(container, suggestions, maxResults, query) {
 }
 
 function jumpToYear(year) {
-  // Each year has exactly one row now
-  const idx = filteredData.findIndex(r => r.year === year);
+  // Each year has exactly one row now — V4.2: 用真实行定位 (排除临近行/分隔行)
+  const real = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+  const idx = real.findIndex(r => r.year === year);
   if (idx >= 0) {
     currentPage = Math.floor(idx / perPage) + 1;
     renderTable();
@@ -3746,7 +4237,7 @@ function updateExportCount() {
   if (!dlg) return;
   const nCols = dlg.querySelectorAll('.exp-col input[type="checkbox"]:checked').length;
   const range = dlg.querySelector('input[name="expRange"]:checked');
-  const nRows = range && range.value === 'page' ? renderTableRowsCount() : filteredData.length;
+  const nRows = range && range.value === 'page' ? renderTableRowsCount() : realFilteredCount();
   const countEl = dlg.querySelector('.exp-count');
   if (countEl) countEl.textContent = `${toDisplay('将导出')} ${nRows} ${toDisplay('行')} × ${nCols} ${toDisplay('列')}`;
 }
@@ -3771,13 +4262,14 @@ function doExportCSV() {
   const selCols = CSV_COLUMNS.filter(c => exportSelectedCols.has(c.key));
   const headers = selCols.map(c => toDisplay(c.label));
   
-  // 取数
+  // 取数 (V4.2: 排除临近行/分隔行)
   let dataRows;
   if (exportRange === 'page') {
+    const real = realFilteredRows();
     const start = (currentPage - 1) * perPage;
-    dataRows = filteredData.slice(start, start + perPage);
+    dataRows = real.slice(start, start + perPage);
   } else {
-    dataRows = filteredData;
+    dataRows = realFilteredRows();
   }
   
   const rows = dataRows.map(row =>
