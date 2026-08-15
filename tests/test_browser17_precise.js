@@ -62,13 +62,23 @@ function check(name, cond, extra) {
   check('横线为块级元素', sepStyle.display === 'block', 'display=' + sepStyle.display);
   check('横线有上边框线', parseFloat(sepStyle.bt) > 0, 'borderTop=' + sepStyle.bt);
   check('横线水平居中(auto margin)', sepStyle.ml === sepStyle.mr, 'ml=' + sepStyle.ml + ' mr=' + sepStyle.mr);
-  // 横线上下间距: 分隔行 td 垂直 padding ≥ 0.7rem (与上下表格拉开距离)
+  // 横线上方间距: 分隔行 td 垂直 padding ≥ 0.7rem (与上下表格拉开距离)
   const sepPad = await page.locator('#tableBody tr.nearby-sep-row td').first().evaluate(el => {
     const cs = getComputedStyle(el);
     return { pt: parseFloat(cs.paddingTop), pb: parseFloat(cs.paddingBottom) };
   });
   check('横线上方间距加大(≥0.7rem)', sepPad.pt >= 11.2, 'pt=' + sepPad.pt);
   check('横线下方间距加大(≥0.7rem)', sepPad.pb >= 11.2, 'pb=' + sepPad.pb);
+  // 横线下方小字标题: 左对齐, 位于年号全部年份上方
+  const labelStyle = await page.locator('#tableBody tr.nearby-sep-row .nearby-label').first().evaluate(el => {
+    const cs = getComputedStyle(el);
+    return { text: el.textContent.trim(), display: cs.display, fs: parseFloat(cs.fontSize), ta: cs.textAlign, mt: parseFloat(cs.marginTop) };
+  });
+  check('小字标题文案正确', labelStyle.text === '该年号下的所有年份', 'text=' + labelStyle.text);
+  check('小字标题为块级元素', labelStyle.display === 'block', 'display=' + labelStyle.display);
+  check('小字标题字号小(≤0.8rem)', labelStyle.fs <= 12.8, 'fs=' + labelStyle.fs);
+  check('小字标题左对齐', labelStyle.ta === 'left', 'ta=' + labelStyle.ta);
+  check('小字标题与横线有间距', labelStyle.mt > 0, 'mt=' + labelStyle.mt);
   const nearbyRows = await page.locator('#tableBody tr.nearby-row').count();
   // 道光 1821-1850 共 30 年, 命中 1823 → 其余 29 行
   check('临近行为整个年号其余年份(29)', nearbyRows === 29, 'count=' + nearbyRows);
