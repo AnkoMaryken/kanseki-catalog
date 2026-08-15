@@ -41,14 +41,14 @@ function check(name, cond, extra) {
   check('道光三年命中行存在', await page.locator('#tableBody tr.precise-hit-row').count() >= 1);
   const hitYear1823 = await page.locator('#tableBody tr.precise-hit-row .cell-year').first().textContent();
   check('道光三年命中1823', hitYear1823.trim() === '1823', hitYear1823);
-  // 样式: 正常行底色 (非深黑 #101012) + inset 浅描边
+  // 样式: 正常行底色 (非深黑 #101012) + 无描边 (无 inset 阴影)
   const preciseBg = await page.locator('#tableBody tr.precise-hit-row .cell-year').evaluate(el => {
     const cs = getComputedStyle(el);
     return { bg: cs.backgroundColor, color: cs.color, shadow: cs.boxShadow };
   });
   const bgNormal = preciseBg.bg !== 'rgb(16, 16, 18)' && !preciseBg.bg.includes('16, 16, 18');
   check('精准行背景正常(非深黑#101012)', bgNormal, 'bg=' + preciseBg.bg);
-  check('精准行浅描边(inset)', preciseBg.shadow.includes('inset'), 'shadow=' + preciseBg.shadow);
+  check('精准行无描边(无inset)', !preciseBg.shadow || !preciseBg.shadow.includes('inset'), 'shadow=' + preciseBg.shadow);
 
   // ========== 3. 分隔行 = 居中横线, 其下为整个年号全部年份 (道光 1821-1850) ==========
   const nearbySep = await page.locator('#tableBody tr.nearby-sep-row').count();
@@ -62,6 +62,13 @@ function check(name, cond, extra) {
   check('横线为块级元素', sepStyle.display === 'block', 'display=' + sepStyle.display);
   check('横线有上边框线', parseFloat(sepStyle.bt) > 0, 'borderTop=' + sepStyle.bt);
   check('横线水平居中(auto margin)', sepStyle.ml === sepStyle.mr, 'ml=' + sepStyle.ml + ' mr=' + sepStyle.mr);
+  // 横线上下间距: 分隔行 td 垂直 padding ≥ 0.7rem (与上下表格拉开距离)
+  const sepPad = await page.locator('#tableBody tr.nearby-sep-row td').first().evaluate(el => {
+    const cs = getComputedStyle(el);
+    return { pt: parseFloat(cs.paddingTop), pb: parseFloat(cs.paddingBottom) };
+  });
+  check('横线上方间距加大(≥0.7rem)', sepPad.pt >= 11.2, 'pt=' + sepPad.pt);
+  check('横线下方间距加大(≥0.7rem)', sepPad.pb >= 11.2, 'pb=' + sepPad.pb);
   const nearbyRows = await page.locator('#tableBody tr.nearby-row').count();
   // 道光 1821-1850 共 30 年, 命中 1823 → 其余 29 行
   check('临近行为整个年号其余年份(29)', nearbyRows === 29, 'count=' + nearbyRows);
