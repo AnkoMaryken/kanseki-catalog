@@ -112,6 +112,19 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v6.1</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员入口改为隐藏触发</b>：管理员登录入口不再显示在页面任何位置——在登录页或注册页连续快速点击品牌「Juvenile」区域 5 次，即可进入管理员登录界面。普通用户正常单击品牌仍会返回首页，不受影响。</li>
+      <li><b>管理员凭据去敏</b>：更新日志与登录界面不再展示任何管理员演示身份信息，避免公开发布后被滥用；管理员账号密码仅由部署方在服务器端（window.ADMIN_CONFIG）配置。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v6.0</span>
       <span class="cl-date">2026-08-16</span>
       <span class="cl-tag t-new">新增</span>
@@ -120,7 +133,7 @@ body{transition:background-color .3s ease,color .3s ease}
     <ul>
       <li><b>深浅色模式全站同步</b>：主题偏好统一存储于全站共用键（localStorage.theme），在登录页、注册页或任意页面切换深浅色后，进入其他任何页面（主页、编目规范、使用介绍、更新日志、快速跳转、管理员工作台、条款、隐私页）均保持同一主题，不再出现"登录页选了深色、进主页变浅色"的情况。</li>
       <li><b>Supabase 接入（预留）</b>：新增 supabase-config.js 统一管理 Supabase 配置与认证封装（signIn / signUp / signOut / getSession）。当前未填入真实 URL 与 Key 时自动进入演示模式（本地模拟登录/注册），配置真实凭据后即切换为真实认证。</li>
-      <li><b>管理员工作台（admin.html）</b>：新增管理员工作台页面，仅在输入管理员账号密码后显示；含站点数据总览（总记录、中国朝代、日本时代、注册用户）、中国朝代/日本时代数据分布图表、用户列表（Supabase 配置后自动切换真实用户管理），演示账号 admin / admin123（部署时可通过 window.ADMIN_CONFIG 配置真实密码），登录会话 24 小时有效，支持退出登录。</li>
+      <li><b>管理员工作台（admin.html）</b>：新增管理员工作台页面，需管理员身份验证后进入；含站点数据总览（总记录、中国朝代、日本时代、注册用户）、中国朝代/日本时代数据分布图表、用户列表（Supabase 配置后自动切换真实用户管理）。管理员入口采用隐藏触发方式，登录会话 24 小时有效，支持退出登录。</li>
       <li><b>登录/注册表单接入认证</b>：登录与注册表单已接入 SupabaseAuth 封装：真实模式走 Supabase 邮箱密码认证（注册需邮箱验证），演示模式本地模拟成功并写入本地用户信息。</li>
       <li><b>条款与隐私页支持深色主题</b>：服务条款、隐私政策页面补全主题应用逻辑，跟随全站深浅色设置。</li>
     </ul>

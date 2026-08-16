@@ -235,8 +235,10 @@ tr:hover td { background: var(--color-surface-hover); }
   });
 })();
 
-// ===== 管理员凭据 (V6.0) =====
-// 部署时替换占位符。演示模式: admin / admin123
+// ===== 管理员凭据 (V6.1) =====
+// 安全: 凭据不写死于此文件。部署时通过 window.ADMIN_CONFIG 注入
+// (例如在 admin.html 中该脚本之前用 SCRIPT 标签设置该对象)。
+// 未注入时使用内置回退值(仅本地预览用), 公开部署务必注入真实凭据。
 var ADMIN_CRED = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.username) || 'admin';
 var ADMIN_PASS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.password) || 'admin123';
 var ADMIN_DISPLAY = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.displayName) || '站点管理员';
@@ -372,9 +374,8 @@ const existing = loadSession();
 if (existing) {
   enterDash(existing);
 } else {
-  // 演示提示
-  const isDemo = !(window.ADMIN_CONFIG && window.ADMIN_CONFIG.username);
-  gateHint.textContent = isDemo ? '演示账号：admin / admin123（部署时请通过 ADMIN_CONFIG 配置真实密码）' : '';
+  // 登录页提示 (不暴露任何账号信息)
+  gateHint.textContent = '请使用管理员账号登录';
 }
 
 gateForm.addEventListener('submit', function(e) {

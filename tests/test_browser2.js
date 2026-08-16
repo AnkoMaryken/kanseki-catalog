@@ -36,11 +36,11 @@ const URL = 'http://localhost:8765/index.html';
   const allSugg = await page.locator('.search-suggestion-item').allTextContents();
   check('建议含"万历"', allSugg.some(t => t.includes('万历')), allSugg.slice(0, 3).join('|'));
 
-  // 2. 繁体输入建议: 输入"萬"看建议
+  // 2. 简体模式下输入繁体"萬" → 建议应经繁转简匹配并显示简体"万历"
   await page.fill('#globalSearch', '萬');
   await page.waitForTimeout(400);
   const allSuggT = await page.locator('.search-suggestion-item').allTextContents();
-  check('繁体建议含"萬曆"', allSuggT.some(t => t.includes('萬曆')), allSuggT.slice(0, 3).join('|'));
+  check('繁体输入建议(简体模式)含"万历"', allSuggT.some(t => t.includes('万历')), allSuggT.slice(0, 3).join('|'));
 
   // 3. 干支建议: 输入"癸未"
   await page.fill('#globalSearch', '癸未');

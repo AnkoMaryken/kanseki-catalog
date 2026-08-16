@@ -286,6 +286,30 @@ const form = document.getElementById('loginForm');
 const errBox = document.getElementById('formError');
 const loginBtn = document.getElementById('loginBtn');
 
+// 管理员入口 (V6.1): 连续快速点击 Juvenile 品牌 5 次 → 管理员登录页
+// 单击仍回首页 (500ms 内未凑满 5 次即恢复导航)
+(function() {
+  const brand = document.querySelector('.brand');
+  if (!brand) return;
+  let clicks = 0, timer = null;
+  brand.addEventListener('click', (e) => {
+    e.preventDefault();   // 阻止 <a href="index.html"> 默认导航, 以便连点计数
+    clicks++;
+    if (timer) clearTimeout(timer);
+    const hit = clicks;
+    timer = setTimeout(() => {
+      clicks = 0;
+      if (hit < 5) location.href = 'index.html';  // 未满 5 次: 单击回首页
+    }, 500);
+    if (clicks >= 5) {
+      e.stopPropagation();
+      if (timer) clearTimeout(timer);
+      clicks = 0;
+      location.href = 'admin.html';
+    }
+  });
+})();
+
 function showError(msg) {
   errBox.textContent = msg;
   errBox.classList.add('show');
