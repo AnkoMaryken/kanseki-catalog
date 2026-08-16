@@ -29,3 +29,7 @@
 ## 测试
 
 `tests/` 目录含数据单测与真实浏览器端到端测试（playwright-core + 本机 Chrome），详见各测试文件头部注释。
+
+## 直接跳转请点击⬇️
+
+https://ankomaryken.github.io/kanseki-catalog/index.html
