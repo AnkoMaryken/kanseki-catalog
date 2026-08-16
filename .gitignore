@@ -12,3 +12,5 @@ debug_*.js
 # app 依赖与临时调试
 app/node_modules/
 app/.tmp/
+# 安装包工具
+app/tools/
