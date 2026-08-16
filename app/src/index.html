@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本汉籍编目工具</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app" class="app-shell">
+  <!-- 侧边导航 -->
+  <aside class="app-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="bi">漢</div>
+      <div class="brand-text">
+        <strong>日本汉籍编目工具</strong>
+        <span>Windows 桌面版</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#/query" data-view="query" class="nav-item active">
+        <span class="nav-icon">🔍</span><span>纪年查询</span>
+      </a>
+      <a href="#/records" data-view="records" class="nav-item">
+        <span class="nav-icon">📚</span><span>编目记录</span>
+        <span class="nav-badge soon">待上线</span>
+      </a>
+      <a href="#/sync" data-view="sync" class="nav-item">
+        <span class="nav-icon">🔄</span><span>同步设置</span>
+      </a>
+      <a href="#/about" data-view="about" class="nav-item">
+        <span class="nav-icon">ℹ️</span><span>关于</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <span id="syncStatusDot" class="status-dot" title="同步状态"></span>
+      <span id="syncStatusText">未同步</span>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="app-main">
+    <!-- 查询视图：iframe 承载静态站 -->
+    <section id="view-query" class="view active">
+      <iframe id="queryFrame" src="pages/index.html" title="纪年查询" class="page-frame"></iframe>
+    </section>
+
+    <!-- 编目记录视图（占位框架） -->
+    <section id="view-records" class="view">
+      <div class="view-header records-header">
+        <div>
+          <h2>汉籍编目记录</h2>
+          <p class="view-sub">按「全球汉籍合璧工程」编目表格模板管理馆藏汉籍</p>
+        </div>
+        <button class="btn btn-primary" id="addRecordBtn" type="button" disabled title="编目功能开发中，即将上线">＋ 新增编目</button>
+      </div>
+
+      <!-- 列表空状态 -->
+      <div class="records-placeholder" id="recordsEmpty">
+        <div class="placeholder-icon">📚</div>
+        <h3>編目功能開發中，敬請期待</h3>
+        <p>编目记录模块正在开发中，后期将支持：</p>
+        <ul class="placeholder-list">
+          <li>按模板 14 字段录入编目信息（類目/書名/卷數/索書號/著者/版本/函册/版式等）</li>
+          <li>多端同步（Windows / 手机 / 平板），离线可用</li>
+          <li>搜索、筛选、导出 Excel 编目表</li>
+        </ul>
+        <button class="btn btn-primary" id="previewFormBtn" type="button">预览录入表单</button>
+        <p class="placeholder-note">此功能即將上線，當前為預覽</p>
+      </div>
+    </section>
+
+    <!-- 编目录入表单弹层（占位预览，不落库） -->
+    <div id="recordFormOverlay" class="modal-overlay" hidden>
+      <div class="modal record-form-modal">
+        <div class="modal-header">
+          <h3>新增編目記錄（預覽）</h3>
+          <button class="modal-close" id="recordFormClose" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="form-note">字段布局与校验按「【27】編目表格模板.xlsx」預置，此功能即將上線，當前為預覽，提交不會保存。</p>
+          <div class="form-section">
+            <h4>必填項</h4>
+            <div id="requiredFields" class="form-grid"></div>
+          </div>
+          <div class="form-section">
+            <h4>選填項</h4>
+            <div id="optionalFields" class="form-grid"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" id="recordFormCancel" type="button">取消</button>
+          <button class="btn btn-primary" id="recordFormSubmit" type="button" disabled title="即将上线">提交（待上線）</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 同步设置视图 -->
+    <section id="view-sync" class="view">
+      <div class="view-header">
+        <h2>同步设置</h2>
+        <p class="view-sub">通过坚果云 WebDAV 备份偏好与数据（零成本）</p>
+      </div>
+      <div class="sync-panel">
+        <div class="form-group">
+          <label for="syncUser">坚果云邮箱</label>
+          <input type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="syncPass">应用密码
+            <span class="hint">在坚果云「安全选项 → 应用密码」中生成</span>
+          </label>
+          <input type="password" id="syncPass" placeholder="应用密码（非登录密码）" autocomplete="current-password">
+        </div>
+        <div class="sync-actions">
+          <button class="btn btn-primary" id="syncTestBtn" type="button">连接测试</button>
+          <button class="btn" id="syncSaveBtn" type="button">保存凭据</button>
+          <button class="btn" id="syncNowBtn" type="button">立即同步</button>
+        </div>
+        <div id="syncStatus" class="sync-status" hidden></div>
+        <div class="sync-info">
+          <div class="info-row"><span>上次同步</span><span id="syncLastTime">—</span></div>
+          <div class="info-row"><span>待同步变更</span><span id="syncPending">0</span></div>
+          <div class="info-row"><span>同步状态</span><span id="syncState">未配置</span></div>
+        </div>
+        <div class="sync-log">
+          <h4>最近日志</h4>
+          <ul id="syncLog"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 关于视图 -->
+    <section id="view-about" class="view">
+      <div class="view-header">
+        <h2>关于</h2>
+      </div>
+      <div class="about-panel">
+        <div class="about-logo">漢</div>
+        <h3>日本汉籍编目工具</h3>
+        <p class="about-ver">版本 0.5.0（V5 路线图）</p>
+        <p>将「日本汉籍编目工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
+        <div class="about-links">
+          <button class="btn" id="openGuideBtn" type="button">使用介绍</button>
+          <button class="btn" id="openChangelogBtn" type="button">更新日志</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

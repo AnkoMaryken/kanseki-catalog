@@ -63,7 +63,7 @@ const BASE = 'http://localhost:8765';
   await page.goto(BASE + '/catalog.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(400);
   const catNav = (await page.locator('.header-nav a').allTextContents()).map(t => t.trim());
-  check('catalog 导航含"使用介紹"', catNav.includes('使用介紹'), JSON.stringify(catNav));
+  check('catalog 导航含"使用介绍"', catNav.includes('使用介绍'), JSON.stringify(catNav));
 
   await page.goto(BASE + '/changelog.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(400);

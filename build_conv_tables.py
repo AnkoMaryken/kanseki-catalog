@@ -10,10 +10,19 @@
 """
 import re
 import json
+import argparse
+from pathlib import Path
 from opencc import OpenCC
 
-SRC = r"D:\WorkBuddy空间\2026-08-01-13-40-21\index.html"
-OUT = r"D:\WorkBuddy空间\2026-08-01-13-40-21\conv_tables.js"
+# 参数化根目录：默认脚本所在目录，可用 --root 覆盖（跨平台迁移用）
+ROOT = Path(__file__).resolve().parent
+_parser = argparse.ArgumentParser(description='生成简繁转换映射表')
+_parser.add_argument('--root', default=str(ROOT), help='项目根目录（默认脚本所在目录）')
+_args = _parser.parse_args()
+ROOT = Path(_args.root)
+
+SRC = ROOT / 'index.html'
+OUT = ROOT / 'conv_tables.js'
 
 with open(SRC, encoding="utf-8") as f:
     lines = f.readlines()

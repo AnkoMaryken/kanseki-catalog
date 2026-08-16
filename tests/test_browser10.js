@@ -23,6 +23,8 @@ const URL = 'http://localhost:8765/index.html';
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(600);
   // 切简体方便断言
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 
@@ -78,10 +80,14 @@ const URL = 'http://localhost:8765/index.html';
   check('输入"jt"即时提示含"景泰"', sug.some(s => s.includes('景泰')), JSON.stringify(sug));
 
   // ===== 7. 繁体模式下拼音建议 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   sug = await getSuggestions('jingtai');
   check('繁体模式拼音"jingtai"建议含"明·景泰"', sug.some(s => s.includes('景泰')), JSON.stringify(sug));
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 

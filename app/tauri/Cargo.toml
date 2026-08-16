@@ -1,0 +1,22 @@
+[package]
+name = "kanseki-app"
+version = "0.5.0"
+description = "日本汉籍编目工具 - Windows 桌面 APP"
+authors = ["kanseki"]
+edition = "2021"
+
+# 仅 Windows 桌面（本期）；tauri v2
+[lib]
+name = "kanseki_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+base64 = "0.22"

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
-<title>日本漢籍編目工具 — 編目規範</title>
+<title>日本汉籍编目工具 — 编目规范</title>
 <style>
 :root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
 [data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa;--color-table-header:#0a0a0a;--color-table-header-text:#e5e5e5}
@@ -40,6 +40,11 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
 .nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+/* 用户菜单（登录下拉，右对齐） */
+.user-dropdown{position:relative}
+.user-btn{display:inline-flex;align-items:center}
+.user-login-link{color:inherit;text-decoration:none}
+.user-menu{right:0;left:auto;min-width:120px}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
 
 /* ============================================================
@@ -183,11 +188,21 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
 
 <header class="app-header">
   <div class="header-inner">
-    <a href="index.html" class="header-brand"><div class="bi">漢</div><h1>日本漢籍編目工具</h1></a>
+    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
     <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">說明文檔<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介紹</a><a href="changelog.html" role="menuitem">更新日誌</a></div></div><a href="index.html">紀年查詢</a><a href="catalog.html" class="active">編目規範</a><a href="embed.html">快速跳轉</a>
+      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html" class="active">编目规范</a><a href="embed.html">快速跳转</a>
     </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
+          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <a href="login.html" role="menuitem">登录</a>
+          <a href="signup.html" role="menuitem">注册</a>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -196,20 +211,20 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
   <aside class="docs-sidebar" aria-label="编目规范导航">
     <div class="side-title">
       <div class="st-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-      <div><span class="st-tx">編目規範</span><span class="st-sub">Catalog Documentation</span></div>
+      <div><span class="st-tx">编目规范</span><span class="st-sub">Catalog Documentation</span></div>
     </div>
     <div class="side-sec">
-      <div class="side-label">內容導覽</div>
+      <div class="side-label">内容导览</div>
       <nav class="side-nav" role="tablist">
-        <button class="tab-btn side-item active" data-tab="0" role="tab" aria-selected="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>細則查閱</button>
-        <button class="tab-btn side-item" data-tab="1" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>分類表查詢</button>
-        <button class="tab-btn side-item" data-tab="2" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg>工作手冊</button>
+        <button class="tab-btn side-item active" data-tab="0" role="tab" aria-selected="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>细则查阅</button>
+        <button class="tab-btn side-item" data-tab="1" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>分类表查询</button>
+        <button class="tab-btn side-item" data-tab="2" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg>工作手册</button>
       </nav>
     </div>
     <div class="side-sec" id="sideAnchors"></div>
     <div class="side-footer">
-      <a class="side-btn sb-primary" href="index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回紀年查詢</a>
-      <button class="side-btn sb-ghost" id="themeToggleSide" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>切換主題</button>
+      <a class="side-btn sb-primary" href="index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回纪年查询</a>
+      <button class="side-btn sb-ghost" id="themeToggleSide" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>切换主题</button>
     </div>
   </aside>
 
@@ -242,7 +257,7 @@ function render(){if(tab===0){document.querySelector('.docs-layout').classList.r
 function fillSideAnchors(list,label){
   const box=document.getElementById('sideAnchors');
   if(!list||!list.length){box.innerHTML='';return}
-  box.innerHTML='<div class="side-label">章節導航 · '+sc(label)+'</div><div class="anchor-list">'+list.map(a=>'<button class="anchor-item" data-sid="'+a.id+'">'+sc(a.title)+'</button>').join('')+'</div>';
+  box.innerHTML='<div class="side-label">章节导航 · '+sc(label)+'</div><div class="anchor-list">'+list.map(a=>'<button class="anchor-item" data-sid="'+a.id+'">'+sc(a.title)+'</button>').join('')+'</div>';
   box.querySelectorAll('.anchor-item').forEach(b=>b.addEventListener('click',function(){
     const el=document.getElementById('sec-'+this.dataset.sid);
     if(el){const db=document.getElementById('db');if(db&&db.scrollHeight>db.clientHeight){const y=el.offsetTop-db.offsetTop-12;db.scrollTo({top:Math.max(0,y),behavior:'smooth'})}else el.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -252,7 +267,7 @@ function fillToc(list){
   const box=document.getElementById('tocCol');
   if(!list||!list.length){box.innerHTML='';box.classList.add('hide');return}
   box.classList.remove('hide');
-  box.innerHTML='<div class="toc-title">在本頁</div><nav class="toc-nav">'+list.map(a=>'<a class="toc-item" data-sid="'+a.id+'" href="#sec-'+a.id+'">'+sc(a.title)+'</a>').join('')+'</nav>';
+  box.innerHTML='<div class="toc-title">在本页</div><nav class="toc-nav">'+list.map(a=>'<a class="toc-item" data-sid="'+a.id+'" href="#sec-'+a.id+'">'+sc(a.title)+'</a>').join('')+'</nav>';
   box.querySelectorAll('.toc-item').forEach(a=>a.addEventListener('click',function(e){
     e.preventDefault();
     const el=document.getElementById('sec-'+this.dataset.sid);
@@ -283,11 +298,11 @@ function renderDoc(){
   document.getElementById('m').innerHTML=`
     <div class="tab-content active doc-pane">
       <div class="doc-toolbar">
-        <button class="ver-btn${curDoc==='2023'?' active':''}" data-d="2023">2023 舊版細則</button>
-        <button class="ver-btn${curDoc==='2025'?' active':''}" data-d="2025">2025 新版細則</button>
+        <button class="ver-btn${curDoc==='2023'?' active':''}" data-d="2023">2023 旧版细则</button>
+        <button class="ver-btn${curDoc==='2025'?' active':''}" data-d="2025">2025 新版细则</button>
         <div class="doc-search">
-          <input type="text" id="dsi" placeholder="檢索全文……" value="${sc(cS)}" autocomplete="off">
-          <button id="dsb">檢索</button>
+          <input type="text" id="dsi" placeholder="检索全文……" value="${sc(cS)}" autocomplete="off">
+          <button id="dsb">检索</button>
           <button class="doc-nav-btn" id="dsp" disabled>‹</button>
           <span style="font-size:.8rem;color:var(--color-text-muted);min-width:40px;text-align:center" id="dsc"></span>
           <button class="doc-nav-btn" id="dsn" disabled>›</button>
@@ -295,7 +310,7 @@ function renderDoc(){
       </div>
       <div class="doc-body" id="db">${h}</div>
     </div>`;
-  fillSideAnchors(anchors,curDoc==='2025'?'2025 新版':'2023 舊版');
+  fillSideAnchors(anchors,curDoc==='2025'?'2025 新版':'2023 旧版');
   fillToc(anchors);
   document.querySelectorAll('.ver-btn').forEach(b=>b.addEventListener('click',function(){curDoc=this.dataset.d;sri=-1;sr=[];cS='';renderDoc()}));
   document.getElementById('dsb').addEventListener('click',srch);
@@ -318,239 +333,239 @@ function renderDoc(){
 
 /* ==================== TAB 1: 分类表查询 ==================== */
 const L3D={/* L3 descriptions */
-  '正文之屬':'經文白文及校勘本，不含注釋。',
-  '傳説之屬':'歷代注疏、傳注、集解等闡釋經義的著作。',
-  '圖説之屬':'以圖譜、圖表輔助解說經義的著作。',
-  '分篇之屬':'對經書中某一篇單獨進行注解的著作。',
-  '專著之屬':'就某一專題進行深入研究的專門著作。',
-  '易例之屬':'研究《周易》體例、卦序、義例的著作。',
-  '易占之屬':'《周易》占筮方法及其應用的著作。',
-  '文字音義之屬':'經書文字的音讀、訓詁、校勘著作。',
-  '古易之屬':'研究漢代以前古易學（如帛書《周易》）的著作。',
-  '書序之屬':'《尚書》各篇序文的研究著作。',
-  '逸書之屬':'輯錄已失傳《尚書》篇章的著作。',
-  '詩序之屬':'《詩經》序文（大序、小序）的研究著作。',
-  '三家詩之屬':'齊、魯、韓三家詩的輯佚與研究著作。',
-  '詩譜之屬':'《詩經》篇目年代譜系的著作。',
-  '通禮':'通論禮制的綜合性禮學著作，不限於某一禮經。',
-  '雜禮書':'私家禮儀、鄉約、家禮等雜禮著作。',
-  '律呂之屬':'研究樂律、音律理論的著作。',
-  '樂理之屬':'音樂理論、樂制研究的著作。',
-  '凡例之屬':'研究經書注釋體例、書法的著作。',
-  '緯書之屬':'讖緯類著作，附會經義言災異吉凶。',
-  '沿革之屬':'研究某學術領域歷史演變的著作。',
-  '叢編之屬':'該類目之下的叢書、彙編著作。',
-  '石經之屬':'石刻經文的拓本、釋文、考證著作。',
-  '群經總義類':'通論諸經的綜合性經學著作。',
-  '經濟':'經世濟民的政論、時務著作。',
-  '性理':'宋明理學家關於心性、天理的著作。',
-  '禮教':'儒家禮儀教化、修身養性類著作。',
-  '譜録類':'器物、草木、飲饌、蟲魚等譜錄著作（2025版新增）。',
-  '附錄之屬':'附錄性質的補充資料彙編。',
-  '名物制度之屬':'考證禮儀名物、典章制度的著作。',
-  '三禮圖之屬':'以圖譜解說三禮儀節、器物的著作。',
-  '目録之屬':'目錄、索引類工具性著作。',
-  '論説之屬':'論述、評說性質的著作。',
-  '通紀':'通代記載的史書或典制。',
-  '專志':'專門記載某一領域制度沿革的著作。',
-  '官制':'官職設置、沿革的著作。',
-  '官箴':'為官之道的箴言、規誡著作。',
-  '邦計之屬':'國家財政、經濟管理類著作。',
-  '軍政之屬':'軍事制度、邊防海防類著作。',
-  '刑法之屬':'刑法制度、律例判牘類著作。',
-  '考工之屬':'工程營造、器物製作類著作。',
-  '掌故瑣記之屬':'掌故軼事、筆記雜錄。',
-  '詔令之屬':'帝王頒佈的詔書、敕令。',
-  '奏議之屬':'朝臣上奏的章表、奏議。',
-  '公牘之屬':'官府往來公文、移牒。',
-  '總志之屬':'全國性或區域性總志。',
-  '方志之屬':'地方志書。',
-  '雜志之屬':'雜記地理、風土的著作。',
-  '山水之屬':'山水志、名勝志、遊記等。',
-  '專志之屬':'專門記載某類地理的著作（宮殿、園亭、寺觀、祠墓、書院等）。',
-  '遊記之屬':'紀行、紀勝類遊記著作。',
-  '中外雜紀之屬':'記述域外地理、風土的著作。',
-  '通論之屬':'目錄學通論、義例、考訂著作。',
-  '總錄之屬':'綜合性書目、史志目錄、公私藏書目。',
-  '書志之屬':'解題、提要、題跋類著作。',
-  '專錄之屬':'某一專題、專門的目錄著作。',
-  '版刻之屬':'版本目錄、書影版式類著作。',
-  '索引之屬':'字詞索引、篇目索引等工具。',
-  '金之屬':'青銅器銘文、拓本、考證著作。',
-  '石之屬':'碑刻、墓誌、摩崖等石刻文字著作。',
-  '錢幣之屬':'歷代錢幣圖錄、考證著作。',
-  '璽印之屬':'歷代印章、封泥的著錄與考證。',
-  '甲骨之屬':'甲骨文拓片、釋文、考證著作。',
-  '簡牘之屬':'簡牘帛書的圖版、釋文、研究著作。',
-  '玉之屬':'玉器銘文、圖錄類著作。',
-  '陶之屬':'陶文、磚瓦文字類著作。',
-  '圖像之屬':'以圖像為主的著錄。',
-  '文字之屬':'以文字考釋為主的金石著作。',
-  '通考之屬':'金石通論、綜合性考證著作。',
-  '題跋之屬':'金石拓片的題跋、觀款等。',
-  '雜著之屬':'金石雜記、隨筆等著作。',
-  '義法之屬':'論述史學理論、史書體例的著作。',
-  '議論之屬':'評論史事得失的著作。',
-  '考訂之屬':'考證史實真偽的著作。',
-  '詠史之屬':'以詩歌等形式詠歎史事的著作。',
-  '通錄之屬':'彙錄多人的綜合性傳記。',
-  '專錄之屬':'某一特定群體的專門傳記。',
-  '雜錄之屬':'日記、瑣記等雜錄性傳記資料。',
-  '日記之屬':'個人日記類著作。',
-  '瑣記之屬':'雜記瑣事的筆記類著作。',
-  '家乘之屬':'家族譜牒、家傳類著作。',
-  '姓名之屬':'姓氏、名字、別號等工具書。',
-  '科舉學校之屬':'科舉制度、學校教育類著作。',
-  '典禮之屬':'國家典禮儀制類著作。',
-  '通制之屬':'通論典章制度的著作。',
-  '儀制之屬':'禮儀制度類著作。',
-  '邦交之屬':'外交、國際關係類著作。',
-  '營田之屬':'屯田、營田類著作。',
-  '賦税之屬':'田賦、稅收制度類著作。',
-  '貿易之屬':'商業貿易類著作。',
-  '漕運鹽法之屬':'漕運、鹽政制度類著作。',
-  '貨幣之屬':'貨幣制度、錢法類著作。',
-  '户籍之屬':'戶口、戶籍制度類著作。',
-  '荒政之屬':'救荒、賑災類著作。',
-  '兵制之屬':'軍事編制、兵役制度類著作。',
-  '馬政之屬':'馬匹養殖、管理類著作。',
-  '保甲團練之屬':'地方治安、團練類著作。',
-  '江防海防之屬':'江防、海防類軍事著作。',
-  '邊政之屬':'邊疆治理類著作。',
-  '刑制之屬':'刑罰制度類著作。',
-  '律例之屬':'法律條文、判例彙編。',
-  '檢驗之屬':'司法檢驗、驗屍類著作。',
-  '治獄之屬':'審判、獄政管理類著作。',
-  '判牘之屬':'判詞、案例彙編。',
-  '營造之屬':'建築、營造技術類著作。',
-  '漢魏六朝别集':'漢、三國、晉、南北朝時期個人詩文集。',
-  '唐五代别集':'唐代及五代時期個人詩文集。',
-  '宋别集':'宋代個人詩文集。',
-  '金别集':'金代個人詩文集。',
-  '元别集':'元代個人詩文集。',
-  '明别集':'明代個人詩文集。',
-  '清别集':'清代個人詩文集。',
-  '史志':'史書中的藝文志、經籍志等目錄。',
-  '諸國史':'記述各國歷史的著作。',
-  '傳記':'人物傳記類著作（附新學類下）。',
-  '政法':'政治法律類新學著作。',
-  '軍事':'軍事科學類新學著作。',
-  '經濟類':'經濟學類新學著作。',
-  '教育':'教育學類新學著作。',
-  '哲學':'哲學類新學著作。',
-  '宗教':'宗教類新學著作。',
-  '自然科學':'自然科學類新學著作。',
-  '應用科學':'應用技術類新學著作。',
-  '語言文字':'語言學、文字學類新學著作。',
-  '文學':'文學類新學著作。',
-  '藝術':'藝術類新學著作。',
-  '歷史地理':'歷史地理類新學著作。',
+  '正文之属':'经文白文及校勘本，不含注释。',
+  '传说之属':'历代注疏、传注、集解等阐释经义的著作。',
+  '图说之属':'以图谱、图表辅助解说经义的著作。',
+  '分篇之属':'对经书中某一篇单独进行注解的著作。',
+  '专著之属':'就某一专题进行深入研究的专门著作。',
+  '易例之属':'研究《周易》体例、卦序、义例的著作。',
+  '易占之属':'《周易》占筮方法及其应用的著作。',
+  '文字音义之属':'经书文字的音读、训诂、校勘著作。',
+  '古易之属':'研究汉代以前古易学（如帛书《周易》）的著作。',
+  '书序之属':'《尚书》各篇序文的研究著作。',
+  '逸书之属':'辑录已失传《尚书》篇章的著作。',
+  '诗序之属':'《诗经》序文（大序、小序）的研究著作。',
+  '三家诗之属':'齐、鲁、韩三家诗的辑佚与研究著作。',
+  '诗谱之属':'《诗经》篇目年代谱系的著作。',
+  '通礼':'通论礼制的综合性礼学著作，不限于某一礼经。',
+  '杂礼书':'私家礼仪、乡约、家礼等杂礼著作。',
+  '律吕之属':'研究乐律、音律理论的著作。',
+  '乐理之属':'音乐理论、乐制研究的著作。',
+  '凡例之属':'研究经书注释体例、书法的著作。',
+  '纬书之属':'谶纬类著作，附会经义言灾异吉凶。',
+  '沿革之属':'研究某学术领域历史演变的著作。',
+  '丛编之属':'该类目之下的丛书、汇编著作。',
+  '石经之属':'石刻经文的拓本、释文、考证著作。',
+  '群经总义类':'通论诸经的综合性经学著作。',
+  '经济':'经世济民的政论、时务著作。',
+  '性理':'宋明理学家关于心性、天理的著作。',
+  '礼教':'儒家礼仪教化、修身养性类著作。',
+  '谱录类':'器物、草木、饮馔、虫鱼等谱录著作（2025版新增）。',
+  '附录之属':'附录性质的补充资料汇编。',
+  '名物制度之属':'考证礼仪名物、典章制度的著作。',
+  '三礼图之属':'以图谱解说三礼仪节、器物的著作。',
+  '目录之属':'目录、索引类工具性著作。',
+  '论说之属':'论述、评说性质的著作。',
+  '通纪':'通代记载的史书或典制。',
+  '专志':'专门记载某一领域制度沿革的著作。',
+  '官制':'官职设置、沿革的著作。',
+  '官箴':'为官之道的箴言、规诫著作。',
+  '邦计之属':'国家财政、经济管理类著作。',
+  '军政之属':'军事制度、边防海防类著作。',
+  '刑法之属':'刑法制度、律例判牍类著作。',
+  '考工之属':'工程营造、器物制作类著作。',
+  '掌故琐记之属':'掌故轶事、笔记杂录。',
+  '诏令之属':'帝王颁布的诏书、敕令。',
+  '奏议之属':'朝臣上奏的章表、奏议。',
+  '公牍之属':'官府往来公文、移牒。',
+  '总志之属':'全国性或区域性总志。',
+  '方志之属':'地方志书。',
+  '杂志之属':'杂记地理、风土的著作。',
+  '山水之属':'山水志、名胜志、游记等。',
+  '专志之属':'专门记载某类地理的著作（宫殿、园亭、寺观、祠墓、书院等）。',
+  '游记之属':'纪行、纪胜类游记著作。',
+  '中外杂纪之属':'记述域外地理、风土的著作。',
+  '通论之属':'目录学通论、义例、考订著作。',
+  '总录之属':'综合性书目、史志目录、公私藏书目。',
+  '书志之属':'解题、提要、题跋类著作。',
+  '专录之属':'某一专题、专门的目录著作。',
+  '版刻之属':'版本目录、书影版式类著作。',
+  '索引之属':'字词索引、篇目索引等工具。',
+  '金之属':'青铜器铭文、拓本、考证著作。',
+  '石之属':'碑刻、墓志、摩崖等石刻文字著作。',
+  '钱币之属':'历代钱币图录、考证著作。',
+  '玺印之属':'历代印章、封泥的著录与考证。',
+  '甲骨之属':'甲骨文拓片、释文、考证著作。',
+  '简牍之属':'简牍帛书的图版、释文、研究著作。',
+  '玉之属':'玉器铭文、图录类著作。',
+  '陶之属':'陶文、砖瓦文字类著作。',
+  '图像之属':'以图像为主的著录。',
+  '文字之属':'以文字考释为主的金石著作。',
+  '通考之属':'金石通论、综合性考证著作。',
+  '题跋之属':'金石拓片的题跋、观款等。',
+  '杂著之属':'金石杂记、随笔等著作。',
+  '义法之属':'论述史学理论、史书体例的著作。',
+  '议论之属':'评论史事得失的著作。',
+  '考订之属':'考证史实真伪的著作。',
+  '咏史之属':'以诗歌等形式咏叹史事的著作。',
+  '通录之属':'汇录多人的综合性传记。',
+  '专录之属':'某一特定群体的专门传记。',
+  '杂录之属':'日记、琐记等杂录性传记资料。',
+  '日记之属':'个人日记类著作。',
+  '琐记之属':'杂记琐事的笔记类著作。',
+  '家乘之属':'家族谱牒、家传类著作。',
+  '姓名之属':'姓氏、名字、别号等工具书。',
+  '科举学校之属':'科举制度、学校教育类著作。',
+  '典礼之属':'国家典礼仪制类著作。',
+  '通制之属':'通论典章制度的著作。',
+  '仪制之属':'礼仪制度类著作。',
+  '邦交之属':'外交、国际关系类著作。',
+  '营田之属':'屯田、营田类著作。',
+  '赋税之属':'田赋、税收制度类著作。',
+  '贸易之属':'商业贸易类著作。',
+  '漕运盐法之属':'漕运、盐政制度类著作。',
+  '货币之属':'货币制度、钱法类著作。',
+  '户籍之属':'户口、户籍制度类著作。',
+  '荒政之属':'救荒、赈灾类著作。',
+  '兵制之属':'军事编制、兵役制度类著作。',
+  '马政之属':'马匹养殖、管理类著作。',
+  '保甲团练之属':'地方治安、团练类著作。',
+  '江防海防之属':'江防、海防类军事著作。',
+  '边政之属':'边疆治理类著作。',
+  '刑制之属':'刑罚制度类著作。',
+  '律例之属':'法律条文、判例汇编。',
+  '检验之属':'司法检验、验尸类著作。',
+  '治狱之属':'审判、狱政管理类著作。',
+  '判牍之属':'判词、案例汇编。',
+  '营造之属':'建筑、营造技术类著作。',
+  '汉魏六朝别集':'汉、三国、晋、南北朝时期个人诗文集。',
+  '唐五代别集':'唐代及五代时期个人诗文集。',
+  '宋别集':'宋代个人诗文集。',
+  '金别集':'金代个人诗文集。',
+  '元别集':'元代个人诗文集。',
+  '明别集':'明代个人诗文集。',
+  '清别集':'清代个人诗文集。',
+  '史志':'史书中的艺文志、经籍志等目录。',
+  '诸国史':'记述各国历史的著作。',
+  '传记':'人物传记类著作（附新学类下）。',
+  '政法':'政治法律类新学著作。',
+  '军事':'军事科学类新学著作。',
+  '经济类':'经济学类新学著作。',
+  '教育':'教育学类新学著作。',
+  '哲学':'哲学类新学著作。',
+  '宗教':'宗教类新学著作。',
+  '自然科学':'自然科学类新学著作。',
+  '应用科学':'应用技术类新学著作。',
+  '语言文字':'语言学、文字学类新学著作。',
+  '文学':'文学类新学著作。',
+  '艺术':'艺术类新学著作。',
+  '历史地理':'历史地理类新学著作。',
 };
 
 const L3E={/* L3 examples */
-  '正文之屬':'《周易》白文本、《相臺五經》','傳説之屬':'《周易正義》《易傳》',
-  '圖説之屬':'《易圖說》《周易圖》','分篇之屬':'《禹貢指南》《洪範口義》',
-  '專著之屬':'《易學象數論》《易漢學》','易例之屬':'《周易義例》',
-  '易占之屬':'《焦氏易林》《京氏易傳》','文字音義之屬':'《經典釋文·周易音義》《周易音訓》',
-  '古易之屬':'《子夏易傳》輯本','書序之屬':'《尚書序》《書序考》',
-  '逸書之屬':'《尚書逸文》《古文尚書考》','詩序之屬':'《詩序》《毛詩序義》',
-  '通禮':'《禮書》《禮經會元》','雜禮書':'《朱子家禮》《司馬氏書儀》',
-  '律呂之屬':'《律呂新書》《樂律全書》','石經之屬':'《漢石經殘字》《唐石經》',
-  '經濟':'《皇朝經世文編》《校邠廬抗議》','性理':'《近思錄》《性理大全》',
-  '禮教':'《顏氏家訓》《袁氏世範》','譜録類':'《茶經》《考古圖》《洛陽牡丹記》',
-  '漢魏六朝别集':'《曹子建集》《陶淵明集》','唐五代别集':'《李太白集》《杜工部集》',
-  '宋别集':'《東坡全集》《臨川集》','金别集':'《遺山集》《滏水集》',
-  '元别集':'《靜修集》《道園學古錄》','明别集':'《遜志齋集》《弇州山人稿》',
-  '清别集':'《帶經堂集》《惜抱軒文集》',
+  '正文之属':'《周易》白文本、《相台五经》','传说之属':'《周易正义》《易传》',
+  '图说之属':'《易图说》《周易图》','分篇之属':'《禹贡指南》《洪范口义》',
+  '专著之属':'《易学象数论》《易汉学》','易例之属':'《周易义例》',
+  '易占之属':'《焦氏易林》《京氏易传》','文字音义之属':'《经典释文·周易音义》《周易音训》',
+  '古易之属':'《子夏易传》辑本','书序之属':'《尚书序》《书序考》',
+  '逸书之属':'《尚书逸文》《古文尚书考》','诗序之属':'《诗序》《毛诗序义》',
+  '通礼':'《礼书》《礼经会元》','杂礼书':'《朱子家礼》《司马氏书仪》',
+  '律吕之属':'《律吕新书》《乐律全书》','石经之属':'《汉石经残字》《唐石经》',
+  '经济':'《皇朝经世文编》《校邠庐抗议》','性理':'《近思录》《性理大全》',
+  '礼教':'《颜氏家训》《袁氏世范》','谱录类':'《茶经》《考古图》《洛阳牡丹记》',
+  '汉魏六朝别集':'《曹子建集》《陶渊明集》','唐五代别集':'《李太白集》《杜工部集》',
+  '宋别集':'《东坡全集》《临川集》','金别集':'《遗山集》《滏水集》',
+  '元别集':'《静修集》《道园学古录》','明别集':'《逊志斋集》《弇州山人稿》',
+  '清别集':'《带经堂集》《惜抱轩文集》',
 };
 
 const CAT_DESC={
-  '經部':'收錄儒家經典及其注疏、訓詁之著作。爲四部之首，亦稱甲部。',
-  '易類':'收錄《周易》經傳及其歷代注解、圖說、占筮等相關著作。',
-  '書類':'收錄《尚書》（《書經》）及其歷代注解、考證等著作。',
-  '詩類':'收錄《詩經》及其歷代注解、考證等著作。',
-  '周禮類':'收錄《周禮》（《周官》）及其注疏研究著作。',
-  '儀禮類':'收錄《儀禮》及其注解、圖說等著作。',
-  '禮記類':'收錄《禮記》及其注解研究著作。',
-  '大戴禮記類':'收錄《大戴禮記》及其注解研究著作。',
-  '三禮總義類':'收錄通論《周禮》《儀禮》《禮記》三書的綜合性著作。',
-  '通禮':'收錄通論禮制的著作，不分某經專論者。',
-  '雜禮書':'收錄私家禮書、鄉約、家禮等雜禮著作。',
-  '樂類':'收錄音樂理論、樂譜、樂律等著作。',
-  '春秋左傳類':'收錄《春秋左氏傳》及其注解研究著作。',
-  '春秋公羊傳類':'收錄《春秋公羊傳》及其注解研究著作。',
-  '春秋穀梁傳類':'收錄《春秋穀梁傳》及其注解研究著作。',
-  '春秋總義類':'收錄通論春秋三傳的綜合性著作。',
-  '孝經類':'收錄《孝經》及其注解研究著作。',
-  '四書類':'收錄《大學》《中庸》《論語》《孟子》及其注解著作。',
-  '群經總義類':'收錄通論諸經的綜合性著作。',
-  '小學類':'收錄文字、音韻、訓詁之學的著作。',
-  '史部':'收錄歷史、地理、政書、目錄等著作。亦稱乙部。',
-  '紀傳類':'收錄紀傳體史書，如《史記》《漢書》等正史。',
-  '編年類':'收錄編年體史書，如《資治通鑑》等。',
-  '紀事本末類':'收錄紀事本末體史書，按事件始末記述。',
-  '雜史類':'收錄體例不純的雜史著作。',
-  '載記類':'收錄偏霸割據政權的史書。',
-  '史表類':'收錄史書中的表譜類著作。',
-  '史抄類':'收錄摘抄史書而成的著作。',
-  '史評類':'收錄評論史事、史書的著作。',
-  '傳記類':'收錄人物傳記、年譜等著作。',
-  '政書類':'收錄典章制度類著作，如「十通」。',
-  '職官類':'收錄官制、官箴等著作。',
-  '詔令奏議類':'收錄帝王詔令及臣僚奏議。',
-  '時令類':'收錄歲時節令、月令等著作。',
-  '地理類':'收錄方志、山水志、遊記、邊疆地理等著作。',
-  '金石類':'收錄金石文字、碑刻拓本等著作。',
-  '目錄類':'收錄書目、題跋等目錄學著作。',
-  '子部':'收錄諸子百家、宗教、科技、藝術等著作。亦稱丙部。',
-  '儒家類':'收錄儒家學者著作（十三經以外），如《荀子》《朱子語類》。',
-  '道家類':'收錄道家著作，如《老子》《莊子》。',
-  '墨家類':'收錄墨家著作，如《墨子》。',
-  '名家類':'收錄名家（形名學）著作，如《公孫龍子》。',
-  '縱橫家類':'收錄縱橫家著作，如《鬼谷子》。',
-  '兵家類':'收錄軍事理論、兵法著作，如《孫子兵法》。',
-  '法家類':'收錄法家著作，如《韓非子》《商君書》。',
-  '農家農學類':'收錄農業技術、農書等著作，如《齊民要術》。',
-  '醫家類':'收錄中醫藥學著作，如《黃帝內經》《本草綱目》。',
-  '雜家類':'收錄兼收諸家之說的著作，如《呂氏春秋》《淮南子》。',
-  '小說家類':'收錄筆記小說、志怪、傳奇等著作。',
-  '天文曆算類':'收錄天文、曆法、數學著作，如《九章算術》。',
-  '術數類':'收錄占卜、命理、堪輿等著作。',
-  '藝術類':'收錄書畫、篆刻、琴譜等藝術著作。',
-  '工藝類':'收錄手工業技術、器用製作等著作，如《天工開物》。',
-  '譜録類':'收錄器物、草木、飲饌等譜錄著作（2025版新增）。',
-  '宗教類':'收錄佛道等宗教著作（不含道藏、漢譯佛經正文）。',
-  '集部':'收錄詩文總集、別集、詩文評、詞曲等文學著作。亦稱丁部。',
-  '楚辭類':'收錄屈原、宋玉等楚辭體作品及注釋。',
-  '別集類':'收錄個人詩文集，如《李太白集》《杜工部集》。',
-  '總集類':'收錄多人詩文合集，如《文選》《全唐詩》。',
-  '詩文評類':'收錄文學批評、詩話、文話等著作。',
-  '詞類':'收錄詞總集、別集、詞譜、詞話等著作。',
-  '曲類':'收錄散曲、劇曲等著作。',
-  '戲劇類':'收錄雜劇、傳奇等戲劇文本。',
-  '小說類':'收錄章回小說等白話小說著作（集部）。',
-  '類叢部':'收錄類書與叢書兩大類，爲工具性彙編著作。',
-  '類書類':'收錄分類彙編資料的工具書，如《太平御覽》《永樂大典》。',
-  '叢書類':'收錄彙集多種獨立著作的叢書，如《四庫全書》《四部叢刊》。',
-  '附新學類':'收錄清末民初引進的西學、新學著作，爲補充類目，不屬於傳統經史子集類叢五部分類體系。'
+  '经部':'收录儒家经典及其注疏、训诂之著作。为四部之首，亦称甲部。',
+  '易类':'收录《周易》经传及其历代注解、图说、占筮等相关著作。',
+  '书类':'收录《尚书》（《书经》）及其历代注解、考证等著作。',
+  '诗类':'收录《诗经》及其历代注解、考证等著作。',
+  '周礼类':'收录《周礼》（《周官》）及其注疏研究著作。',
+  '仪礼类':'收录《仪礼》及其注解、图说等著作。',
+  '礼记类':'收录《礼记》及其注解研究著作。',
+  '大戴礼记类':'收录《大戴礼记》及其注解研究著作。',
+  '三礼总义类':'收录通论《周礼》《仪礼》《礼记》三书的综合性著作。',
+  '通礼':'收录通论礼制的著作，不分某经专论者。',
+  '杂礼书':'收录私家礼书、乡约、家礼等杂礼著作。',
+  '乐类':'收录音乐理论、乐谱、乐律等著作。',
+  '春秋左传类':'收录《春秋左氏传》及其注解研究著作。',
+  '春秋公羊传类':'收录《春秋公羊传》及其注解研究著作。',
+  '春秋谷梁传类':'收录《春秋谷梁传》及其注解研究著作。',
+  '春秋总义类':'收录通论春秋三传的综合性著作。',
+  '孝经类':'收录《孝经》及其注解研究著作。',
+  '四书类':'收录《大学》《中庸》《论语》《孟子》及其注解著作。',
+  '群经总义类':'收录通论诸经的综合性著作。',
+  '小学类':'收录文字、音韵、训诂之学的著作。',
+  '史部':'收录历史、地理、政书、目录等著作。亦称乙部。',
+  '纪传类':'收录纪传体史书，如《史记》《汉书》等正史。',
+  '编年类':'收录编年体史书，如《资治通鉴》等。',
+  '纪事本末类':'收录纪事本末体史书，按事件始末记述。',
+  '杂史类':'收录体例不纯的杂史著作。',
+  '载记类':'收录偏霸割据政权的史书。',
+  '史表类':'收录史书中的表谱类著作。',
+  '史抄类':'收录摘抄史书而成的著作。',
+  '史评类':'收录评论史事、史书的著作。',
+  '传记类':'收录人物传记、年谱等著作。',
+  '政书类':'收录典章制度类著作，如「十通」。',
+  '职官类':'收录官制、官箴等著作。',
+  '诏令奏议类':'收录帝王诏令及臣僚奏议。',
+  '时令类':'收录岁时节令、月令等著作。',
+  '地理类':'收录方志、山水志、游记、边疆地理等著作。',
+  '金石类':'收录金石文字、碑刻拓本等著作。',
+  '目录类':'收录书目、题跋等目录学著作。',
+  '子部':'收录诸子百家、宗教、科技、艺术等著作。亦称丙部。',
+  '儒家类':'收录儒家学者著作（十三经以外），如《荀子》《朱子语类》。',
+  '道家类':'收录道家著作，如《老子》《庄子》。',
+  '墨家类':'收录墨家著作，如《墨子》。',
+  '名家类':'收录名家（形名学）著作，如《公孙龙子》。',
+  '纵横家类':'收录纵横家著作，如《鬼谷子》。',
+  '兵家类':'收录军事理论、兵法著作，如《孙子兵法》。',
+  '法家类':'收录法家著作，如《韩非子》《商君书》。',
+  '农家农学类':'收录农业技术、农书等著作，如《齐民要术》。',
+  '医家类':'收录中医药学著作，如《黄帝内经》《本草纲目》。',
+  '杂家类':'收录兼收诸家之说的著作，如《吕氏春秋》《淮南子》。',
+  '小说家类':'收录笔记小说、志怪、传奇等著作。',
+  '天文历算类':'收录天文、历法、数学著作，如《九章算术》。',
+  '术数类':'收录占卜、命理、堪舆等著作。',
+  '艺术类':'收录书画、篆刻、琴谱等艺术著作。',
+  '工艺类':'收录手工业技术、器用制作等著作，如《天工开物》。',
+  '谱录类':'收录器物、草木、饮馔等谱录著作（2025版新增）。',
+  '宗教类':'收录佛道等宗教著作（不含道藏、汉译佛经正文）。',
+  '集部':'收录诗文总集、别集、诗文评、词曲等文学著作。亦称丁部。',
+  '楚辞类':'收录屈原、宋玉等楚辞体作品及注释。',
+  '别集类':'收录个人诗文集，如《李太白集》《杜工部集》。',
+  '总集类':'收录多人诗文合集，如《文选》《全唐诗》。',
+  '诗文评类':'收录文学批评、诗话、文话等著作。',
+  '词类':'收录词总集、别集、词谱、词话等著作。',
+  '曲类':'收录散曲、剧曲等著作。',
+  '戏剧类':'收录杂剧、传奇等戏剧文本。',
+  '小说类':'收录章回小说等白话小说著作（集部）。',
+  '类丛部':'收录类书与丛书两大类，为工具性汇编著作。',
+  '类书类':'收录分类汇编资料的工具书，如《太平御览》《永乐大典》。',
+  '丛书类':'收录汇集多种独立著作的丛书，如《四库全书》《四部丛刊》。',
+  '附新学类':'收录清末民初引进的西学、新学著作，为补充类目，不属于传统经史子集类丛五部分类体系。'
 };
 
 function descFor(name){
   if(L3D[name])return L3D[name];
-  // Generate descriptions for 之屬 patterns
-  if(name.endsWith('之屬')||name.endsWith('之部')){
-    const base=name.replace(/[之屬之部]/g,'');
-    if(base.includes('文字音義'))return '經書文字的音讀、訓詁、校勘著作。';
-    if(base.includes('傳說')||base.includes('傳説'))return '歷代注解、闡釋經義的著作。';
-    if(base.includes('正文'))return '經文白文及校勘本，不含注釋。';
-    if(base.includes('圖說')||base.includes('圖説')||base.includes('圖譜'))return '以圖譜、圖表輔助解說的著作。';
-    if(base.includes('分篇'))return '對經書中某一篇單獨注解的著作。';
-    if(base.includes('專著'))return '就某一專題深入研究的專門著作。';
-    if(base.includes('凡例'))return '研究注釋體例的著作。';
-    if(base.includes('沿革'))return '研究歷史演變沿革的著作。';
-    if(base.includes('叢編'))return '該類目之下的叢書、彙編著作。';
-    if(base.includes('附錄')||base.includes('附录'))return '補充性附錄資料彙編。';
-    return base+'相關的專門著作。';
+  // Generate descriptions for 之属 patterns
+  if(name.endsWith('之属')||name.endsWith('之部')){
+    const base=name.replace(/[之属之部]/g,'');
+    if(base.includes('文字音义'))return '经书文字的音读、训诂、校勘著作。';
+    if(base.includes('传说')||base.includes('传说'))return '历代注解、阐释经义的著作。';
+    if(base.includes('正文'))return '经文白文及校勘本，不含注释。';
+    if(base.includes('图说')||base.includes('图说')||base.includes('图谱'))return '以图谱、图表辅助解说的著作。';
+    if(base.includes('分篇'))return '对经书中某一篇单独注解的著作。';
+    if(base.includes('专著'))return '就某一专题深入研究的专门著作。';
+    if(base.includes('凡例'))return '研究注释体例的著作。';
+    if(base.includes('沿革'))return '研究历史演变沿革的著作。';
+    if(base.includes('丛编'))return '该类目之下的丛书、汇编著作。';
+    if(base.includes('附录')||base.includes('附录'))return '补充性附录资料汇编。';
+    return base+'相关的专门著作。';
   }
   return CAT_DESC[name]||'';
 }
@@ -590,20 +605,20 @@ function renderCat(){
     <div class="tab-content active cat-pane">
       <div class="cat-toolbar">
         <button class="cfb${catL1==='all'?' active':''}" data-f="all" data-type="l1">全部</button>
-        <button class="cfb${catL1==='經部'?' active':''}" data-f="經部" data-type="l1">經部</button>
+        <button class="cfb${catL1==='经部'?' active':''}" data-f="经部" data-type="l1">经部</button>
         <button class="cfb${catL1==='史部'?' active':''}" data-f="史部" data-type="l1">史部</button>
         <button class="cfb${catL1==='子部'?' active':''}" data-f="子部" data-type="l1">子部</button>
         <button class="cfb${catL1==='集部'?' active':''}" data-f="集部" data-type="l1">集部</button>
-        <button class="cfb${catL1==='類叢部'?' active':''}" data-f="類叢部" data-type="l1">類叢部</button>
-        <button class="cfb${catL1==='附新學類'?' active':''}" data-f="附新學類" data-type="l1">新學類</button>
+        <button class="cfb${catL1==='类丛部'?' active':''}" data-f="类丛部" data-type="l1">类丛部</button>
+        <button class="cfb${catL1==='附新学类'?' active':''}" data-f="附新学类" data-type="l1">新学类</button>
         <span style="color:var(--color-text-muted);font-size:.8rem;margin:0 .5rem">|</span>
-        <span style="font-size:.78rem;color:var(--color-text-secondary)">二級：</span>
-        <select class="cfb" id="l2sel"><option value="all"${catL2==='all'?' selected':''}>全部二級</option></select>
-        <input type="text" class="cs" id="csi" placeholder="檢索類目名稱……" value="${sc($q)}" autocomplete="off">
+        <span style="font-size:.78rem;color:var(--color-text-secondary)">二级：</span>
+        <select class="cfb" id="l2sel"><option value="all"${catL2==='all'?' selected':''}>全部二级</option></select>
+        <input type="text" class="cs" id="csi" placeholder="检索类目名称……" value="${sc($q)}" autocomplete="off">
       </div>
       <div class="cat-scroll">
       <table class="ctbl">
-        <thead><tr><th style="width:10%">二級類目</th><th style="width:28%">二級收錄說明</th><th style="width:12%">三級類目</th><th style="width:38%">三級收錄說明</th><th style="width:12%">典型文獻</th></tr></thead>
+        <thead><tr><th style="width:10%">二级类目</th><th style="width:28%">二级收录说明</th><th style="width:12%">三级类目</th><th style="width:38%">三级收录说明</th><th style="width:12%">典型文献</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
       </div>
@@ -611,8 +626,8 @@ function renderCat(){
 
   /* 侧栏：分类快捷导航 */
   const sideBox=document.getElementById('sideAnchors');
-  const defs=[['all','全部類目'],['經部','經部'],['史部','史部'],['子部','子部'],['集部','集部'],['類叢部','類叢部'],['附新學類','新學類']];
-  sideBox.innerHTML='<div class="side-label">分類導航</div><div class="anchor-list">'+defs.map(d=>'<button class="cfb cfb-side'+(catL1===d[0]?' active':'')+'" data-type="l1" data-f="'+d[0]+'">'+d[1]+'</button>').join('')+'</div>';
+  const defs=[['all','全部类目'],['经部','经部'],['史部','史部'],['子部','子部'],['集部','集部'],['类丛部','类丛部'],['附新学类','新学类']];
+  sideBox.innerHTML='<div class="side-label">分类导航</div><div class="anchor-list">'+defs.map(d=>'<button class="cfb cfb-side'+(catL1===d[0]?' active':'')+'" data-type="l1" data-f="'+d[0]+'">'+d[1]+'</button>').join('')+'</div>';
   /* 右侧目录隐藏 */
   fillToc(null);
   
@@ -646,12 +661,12 @@ function renderPdf(){
       <iframe class="pdf-frame" src="docs/manual.pdf" title="《全球汉籍合璧工程精华编》整理工作手册"></iframe>
     </div>`;
   const sideBox=document.getElementById('sideAnchors');
-  sideBox.innerHTML='<div class="side-label">工作手冊</div>'+
+  sideBox.innerHTML='<div class="side-label">工作手册</div>'+
     '<div class="side-card">'+
     '<div class="cr"><span>文件</span><b>manual.pdf</b></div>'+
-    '<div class="cr"><span>版本</span><b>2023 修訂版</b></div>'+
-    '<div class="cr"><span>大小</span><b>約 1.7 MB</b></div>'+
-    '<div class="cr"><span>用途</span><b>精華編整理規範</b></div>'+
+    '<div class="cr"><span>版本</span><b>2023 修订版</b></div>'+
+    '<div class="cr"><span>大小</span><b>约 1.7 MB</b></div>'+
+    '<div class="cr"><span>用途</span><b>精华编整理规范</b></div>'+
     '</div>';
   fillToc(null);
 }

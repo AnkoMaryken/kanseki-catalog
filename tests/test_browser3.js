@@ -22,6 +22,8 @@ const URL = 'http://localhost:8765/index.html';
   await page.waitForTimeout(600);
   // v1.1.1 起默认繁体: 本脚本是 v1.1 功能回归测试, 先切简体以沿用简体期望值
   // (字形切换行为由 test_browser4.js 专项覆盖, 第 6/7 节仍保留繁体跟随验证)
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 
@@ -66,6 +68,8 @@ const URL = 'http://localhost:8765/index.html';
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(500);
   // 重新加载后恢复默认繁体, 再切回简体保持断言语义
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 
@@ -125,6 +129,8 @@ const URL = 'http://localhost:8765/index.html';
   }
 
   // ===== 6. 繁体模式下导出对话框跟随字形 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(400);
   await page.click('#exportBtn');
@@ -158,13 +164,13 @@ const URL = 'http://localhost:8765/index.html';
   });
   check('标题条宽度一致', indexHeaderW === catHeaderW, `index=${indexHeaderW} catalog=${catHeaderW}`);
 
-  // catalog 页无首页链接、标题正确
+  // catalog 页无首页链接、标题正确 (V5.1 起界面统一简体)
   const catNav = await page.locator('.header-nav a').allTextContents();
   check('编目页导航无"首頁"', !catNav.some(t => t.includes('首頁')), JSON.stringify(catNav));
   const catBrand = await page.locator('.header-brand h1').textContent();
-  check('编目页标题"日本漢籍編目工具"', catBrand.includes('日本漢籍編目工具'), catBrand);
+  check('编目页标题"日本汉籍编目工具"', catBrand.includes('日本汉籍编目工具'), catBrand);
   const catIcon = await page.locator('.header-brand .bi').textContent();
-  check('编目页图标"漢"', catIcon === '漢', catIcon);
+  check('编目页图标"汉"', catIcon === '汉', catIcon);
 
   // ===== 9. changelog 页导航 =====
   await page.goto('http://localhost:8765/changelog.html', { waitUntil: 'networkidle', timeout: 30000 });

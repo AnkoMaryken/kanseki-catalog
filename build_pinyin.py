@@ -10,10 +10,15 @@ build_pinyin.py — 生成 pinyin_data.js (v2.0 拼音检索数据)
                   const PINYIN_TERMS = [{w, py, initials, initialsLower}...]
 用法: python build_pinyin.py
 """
-import json, re, sys
+import json, re, sys, argparse
 from pathlib import Path
 
-ROOT = Path('D:/WorkBuddy空间/2026-08-01-13-40-21')
+# 参数化根目录：默认脚本所在目录，可用 --root 覆盖（跨平台迁移用）
+ROOT = Path(__file__).resolve().parent
+_parser = argparse.ArgumentParser(description='生成 pinyin_data.js（拼音检索数据）')
+_parser.add_argument('--root', default=str(ROOT), help='项目根目录（默认脚本所在目录）')
+_args = _parser.parse_args()
+ROOT = Path(_args.root)
 
 try:
     from pypinyin import pinyin, Style, lazy_pinyin

@@ -20,7 +20,7 @@ const URL = 'http://localhost:8765/catalog.html';
   // ===== 1. 三个 tab 按钮 =====
   const tabs = await page.locator('.tab-btn').allTextContents();
   check('三个 tab 按钮', tabs.length === 3, JSON.stringify(tabs));
-  check('tab 含"工作手冊"', tabs.some(t => t.includes('工作手冊')), JSON.stringify(tabs));
+  check('tab 含"工作手册"', tabs.some(t => t.includes('工作手册')), JSON.stringify(tabs));
 
   // ===== 2. 默认 tab 0 细则正常 =====
   check('默认细则 tab 渲染', await page.locator('#db').count() > 0);

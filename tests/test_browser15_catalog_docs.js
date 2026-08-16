@@ -30,7 +30,7 @@ const BASE = 'http://localhost:8765/catalog.html';
     return !l.classList.contains('wide');
   }));
   const tocTitle = await page.locator('.toc-title').textContent();
-  check('右侧目录标题「在本頁」', tocTitle.includes('在本頁'), tocTitle);
+  check('右侧目录标题「在本页」', tocTitle.includes('在本页'), tocTitle);
 
   // ===== 2. 章节锚点 =====
   const anchors = await page.locator('.anchor-item').count();
@@ -100,11 +100,11 @@ const BASE = 'http://localhost:8765/catalog.html';
     return m ? Math.round(m.getBoundingClientRect().width) : -1;
   });
   check('分类表内容区更宽 (>900)', catMain > 900, 'w=' + catMain);
-  // 分类筛选
-  await page.click('.cfb-side[data-f="經部"]');
+  // 分类筛选 (V5.1 起简体)
+  await page.click('.cfb-side[data-f="经部"]');
   await page.waitForTimeout(300);
   const l1rows = await page.locator('.ctbl .r-l1').allTextContents();
-  check('经部筛选生效', l1rows.length === 1 && l1rows[0].includes('經部'), JSON.stringify(l1rows));
+  check('经部筛选生效', l1rows.length === 1 && l1rows[0].includes('经部'), JSON.stringify(l1rows));
 
   // ===== 7. PDF tab =====
   await page.click('.tab-btn[data-tab="2"]');
@@ -147,7 +147,7 @@ const BASE = 'http://localhost:8765/catalog.html';
 
   // ===== 9. 返回导航 =====
   check('侧栏「返回紀年查詢」链接', await page.locator('.side-btn.sb-primary[href="index.html"]').count() === 1);
-  check('header 导航含「說明文檔」下拉', await page.locator('.nav-dropdown-btn').count() === 1);
+  check('header 导航含「说明文档」下拉', await page.locator('.header-nav .nav-dropdown-btn').count() === 1 && await page.locator('.user-dropdown').count() === 1);
 
   // ===== 10. JS 错误 =====
   check('无 JS 错误', errs.length === 0, errs.join(' | '));

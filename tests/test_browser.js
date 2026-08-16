@@ -81,6 +81,8 @@ const URL = 'http://localhost:8765/index.html';
   check('搜索"貞觀"命中55条', parseInt(total) === 55, total);
 
   // 9. 繁简切换: 点"繁"
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(600);
   const headerTh = await page.locator('#tableHead th.col-cn-era').textContent();
@@ -93,12 +95,16 @@ const URL = 'http://localhost:8765/index.html';
   check('繁体模式复制文本', copyVal && copyVal.includes('貞觀'), copyVal);
 
   // 11. 切回简体
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(600);
   const headerThS = await page.locator('#tableHead th.col-cn-era').textContent();
   check('简体表头"中国年号"', headerThS.includes('中国年号'), headerThS.trim());
 
   // 12. 繁体模式搜索"萬曆癸未"
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   await page.fill('#globalSearch', '萬曆癸未');

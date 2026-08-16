@@ -74,6 +74,10 @@ body{transition:background-color .3s ease,color .3s ease}
 .nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
 .nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.user-dropdown{position:relative}
+.user-btn{display:inline-flex;align-items:center}
+.user-login-link{color:inherit;text-decoration:none}
+.user-menu{right:0;left:auto;min-width:120px}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
 
 </style>
@@ -86,7 +90,16 @@ body{transition:background-color .3s ease,color .3s ease}
     <nav class="header-nav">
       <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">快速跳转</a>
     </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
+          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <a href="login.html" role="menuitem">登录</a>
+          <a href="signup.html" role="menuitem">注册</a>
+        </div>
+      </div></div>
   </div>
 </header>
 
@@ -95,6 +108,53 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.0</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>深浅色模式全站同步</b>：主题偏好统一存储于全站共用键（localStorage.theme），在登录页、注册页或任意页面切换深浅色后，进入其他任何页面（主页、编目规范、使用介绍、更新日志、快速跳转、管理员工作台、条款、隐私页）均保持同一主题，不再出现"登录页选了深色、进主页变浅色"的情况。</li>
+      <li><b>Supabase 接入（预留）</b>：新增 supabase-config.js 统一管理 Supabase 配置与认证封装（signIn / signUp / signOut / getSession）。当前未填入真实 URL 与 Key 时自动进入演示模式（本地模拟登录/注册），配置真实凭据后即切换为真实认证。</li>
+      <li><b>管理员工作台（admin.html）</b>：新增管理员工作台页面，仅在输入管理员账号密码后显示；含站点数据总览（总记录、中国朝代、日本时代、注册用户）、中国朝代/日本时代数据分布图表、用户列表（Supabase 配置后自动切换真实用户管理），演示账号 admin / admin123（部署时可通过 window.ADMIN_CONFIG 配置真实密码），登录会话 24 小时有效，支持退出登录。</li>
+      <li><b>登录/注册表单接入认证</b>：登录与注册表单已接入 SupabaseAuth 封装：真实模式走 Supabase 邮箱密码认证（注册需邮箱验证），演示模式本地模拟成功并写入本地用户信息。</li>
+      <li><b>条款与隐私页支持深色主题</b>：服务条款、隐私政策页面补全主题应用逻辑，跟随全站深浅色设置。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v5.1</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>快捷筛选浮窗</b>：纪年查询的朝代/年号筛选改为浮窗式——记录数右侧新增「快捷筛选」按钮，点击展开两栏浮窗（左：中国朝代 + 日本时代，右：年号），原顶部朝代/年号/日本时代标签筛选区移除，界面更清爽。</li>
+      <li><b>年号按皇帝分组</b>：浮窗内各朝代/时代的年号按时间顺序排布，同一皇帝的年号归为一组（帝号加粗、名字小字跟随，如「唐太宗 李世民」），既可选单个年号，也能直观按皇帝浏览。</li>
+      <li><b>选中框与一键清除</b>：选中的朝代、年号以圆角框沿「快捷筛选」按钮向右依次排列，点击框上 × 可单独移除；末尾垃圾桶按钮一键清空全部筛选，清空后自动隐藏。</li>
+      <li><b>登录入口右置 + 用户菜单</b>：五页导航的「登录」移至表头最右侧（深浅色切换按钮右边），并加下拉箭头；纪年查询页的下拉内含「显示字形（简/繁）」切换（原表头简/繁按钮并入此处，为后续个人中心预留），其余四页下拉含登录/注册入口。</li>
+      <li><b>登录/注册页「游客访问」</b>：登录、注册页右上角「深色」按钮旁新增「游客访问」按钮，不登录也能直接进入主页查看内容；登录页品牌「J」图标调小，与「Juvenile」文字比例协调。</li>
+      <li><b>界面统一简体</b>：除纪年查询结果内容可切换简繁外，全站交互界面（含编目规范页）统一为简体；编目规范页界面文字与 2025 新版细则正文均转为简体显示。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v5.0</span>
+      <span class="cl-date">2026-08-15</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>登录与注册页面</b>：新增 login.html（登录）与 signup.html（注册）页面，黑白极简卡片式设计，品牌名 Juvenile（逐风少年），支持深浅主题切换，表单含基础校验（邮箱格式、密码长度、两次密码一致）。</li>
+      <li><b>服务条款与隐私政策</b>：新增 terms.html 与 privacy.html 两个文档页面，登录/注册页底部均提供条款链接。</li>
+      <li><b>全站导航新增「登录」入口</b>：五页导航栏统一加入「登录」链接（繁体页显示「登錄」）。</li>
+      <li><b>登录体系规划</b>：登录/注册表单已预留 Supabase 接入口（邮箱 + 密码认证），后续接入后即可实现真实的注册、登录与用户数据存储。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

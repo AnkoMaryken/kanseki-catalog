@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理员工作台 · Juvenile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<style>
+:root {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f5f5;
+  --color-accent: #171717;
+  --color-text: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-input-bg: #fafafa;
+  --color-input-border: #d4d4d4;
+  --color-input-focus: #171717;
+  --color-placeholder: #a3a3a3;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+}
+[data-theme="dark"] {
+  --color-bg: #0a0a0a;
+  --color-surface: #171717;
+  --color-surface-hover: #262626;
+  --color-accent: #fafafa;
+  --color-text: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-border: rgba(255,255,255,0.1);
+  --color-input-bg: #1f1f1f;
+  --color-input-border: rgba(255,255,255,0.14);
+  --color-input-focus: #fafafa;
+  --color-placeholder: #6b6b6b;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+/* 顶部右上角 */
+.top-actions {
+  position: fixed; top: 1rem; right: 1rem; z-index: 50;
+  display: flex; gap: 0.5rem; align-items: center;
+}
+.btn-ghost, .theme-toggle {
+  padding: 0.4rem 0.75rem; font-size: 0.75rem; color: var(--color-text-muted);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 999px; cursor: pointer; text-decoration: none; display: inline-block;
+}
+.btn-ghost:hover, .theme-toggle:hover { color: var(--color-text); background: var(--color-surface-hover); }
+
+/* ===== 登录门 ===== */
+.gate {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 2rem 1rem;
+}
+.gate-card {
+  width: 100%; max-width: 380px; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: var(--radius-xl);
+  padding: 2rem 1.75rem; box-shadow: 0 1px 2px var(--color-shadow);
+}
+.gate-title { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.35rem; }
+.gate-sub { text-align: center; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1.6rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.4rem; }
+.field input {
+  width: 100%; padding: 0.7rem 0.85rem; font-size: 0.88rem; color: var(--color-text);
+  background: var(--color-input-bg); border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-lg); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus { border-color: var(--color-input-focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 12%, transparent); }
+.btn-primary {
+  width: 100%; padding: 0.8rem; font-size: 0.9rem; font-weight: 600;
+  color: var(--color-bg); background: var(--color-accent); border: none;
+  border-radius: var(--radius-lg); cursor: pointer; margin-top: 0.5rem;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.form-error {
+  display: none; font-size: 0.78rem; color: #dc2626; background: #fef2f2;
+  border: 1px solid #fecaca; border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem; margin-bottom: 1rem;
+}
+[data-theme="dark"] .form-error { color: #fca5a5; background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.3); }
+.form-error.show { display: block; }
+.gate-hint { text-align: center; font-size: 0.72rem; color: var(--color-text-muted); margin-top: 1.1rem; line-height: 1.7; }
+
+/* ===== 工作台 ===== */
+.dash { display: none; max-width: 1200px; margin: 0 auto; padding: 4.5rem 1.5rem 3rem; }
+.dash.show { display: block; }
+.dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 0.75rem; }
+.dash-header h1 { font-size: 1.45rem; font-weight: 600; }
+.dash-header .dash-user { font-size: 0.82rem; color: var(--color-text-muted); }
+.btn-logout {
+  padding: 0.4rem 0.85rem; font-size: 0.78rem; color: var(--color-text-secondary);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); cursor: pointer;
+}
+.btn-logout:hover { color: #dc2626; border-color: #dc2626; }
+
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.75rem; }
+.metric-card {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 1.1rem 1.25rem;
+}
+.metric-label { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.4rem; }
+.metric-value { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.metric-sub { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.25rem; }
+
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 820px) { .dash-grid { grid-template-columns: 1fr; } }
+.panel {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.4rem;
+}
+.panel h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.9rem; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0; border-bottom: 1px dashed var(--color-border); font-size: 0.84rem; }
+.stat-row:last-child { border-bottom: none; }
+.stat-row .k { color: var(--color-text-secondary); }
+.stat-row .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar-wrap { height: 6px; background: var(--color-bg-alt, #f0f0f0); border-radius: 3px; overflow: hidden; margin-top: 0.3rem; }
+.bar { height: 100%; background: var(--color-accent); border-radius: 3px; opacity: 0.85; }
+[data-theme="dark"] .bar-wrap { background: #262626; }
+
+.table-wrap { overflow-x: auto; margin-top: 1.5rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+th { color: var(--color-text-muted); font-weight: 600; font-size: 0.76rem; }
+tr:hover td { background: var(--color-surface-hover); }
+.tag { display: inline-block; font-size: 0.7rem; padding: 0.12rem 0.55rem; border-radius: 999px; background: var(--color-bg-alt, #f0f0f0); color: var(--color-text-secondary); }
+.tag.tag-admin { background: rgba(23,23,23,0.08); color: var(--color-text); font-weight: 600; }
+[data-theme="dark"] .tag { background: #262626; }
+
+.dash-footer { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--color-border); font-size: 0.75rem; color: var(--color-text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+.dash-footer a { color: var(--color-text-secondary); text-decoration: none; }
+.dash-footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="top-actions">
+  <a class="btn-ghost" href="index.html">返回主页</a>
+  <button class="theme-toggle" id="themeToggle">深色</button>
+</div>
+
+<!-- ===== 管理员登录门 ===== -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-title">管理员工作台</div>
+    <div class="gate-sub">仅管理员可访问 · 请输入管理员账号</div>
+    <div class="form-error" id="gateError"></div>
+    <form id="gateForm" novalidate>
+      <div class="field">
+        <label for="adminUser">管理员账号</label>
+        <input type="text" id="adminUser" placeholder="请输入管理员账号" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="adminPass">密码</label>
+        <input type="password" id="adminPass" placeholder="请输入密码" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary" id="gateBtn">进入工作台</button>
+    </form>
+    <div class="gate-hint" id="gateHint"></div>
+  </div>
+</div>
+
+<!-- ===== 工作台主体 ===== -->
+<div class="dash" id="dash">
+  <div class="dash-header">
+    <div>
+      <h1>管理员工作台</h1>
+      <div class="dash-user" id="dashUser"></div>
+    </div>
+    <button class="btn-logout" id="logoutBtn">退出登录</button>
+  </div>
+
+  <div class="metrics">
+    <div class="metric-card"><div class="metric-label">站点数据 · 总记录</div><div class="metric-value" id="mTotal">0</div><div class="metric-sub">公历年份对照行</div></div>
+    <div class="metric-card"><div class="metric-label">中国朝代</div><div class="metric-value" id="mDynasty">0</div><div class="metric-sub">22 朝 494 年号</div></div>
+    <div class="metric-card"><div class="metric-label">日本时代</div><div class="metric-value" id="mPeriod">0</div><div class="metric-sub">9 时代 167 年号</div></div>
+    <div class="metric-card"><div class="metric-label">注册用户</div><div class="metric-value" id="mUsers">0</div><div class="metric-sub" id="mUsersSub">本地演示</div></div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="panel">
+      <h2>数据分布 · 中国朝代</h2>
+      <div id="dynTop"></div>
+    </div>
+    <div class="panel">
+      <h2>数据分布 · 日本时代</h2>
+      <div id="perTop"></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <h2 style="font-size:0.95rem;font-weight:600;margin:1.5rem 0 0.9rem;">用户列表</h2>
+    <table>
+      <thead><tr><th>用户</th><th>邮箱</th><th>角色</th><th>状态</th><th>注册时间</th></tr></thead>
+      <tbody id="userRows"></tbody>
+    </table>
+    <p style="font-size:0.74rem;color:var(--color-text-muted);margin-top:0.6rem;" id="userNote"></p>
+  </div>
+
+  <div class="dash-footer">
+    <span>Juvenile 管理员工作台 · V6.0</span>
+    <span><a href="index.html">返回纪年查询</a> · <a href="changelog.html">更新日志</a></span>
+  </div>
+</div>
+
+<script>
+// 深浅主题 (全站统一 theme 键)
+(function() {
+  const KEY = 'theme';
+  const btn = document.getElementById('themeToggle');
+  function apply(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '浅色' : '深色';
+  }
+  apply(localStorage.getItem(KEY) || 'light');
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(KEY, cur);
+    apply(cur);
+  });
+})();
+
+// ===== 管理员凭据 (V6.0) =====
+// 部署时替换占位符。演示模式: admin / admin123
+var ADMIN_CRED = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.username) || 'admin';
+var ADMIN_PASS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.password) || 'admin123';
+var ADMIN_DISPLAY = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.displayName) || '站点管理员';
+var SESSION_KEY = 'kanseki_admin_session';
+
+// 会话: 存储 { user, exp } (24 小时有效)
+function saveSession() {
+  var s = { user: ADMIN_DISPLAY, exp: Date.now() + 24 * 3600 * 1000 };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+}
+function loadSession() {
+  try {
+    var s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (s && s.exp > Date.now()) return s;
+  } catch (e) {}
+  return null;
+}
+function clearSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) {} }
+
+// ===== 站点数据统计 (从 site-data.js 读取, 需在页面加载后执行) =====
+function loadSiteStats() {
+  try {
+    if (typeof CN_DYNASTIES !== 'undefined') {
+      document.getElementById('mDynasty').textContent = CN_DYNASTIES.length;
+    }
+  } catch (e) {}
+  try {
+    if (typeof JP_PERIODS !== 'undefined') {
+      document.getElementById('mPeriod').textContent = JP_PERIODS.length;
+    }
+  } catch (e) {}
+  try {
+    // 总记录 = 中国年号 + 日本年号（含子年号）; 若 FULL_DATA 存在则用其行数
+    if (typeof FULL_DATA !== 'undefined' && FULL_DATA.length) {
+      document.getElementById('mTotal').textContent = FULL_DATA.length.toLocaleString();
+    } else {
+      let cnCnt = 0, jpCnt = 0;
+      if (typeof CN_DYNASTIES !== 'undefined') {
+        CN_DYNASTIES.forEach(d => (d.eras || []).forEach(e => {
+          cnCnt += (e.subEras ? e.subEras.length : 1);
+        }));
+      }
+      if (typeof JP_PERIODS !== 'undefined') {
+        JP_PERIODS.forEach(p => (p.eras || []).forEach(e => {
+          jpCnt += (e.subEras ? e.subEras.length : 1);
+        }));
+      }
+      document.getElementById('mTotal').textContent = (cnCnt + jpCnt).toLocaleString();
+      document.getElementById('mTotal').dataset.fallback = '1';
+    }
+  } catch (e) {}
+  renderDist();
+}
+
+function renderDist() {
+  const dynBox = document.getElementById('dynTop');
+  const perBox = document.getElementById('perTop');
+  if (typeof CN_DYNASTIES === 'undefined' || typeof JP_PERIODS === 'undefined') {
+    dynBox.innerHTML = '<p style="font-size:0.78rem;color:var(--color-text-muted);">数据未加载</p>';
+    perBox.innerHTML = '<p style="font-size:0.78rem;color:var(--color-text-muted);">数据未加载</p>';
+    return;
+  }
+  let dh = '';
+  CN_DYNASTIES.slice(0, 8).forEach(d => {
+    const n = (d.eras || []).length;
+    const pct = Math.min(100, Math.round(n / 10 * 100));
+    dh += '<div class="stat-row"><span class="k">' + d.name + '</span><span class="v">' + n + ' 个年号</span></div>';
+    dh += '<div class="bar-wrap"><div class="bar" style="width:' + pct + '%"></div></div>';
+  });
+  dynBox.innerHTML = dh;
+  let ph = '';
+  JP_PERIODS.slice(0, 8).forEach(p => {
+    const n = (p.eras || []).length;
+    const pct = Math.min(100, Math.round(n / 20 * 100));
+    ph += '<div class="stat-row"><span class="k">' + p.name + '</span><span class="v">' + n + ' 个年号</span></div>';
+    ph += '<div class="bar-wrap"><div class="bar" style="width:' + pct + '%"></div></div>';
+  });
+  perBox.innerHTML = ph;
+}
+
+// ===== 用户列表 =====
+function renderUsers() {
+  const tbody = document.getElementById('userRows');
+  const note = document.getElementById('userNote');
+  if (window.SupabaseAuth && window.SupabaseAuth.isConfigured && window.SupabaseAuth.isConfigured()) {
+    // 真实模式: 从 Supabase 拉用户 (需 admin API, 此处给出引导)
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--color-text-muted);padding:1.5rem;">Supabase 已配置 — 用户列表需通过 Supabase Dashboard 管理（服务端 admin API）</td></tr>';
+    note.textContent = '真实模式：用户数据存储于 Supabase，可在 Supabase Dashboard → Authentication → Users 中查看与管理。';
+    document.getElementById('mUsersSub').textContent = 'Supabase 已连接';
+    return;
+  }
+  // 演示模式: 展示本地注册的用户
+  let users = [];
+  try { users = JSON.parse(localStorage.getItem('kanseki_users') || '[]'); } catch (e) {}
+  const me = JSON.parse(localStorage.getItem('kanseki_user') || 'null');
+  document.getElementById('mUsers').textContent = (users.length + 1);
+  document.getElementById('mUsersSub').textContent = '本地演示数据';
+  if (users.length === 0 && !me) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--color-text-muted);padding:1.5rem;">暂无注册用户（演示模式）</td></tr>';
+    note.textContent = '演示模式：注册功能在前端本地模拟，配置 Supabase 后即可真实存储用户。';
+    return;
+  }
+  let rows = '';
+  rows += '<tr><td><span class="tag tag-admin">管理员</span></td><td>' + (me ? me.email || 'admin' : '—') + '</td><td>管理员</td><td><span class="tag" style="color:#16a34a;">在线</span></td><td>—</td></tr>';
+  users.forEach(u => {
+    rows += '<tr><td>' + (u.name || '—') + '</td><td>' + (u.email || '—') + '</td><td>用户</td><td><span class="tag">正常</span></td><td>' + (u.createdAt || '—') + '</td></tr>';
+  });
+  tbody.innerHTML = rows;
+  note.textContent = '演示模式：注册数据存储于浏览器本地。配置 Supabase 后自动切换真实用户管理。';
+}
+
+// ===== 登录门逻辑 =====
+const gate = document.getElementById('gate');
+const dash = document.getElementById('dash');
+const gateForm = document.getElementById('gateForm');
+const gateError = document.getElementById('gateError');
+const gateBtn = document.getElementById('gateBtn');
+const gateHint = document.getElementById('gateHint');
+
+function showGateErr(msg) { gateError.textContent = msg; gateError.classList.add('show'); }
+function hideGateErr() { gateError.classList.remove('show'); }
+
+function enterDash(session) {
+  gate.style.display = 'none';
+  dash.classList.add('show');
+  document.getElementById('dashUser').textContent = '当前管理员：' + session.user;
+  loadSiteStats();
+  renderUsers();
+}
+
+// 已登录直接进工作台
+const existing = loadSession();
+if (existing) {
+  enterDash(existing);
+} else {
+  // 演示提示
+  const isDemo = !(window.ADMIN_CONFIG && window.ADMIN_CONFIG.username);
+  gateHint.textContent = isDemo ? '演示账号：admin / admin123（部署时请通过 ADMIN_CONFIG 配置真实密码）' : '';
+}
+
+gateForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  hideGateErr();
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value;
+  if (!u || !p) { showGateErr('请输入账号和密码'); return; }
+  if (u === ADMIN_CRED && p === ADMIN_PASS) {
+    saveSession();
+    enterDash({ user: ADMIN_DISPLAY });
+  } else {
+    showGateErr('账号或密码错误');
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  clearSession();
+  location.reload();
+});
+</script>
+<script src="site-data.js"></script>
+</body>
+</html>

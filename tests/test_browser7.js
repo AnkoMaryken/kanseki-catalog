@@ -48,9 +48,9 @@ const URL = 'http://localhost:8765/catalog.html';
   check('2023 参考格式代码块渲染', await page.locator('#db .doc-code').count() >= 1);
   check('2023 引用块渲染', await page.locator('#db .doc-ex').count() >= 1);
 
-  // ===== 5. 著录实例 =====
-  check('2023 例一含後漢書', bodyText23.includes('後漢書九十卷志三十卷'));
-  check('2023 丛例子目列表', bodyText23.includes('爾雅注疏十一卷'));
+  // ===== 5. 著录实例 (V5.1 起全简体) =====
+  check('2023 例一含后汉书', bodyText23.includes('后汉书九十卷志三十卷'));
+  check('2023 丛例子目列表', bodyText23.includes('尔雅注疏十一卷'));
 
   // ===== 6. 切换到 2025 版 =====
   await page.click('.ver-btn[data-d="2025"]');

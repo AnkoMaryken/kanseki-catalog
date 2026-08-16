@@ -19,11 +19,20 @@ v1.4: 将用户提供的两份 Markdown 细则原文（.workbuddy/v14_doc2023.md
 - DOC2023_FLAT / DOC2025_FLAT 同步重新生成（每 section: title + 各块纯文本）
 """
 import re, io
+import argparse
+from pathlib import Path
 
-SRC2023 = r'D:\WorkBuddy空间\2026-08-01-13-40-21\.workbuddy\v14_doc2023.md'
-SRC2025 = r'D:\WorkBuddy空间\2026-08-01-13-40-21\.workbuddy\v14_doc2025.md'
-OLD_JS  = r'D:\WorkBuddy空间\2026-08-01-13-40-21\catalog_data.js'
-OUT_JS  = r'D:\WorkBuddy空间\2026-08-01-13-40-21\catalog_data.js'
+# 参数化根目录：默认脚本所在目录，可用 --root 覆盖（跨平台迁移用）
+ROOT = Path(__file__).resolve().parent
+_parser = argparse.ArgumentParser(description='由 Markdown 细则重建 catalog_data.js')
+_parser.add_argument('--root', default=str(ROOT), help='项目根目录（默认脚本所在目录）')
+_args = _parser.parse_args()
+ROOT = Path(_args.root)
+
+SRC2023 = ROOT / '.workbuddy' / 'v14_doc2023.md'
+SRC2025 = ROOT / '.workbuddy' / 'v14_doc2025.md'
+OLD_JS  = ROOT / 'catalog_data.js'
+OUT_JS  = ROOT / 'catalog_data.js'
 
 def esc(s):
     """HTML 转义（在 <b> 标签插入之后对文本段调用）"""

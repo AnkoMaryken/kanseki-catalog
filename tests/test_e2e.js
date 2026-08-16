@@ -26,16 +26,22 @@ function sliceBetween(code, startMarker, endMarker) {
 let extracted = '';
 // 转换函数 (toSimplified 等) 依赖 S2T_MAP/T2S_MAP + convertText + toSimplified
 const convFuncStart = code.indexOf('// 简繁转换 (映射表来自');
-const convFuncEnd = code.indexOf('// ========================================\n// 干支 & 生肖');
+const convFuncEnd = code.indexOf('\n// 干支 & 生肖');
 if (convFuncStart < 0 || convFuncEnd < 0) throw new Error('找不到转换函数区');
 extracted += code.slice(convFuncStart, convFuncEnd);
 
 // 数据区: const GANZHI 到 buildFullDataset 的 return data;
 const dataStart = code.indexOf('const GANZHI');
-const dataEndMarker = '  return data;\n}';
-const dataEnd = code.indexOf(dataEndMarker);
+// 兼容 CRLF/LF 行尾: 找 return data; 后的函数闭合 }
+const dataRet = code.indexOf('return data;');
+let dataEnd = -1;
+if (dataRet >= 0) {
+  const tail = code.slice(dataRet);
+  const mEnd = /return data;\r?\n\}/.exec(tail);
+  if (mEnd) dataEnd = dataRet + mEnd[0].length - 1;
+}
 if (dataStart < 0 || dataEnd < 0) throw new Error('找不到数据区');
-extracted += '\n' + code.slice(dataStart, dataEnd + dataEndMarker.length);
+extracted += '\n' + code.slice(dataStart, dataEnd + 1);
 
 // 运行
 const sandbox = {};

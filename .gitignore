@@ -8,3 +8,7 @@ Thumbs.db
 
 # 调试临时脚本
 debug_*.js
+
+# app 依赖与临时调试
+app/node_modules/
+app/.tmp/

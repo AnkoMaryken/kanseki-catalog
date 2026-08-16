@@ -553,6 +553,7 @@ a:hover { color: var(--color-accent); }
   font-size: 0.85rem;
   color: var(--color-text-secondary);
 }
+.stats-left { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; min-width: 0; }
 .stats-info strong { color: var(--color-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .stats-actions { display: flex; align-items: center; gap: 0.5rem; }
@@ -1422,6 +1423,102 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
 }
 .nav-dropdown-menu a:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .nav-dropdown-menu a.active { color: var(--color-text); font-weight: 600; background: var(--color-bg-alt); }
+/* 用户菜单（登录下拉，点击展开，含繁简切换） */
+.user-dropdown { position: relative; }
+.user-btn { display: flex; align-items: center; cursor: pointer; }
+.user-login-link { color: inherit; text-decoration: none; }
+.user-login-link:hover { text-decoration: none; }
+.user-menu { right: 0; left: auto; min-width: 168px; }
+/* 点击展开（非 hover）: .open 时显示 */
+.user-dropdown .user-menu { opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.18s var(--ease-spring), visibility 0.18s var(--ease-spring), transform 0.18s var(--ease-spring); }
+.user-dropdown:hover .user-menu, .user-dropdown:focus-within .user-menu { opacity: 0; visibility: hidden; transform: translateY(-6px); } /* 覆盖 nav-dropdown 的 hover 展开 */
+.user-dropdown.open .user-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.user-dropdown.open .user-btn svg { transform: rotate(180deg); }
+.user-menu-section { padding: 0.45rem 0.75rem; }
+.user-menu-label {
+  display: block; font-size: 0.72rem; color: var(--color-text-muted);
+  margin-bottom: 0.4rem; letter-spacing: 0.02em;
+}
+.user-menu .lang-switch { width: 100%; }
+.user-menu .lang-switch button { flex: 1; }
+.user-menu-login { border-top: 1px solid var(--color-border); margin-top: 0.25rem; padding-top: 0.5rem !important; border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important; }
+
+/* ============================================
+   快捷筛选浮窗 (V5.1)
+   ============================================ */
+.qf-wrap { position: relative; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.qf-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.45rem 1rem; font-size: 0.85rem; font-family: var(--font-body);
+  color: var(--color-text); background: var(--color-btn-bg);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.qf-btn:hover { background: var(--color-btn-hover); border-color: var(--color-scrollbar-hover); transform: translateY(-1px); }
+.qf-btn:active { transform: scale(0.97); }
+.qf-btn svg { transition: transform var(--transition-fast); }
+.qf-wrap.open .qf-btn svg { transform: rotate(180deg); }
+.qf-chips { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.qf-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.82rem; padding: 0.32rem 0.8rem; border-radius: 999px;
+  cursor: pointer; transition: all var(--transition-fast); white-space: nowrap;
+}
+.qf-chip.qf-chip-dyn { background: var(--color-bg-alt); color: var(--color-text); border: 1px solid var(--color-border); font-weight: 600; }
+.qf-chip.qf-chip-era { background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
+.qf-chip .qf-chip-x { opacity: 0.55; font-size: 0.85em; line-height: 1; }
+.qf-chip:hover .qf-chip-x { opacity: 1; }
+.qf-chip:hover { border-color: var(--color-scrollbar-hover); }
+.qf-clear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm);
+  color: var(--color-text-muted); background: var(--color-btn-bg);
+  border: 1px solid var(--color-border); cursor: pointer; transition: all var(--transition-fast);
+}
+.qf-clear:hover { color: #dc2626; border-color: #dc2626; background: var(--color-btn-hover); }
+/* 浮窗面板 */
+.qf-panel {
+  position: absolute; top: calc(100% + 8px); left: 0; z-index: 300;
+  display: flex; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); overflow: hidden;
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity 0.18s var(--ease-spring), visibility 0.18s var(--ease-spring), transform 0.18s var(--ease-spring);
+  max-width: min(720px, calc(100vw - 2rem));
+}
+.qf-wrap.open .qf-panel { opacity: 1; visibility: visible; transform: translateY(0); }
+.qf-col-dyn {
+  flex: 0 0 160px; border-right: 1px solid var(--color-border);
+  background: var(--color-bg-alt); padding: 0.6rem; overflow-y: auto; max-height: 420px;
+}
+.qf-dyn-label { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.2rem 0.55rem 0.45rem; letter-spacing: 0.02em; }
+.qf-dyn-item {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.88rem; padding: 0.42rem 0.65rem; border-radius: var(--radius-sm);
+  color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+  user-select: none;
+}
+.qf-dyn-item:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.qf-dyn-item.viewing { background: var(--color-surface); color: var(--color-text); font-weight: 600; }
+.qf-dyn-item.selected { color: var(--color-primary); font-weight: 600; }
+.qf-dyn-item.selected::after { content: '✓'; font-size: 0.78rem; }
+.qf-dyn-sep { height: 1px; background: var(--color-border); margin: 0.4rem 0.3rem; }
+.qf-col-era { flex: 1; min-width: 380px; padding: 0.75rem 0.9rem; overflow-y: auto; max-height: 420px; }
+.qf-era-empty { font-size: 0.85rem; color: var(--color-text-muted); padding: 2.5rem 1rem; text-align: center; }
+.qf-era-label { font-size: 0.72rem; color: var(--color-text-muted); margin-bottom: 0.6rem; letter-spacing: 0.02em; }
+.qf-emperor { margin-bottom: 0.95rem; }
+.qf-emperor-name { font-size: 0.9rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.4rem; }
+.qf-emperor-name .qf-emperor-given { font-size: 0.76rem; font-weight: 400; color: var(--color-text-muted); margin-left: 0.4rem; }
+.qf-era-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.qf-era-tag {
+  font-size: 0.82rem; padding: 0.24rem 0.7rem; border-radius: 999px;
+  border: 1px solid var(--color-border); color: var(--color-text-secondary);
+  background: var(--color-surface); cursor: pointer; transition: all var(--transition-fast);
+  user-select: none;
+}
+.qf-era-tag:hover { border-color: var(--color-scrollbar-hover); color: var(--color-text); }
+.qf-era-tag.selected { background: var(--color-primary); color: var(--color-bg); border-color: var(--color-primary); font-weight: 600; }
 
 </style>
 </head>
@@ -1448,37 +1545,31 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
       <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="搜索建议"></div>
     </div>
     <div class="header-actions">
-      <div class="lang-switch" role="group" aria-label="显示字形切换">
-        <button id="langBtnS" type="button" title="显示简体字">简</button>
-        <button id="langBtnT" class="active" type="button" title="显示繁体字">繁</button>
-      </div>
       <button class="btn-icon" id="themeToggle" aria-label="切换暗色模式" title="切换暗色/亮色模式">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-link nav-dropdown-btn user-btn" type="button" aria-haspopup="true" id="userMenuBtn">
+          <a href="login.html" class="user-login-link" id="userLoginLink" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <div class="user-menu-section">
+            <span class="user-menu-label">显示字形</span>
+            <div class="lang-switch" role="group" aria-label="显示字形切换">
+              <button id="langBtnS" type="button" title="显示简体字">简</button>
+              <button id="langBtnT" class="active" type="button" title="显示繁体字">繁</button>
+            </div>
+          </div>
+          <a href="login.html" role="menuitem" class="user-menu-login">登录 / 注册</a>
+        </div>
+      </div>
     </div>
   </div>
 </header>
 
 <!-- ============================================
-     Filter Bar (Desktop)
+     Filter Bar (Desktop) — V5.1 起改为 stats-bar 内快捷筛选浮窗
      ============================================ -->
-<div class="filter-bar filter-desktop" role="region" aria-label="筛选条件">
-  <div class="filter-inner">
-    <div class="filter-group">
-      <span class="filter-label">中国朝代</span>
-      <div class="filter-tags" id="chinaFilterTags"></div>
-    </div>
-    <div class="filter-group" id="cnEraSubFilter" style="display:none;">
-      <span class="filter-label" style="color:var(--color-accent);">年号</span>
-      <div class="filter-tags" id="chinaEraTags"></div>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">日本时代</span>
-      <div class="filter-tags" id="japanFilterTags"></div>
-    </div>
-    <button class="filter-clear" id="filterClearBtn" aria-label="清空所有筛选">清空筛选</button>
-  </div>
-</div>
 
 <!-- ============================================
      Mobile Filter Toggle
@@ -1523,8 +1614,29 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
 <main class="app-container" role="main">
   <!-- Stats Bar -->
   <div class="stats-bar" id="statsBar">
-    <div class="stats-info" id="statsInfo">
-      共 <strong id="totalCount">0</strong> 条记录
+    <div class="stats-left">
+      <div class="stats-info" id="statsInfo">
+        共 <strong id="totalCount">0</strong> 条记录
+      </div>
+      <!-- 快捷筛选 (V5.1 浮窗式) -->
+      <div class="qf-wrap" id="qfWrap">
+        <button class="qf-btn" id="qfBtn" aria-haspopup="true" aria-expanded="false">
+          快捷筛选
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="qf-chips" id="qfChips"></div>
+        <button class="qf-clear" id="qfClear" title="清除筛选" aria-label="清除筛选" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </button>
+        <!-- 浮窗面板 -->
+        <div class="qf-panel" id="qfPanel" role="dialog" aria-label="快捷筛选">
+          <div class="qf-col qf-col-dyn" id="qfDynCol"></div>
+          <div class="qf-col qf-col-era" id="qfEraCol">
+            <div class="qf-era-empty" id="qfEraEmpty">← 选择朝代查看年号</div>
+            <div class="qf-era-body" id="qfEraBody"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="stats-actions">
       <span style="font-size:0.8rem;color:var(--color-text-secondary);">每页</span>
@@ -1735,6 +1847,14 @@ function queryForDisplay(q) {
 function setDisplayLang(lang) {
   if (displayLang === lang) return;
   displayLang = lang;
+  
+  // 切换后收起用户菜单 (V5.1: 简繁并入登录下拉)
+  const ud = document.querySelector('.user-dropdown');
+  if (ud) {
+    ud.classList.remove('open');
+    const ub = ud.querySelector('.user-btn');
+    if (ub) ub.setAttribute('aria-expanded', 'false');
+  }
   
   // 更新切换按钮高亮
   document.getElementById('langBtnS').classList.toggle('active', lang === 's');
@@ -3012,147 +3132,241 @@ const JAPAN_FILTER_GROUPS = [
 ];
 
 // ========================================
-// Generate filter tags
+// Quick Filter (V5.1) — 浮窗式快捷筛选
 // ========================================
-function renderFilterTags() {
-  // China dynasty tags - desktop
-  const chinaContainer = document.getElementById('chinaFilterTags');
-  const chinaContainerMobile = document.getElementById('chinaFilterTagsMobile');
-  
-  const chinaTags = [];
-  CHINA_FILTER_GROUPS.forEach(group => {
-    group.dynasties.forEach(dyn => {
-      const tag = createFilterTag(dyn, 'china', selectedChinaFilters.has(dyn));
-      chinaTags.push(tag);
-    });
-  });
-  
-  if (chinaContainer) {
-    chinaContainer.innerHTML = '';
-    chinaTags.forEach(t => chinaContainer.appendChild(t.cloneNode(true)));
-  }
-  if (chinaContainerMobile) {
-    chinaContainerMobile.innerHTML = '';
-    chinaTags.forEach(t => chinaContainerMobile.appendChild(t));
-  }
-  
-  // Japan period tags
-  const japanContainer = document.getElementById('japanFilterTags');
-  const japanContainerMobile = document.getElementById('japanFilterTagsMobile');
-  
-  const japanTags = [];
-  JAPAN_FILTER_GROUPS.forEach(group => {
-    group.periods.forEach(per => {
-      const tag = createFilterTag(per, 'japan', selectedJapanFilters.has(per));
-      japanTags.push(tag);
-    });
-  });
-  
-  if (japanContainer) {
-    japanContainer.innerHTML = '';
-    japanTags.forEach(t => japanContainer.appendChild(t.cloneNode(true)));
-  }
-  if (japanContainerMobile) {
-    japanContainerMobile.innerHTML = '';
-    japanTags.forEach(t => japanContainerMobile.appendChild(t));
-  }
-  
-  // Render era sub-filters
-  renderEraSubFilters();
-  
-  // Attach events
-  attachFilterEvents();
-}
 
-// Compute and render era name sub-filter tags based on selected dynasties
-function renderEraSubFilters() {
-  const eraDesktop = document.getElementById('chinaEraTags');
-  const eraDesktopGroup = document.getElementById('cnEraSubFilter');
-  const eraMobile = document.getElementById('chinaEraTagsMobile');
-  const eraMobileGroup = document.getElementById('cnEraSubFilterMobile');
-  
-  if (selectedChinaFilters.size === 0) {
-    if (eraDesktopGroup) eraDesktopGroup.style.display = 'none';
-    if (eraMobileGroup) eraMobileGroup.style.display = 'none';
-    if (eraDesktop) eraDesktop.innerHTML = '';
-    if (eraMobile) eraMobile.innerHTML = '';
-    return;
-  }
-  
-  // Collect unique era base names from FULL_DATA rows matching selected dynasties
-  const eraSet = new Set();
-  for (const row of FULL_DATA) {
-    const hasDynasty = row.cnDynasties.some(d => selectedChinaFilters.has(d));
-    if (hasDynasty) {
-      row.cnEraNames.forEach(e => { if (e && e !== '—' && e !== '-') eraSet.add(e); });
+// 当前浮窗中正在查看的朝代/时代 (hover 预览, 不等于选中)
+let qfViewingKey = null;
+
+// 构建筛选数据源: 中国朝代分组 + 日本时代分组, 每项含 eras(含 ruler)
+// 返回 [{ key, label, kind:'cn'|'jp', eras:[{name,ruler,r}] }]
+function qfBuildSources() {
+  const list = [];
+  // 中国: 按 CHINA_FILTER_GROUPS 的组顺序, 展开为各朝代
+  for (const g of CHINA_FILTER_GROUPS) {
+    for (const dynName of g.dynasties) {
+      const dyn = CN_DYNASTIES.find(d => d.name === dynName);
+      if (!dyn) continue;
+      list.push({ key: 'cn:' + dyn.name, label: dyn.name, kind: 'cn', eras: dyn.eras || [] });
     }
   }
-  
-  const eraNames = [...eraSet].sort((a, b) => a.localeCompare(b, 'zh'));
-  
-  if (eraNames.length === 0) {
-    if (eraDesktopGroup) eraDesktopGroup.style.display = 'none';
-    if (eraMobileGroup) eraMobileGroup.style.display = 'none';
-    if (eraDesktop) eraDesktop.innerHTML = '';
-    if (eraMobile) eraMobile.innerHTML = '';
-    return;
+  // 日本: 各时代
+  for (const p of JP_PERIODS) {
+    list.push({ key: 'jp:' + p.name, label: p.name, kind: 'jp', eras: p.eras || [] });
   }
-  
-  // Show desktop sub-filter
-  if (eraDesktopGroup) eraDesktopGroup.style.display = '';
-  if (eraDesktop) {
-    eraDesktop.innerHTML = '';
-    eraNames.forEach(name => {
-      eraDesktop.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
-    });
-  }
-  
-  // Show mobile sub-filter
-  if (eraMobileGroup) eraMobileGroup.style.display = '';
-  if (eraMobile) {
-    eraMobile.innerHTML = '';
-    eraNames.forEach(name => {
-      eraMobile.appendChild(createFilterTag(name, 'china-era', selectedChinaEras.has(name)));
-    });
-  }
+  return list;
 }
 
+// 解析 ruler 为 { title, given } 帝号/名字
+function qfParseRuler(ruler) {
+  if (!ruler) return { title: '', given: '' };
+  const m = ruler.match(/^([^()（）]+)[(（]([^()（）]+)[)）]/);
+  if (m) return { title: m[1].trim(), given: m[2].trim() };
+  return { title: ruler.trim(), given: '' };
+}
+
+// 将一个朝代/时代的 eras 按皇帝分组, 组内与组间均按时间排序
+// 返回 [{ title, given, eras:[{name,r}] }]  (name 过滤 '-'/'—')
+function qfGroupByEmperor(eras) {
+  const groups = new Map(); // rulerKey -> { title, given, eras:[], minYear }
+  for (const e of eras) {
+    const subList = e.subEras ? e.subEras : [e];
+    for (const s of subList) {
+      const nm = s.name;
+      if (!nm || nm === '—' || nm === '-') continue;
+      const { title, given } = qfParseRuler(e.ruler);
+      const key = title + '|' + given;
+      if (!groups.has(key)) groups.set(key, { title, given, eras: [], minYear: Infinity });
+      const g = groups.get(key);
+      g.minYear = Math.min(g.minYear, s.r[0]);
+      // 同年号去重
+      if (!g.eras.some(x => x.name === nm)) g.eras.push({ name: nm, r: s.r });
+    }
+  }
+  const arr = [...groups.values()];
+  arr.forEach(g => g.eras.sort((a, b) => a.r[0] - b.r[0]));
+  arr.sort((a, b) => a.minYear - b.minYear);
+  return arr;
+}
+
+// 渲染浮窗朝代列 (左)
+function qfRenderDynCol() {
+  const col = document.getElementById('qfDynCol');
+  if (!col) return;
+  const sources = qfBuildSources();
+  let h = '<div class="qf-dyn-label">中国朝代</div>';
+  let firstJp = true;
+  for (const s of sources) {
+    if (s.kind === 'jp' && firstJp) { h += '<div class="qf-dyn-sep"></div><div class="qf-dyn-label">日本时代</div>'; firstJp = false; }
+    const isSel = (s.kind === 'cn') ? selectedChinaFilters.has(s.label) : selectedJapanFilters.has(s.label);
+    const cls = 'qf-dyn-item' + (qfViewingKey === s.key ? ' viewing' : '') + (isSel ? ' selected' : '');
+    h += `<div class="${cls}" data-key="${s.key}" data-kind="${s.kind}" data-label="${s.label}">${toDisplay(s.label)}</div>`;
+  }
+  col.innerHTML = h;
+  // 事件: hover 预览年号, click 选中/取消朝代
+  col.querySelectorAll('.qf-dyn-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      qfViewingKey = el.dataset.key;
+      qfRenderDynCol();
+      qfRenderEraPanel();
+    });
+    el.addEventListener('click', () => {
+      const kind = el.dataset.kind, label = el.dataset.label;
+      if (kind === 'cn') {
+        if (selectedChinaFilters.has(label)) selectedChinaFilters.delete(label);
+        else selectedChinaFilters.add(label);
+      } else {
+        if (selectedJapanFilters.has(label)) selectedJapanFilters.delete(label);
+        else selectedJapanFilters.add(label);
+      }
+      qfRenderDynCol();
+      qfRenderChips();
+      applyFilters();
+    });
+  });
+}
+
+// 渲染浮窗年号面板 (右, 按皇帝分组)
+function qfRenderEraPanel() {
+  const body = document.getElementById('qfEraBody');
+  const empty = document.getElementById('qfEraEmpty');
+  if (!body) return;
+  if (!qfViewingKey) {
+    body.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  const sources = qfBuildSources();
+  const src = sources.find(s => s.key === qfViewingKey);
+  if (!src) { body.innerHTML = ''; return; }
+  const groups = qfGroupByEmperor(src.eras);
+  let h = `<div class="qf-era-label">${toDisplay(src.label)} · 年号（按皇帝分组）</div>`;
+  for (const g of groups) {
+    h += '<div class="qf-emperor">';
+    h += `<div class="qf-emperor-name">${toDisplay(g.title)}${g.given ? `<span class="qf-emperor-given">${toDisplay(g.given)}</span>` : ''}</div>`;
+    h += '<div class="qf-era-tags">';
+    for (const e of g.eras) {
+      const isSel = selectedChinaEras.has(e.name);
+      h += `<span class="qf-era-tag${isSel ? ' selected' : ''}" data-era="${e.name}">${toDisplay(e.name)}</span>`;
+    }
+    h += '</div></div>';
+  }
+  body.innerHTML = h;
+  body.querySelectorAll('.qf-era-tag').forEach(el => {
+    el.addEventListener('click', () => {
+      const era = el.dataset.era;
+      if (selectedChinaEras.has(era)) selectedChinaEras.delete(era);
+      else selectedChinaEras.add(era);
+      qfRenderEraPanel();
+      qfRenderChips();
+      applyFilters();
+    });
+  });
+}
+
+// 渲染选中框 (chips) + 垃圾桶显隐
+function qfRenderChips() {
+  const wrap = document.getElementById('qfChips');
+  const clearBtn = document.getElementById('qfClear');
+  if (!wrap) return;
+  let h = '';
+  // 朝代框 (中国 + 日本, 合并显示, 中国在前)
+  const dynOrder = qfBuildSources().map(s => ({ kind: s.kind, label: s.label }));
+  for (const d of dynOrder) {
+    const sel = (d.kind === 'cn') ? selectedChinaFilters.has(d.label) : selectedJapanFilters.has(d.label);
+    if (!sel) continue;
+    h += `<span class="qf-chip qf-chip-dyn" data-kind="${d.kind}" data-label="${d.label}">${toDisplay(d.label)}<span class="qf-chip-x">×</span></span>`;
+  }
+  // 年号框 (按名称排序展示)
+  const eraArr = [...selectedChinaEras].sort((a, b) => a.localeCompare(b, 'zh'));
+  for (const era of eraArr) {
+    h += `<span class="qf-chip qf-chip-era" data-era="${era}">${toDisplay(era)}<span class="qf-chip-x">×</span></span>`;
+  }
+  wrap.innerHTML = h;
+  const hasAny = selectedChinaFilters.size > 0 || selectedJapanFilters.size > 0 || selectedChinaEras.size > 0;
+  if (clearBtn) clearBtn.style.display = hasAny ? '' : 'none';
+  // 事件
+  wrap.querySelectorAll('.qf-chip-dyn').forEach(el => {
+    el.addEventListener('click', () => {
+      const kind = el.dataset.kind, label = el.dataset.label;
+      if (kind === 'cn') selectedChinaFilters.delete(label); else selectedJapanFilters.delete(label);
+      qfRenderDynCol(); qfRenderChips(); applyFilters();
+    });
+  });
+  wrap.querySelectorAll('.qf-chip-era').forEach(el => {
+    el.addEventListener('click', () => {
+      selectedChinaEras.delete(el.dataset.era);
+      qfRenderEraPanel(); qfRenderChips(); applyFilters();
+    });
+  });
+}
+
+// 清空全部筛选
+function qfClearAll() {
+  selectedChinaFilters.clear();
+  selectedJapanFilters.clear();
+  selectedChinaEras.clear();
+  qfRenderDynCol(); qfRenderEraPanel(); qfRenderChips(); applyFilters();
+}
+
+// 浮窗开关: 点击按钮切换, 点击外部关闭
+function qfInitPanel() {
+  const wrap = document.getElementById('qfWrap');
+  const btn = document.getElementById('qfBtn');
+  const clearBtn = document.getElementById('qfClear');
+  if (!wrap || !btn) return;
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = wrap.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { qfRenderDynCol(); qfRenderEraPanel(); }
+  });
+  if (clearBtn) clearBtn.addEventListener('click', (e) => { e.stopPropagation(); qfClearAll(); });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) {
+      wrap.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  // 浮窗内点击不关闭
+  const panel = document.getElementById('qfPanel');
+  if (panel) panel.addEventListener('click', (e) => e.stopPropagation());
+}
+
+// 兼容旧调用: renderFilterTags / renderEraSubFilters / attachFilterEvents
+// 旧的桌面 filter-bar 已移除, 这些函数转为驱动新浮窗
+function renderFilterTags() {
+  qfRenderDynCol();
+  qfRenderEraPanel();
+  qfRenderChips();
+}
+function renderEraSubFilters() { /* 年号现由浮窗按朝代预览, 无需独立子筛选区 */ }
 function createFilterTag(label, type, isActive) {
   const span = document.createElement('span');
   span.className = `filter-tag ${type}${isActive ? ' active' : ''}`;
-  // 标签显示跟随当前字形, 但 data-value 始终存简体 (用于筛选匹配)
   span.textContent = toDisplay(label);
   span.dataset.type = type;
   span.dataset.value = label;
   return span;
 }
-
 function attachFilterEvents() {
+  // 移动端 filter-tag 仍走旧逻辑 (中国朝代/日本时代/年号)
   document.querySelectorAll('.filter-tag').forEach(tag => {
+    if (tag.dataset.qfBound) return;
+    tag.dataset.qfBound = '1';
     tag.addEventListener('click', function() {
       const type = this.dataset.type;
       const value = this.dataset.value;
-      
       if (type === 'china') {
-        if (selectedChinaFilters.has(value)) {
-          selectedChinaFilters.delete(value);
-        } else {
-          selectedChinaFilters.add(value);
-        }
-        // Clear era sub-filters when dynasty selection changes
-        selectedChinaEras.clear();
+        if (selectedChinaFilters.has(value)) selectedChinaFilters.delete(value);
+        else selectedChinaFilters.add(value);
       } else if (type === 'china-era') {
-        if (selectedChinaEras.has(value)) {
-          selectedChinaEras.delete(value);
-        } else {
-          selectedChinaEras.add(value);
-        }
+        if (selectedChinaEras.has(value)) selectedChinaEras.delete(value);
+        else selectedChinaEras.add(value);
       } else {
-        if (selectedJapanFilters.has(value)) {
-          selectedJapanFilters.delete(value);
-        } else {
-          selectedJapanFilters.add(value);
-        }
+        if (selectedJapanFilters.has(value)) selectedJapanFilters.delete(value);
+        else selectedJapanFilters.add(value);
       }
       renderFilterTags();
       applyFilters();
@@ -4548,15 +4762,29 @@ function init() {
   // 将搜索框的简体 placeholder 存到 data 属性 (供切换用)
   document.getElementById('globalSearch').dataset.placeholderCn = '搜索：公历年份、干支、年号、君主名……';
   
-  // Filter clear
-  document.getElementById('filterClearBtn').addEventListener('click', function() {
-    selectedChinaFilters.clear();
-    selectedChinaEras.clear();
-    selectedJapanFilters.clear();
-    renderFilterTags();
-    applyFilters();
-  });
-  
+  // Filter clear — 桌面 filter-bar 已移除 (V5.1), 改用快捷筛选浮窗的垃圾桶
+  qfInitPanel();
+
+  // 用户菜单（登录下拉）点击展开/收起
+  const userDropdown = document.querySelector('.user-dropdown');
+  if (userDropdown) {
+    const userBtn = userDropdown.querySelector('.user-btn');
+    if (userBtn) {
+      userBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const open = userDropdown.classList.toggle('open');
+        userBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    document.addEventListener('click', function(e) {
+      if (!userDropdown.contains(e.target)) {
+        userDropdown.classList.remove('open');
+        const b = userDropdown.querySelector('.user-btn');
+        if (b) b.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   const filterClearMobile = document.getElementById('filterClearBtnMobile');
   if (filterClearMobile) {
     filterClearMobile.addEventListener('click', function() {

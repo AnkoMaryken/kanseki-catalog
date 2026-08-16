@@ -1,10 +1,19 @@
 import json, re
+import argparse
+from pathlib import Path
 
-with open('D:/WorkBuddy空间/2026-08-01-13-40-21/doc2023_data.json', 'r', encoding='utf-8') as f:
+# 参数化根目录：默认脚本所在目录，可用 --root 覆盖（跨平台迁移用）
+ROOT = Path(__file__).resolve().parent
+_parser = argparse.ArgumentParser(description='构建 catalog_data.js（旧版，v1.4 后走 build_v14.py）')
+_parser.add_argument('--root', default=str(ROOT), help='项目根目录（默认脚本所在目录）')
+_args = _parser.parse_args()
+ROOT = Path(_args.root)
+
+with open(ROOT / 'doc2023_data.json', 'r', encoding='utf-8') as f:
     paras2023 = json.load(f)
-with open('D:/WorkBuddy空间/2026-08-01-13-40-21/doc2025_data.json', 'r', encoding='utf-8') as f:
+with open(ROOT / 'doc2025_data.json', 'r', encoding='utf-8') as f:
     paras2025 = json.load(f)
-with open('D:/WorkBuddy空间/2026-08-01-13-40-21/catalog_data.json', 'r', encoding='utf-8') as f:
+with open(ROOT / 'catalog_data.json', 'r', encoding='utf-8') as f:
     catparas = json.load(f)
 
 def escape_js(s):
@@ -152,7 +161,7 @@ js += ';\nconst DOC2025_FLAT = '
 js += json.dumps([p['text'] for p in paras2025], ensure_ascii=False)
 js += ';\n'
 
-with open('D:/WorkBuddy空间/2026-08-01-13-40-21/catalog_data.js', 'w', encoding='utf-8') as f:
+with open(ROOT / 'catalog_data.js', 'w', encoding='utf-8') as f:
     f.write(js)
 
 print(f'Doc2023: {len(doc2023)} sections')

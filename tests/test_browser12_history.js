@@ -16,6 +16,8 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   await page.goto('http://localhost:8765/index.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(600);
   // 切简体 (默认繁体)
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
   // 清空历史
@@ -74,6 +76,8 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   check('清空历史后浮层消失', activeCount === 0 && hist.length === 0, 'active=' + activeCount + ' hist=' + JSON.stringify(hist));
 
   // 7. 繁体模式下历史标题显示繁体
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   await page.fill('#globalSearch', '明治');

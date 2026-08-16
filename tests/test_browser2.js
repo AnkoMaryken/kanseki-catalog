@@ -25,20 +25,22 @@ const URL = 'http://localhost:8765/index.html';
   };
 
   // 1. 简体搜索建议: 先切到简体, 输入"万"看建议
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(400);
   await page.fill('#globalSearch', '万');
   await page.waitForTimeout(400);
   const suggCount = await page.locator('.search-suggestion-item').count();
   check('搜索建议出现', suggCount > 0, suggCount + ' 条建议');
-  const firstSugg = await page.locator('.search-suggestion-item').first().textContent();
-  check('建议内容含"万历"', firstSugg.includes('万历'), firstSugg.trim());
+  const allSugg = await page.locator('.search-suggestion-item').allTextContents();
+  check('建议含"万历"', allSugg.some(t => t.includes('万历')), allSugg.slice(0, 3).join('|'));
 
   // 2. 繁体输入建议: 输入"萬"看建议
   await page.fill('#globalSearch', '萬');
   await page.waitForTimeout(400);
-  const suggT = await page.locator('.search-suggestion-item').first().textContent();
-  check('繁体建议出现', suggT.includes('万历') || suggT.includes('萬曆'), suggT.trim());
+  const allSuggT = await page.locator('.search-suggestion-item').allTextContents();
+  check('繁体建议含"萬曆"', allSuggT.some(t => t.includes('萬曆')), allSuggT.slice(0, 3).join('|'));
 
   // 3. 干支建议: 输入"癸未"
   await page.fill('#globalSearch', '癸未');
@@ -57,6 +59,8 @@ const URL = 'http://localhost:8765/index.html';
   check('简体复制文本', clipS === '贞观元年（627）', clipS);
 
   // 5. 切繁体后复制
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(400);
   const copyBtnT = page.locator('#tableBody tr:first-child .era-copy-btn').first();
@@ -86,17 +90,49 @@ const URL = 'http://localhost:8765/index.html';
   const clipHY = await page.evaluate(() => navigator.clipboard.readText());
   check('繁体复制"后元"(转後)', clipHY === '後元元年（前163）', clipHY);
 
-  // 8. 繁体模式下筛选标签显示
-  const tagChina = await page.locator('.filter-tag.china').first().textContent();
-  check('繁体筛选标签', tagChina.includes('西'), tagChina);
+  // 8. 繁体模式下快捷筛选 chip 显示 (V5.1 起筛选为浮窗)
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400);
+  await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
+  await page.waitForTimeout(400);
+  const tagChina = await page.locator('.qf-chip-dyn').first().textContent();
+  check('繁体筛选 chip', tagChina.includes('西週'), tagChina);
 
-  // 9. 简体切回后筛选标签恢复
+  // 9. 简体切回后 chip 恢复 (先清空第8步的选中)
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(200);
+  await page.click('#qfClear');
+  await page.waitForTimeout(300);
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(400);
-  const tagChinaS = await page.locator('.filter-tag.china').first().textContent();
-  check('简体筛选标签恢复', tagChinaS === '西周', tagChinaS);
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400);
+  await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
+  await page.waitForTimeout(400);
+  const tagChinaS = await page.locator('.qf-chip-dyn').first().textContent();
+  check('简体筛选 chip 恢复', tagChinaS.includes('西周'), tagChinaS);
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(200);
+  await page.click('#qfClear');
+  await page.waitForTimeout(300);
 
   // 10. 繁体模式下搜索"萬曆"建议与跳转
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   await page.fill('#globalSearch', '萬曆');

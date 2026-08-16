@@ -47,15 +47,32 @@ const URL = 'http://localhost:8765/index.html';
   const eraCellT = await page.locator('#tableBody tr:first-child .era-text').first().textContent();
   check('搜索结果年号繁体"貞觀"', eraCellT.includes('貞觀'), eraCellT);
 
-  // ===== 4. 筛选标签繁体 =====
-  const tagT = await page.locator('.filter-tag.china').first().textContent();
-  check('筛选标签繁体"西週"', tagT === '西週', tagT);
+  // ===== 4. 快捷筛选 chips 繁体 =====
+  // v5.1 起筛选改为浮窗: 打开快捷筛选浮窗选中"西周"朝代, 验证 chip 显示繁体"西週"
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400); // 等浮窗动画完成
+  await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
+  await page.waitForTimeout(400);
+  const tagT = await page.locator('.qf-chip-dyn').first().textContent();
+  check('筛选 chip 繁体"西週"', tagT.includes('西週'), tagT);
+  // 清除筛选, 恢复初始状态
+  await page.click('#qfClear');
+  await page.waitForTimeout(300);
 
   // ===== 5. placeholder 繁体 =====
   const ph = await page.locator('#globalSearch').getAttribute('placeholder');
   check('搜索框 placeholder 繁体', ph.includes('公曆年份') && ph.includes('年號'), ph);
 
   // ===== 6. 复制输出繁体 =====
+  // 先关闭快捷筛选浮窗, 避免遮挡表格复制按钮
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400);
   const copyBtn = page.locator('#tableBody tr:first-child .era-copy-btn').first();
   await copyBtn.click();
   await page.waitForTimeout(300);
@@ -63,14 +80,27 @@ const URL = 'http://localhost:8765/index.html';
   check('默认复制输出繁体', /[\u3400-\u9fff]/.test(clip) && clip.includes('貞觀'), clip);
 
   // ===== 7. 切简体后恢复 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(400);
   const headS = await page.locator('#tableHead th').allTextContents().then(a => a.join('|'));
   check('切简体后表头"中国年号"', headS.includes('中国年号'), headS.substring(0, 60));
-  const tagS = await page.locator('.filter-tag.china').first().textContent();
-  check('切简体后标签"西周"', tagS === '西周', tagS);
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400);
+  await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
+  await page.waitForTimeout(400);
+  const tagS = await page.locator('.qf-chip-dyn').first().textContent();
+  check('切简体后 chip"西周"', tagS.includes('西周'), tagS);
+  await page.click('#qfClear');
+  await page.waitForTimeout(300);
 
   // ===== 8. 再切回繁体 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(400);
   const headT2 = await page.locator('#tableHead th').allTextContents().then(a => a.join('|'));

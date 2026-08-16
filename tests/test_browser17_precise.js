@@ -22,6 +22,8 @@ function check(name, cond, extra) {
 
   await page.goto(BASE, { waitUntil: 'networkidle', timeout: 30000 });
   // 切简体 (默认繁体)
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 
@@ -169,21 +171,39 @@ function check(name, cond, extra) {
   const alertDg = await page.locator('#eraAlert.show').count();
   check('道光无重名不提醒', alertDg === 0, 'count=' + alertDg);
 
-  // ========== 7. 年号子筛选完整性 ==========
+  // ========== 7. 年号子筛选完整性 (V5.1 起为快捷筛选浮窗) ==========
   // 清空搜索词, 关闭建议浮层
   await page.fill('#globalSearch', '');
   await page.press('#globalSearch', 'Enter');
   await page.waitForTimeout(500);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
-  // 选择「唐」后, 年号子筛选应含「贞观」
-  await page.click('#chinaFilterTags .filter-tag[data-value="唐"]');
-  await page.waitForTimeout(800);
-  const hasZhenGuan = await page.locator('#chinaEraTags .filter-tag[data-value="贞观"]').count();
-  check('唐年号子筛选含贞观', hasZhenGuan === 1, 'count=' + hasZhenGuan);
-  // 清空筛选
-  await page.click('#filterClearBtn');
+  // 打开快捷筛选浮窗, hover「唐」→ 年号面板应含「贞观」
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(400);
+  const tangItem = page.locator('.qf-dyn-item[data-label="唐"]');
+  await tangItem.hover();
+  await page.waitForTimeout(500);
+  const eraPanelText = await page.locator('#qfEraBody').textContent();
+  check('唐年号面板含贞观', eraPanelText.includes('贞观'), 'panel=' + eraPanelText.slice(0, 80));
+  // 选中「唐」朝代, chip 出现
+  await tangItem.dispatchEvent('click');
+  await page.waitForTimeout(400);
+  const chipTang = await page.locator('.qf-chip-dyn[data-label="唐"]').count();
+  check('唐朝代 chip 出现', chipTang === 1, 'count=' + chipTang);
+  // 关闭浮窗, 清空筛选
+  await page.evaluate(() => {
+    const w = document.getElementById('qfWrap');
+    if (w.classList.contains('open')) document.getElementById('qfBtn').click();
+  });
+  await page.waitForTimeout(300);
+  await page.click('#qfClear');
   await page.waitForTimeout(600);
+  const chipAfterClear = await page.locator('.qf-chip-dyn').count();
+  check('清除后无 chip', chipAfterClear === 0, 'count=' + chipAfterClear);
 
   // ========== JS 错误检查 ==========
   check('无 JS 错误', errors.length === 0, errors.join(' | ').slice(0, 300));

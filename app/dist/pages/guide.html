@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<title>使用介绍 — 日本汉籍编目工具</title>
+<style>
+:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
+[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+.app-header{background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--color-text);padding:.8rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--color-border-light)}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
+.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:var(--color-bg);font-weight:700}
+.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:var(--color-text);white-space:nowrap}
+.header-nav{display:flex;gap:.25rem;flex-shrink:0}
+.header-nav a{color:var(--color-text-muted);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
+.header-nav a:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.header-nav a.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
+.header-actions{margin-left:auto;display:flex;gap:.5rem}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
+.btn-icon:hover{background:var(--color-surface-hover);color:var(--color-text)}
+
+.page{max-width:880px;margin:0 auto;padding:2rem 1.5rem 3rem;width:100%;flex:1}
+.page-head{margin-bottom:2rem}
+.page-head h2{font-family:var(--font-display);font-size:1.4rem;color:var(--color-primary);margin-bottom:.3rem}
+.page-head p{font-size:.85rem;color:var(--color-text-muted)}
+
+/* 章节卡片 */
+.g-section{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin-bottom:1.4rem;box-shadow:var(--shadow-sm)}
+.g-section .g-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem;padding-bottom:.6rem;border-bottom:1px solid var(--color-divider)}
+.g-section .g-num{width:30px;height:30px;border-radius:50%;background:var(--color-primary);color:var(--color-table-header-text);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:.9rem;flex-shrink:0}
+.g-section .g-title{font-family:var(--font-display);font-size:1.08rem;font-weight:700;color:var(--color-primary)}
+.g-section h4{font-size:.9rem;color:var(--color-accent);margin:1rem 0 .4rem}
+.g-section h4:first-of-type{margin-top:0}
+.g-section p,.g-section li{font-size:.86rem;line-height:1.85;color:var(--color-text)}
+.g-section ul{list-style:none;padding:0}
+.g-section li{padding-left:1.1em;position:relative}
+.g-section li::before{content:'';position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:var(--color-accent)}
+.g-section li + li{margin-top:.15rem}
+.g-section b{color:var(--color-primary)}
+.g-section code,.g-section .kw{background:var(--color-bg-alt);border:1px solid var(--color-border-light);border-radius:4px;padding:.05rem .35rem;font-size:.8rem;color:var(--color-primary-light);font-family:var(--font-mono,'Consolas','Courier New',monospace)}
+.g-section .tip{background:var(--color-highlight);border:1px solid var(--color-border);border-left:3px solid var(--color-accent);border-radius:var(--radius-sm);padding:.5rem .8rem;font-size:.82rem;color:var(--color-text-secondary);margin-top:.6rem}
+.g-section .tip b{color:var(--color-accent)}
+.g-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.g-links a{display:inline-flex;align-items:center;gap:.3rem;font-size:.82rem;color:var(--color-primary-light);text-decoration:none;border:1px solid var(--color-border);border-radius:999px;padding:.28rem .8rem;transition:all var(--transition-fast)}
+.g-links a:hover{background:var(--color-surface-hover);border-color:var(--color-accent);color:var(--color-accent)}
+.g-links a .arrow{font-size:.75rem}
+
+.back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--color-primary-light);text-decoration:none;margin-bottom:1rem}
+.back-link:hover{color:var(--color-accent)}
+
+.app-footer{background:var(--color-bg-alt);border-top:1px solid var(--color-border-light);padding:1rem 0;margin-top:auto}
+.footer-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;text-align:center;font-size:.78rem;color:var(--color-text-muted)}
+
+@media(max-width:768px){
+  .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
+  .page{padding:1.25rem 1rem 2rem}.g-section{padding:1rem 1rem}
+}
+/* v2.2 进入动画 */
+body{transition:background-color .3s ease,color .3s ease}
+.app-header{animation:hdrIn .5s var(--ease-spring)}
+@keyframes hdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.page{animation:pageIn .45s var(--ease-spring) .08s backwards}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* v3.0 导航下拉菜单 (说明文档) */
+.nav-dropdown{position:relative;flex-shrink:0}
+.nav-dropdown-btn{display:inline-flex;align-items:center;gap:.1rem;color:var(--color-text-muted);font-size:.85rem;font-weight:500;font-family:var(--font-body);padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap;border:none;background:none;cursor:pointer}
+.nav-dropdown-btn:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.nav-dropdown-btn.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
+.nav-dropdown-btn svg{transition:transform var(--transition-fast)}
+.nav-dropdown:hover .nav-dropdown-btn svg,.nav-dropdown:focus-within .nav-dropdown-btn svg{transform:rotate(180deg)}
+.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:132px;padding:.3rem;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease-spring),visibility .18s var(--ease-spring),transform .18s var(--ease-spring);z-index:210}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
+.nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
+
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
+    <nav class="header-nav">
+      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" class="active" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">快速跳转</a>
+    </nav>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+  </div>
+</header>
+
+<main class="page">
+  <a href="index.html" class="back-link">← 返回纪年查询</a>
+  <div class="page-head">
+    <h2>使用介绍</h2>
+    <p>本工具各部分功能的详细使用方法，帮助您快速上手。</p>
+  </div>
+
+  <!-- ===== 一、纪年查询 ===== -->
+  <div class="g-section">
+    <div class="g-head"><span class="g-num">一</span><span class="g-title">纪年查询</span></div>
+
+    <h4>如何查询</h4>
+    <p>在顶部搜索框输入关键词后，下方会实时弹出搜索建议，点击建议或按回车即可跳转到对应年份。也支持直接输入后点击「查找」按钮。</p>
+    <p>支持<b>模糊补全</b>：输入「年号 + 片段」时自动联想完整写法，例如输入 <code>同治一</code> 会提示「同治十一年」，输入 <code>明治三</code> 会提示「明治三十一年」「明治三十二年」等全部候选，输入 <code>永乐一</code> 会提示「永乐十一年」「永乐二十一年」。</p>
+
+    <h4>可以查询哪些内容</h4>
+    <ul>
+      <li><b>公历年份</b>：如 <code>1583</code>、<code>前841</code>（公元前年份）。</li>
+      <li><b>干支</b>：如 <code>癸未</code>，会列出所有癸未年。</li>
+      <li><b>中国年号</b>：如 <code>万历</code>、<code>贞观</code>，以及完整写法 <code>万历十一年</code>。</li>
+      <li><b>日本年号</b>：如 <code>明治</code>、<code>贞观</code>（日本亦有贞观年号）、<code>昭和</code>。</li>
+      <li><b>君主名 / 天皇名</b>：如 <code>康熙</code>（皇帝）、<code>后醍醐</code>（后醍醐天皇）。</li>
+      <li><b>年号 + 干支组合</b>：如 <code>万历癸未</code>，可精确定位到 1583 年。</li>
+    </ul>
+
+    <h4>可以输入什么查询</h4>
+    <p>简体、繁体均可输入（如 <code>万历</code> / <code>萬曆</code> 等价），干支、数字、汉字混排均可。默认界面显示为繁体字，可通过右上角「简 / 繁」按钮随时切换显示字形。</p>
+    <p>支持<b>拼音检索</b>：直接输入拼音或首字母缩写即可查询——年号（如 <code>jingtai</code>、<code>jt</code> → 景泰）、年份（如 <code>erlingerliu</code>、<code>ell</code> → 2026 / 2000 年代年份）、干支（如 <code>wuchen</code>、<code>jz</code> → 戊辰年 / 甲子年）均可。</p>
+
+    <h4>搜索历史</h4>
+    <p>点击搜索框（空输入时）可查看最近 10 条搜索历史（保存在本机浏览器），点击历史条目即可回填并重新搜索，右上角「清空」可一键清除。</p>
+
+    <h4>筛选</h4>
+    <p>搜索框下方提供<b>中国朝代</b>（先秦、秦汉、魏晋南北朝、隋唐五代、宋辽金夏、元明清）与<b>日本时代</b>（古代、中世、近世、近现代）的多维筛选，可组合使用，配合搜索精确定位所需年份范围。</p>
+
+    <h4>导出</h4>
+    <p>点击表格上方的「导出 CSV」按钮，可自由勾选导出列（公历年份、干支、中国年号、中国朝代、在位皇帝、日本时代、日本年号、在位天皇、备注、生肖），并选择导出范围（全部筛选结果 / 仅当前页），导出为 CSV 文件。</p>
+
+    <h4>岁时落款常识</h4>
+    <p>页面右下角设有「岁时落款常识」入口（图标为「歲」），点击可打开常识面板，包含：<b>岁时称谓</b>（月份雅称、季令、月令等）、<b>干支与生肖</b>、<b>书画落款规范</b>（落款格式、上浣中浣下浣、印章使用等），方便撰写书画落款时参考。</p>
+
+    <h4>卷数计算器</h4>
+    <p>页面右下角「岁时落款常识」按钮下方设有<b>卷数计算器</b>入口（图标为「卷」），悬停即可展开迷你计算器，支持加减运算与退格、清空，可随时合计丛书卷数，编目时计算卷册更方便。</p>
+  </div>
+
+  <!-- ===== 二、编目细则 ===== -->
+  <div class="g-section">
+    <div class="g-head"><span class="g-num">二</span><span class="g-title">编目细则</span></div>
+
+    <h4>两版细则查阅</h4>
+    <p>「编目规范」页面提供 <b>2023 版</b>与 <b>2025 版</b>两版编目细则，点击页内标签即可切换查看。两版细则均支持<b>全文检索</b>，可在细则正文中快速定位关键词。</p>
+
+    <h4>类目表及介绍</h4>
+    <p>「编目规范」页面还提供<b>四部分类表</b>（经、史、子、集）查询，可按层级展开查看各级类目及其说明文字，辅助编目分类工作。</p>
+
+    <div class="g-links">
+      <a href="catalog.html">前往编目规范页 <span class="arrow">→</span></a>
+    </div>
+  </div>
+
+  <!-- ===== 三、其他说明 ===== -->
+  <div class="g-section">
+    <div class="g-head"><span class="g-num">三</span><span class="g-title">其他说明</span></div>
+
+    <h4>查看更新日志</h4>
+    <p>页面底部设有「更新日志」小按钮，点击可查看历次版本的功能新增、调整与删减记录，了解工具的最新变化。顶部导航的「更新日志」链接亦可直达。</p>
+
+    <h4>界面与显示</h4>
+    <ul>
+      <li><b>简 / 繁切换</b>：右上角按钮切换全站显示字形，表头、数据、筛选标签、搜索建议、导出内容均跟随。</li>
+      <li><b>明暗主题</b>：右上角「☀ / ☾」按钮切换浅色与深色主题，偏好会保存。</li>
+      <li><b>快捷键</b>：在纪年查询页按 <code>Ctrl+K</code> 可快速聚焦搜索框。</li>
+    </ul>
+
+    <div class="tip"><b>提示：</b>本工具为学术参考用途，数据覆盖中国（前 841 年 — 1912 年）与日本（645 年 — 2026 年）的朝代、年号、君主、干支、生肖等纪年信息。</div>
+
+    <div class="g-links">
+      <a href="changelog.html">查看更新日志 <span class="arrow">→</span></a>
+    </div>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">日本汉籍编目工具 · 学术参考工具</div>
+</footer>
+
+<script>
+(function(){
+  function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
+  initTheme();
+  var tb=document.getElementById('themeToggle');
+  tb.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☾':'☀';
+  tb.addEventListener('click',function(){
+    var c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);
+    tb.textContent=n==='dark'?'☾':'☀';
+  });
+})();
+</script>
+</body>
+</html>

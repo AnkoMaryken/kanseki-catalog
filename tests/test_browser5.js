@@ -22,6 +22,8 @@ const URL = 'http://localhost:8765/index.html';
   await page.goto(URL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(600);
   // 切简体方便断言
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
 
@@ -69,12 +71,16 @@ const URL = 'http://localhost:8765/index.html';
   check('结果含"明治三十五年"', allText.includes('明治三十五年'), allText.slice(0, 120));
 
   // ===== 5. 繁体模式下模糊建议仍显示繁体 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   sug = await getSuggestions('同治一');
   check('繁体建议含"同治十一年"', sug.some(s => s.includes('同治十一年')), JSON.stringify(sug));
 
   // ===== 6. 点击建议跳转 =====
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS');
   await page.waitForTimeout(300);
   await page.fill('#globalSearch', '同治戊');

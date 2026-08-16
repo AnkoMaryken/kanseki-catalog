@@ -16,6 +16,8 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
 
   await page.goto('http://localhost:8765/index.html', { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(600);
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnS'); // 简体
   await page.waitForTimeout(300);
 
@@ -72,6 +74,8 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   check('点击干支建议后跳转 (有年份显示元素)', yearBadge >= 0, 'badgeCount=' + yearBadge);
 
   // 9. 繁体兼容: 切繁体后干支拼音仍可用
+  await page.click('.user-btn svg');
+  await page.waitForTimeout(200);
   await page.click('#langBtnT');
   await page.waitForTimeout(300);
   s = await getSuggestions('wuchen');

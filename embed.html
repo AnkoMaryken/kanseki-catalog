@@ -40,6 +40,10 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
 .nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.user-dropdown{position:relative}
+.user-btn{display:inline-flex;align-items:center}
+.user-login-link{color:inherit;text-decoration:none}
+.user-menu{right:0;left:auto;min-width:120px}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
 
 /* ===== 快速跳转页 ===== */
@@ -132,7 +136,16 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
     <nav class="header-nav">
       <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="embed.html" class="active">快速跳转</a>
     </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
+          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <a href="login.html" role="menuitem">登录</a>
+          <a href="signup.html" role="menuitem">注册</a>
+        </div>
+      </div></div>
   </div>
 </header>
 

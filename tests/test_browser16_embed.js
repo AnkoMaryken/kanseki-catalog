@@ -144,8 +144,8 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   await page.click('#themeToggle');
   await page.screenshot({ path: '.workbuddy/v41_quickjump.png' });
 
-  // 19. 四页导航「快速跳转」入口回归
-  for (const [file, label] of [['index.html', '快速跳转'], ['catalog.html', '快速跳轉'], ['guide.html', '快速跳转'], ['changelog.html', '快速跳转']]) {
+  // 19. 四页导航「快速跳转」入口回归 (V5.1 起全简体)
+  for (const [file, label] of [['index.html', '快速跳转'], ['catalog.html', '快速跳转'], ['guide.html', '快速跳转'], ['changelog.html', '快速跳转']]) {
     await page.goto('http://localhost:8765/' + file, { waitUntil: 'networkidle', timeout: 30000 });
     await page.waitForTimeout(600);
     const has = await page.locator('.header-nav a[href="embed.html"]').count();
