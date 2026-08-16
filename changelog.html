@@ -112,6 +112,18 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v6.4</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员角色判断增强（适配线上部署）</b>：管理员判定改为「用户角色优先 + 白名单兜底」——支持 user_metadata.role / app_metadata.role（'admin'/'administrator' 或布尔值），不再依赖本地白名单文件。线上部署无需 admin-config.js 即可用：在 Supabase Dashboard 给管理员用户设置 role='admin' 即生效。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v6.3</span>
       <span class="cl-date">2026-08-16</span>
       <span class="cl-tag t-new">新增</span>

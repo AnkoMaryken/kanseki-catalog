@@ -237,10 +237,12 @@ tr:hover td { background: var(--color-surface-hover); }
   });
 })();
 
-// ===== 管理员凭据 (V6.3) =====
-// 方案A (V6.3): 真实模式(Supabase 已配置)下管理员用邮箱+密码登录,
-//   经 SupabaseAuth.signIn 校验, 并在白名单/角色检查后放行。
-//   白名单: window.ADMIN_CONFIG.emails (数组), 或用户 metadata.role === 'admin'
+// ===== 管理员凭据 (V6.4) =====
+// 方案A (V6.4): 真实模式(Supabase 已配置)下管理员用邮箱+密码登录,
+//   经 SupabaseAuth.signIn 校验, 并检查用户角色:
+//     1. user_metadata.role === 'admin' (Supabase 用户元数据, 推荐, 无需前端配置)
+//     2. app_metadata.role === 'admin'  (应用元数据)
+//     3. window.ADMIN_CONFIG.emails 白名单 (可选本地补充, 大小写/空格不敏感)
 // 演示模式(Supabase 未配置): 保留本地 admin/admin123 回退, 便于本地预览与测试。
 var ADMIN_CRED = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.username) || 'admin';
 var ADMIN_PASS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.password) || 'admin123';
@@ -248,8 +250,16 @@ var ADMIN_DISPLAY = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.displayName) || 
 var ADMIN_EMAILS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.emails) || [];
 var SESSION_KEY = 'kanseki_admin_session';
 
-// 真实模式下是否允许该邮箱进入工作台
-// 动态读取 window.ADMIN_CONFIG.emails, 便于部署时注入与测试时覆盖
+// 检查用户是否具备管理员角色
+function isAdminRole(meta) {
+  if (!meta) return false;
+  var r = meta.role;
+  if (typeof r === 'string') return r === 'admin' || r === 'administrator';
+  if (typeof r === 'boolean') return r === true;
+  return false;
+}
+
+// 白名单校验 (可选补充; 无白名单时返回 null 表示"未配置", 由角色判断兜底)
 function isAdminEmail(email) {
   if (!email) return false;
   var e = String(email).toLowerCase();
@@ -257,9 +267,9 @@ function isAdminEmail(email) {
   if (list && list.length) {
     return list.some(function(x) { return String(x).trim().toLowerCase() === e; });
   }
-  return false; // 未配置白名单时, 真实模式需 admin 角色或白名单, 不默认放行
+  return false;
 }
-// 暴露便于调试与测试 (仅读函数, 无安全风险)
+// 暴露便于调试与测试 (只读函数, 无安全风险)
 window.isAdminEmail = isAdminEmail;
 
 // 会话: 存储 { user, email, exp } (24 小时有效)
@@ -416,12 +426,14 @@ gateForm.addEventListener('submit', async function(e) {
       const user = data && (data.session ? data.session.user : data.user);
       if (!user) throw new Error('登录失败，请重试');
       const email = (user.email || '').toLowerCase();
-      const meta = (user.user_metadata || {});
-      const isAdmin = isAdminEmail(email) || meta.role === 'admin' || meta.is_admin === true;
+      const um = (user.user_metadata || {});
+      const am = (user.app_metadata || {});
+      // 角色判断: user_metadata 优先, 其次 app_metadata, 最后白名单兜底
+      const isAdmin = isAdminRole(um) || isAdminRole(am) || isAdminEmail(email);
       if (!isAdmin) {
         throw new Error('该账号无管理员权限');
       }
-      const displayName = meta.name || meta.full_name || email;
+      const displayName = um.name || um.full_name || am.name || email;
       saveSession({ user: displayName, email: email });
       enterDash({ user: displayName, email: email });
       return;
