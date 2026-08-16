@@ -1,19 +1,24 @@
 /* ================================================
- * supabase-config.js — Supabase 接入配置 (V6.0)
+ * supabase-config.js — Supabase 接入配置 (V6.2)
  * -------------------------------------------------
  * 安全设计：
  *   1. 凭据不写死在本文件。优先读取 window.SUPABASE_CONFIG（由部署方在
- *      HTML 中注入），其次读取全局占位符（由 CI/构建替换）。
+ *      HTML 中注入），其次读取下方占位符（由 CI/构建替换）。
  *   2. 未配置凭据时自动进入「演示模式」：登录/注册仅做前端校验并模拟
  *      成功，不发起网络请求，方便本地开发与预览。
  *   3. 配置完成后，替换占位符或注入 SUPABASE_CONFIG 即自动切换真实模式。
+ * -------------------------------------------------
+ * 已配置 (V6.2, 2026-08-16):
+ *   Project URL: https://ndogqsjmkoeecoekmhod.supabase.co
+ *   anon key:    用户提供, 已填入 PLACEHOLDER_ANON
+ * 注意: 只使用 anon/publishable key; 严禁使用 service_role key!
  * ================================================ */
 (function () {
   'use strict';
 
   // 部署时替换以下占位符，或在使用前注入 window.SUPABASE_CONFIG
-  var PLACEHOLDER_URL = 'https://YOUR-PROJECT.supabase.co';
-  var PLACEHOLDER_ANON = 'YOUR-ANON-KEY';
+  var PLACEHOLDER_URL = 'https://ndogqsjmkoeecoekmhod.supabase.co';
+  var PLACEHOLDER_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kb2dxc2pta29lZWNvZWttaG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MzA4MDIsImV4cCI6MjEwMjQwNjgwMn0.bvN7UYSc9O9B-A6A2d4mLXsunhlZr4lPDi-a3yJDRkc';
 
   function isPlaceholder(v) {
     return !v || v.indexOf('YOUR-') === 0 || v.indexOf('your-') === 0;
