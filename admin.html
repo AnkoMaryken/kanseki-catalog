@@ -213,11 +213,12 @@ tr:hover td { background: var(--color-surface-hover); }
   </div>
 
   <div class="dash-footer">
-    <span>Juvenile 管理员工作台 · V6.0</span>
+    <span>Juvenile 管理员工作台 · V6.3</span>
     <span><a href="index.html">返回纪年查询</a> · <a href="changelog.html">更新日志</a></span>
   </div>
 </div>
 
+<script src="supabase-config.js"></script>
 <script>
 // 深浅主题 (全站统一 theme 键)
 (function() {
@@ -235,19 +236,35 @@ tr:hover td { background: var(--color-surface-hover); }
   });
 })();
 
-// ===== 管理员凭据 (V6.1) =====
-// 安全: 凭据不写死于此文件。部署时通过 window.ADMIN_CONFIG 注入
-// (例如在 admin.html 中该脚本之前用 SCRIPT 标签设置该对象)。
-// 未注入时使用内置回退值(仅本地预览用), 公开部署务必注入真实凭据。
+// ===== 管理员凭据 (V6.3) =====
+// 方案A (V6.3): 真实模式(Supabase 已配置)下管理员用邮箱+密码登录,
+//   经 SupabaseAuth.signIn 校验, 并在白名单/角色检查后放行。
+//   白名单: window.ADMIN_CONFIG.emails (数组), 或用户 metadata.role === 'admin'
+// 演示模式(Supabase 未配置): 保留本地 admin/admin123 回退, 便于本地预览与测试。
 var ADMIN_CRED = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.username) || 'admin';
 var ADMIN_PASS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.password) || 'admin123';
 var ADMIN_DISPLAY = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.displayName) || '站点管理员';
+var ADMIN_EMAILS = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.emails) || [];
 var SESSION_KEY = 'kanseki_admin_session';
 
-// 会话: 存储 { user, exp } (24 小时有效)
-function saveSession() {
-  var s = { user: ADMIN_DISPLAY, exp: Date.now() + 24 * 3600 * 1000 };
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+// 真实模式下是否允许该邮箱进入工作台
+// 动态读取 window.ADMIN_CONFIG.emails, 便于部署时注入与测试时覆盖
+function isAdminEmail(email) {
+  if (!email) return false;
+  var e = String(email).toLowerCase();
+  var list = (window.ADMIN_CONFIG && window.ADMIN_CONFIG.emails) || ADMIN_EMAILS || [];
+  if (list && list.length) {
+    return list.some(function(x) { return String(x).trim().toLowerCase() === e; });
+  }
+  return false; // 未配置白名单时, 真实模式需 admin 角色或白名单, 不默认放行
+}
+// 暴露便于调试与测试 (仅读函数, 无安全风险)
+window.isAdminEmail = isAdminEmail;
+
+// 会话: 存储 { user, email, exp } (24 小时有效)
+function saveSession(s) {
+  var rec = { user: s.user, email: s.email || '', exp: Date.now() + 24 * 3600 * 1000 };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(rec)); } catch (e) {}
 }
 function loadSession() {
   try {
@@ -375,24 +392,58 @@ if (existing) {
   enterDash(existing);
 } else {
   // 登录页提示 (不暴露任何账号信息)
-  gateHint.textContent = '请使用管理员账号登录';
+  gateHint.textContent = (window.SupabaseAuth && window.SupabaseAuth.isConfigured && window.SupabaseAuth.isConfigured())
+    ? '请使用管理员邮箱登录（Supabase 认证）'
+    : '请使用管理员账号登录';
 }
 
-gateForm.addEventListener('submit', function(e) {
+gateForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   hideGateErr();
   const u = document.getElementById('adminUser').value.trim();
   const p = document.getElementById('adminPass').value;
   if (!u || !p) { showGateErr('请输入账号和密码'); return; }
-  if (u === ADMIN_CRED && p === ADMIN_PASS) {
-    saveSession();
-    enterDash({ user: ADMIN_DISPLAY });
-  } else {
-    showGateErr('账号或密码错误');
+
+  const realMode = window.SupabaseAuth && window.SupabaseAuth.isConfigured && window.SupabaseAuth.isConfigured();
+  gateBtn.disabled = true;
+  gateBtn.textContent = '验证中…';
+  try {
+    if (realMode) {
+      // 方案A: Supabase 邮箱+密码登录 → 角色/白名单校验
+      const { data, error } = await window.SupabaseAuth.signIn(u, p);
+      if (error) throw new Error(error.message || '登录失败');
+      const user = data && (data.session ? data.session.user : data.user);
+      if (!user) throw new Error('登录失败，请重试');
+      const email = (user.email || '').toLowerCase();
+      const meta = (user.user_metadata || {});
+      const isAdmin = isAdminEmail(email) || meta.role === 'admin' || meta.is_admin === true;
+      if (!isAdmin) {
+        throw new Error('该账号无管理员权限');
+      }
+      const displayName = meta.name || meta.full_name || email;
+      saveSession({ user: displayName, email: email });
+      enterDash({ user: displayName, email: email });
+      return;
+    }
+    // 演示模式: 本地校验
+    if (u === ADMIN_CRED && p === ADMIN_PASS) {
+      saveSession({ user: ADMIN_DISPLAY, email: '' });
+      enterDash({ user: ADMIN_DISPLAY, email: '' });
+    } else {
+      showGateErr('账号或密码错误');
+    }
+  } catch (err) {
+    showGateErr(err.message || '登录失败');
+  } finally {
+    gateBtn.disabled = false;
+    gateBtn.textContent = '进入工作台';
   }
 });
 
 document.getElementById('logoutBtn').addEventListener('click', function() {
+  if (window.SupabaseAuth && window.SupabaseAuth.signOut) {
+    window.SupabaseAuth.signOut().catch(function() {});
+  }
   clearSession();
   location.reload();
 });

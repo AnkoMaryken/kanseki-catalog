@@ -112,6 +112,18 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v6.3</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员登录升级为 Supabase 认证（方案A）</b>：管理员工作台登录改用 Supabase 邮箱+密码认证，登录后校验邮箱是否在管理员白名单（window.ADMIN_CONFIG.emails）或用户角色为 admin；非管理员账号登录会被拒绝并提示「该账号无管理员权限」。会话信息（含邮箱）24 小时有效。未配置 Supabase 时保留本地演示登录。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v6.2</span>
       <span class="cl-date">2026-08-16</span>
       <span class="cl-tag t-new">新增</span>

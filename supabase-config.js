@@ -25,11 +25,13 @@
   }
 
   // 读取顺序: window.SUPABASE_CONFIG > 占位符
+  // 强制演示模式开关: window.SUPABASE_DEMO = true 时即使填了凭据也走演示模式
+  var forceDemo = (typeof window !== 'undefined' && window.SUPABASE_DEMO === true);
   var cfg = (typeof window !== 'undefined' && window.SUPABASE_CONFIG) || {};
   var url = cfg.url || PLACEHOLDER_URL;
   var anonKey = cfg.anonKey || cfg.anon_key || PLACEHOLDER_ANON;
 
-  var CONFIGURED = !isPlaceholder(url) && !isPlaceholder(anonKey);
+  var CONFIGURED = !forceDemo && !isPlaceholder(url) && !isPlaceholder(anonKey);
 
   window.SUPABASE_READY = CONFIGURED;
 

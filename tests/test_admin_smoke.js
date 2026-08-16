@@ -1,6 +1,8 @@
 // ================================================
-// tests/test_admin_smoke.js — V6.0 管理员工作台冒烟测试
+// tests/test_admin_smoke.js — V6.3 管理员工作台冒烟测试
 // 验证: 登录门禁 / 错误密码 / 工作台统计 / 主题同步 / 数据分布
+// 说明: 通过 addInitScript 注入 SUPABASE_CONFIG=null 强制演示模式,
+//       使本地 admin/admin123 校验可用, 与真实 Supabase 解耦(稳定可复现)。
 // ================================================
 const { CHROME_PATH, PORT, playwrightCorePath } = require('./helpers/config');
 const { chromium } = require(playwrightCorePath());
@@ -19,6 +21,8 @@ function ok(name, cond, extra = '') {
     args: ['--no-sandbox', '--disable-gpu']
   });
   const ctx = await browser.newContext();
+  // 强制演示模式: 即使已配置真实 Supabase 凭据, 测试也用本地 admin/admin123 校验
+  await ctx.addInitScript(() => { window.SUPABASE_DEMO = true; });
   const page = await ctx.newPage();
   page.setDefaultTimeout(8000);
 
