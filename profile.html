@@ -263,6 +263,85 @@ body {
 .guest-btn { color: var(--color-text); font-weight: 600; }
 /* 隐藏的文件输入 */
 .hidden-input { display: none; }
+/* 头像裁剪弹窗 */
+.crop-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+.crop-overlay.show { display: flex; }
+.crop-modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.25rem 1.1rem;
+  box-shadow: 0 8px 30px var(--color-shadow);
+}
+.crop-modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+.crop-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #0a0a0a;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.crop-img {
+  position: absolute;
+  left: 0; top: 0;
+  cursor: grab;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.crop-img.dragging { cursor: grabbing; }
+.crop-mask {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 34%, rgba(0,0,0,0.55) 35%);
+  pointer-events: none;
+}
+.crop-ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 70%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,0.9);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+}
+.crop-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.crop-controls input[type="range"] {
+  flex: 1;
+  accent-color: var(--color-accent);
+}
+.crop-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.crop-actions .btn { flex: 1; justify-content: center; }
 </style>
 </head>
 <body>
@@ -336,6 +415,27 @@ body {
   </div>
 </div>
 
+<!-- 头像裁剪弹窗 -->
+<div class="crop-overlay" id="cropOverlay" role="dialog" aria-modal="true" aria-label="裁剪头像">
+  <div class="crop-modal">
+    <div class="crop-modal-title">拖动 / 缩放，裁剪头像</div>
+    <div class="crop-stage" id="cropStage">
+      <img class="crop-img" id="cropImg" alt="待裁剪图片">
+      <div class="crop-ring"></div>
+      <div class="crop-mask"></div>
+    </div>
+    <div class="crop-controls">
+      <button class="btn btn-sm" id="cropZoomOutBtn" type="button" aria-label="缩小">−</button>
+      <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" aria-label="缩放">
+      <button class="btn btn-sm" id="cropZoomInBtn" type="button" aria-label="放大">＋</button>
+    </div>
+    <div class="crop-actions">
+      <button class="btn" id="cropCancelBtn" type="button">取消</button>
+      <button class="btn btn-primary" id="cropConfirmBtn" type="button">确定</button>
+    </div>
+  </div>
+</div>
+
 <script src="supabase-config.js"></script>
 <script src="user-state.js"></script>
 <script>
@@ -401,7 +501,62 @@ body {
     }
   }
 
-  // 文件上传 → base64
+  // ===== 头像裁剪 (选图 → 裁剪 → 保存) =====
+  const cropOverlay = document.getElementById('cropOverlay');
+  const cropStage = document.getElementById('cropStage');
+  const cropImg = document.getElementById('cropImg');
+  const cropZoom = document.getElementById('cropZoom');
+  let cropState = null; // { imgW, imgH, scale, tx, ty }
+
+  function openCrop(dataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      cropImg.src = dataUrl;
+      // 初始缩放: 铺满圆形区域 (直径 = 70% 容器宽), 留出拖拽余量
+      const stageW = cropStage.clientWidth;
+      const diameter = stageW * 0.7;
+      const baseScale = Math.max(diameter / img.naturalWidth, diameter / img.naturalHeight) * 1.25;
+      cropState = { imgW: img.naturalWidth, imgH: img.naturalHeight, scale: baseScale, tx: (stageW - img.naturalWidth * baseScale) / 2, ty: (stageW - img.naturalHeight * baseScale) / 2 };
+      applyCropTransform();
+      cropZoom.value = 1;
+      cropOverlay.classList.add('show');
+    };
+    img.onerror = () => showError('图片加载失败');
+    img.src = dataUrl;
+  }
+
+  function applyCropTransform() {
+    if (!cropState) return;
+    cropImg.style.width = cropState.imgW + 'px';
+    cropImg.style.height = cropState.imgH + 'px';
+    cropImg.style.transform = `translate(${cropState.tx}px, ${cropState.ty}px) scale(${cropState.scale})`;
+  }
+
+  function closeCrop() {
+    cropOverlay.classList.remove('show');
+    cropState = null;
+  }
+
+  // 确定: 按圆形区域裁剪输出
+  function confirmCrop() {
+    if (!cropState) return;
+    const stageW = cropStage.clientWidth;
+    const diameter = stageW * 0.7;
+    const srcX = (-cropState.tx) / cropState.scale;
+    const srcY = (-cropState.ty) / cropState.scale;
+    const srcSize = diameter / cropState.scale;
+    const out = document.createElement('canvas');
+    const OUT = 256;
+    out.width = OUT; out.height = OUT;
+    const c = out.getContext('2d');
+    c.drawImage(cropImg, srcX, srcY, srcSize, srcSize, 0, 0, OUT, OUT);
+    const dataUrl = out.toDataURL('image/png');
+    us.setAvatarData({ type: 'img', data: dataUrl });
+    renderPreview();
+    closeCrop();
+    showSuccess('头像已更新');
+  }
+
   document.getElementById('uploadAvatarBtn').addEventListener('click', () => {
     document.getElementById('avatarFileInput').click();
   });
@@ -409,17 +564,66 @@ body {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { showError('请选择图片文件'); return; }
-    if (file.size > 2 * 1024 * 1024) { showError('图片不能超过 2MB'); return; }
+    if (file.size > 5 * 1024 * 1024) { showError('图片不能超过 5MB'); return; }
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      us.setAvatarData({ type: 'img', data: ev.target.result });
-      renderPreview();
-      showSuccess('头像已更新');
-    };
+    reader.onload = (ev) => { openCrop(ev.target.result); };
     reader.onerror = () => showError('读取图片失败');
     reader.readAsDataURL(file);
     e.target.value = '';
   });
+
+  // 拖拽移动
+  let drag = null;
+  cropStage.addEventListener('mousedown', (e) => {
+    if (!cropState) return;
+    drag = { sx: e.clientX, sy: e.clientY, tx: cropState.tx, ty: cropState.ty };
+    cropImg.classList.add('dragging');
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!drag || !cropState) return;
+    cropState.tx = drag.tx + (e.clientX - drag.sx);
+    cropState.ty = drag.ty + (e.clientY - drag.sy);
+    applyCropTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    drag = null;
+    cropImg.classList.remove('dragging');
+  });
+  // 触摸支持
+  cropStage.addEventListener('touchstart', (e) => {
+    if (!cropState || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    drag = { sx: t.clientX, sy: t.clientY, tx: cropState.tx, ty: cropState.ty };
+    e.preventDefault();
+  }, { passive: false });
+  cropStage.addEventListener('touchmove', (e) => {
+    if (!drag || !cropState || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    cropState.tx = drag.tx + (t.clientX - drag.sx);
+    cropState.ty = drag.ty + (t.clientY - drag.sy);
+    applyCropTransform();
+    e.preventDefault();
+  }, { passive: false });
+  cropStage.addEventListener('touchend', () => { drag = null; }, { passive: true });
+
+  // 缩放
+  cropZoom.addEventListener('input', () => {
+    if (!cropState) return;
+    const stageW = cropStage.clientWidth;
+    const diameter = stageW * 0.7;
+    const minScale = diameter / Math.max(cropState.imgW, cropState.imgH);
+    const zoom = parseFloat(cropZoom.value) || 1;
+    cropState.scale = minScale * zoom;
+    applyCropTransform();
+  });
+  document.getElementById('cropZoomInBtn').addEventListener('click', () => { cropZoom.value = Math.min(4, parseFloat(cropZoom.value) + 0.2); cropZoom.dispatchEvent(new Event('input')); });
+  document.getElementById('cropZoomOutBtn').addEventListener('click', () => { cropZoom.value = Math.max(1, parseFloat(cropZoom.value) - 0.2); cropZoom.dispatchEvent(new Event('input')); });
+
+  document.getElementById('cropConfirmBtn').addEventListener('click', confirmCrop);
+  document.getElementById('cropCancelBtn').addEventListener('click', closeCrop);
+  cropOverlay.addEventListener('click', (e) => { if (e.target === cropOverlay) closeCrop(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cropOverlay.classList.contains('show')) closeCrop(); });
 
   // 颜色+文字
   document.getElementById('pickColorBtn').addEventListener('click', () => {
