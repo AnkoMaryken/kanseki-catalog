@@ -112,6 +112,21 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v7.0</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>个人中心页（新）</b>：新增 profile.html 个人中心——头像自定义（上传图片 / 颜色+文字 / 恢复默认）、昵称编辑、邮箱展示、退出登录；未登录访问自动跳转登录页。头像与昵称保存在浏览器本地（kanseki_profile），仅登录后可见。</li>
+      <li><b>表头登录区改为头像+昵称</b>：登录后五页（纪年查询/使用介绍/编目规范/更新日志/快速跳转）右上角「登录」替换为头像+昵称下拉，内含「个人中心」「退出登录」（纪年查询页保留显示字形切换）；未登录仍显示「登录」。用户登录后不再「感觉跟没登录一样」。</li>
+      <li><b>登录后状态同步</b>：登录成功即写入本地用户信息（邮箱/昵称），全站各页刷新即显示头像；昵称、头像修改后全站同步生效。</li>
+      <li><b>头像方案</b>：优先用户自定义（图片 base64 或颜色+文字），未设置时按邮箱哈希自动生成彩色首字母头像。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v6.4</span>
       <span class="cl-date">2026-08-16</span>
       <span class="cl-tag t-new">新增</span>
@@ -515,5 +530,6 @@ body{transition:background-color .3s ease,color .3s ease}
   });
 })();
 </script>
+<script src="user-state.js"></script>
 </body>
 </html>

@@ -332,9 +332,11 @@ form.addEventListener('submit', async (e) => {
     // 登录成功
     const session = data && data.session;
     if (session && session.user) {
-      try { localStorage.setItem('kanseki_user', JSON.stringify({ email: session.user.email, id: session.user.id })); } catch (err) {}
+      const um = (session.user.user_metadata || {});
+      try { localStorage.setItem('kanseki_user', JSON.stringify({ email: session.user.email, id: session.user.id, name: um.name || um.full_name || '' })); } catch (err) {}
     } else if (data && data.user) {
-      try { localStorage.setItem('kanseki_user', JSON.stringify({ email: data.user.email })); } catch (err) {}
+      const um = (data.user.user_metadata || {});
+      try { localStorage.setItem('kanseki_user', JSON.stringify({ email: data.user.email, name: um.name || um.full_name || '' })); } catch (err) {}
     }
     location.href = 'index.html';
   } catch (err) {
