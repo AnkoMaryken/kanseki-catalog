@@ -338,9 +338,9 @@ form.addEventListener('submit', async (e) => {
   try {
     const { data, error } = await window.SupabaseAuth.signUp(email, password, name);
     if (error) throw new Error(error.message || '注册失败');
-    // 注册成功 (演示模式直接进主页; 真实模式若需邮箱验证则提示)
+    // 注册成功 (V8.1: 已写入本地账号兜底, 真实模式若返回无 session 可能是邮箱验证, 但本地账号已可用)
     if (window.SupabaseAuth.isConfigured() && data && data.user && !data.session) {
-      showError('注册成功！请前往邮箱完成验证后登录。');
+      showError('注册成功！已保存本地账号，可直接返回登录页登录（无需等待邮箱验证）。');
       signupBtn.disabled = false;
       signupBtn.textContent = '创建账号';
       return;

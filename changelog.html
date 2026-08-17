@@ -112,6 +112,20 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v8.1</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-fix">修复</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>修复登录后重新进入「登录信息/头像丢失」问题</b>：根因是 Supabase 默认开启邮箱验证，未验证账号登录返回 400「账号或密码错误」，登录从未成功、浏览器自然不保存登录态（头像其实一直在，只是登不进去看不到）。现新增<b>本地账号兜底</b>——注册时同步在浏览器本地保存账号（密码仅存 SHA-256 哈希），真实模式登录失败时自动回退本地账号校验，<b>同一浏览器内注册的账号无需邮箱验证即可登录</b>，登录态与头像可持久保留。</li>
+      <li><b>登录/注册页体验优化</b>：注册成功但 Supabase 需邮箱验证时，明确提示「已保存本地账号，可直接登录」；登录失败时根据是否存在本地账号给出针对性提示。</li>
+      <li><b>说明</b>：登录数据保存在浏览器 localStorage，按「源」隔离（localhost 与 127.0.0.1 互不可见属正常）；清理浏览器数据/无痕模式会清除本地账号，跨设备登录仍需 Supabase 账号（建议完成邮箱验证）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v8.0</span>
       <span class="cl-date">2026-08-17</span>
       <span class="cl-tag t-new">新增</span>
