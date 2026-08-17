@@ -50,19 +50,27 @@ def main() -> int:
     cn = extract_array(html, 'const CN_DYNASTIES')
     jp = extract_array(html, 'const JP_PERIODS')
 
+    # V8.0: 周边政权 (OTHER_STATES) 一并提取
+    ot_part = ''
+    if 'const OTHER_STATES' in html:
+        ot = extract_array(html, 'const OTHER_STATES')
+        ot_part = '\nconst OTHER_STATES = ' + ot + ';\n'
+
     # 与 index.html 中定义方式一致：const 声明
     out = (
         '// ================================================\n'
         '// site-data.js — 管理员工作台数据源 (由 build_admin_data.py 生成)\n'
-        '// 数据提取自 index.html (CN_DYNASTIES / JP_PERIODS)，勿手工修改。\n'
+        '// 数据提取自 index.html (CN_DYNASTIES / JP_PERIODS / OTHER_STATES)，勿手工修改。\n'
         '// ================================================\n'
         'const CN_DYNASTIES = ' + cn + ';\n\n'
-        'const JP_PERIODS = ' + jp + ';\n'
+        'const JP_PERIODS = ' + jp + ';' + ot_part + '\n'
     )
     OUT.write_text(out, encoding='utf-8')
     print(f'OK: {OUT.name} ({OUT.stat().st_size} bytes)')
     print(f'  CN_DYNASTIES 数组字符数: {len(cn)}')
     print(f'  JP_PERIODS  数组字符数: {len(jp)}')
+    if ot_part:
+        print(f'  OTHER_STATES 数组字符数: {len(ot_part)}')
     return 0
 
 

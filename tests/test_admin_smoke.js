@@ -63,6 +63,10 @@ function ok(name, cond, extra = '') {
   const perTop = await page.textContent('#perTop');
   ok('中国朝代分布已渲染', dynTop.includes('年号') && dynTop.includes('西周'), dynTop.slice(0, 60));
   ok('日本时代分布已渲染', perTop.includes('年号') && perTop.includes('飞鸟'), perTop.slice(0, 60));
+  ok('周边政权分布已渲染', perTop.includes('周边') && perTop.includes('大理'), perTop.slice(0, 120));
+  ok('其他朝代 metric 标签', (await page.textContent('body')).includes('其他朝代'), 'metric 与面板标题');
+  const mPeriodSub = await page.textContent('#mPeriodSub');
+  ok('周边政权数在 metric-sub', /日本 \d+ 时代 \+ 周边 \d+ 政权/.test(mPeriodSub), mPeriodSub);
 
   console.log('\n[4] 主题同步 (admin 页切深色 → index 页保持深色)');
   // admin 页当前主题
@@ -90,7 +94,9 @@ function ok(name, cond, extra = '') {
   await page.waitForSelector('#gateForm');
   ok('退出登录回到门', await page.isVisible('#gate'));
 
-  await browser.close();
+  // 结果行先输出（console.log 后再关浏览器，避免 stdout 缓冲丢失）
   console.log(`\n==== 冒烟测试结果: ${passed} 通过, ${failed} 失败 ====`);
+  try { await browser.close(); } catch (e) {}
+  // 强制同步退出：避免 playwright 内部句柄产生的 unhandled rejection 覆盖退出码
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error('ERROR:', e.message); process.exit(1); });

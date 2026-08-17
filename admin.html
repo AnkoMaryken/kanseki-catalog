@@ -188,7 +188,7 @@ tr:hover td { background: var(--color-surface-hover); }
   <div class="metrics">
     <div class="metric-card"><div class="metric-label">站点数据 · 总记录</div><div class="metric-value" id="mTotal">0</div><div class="metric-sub">公历年份对照行</div></div>
     <div class="metric-card"><div class="metric-label">中国朝代</div><div class="metric-value" id="mDynasty">0</div><div class="metric-sub">22 朝 494 年号</div></div>
-    <div class="metric-card"><div class="metric-label">日本时代</div><div class="metric-value" id="mPeriod">0</div><div class="metric-sub">9 时代 167 年号</div></div>
+    <div class="metric-card"><div class="metric-label">其他朝代</div><div class="metric-value" id="mPeriod">0</div><div class="metric-sub" id="mPeriodSub">日本时代 + 周边政权</div></div>
     <div class="metric-card"><div class="metric-label">注册用户</div><div class="metric-value" id="mUsers">0</div><div class="metric-sub" id="mUsersSub">本地演示</div></div>
   </div>
 
@@ -198,7 +198,7 @@ tr:hover td { background: var(--color-surface-hover); }
       <div id="dynTop"></div>
     </div>
     <div class="panel">
-      <h2>数据分布 · 日本时代</h2>
+      <h2>数据分布 · 其他朝代</h2>
       <div id="perTop"></div>
     </div>
   </div>
@@ -213,7 +213,7 @@ tr:hover td { background: var(--color-surface-hover); }
   </div>
 
   <div class="dash-footer">
-    <span>Juvenile 管理员工作台 · V6.3</span>
+    <span>Juvenile 管理员工作台 · V8.0</span>
     <span><a href="index.html">返回纪年查询</a> · <a href="changelog.html">更新日志</a></span>
   </div>
 </div>
@@ -299,11 +299,18 @@ function loadSiteStats() {
     }
   } catch (e) {}
   try {
-    // 总记录 = 中国年号 + 日本年号（含子年号）; 若 FULL_DATA 存在则用其行数
+    // V8.0: 周边政权数并入 metric-sub
+    if (typeof OTHER_STATES !== 'undefined' && typeof JP_PERIODS !== 'undefined') {
+      document.getElementById('mPeriodSub').textContent =
+        '日本 ' + JP_PERIODS.length + ' 时代 + 周边 ' + OTHER_STATES.length + ' 政权';
+    }
+  } catch (e) {}
+  try {
+    // 总记录 = 中国年号 + 日本年号 + 周边政权年号（含子年号）; 若 FULL_DATA 存在则用其行数
     if (typeof FULL_DATA !== 'undefined' && FULL_DATA.length) {
       document.getElementById('mTotal').textContent = FULL_DATA.length.toLocaleString();
     } else {
-      let cnCnt = 0, jpCnt = 0;
+      let cnCnt = 0, jpCnt = 0, otCnt = 0;
       if (typeof CN_DYNASTIES !== 'undefined') {
         CN_DYNASTIES.forEach(d => (d.eras || []).forEach(e => {
           cnCnt += (e.subEras ? e.subEras.length : 1);
@@ -314,7 +321,12 @@ function loadSiteStats() {
           jpCnt += (e.subEras ? e.subEras.length : 1);
         }));
       }
-      document.getElementById('mTotal').textContent = (cnCnt + jpCnt).toLocaleString();
+      if (typeof OTHER_STATES !== 'undefined') {
+        OTHER_STATES.forEach(s => (s.eras || []).forEach(e => {
+          otCnt += (e.subEras ? e.subEras.length : 1);
+        }));
+      }
+      document.getElementById('mTotal').textContent = (cnCnt + jpCnt + otCnt).toLocaleString();
       document.getElementById('mTotal').dataset.fallback = '1';
     }
   } catch (e) {}
@@ -338,10 +350,17 @@ function renderDist() {
   });
   dynBox.innerHTML = dh;
   let ph = '';
-  JP_PERIODS.slice(0, 8).forEach(p => {
-    const n = (p.eras || []).length;
+  // V8.0: 日本时代按原顺序前 8 + 周边政权按年号数降序前 5（其他朝代）
+  const otList = (typeof OTHER_STATES !== 'undefined' && Array.isArray(OTHER_STATES)) ? OTHER_STATES : [];
+  const otSorted = otList.slice().sort((a, b) => (b.eras || []).length - (a.eras || []).length).slice(0, 5);
+  const perItems = [];
+  JP_PERIODS.slice(0, 8).forEach(p => perItems.push({ name: p.name, eras: (p.eras || []).length, ot: false }));
+  otSorted.forEach(s => perItems.push({ name: s.name, eras: (s.eras || []).length, ot: true }));
+  perItems.forEach(it => {
+    const n = it.eras;
     const pct = Math.min(100, Math.round(n / 20 * 100));
-    ph += '<div class="stat-row"><span class="k">' + p.name + '</span><span class="v">' + n + ' 个年号</span></div>';
+    const badge = it.ot ? ' <span style="font-size:0.66rem;color:var(--color-text-muted);font-weight:400;">周边</span>' : '';
+    ph += '<div class="stat-row"><span class="k">' + it.name + badge + '</span><span class="v">' + n + ' 个年号</span></div>';
     ph += '<div class="bar-wrap"><div class="bar" style="width:' + pct + '%"></div></div>';
   });
   perBox.innerHTML = ph;
