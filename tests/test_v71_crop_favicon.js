@@ -11,9 +11,10 @@ function ok(name, cond, extra = '') {
   else { failed++; console.log('  FAIL  ' + name + '  ' + extra); }
 }
 
-// 生成一张 2x2 红色测试 PNG (base64)
+// 生成一张 4x4 红色测试 PNG (base64)
+// (2x2 在 V7.2 边界约束下退化"自由移动", 无法验证拖拽; 4x4 显示后仍小于裁剪圈但足够小图场景回归)
 const TEST_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEklEQVR4nGP8z8Dwn4GBgYGJAQAFOwIBVtH1XQAAAABJRU5ErkJggg==',
+  'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVR4nGP4z8DwHxkzkC4AADxAH+HggXe0AAAAAElFTkSuQmCC',
   'base64'
 );
 const TMP_IMG = path.join(__dirname, '_tmp_crop_test.png');

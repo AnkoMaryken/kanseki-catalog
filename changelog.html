@@ -112,6 +112,17 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v7.2</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-opt">修复</span>
+    </div>
+    <ul>
+      <li><b>头像裁剪「所见即所得」修复</b>：修复裁剪预览与最终头像不一致的问题——1) 弹窗打开时先显示再初始化，避免隐藏状态下图片不可见；2) 拖拽/缩放统一以图片中心为锚点、以裁剪圈中心为输出中心，坐标计算与显示完全一致；3) 拖拽范围限制在图片内，裁剪圈不会拖出图片外；4) 拖拽结束鼠标落在遮罩上不再误关弹窗；5) 图片过小（小于裁剪圈）时仍可自由拖动定位。修复后所见即所得：圆框内显示什么，最终头像就是什么。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v7.1</span>
       <span class="cl-date">2026-08-17</span>
       <span class="cl-tag t-new">新增</span>
