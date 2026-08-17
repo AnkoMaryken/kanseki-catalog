@@ -32,8 +32,8 @@ const URL = 'http://localhost:8765/index.html';
   const headJoin = headers.join('|');
   check('表头"中國年號"', headJoin.includes('中國年號'), headJoin.substring(0, 80));
   check('表头"公曆年份"', headJoin.includes('公曆年份'), headJoin.substring(0, 80));
-  check('表头"日本時代"', headJoin.includes('日本時代'), headJoin.substring(0, 80));
-  check('表头"在位天皇"', headJoin.includes('在位天皇'), headJoin.substring(0, 80));
+  check('表头"其他朝代"', headJoin.includes('其他朝代'), headJoin.substring(0, 80));
+  check('表头"在位君主"', headJoin.includes('在位君主'), headJoin.substring(0, 80));
   check('表头无简体"中国年号"', !headJoin.includes('中国年号'), headJoin.substring(0, 80));
 
   // ===== 3. 表格数据为繁体 (年号单元格) =====

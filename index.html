@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="日本汉籍编目工具 — 中日历史纪年对照查询，以公历年份为基准轴，同步展示中国与日本朝代、年号、君主、干支、生肖等完整纪年信息">
+<meta name="description" content="古代史及汉籍研究工具 — 东亚历史纪年对照查询，以公历年份为基准轴，同步展示中国与日本、朝鲜、越南等周边政权朝代、年号、君主、干支、生肖等完整纪年信息">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
-<title>日本汉籍编目工具 — 纪年查询</title>
+<title>古代史及汉籍研究工具 — 纪年查询</title>
 <style>
 /* ============================================
    CSS Custom Properties / Design Tokens
@@ -773,6 +773,65 @@ tr.nearby-sep-row:hover td { background: transparent !important; }
 }
 .jp-flash-hint::before { content: 'ⓙ'; font-size: 0.72rem; }
 
+/* ============================================
+   V8.0 其他朝代 (日本+周边政权)
+   ============================================ */
+/* 其他朝代列: 政权名小字徽标 */
+.ot-state-tag {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  margin-right: 0.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--color-japan-accent) 10%, transparent);
+  color: var(--color-japan-accent);
+  border: 1px solid color-mix(in srgb, var(--color-japan-accent) 22%, transparent);
+  vertical-align: baseline;
+}
+/* 无年号占位 (V8.0) */
+.era-entry.no-era .era-text {
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: 0.88em;
+}
+/* 在位君主: 默认省略, 悬停显示 (V8.0) */
+.ruler-hover {
+  display: inline-block;
+  position: relative;
+  cursor: help;
+}
+.ruler-hover .ruler-mask {
+  display: inline-block;
+  max-width: 5.5em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.ruler-hover .ruler-name {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  z-index: 40;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-popover);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.ruler-hover:hover .ruler-name,
+.ruler-hover:focus .ruler-name {
+  display: block;
+}
+
 /* 相同年号高亮提醒框 (表头上方) */
 .era-alert {
   display: none;
@@ -1531,7 +1590,7 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
   <div class="header-inner">
     <div class="header-brand">
       <div class="brand-icon" aria-hidden="true">汉</div>
-      <h1>日本汉籍编目工具</h1>
+      <h1>古代史及汉籍研究工具</h1>
     </div>
     <nav class="header-nav">
       <div class="nav-dropdown"><button class="nav-link nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html" class="nav-link active">纪年查询</a><a href="catalog.html" class="nav-link">编目规范</a><a href="embed.html" class="nav-link">快速跳转</a>
@@ -1602,7 +1661,7 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
     <div class="filter-tags" id="chinaEraTagsMobile"></div>
   </div>
   <div class="filter-panel-section">
-    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-japan-accent);">日本时代</h4>
+    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-japan-accent);">其他朝代</h4>
     <div class="filter-tags" id="japanFilterTagsMobile"></div>
   </div>
   <button class="btn" id="filterApplyMobile" style="width:100%;margin-top:1rem;justify-content:center;font-weight:600;">应用筛选</button>
@@ -1658,7 +1717,7 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
   <!-- Table -->
   <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
     <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
-    <table role="table" aria-label="中日历史纪年对照表">
+    <table role="table" aria-label="古代东亚历史纪年对照表">
       <thead id="tableHead">
         <tr role="row">
           <th class="col-year sortable" data-sort="year" scope="col" aria-sort="ascending">
@@ -1668,9 +1727,9 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
           <th class="col-cn-era" scope="col">中国年号</th>
           <th class="col-cn-dynasty" scope="col">中国朝代</th>
           <th class="col-cn-ruler" scope="col">在位皇帝</th>
-          <th class="col-jp-period" scope="col">日本时代</th>
-          <th class="col-jp-era" scope="col">日本年号</th>
-          <th class="col-jp-ruler" scope="col">在位天皇</th>
+          <th class="col-jp-period" scope="col">其他朝代</th>
+          <th class="col-jp-era" scope="col">年号</th>
+          <th class="col-jp-ruler" scope="col">在位君主</th>
           <th class="col-notes" scope="col">备注</th>
           <th class="col-zodiac" scope="col">生肖</th>
         </tr>
@@ -1706,7 +1765,7 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
         更新日志
       </a>
-      <span style="white-space:nowrap;">v7.2 · 学术参考工具</span>
+      <span style="white-space:nowrap;">v8.0 · 学术参考工具</span>
     </div>
   </div>
 </footer>
@@ -2575,7 +2634,1048 @@ const JP_PERIODS = [
       {name:'平成', ruler:'今上天皇(明仁)', r:[1989,2019]},
       {name:'令和', ruler:'今上天皇(德仁)', r:[2019,2026]}
     ]}
+]
+
+const OTHER_STATES = [
+  {
+    id: 'kr_goguryeo',
+    name: '高句丽',
+    range: [391, 668],
+    eraNote: '部分年号见于碑刻, 起止有争议',
+    eras: [{
+  name: '永乐',
+  ruler: '广开土王(好太王)',
+  r: [391, 412],
+}, {
+  name: '长寿',
+  ruler: '长寿王',
+  r: [451, 491],
+}, {
+  name: '建兴',
+  ruler: '长寿王',
+  r: [472, 491],
+}, {
+  name: '延嘉',
+  ruler: '安原王',
+  r: [533, 545],
+}, {
+  name: '太和',
+  ruler: '阳原王',
+  r: [544, 559],
+}, {
+  name: '永康',
+  ruler: '平原王',
+  r: [545, 559],
+}],
+  },
+  {
+    id: 'kr_silla',
+    name: '新罗',
+    range: [536, 650],
+    eraNote: '650 年起改用唐年号',
+    eras: [{
+  name: '建元',
+  ruler: '法兴王/真兴王',
+  r: [536, 551],
+}, {
+  name: '开国',
+  ruler: '真兴王',
+  r: [551, 568],
+}, {
+  name: '大昌',
+  ruler: '真兴王',
+  r: [568, 571],
+}, {
+  name: '鸿济',
+  ruler: '真兴王',
+  r: [572, 584],
+}, {
+  name: '建福',
+  ruler: '真平王/善德女王',
+  r: [584, 634],
+}, {
+  name: '仁平',
+  ruler: '善德女王',
+  r: [634, 647],
+}, {
+  name: '太和',
+  ruler: '真德女王',
+  r: [647, 650],
+}],
+  },
+  {
+    id: 'kr_taebong',
+    name: '泰封',
+    range: [901, 918],
+    eras: [{
+  name: '武泰',
+  ruler: '弓裔',
+  r: [904, 905],
+}, {
+  name: '圣册',
+  ruler: '弓裔',
+  r: [905, 911],
+}, {
+  name: '水德万岁',
+  ruler: '弓裔',
+  r: [911, 914],
+}, {
+  name: '政开',
+  ruler: '弓裔',
+  r: [914, 918],
+}],
+  },
+  {
+    id: 'kr_hubaekje',
+    name: '后百济',
+    range: [900, 936],
+    eras: [{
+  name: '正开',
+  ruler: '甄萱',
+  r: [900, 936],
+}],
+  },
+  {
+    id: 'kr_goryeo',
+    name: '高丽',
+    range: [918, 1392],
+    eras: [{
+  name: '天授',
+  ruler: '太祖(王建)',
+  r: [918, 933],
+}, {
+  name: '光德',
+  ruler: '定宗',
+  r: [949, 951],
+}, {
+  name: '峻丰',
+  ruler: '光宗',
+  r: [960, 963],
+}, {
+  name: '正丰',
+  ruler: '毅宗',
+  r: [1156, 1161],
+}, {
+  name: '至理',
+  ruler: '忠宣王',
+  r: [1321, 1323],
+}],
+  },
+  {
+    id: 'kr_joseon',
+    name: '朝鲜王朝',
+    range: [1392, 1910],
+    eraNote: '多沿用明朝年号, 自建年号仅下列',
+    eras: [{
+  name: '建阳',
+  ruler: '高宗',
+  r: [1896, 1897],
+}, {
+  name: '光武',
+  ruler: '高宗',
+  r: [1897, 1907],
+}, {
+  name: '隆熙',
+  ruler: '纯宗',
+  r: [1907, 1910],
+}],
+  },
+  {
+    id: 'bh',
+    name: '渤海',
+    range: [698, 926],
+    eras: [{
+  name: '天统',
+  ruler: '高王(大祚荣)',
+  r: [698, 719],
+}, {
+  name: '仁安',
+  ruler: '武王(大武艺)',
+  r: [719, 737],
+}, {
+  name: '大兴',
+  ruler: '文王(大钦茂)',
+  r: [737, 774],
+}, {
+  name: '宝历',
+  ruler: '文王(大钦茂)',
+  r: [774, 785],
+}, {
+  name: '大兴(复)',
+  ruler: '文王(大钦茂)',
+  r: [785, 793],
+}, {
+  name: '中兴',
+  ruler: '成王(大华玙)',
+  r: [794, 794],
+}, {
+  name: '正历',
+  ruler: '康王(大嵩璘)',
+  r: [795, 807],
+}, {
+  name: '永德',
+  ruler: '定王(大元瑜)',
+  r: [808, 811],
+}, {
+  name: '朱雀',
+  ruler: '僖王(大言义)',
+  r: [812, 816],
+}, {
+  name: '太始',
+  ruler: '简王(大明忠)',
+  r: [817, 817],
+}, {
+  name: '建兴',
+  ruler: '宣王(大仁秀)',
+  r: [818, 830],
+}, {
+  name: '咸和',
+  ruler: '大彝震',
+  r: [831, 857],
+}],
+  },
+  {
+    id: 'nz',
+    name: '南诏',
+    range: [738, 902],
+    eras: [{
+  name: '赞普钟',
+  ruler: '阁罗凤',
+  r: [752, 768],
+}, {
+  name: '长寿',
+  ruler: '阁罗凤',
+  r: [769, 779],
+}, {
+  name: '见龙',
+  ruler: '异牟寻',
+  r: [779, 784],
+}, {
+  name: '上元',
+  ruler: '异牟寻',
+  r: [784, 808],
+}, {
+  name: '应道',
+  ruler: '寻阁劝',
+  r: [808, 809],
+}, {
+  name: '龙兴',
+  ruler: '劝龙晟',
+  r: [809, 816],
+}, {
+  name: '全义',
+  ruler: '劝利晟',
+  r: [816, 819],
+}, {
+  name: '大丰',
+  ruler: '劝利晟',
+  r: [820, 824],
+}, {
+  name: '保和',
+  ruler: '晟丰祐',
+  r: [824, 841],
+}, {
+  name: '天启',
+  ruler: '晟丰祐',
+  r: [841, 859],
+}, {
+  name: '建极',
+  ruler: '世隆',
+  r: [859, 877],
+}, {
+  name: '贞明',
+  ruler: '隆舜',
+  r: [878, 897],
+}, {
+  name: '承智',
+  ruler: '隆舜',
+  r: [878, 897],
+}, {
+  name: '中兴',
+  ruler: '舜化贞',
+  r: [897, 902],
+}],
+  },
+  {
+    id: 'dl',
+    name: '大理',
+    range: [937, 1254],
+    eras: [{
+  name: '文德',
+  ruler: '太祖(段思平)',
+  r: [937, 944],
+}, {
+  name: '文经',
+  ruler: '段思英',
+  r: [945, 945],
+}, {
+  name: '至治',
+  ruler: '段思良',
+  r: [946, 951],
+}, {
+  name: '明德',
+  ruler: '段思聪',
+  r: [952, 952],
+}, {
+  name: '广德',
+  ruler: '段思聪',
+  r: [953, 967],
+}, {
+  name: '顺德',
+  ruler: '段思聪',
+  r: [968, 968],
+}, {
+  name: '明政',
+  ruler: '段素顺',
+  r: [969, 985],
+}, {
+  name: '广明',
+  ruler: '段素英',
+  r: [986, 988],
+}, {
+  name: '明圣',
+  ruler: '段素英',
+  r: [989, 991],
+}, {
+  name: '明统',
+  ruler: '段素英',
+  r: [992, 996],
+}, {
+  name: '明治',
+  ruler: '段素英',
+  r: [997, 1005],
+}, {
+  name: '明应',
+  ruler: '段素英',
+  r: [1006, 1009],
+}, {
+  name: '明启',
+  ruler: '段素廉',
+  r: [1010, 1022],
+}, {
+  name: '明通',
+  ruler: '段素隆',
+  r: [1023, 1026],
+}, {
+  name: '正治',
+  ruler: '段素真',
+  r: [1027, 1041],
+}, {
+  name: '圣明',
+  ruler: '段素兴',
+  r: [1042, 1042],
+}, {
+  name: '天明',
+  ruler: '段素兴',
+  r: [1043, 1044],
+}, {
+  name: '保安',
+  ruler: '段思廉',
+  r: [1045, 1052],
+}, {
+  name: '政安',
+  ruler: '段思廉',
+  r: [1053, 1061],
+}, {
+  name: '正德',
+  ruler: '段思廉',
+  r: [1062, 1073],
+}, {
+  name: '保德',
+  ruler: '段思廉',
+  r: [1074, 1075],
+}, {
+  name: '上德',
+  ruler: '段廉义',
+  r: [1076, 1076],
+}, {
+  name: '广安',
+  ruler: '段廉义',
+  r: [1077, 1080],
+}, {
+  name: '上明',
+  ruler: '段寿辉',
+  r: [1081, 1081],
+}, {
+  name: '保立',
+  ruler: '段正明',
+  r: [1082, 1082],
+}, {
+  name: '建安',
+  ruler: '段正明',
+  r: [1083, 1091],
+}, {
+  name: '天佑',
+  ruler: '段正明',
+  r: [1091, 1094],
+}, {
+  name: '上治',
+  ruler: '高升泰(大中国)',
+  r: [1094, 1096],
+}, {
+  name: '天授',
+  ruler: '中宗(段正淳)',
+  r: [1096, 1096],
+}, {
+  name: '明开',
+  ruler: '中宗(段正淳)',
+  r: [1097, 1103],
+}, {
+  name: '天政',
+  ruler: '中宗(段正淳)',
+  r: [1103, 1104],
+}, {
+  name: '文安',
+  ruler: '中宗(段正淳)',
+  r: [1104, 1108],
+}, {
+  name: '日新',
+  ruler: '宪宗(段正严)',
+  r: [1108, 1109],
+}, {
+  name: '文治',
+  ruler: '宪宗(段正严)',
+  r: [1110, 1121],
+}, {
+  name: '嘉永',
+  ruler: '宪宗(段正严)',
+  r: [1122, 1128],
+}, {
+  name: '保天',
+  ruler: '宪宗(段正严)',
+  r: [1129, 1137],
+}, {
+  name: '广运',
+  ruler: '宪宗(段正严)',
+  r: [1138, 1147],
+}, {
+  name: '永贞',
+  ruler: '景宗(段正兴)',
+  r: [1147, 1148],
+}, {
+  name: '大宝',
+  ruler: '景宗(段正兴)',
+  r: [1149, 1156],
+}, {
+  name: '龙兴',
+  ruler: '景宗(段正兴)',
+  r: [1157, 1161],
+}, {
+  name: '盛明',
+  ruler: '景宗(段正兴)',
+  r: [1162, 1163],
+}, {
+  name: '建德',
+  ruler: '景宗(段正兴)',
+  r: [1164, 1171],
+}, {
+  name: '利贞',
+  ruler: '宣宗(段智兴)',
+  r: [1172, 1175],
+}, {
+  name: '盛德',
+  ruler: '宣宗(段智兴)',
+  r: [1176, 1180],
+}, {
+  name: '嘉会',
+  ruler: '宣宗(段智兴)',
+  r: [1181, 1184],
+}, {
+  name: '元亨',
+  ruler: '宣宗(段智兴)',
+  r: [1185, 1195],
+}, {
+  name: '定安',
+  ruler: '宣宗(段智兴)',
+  r: [1195, 1200],
+}, {
+  name: '凤历',
+  ruler: '段智廉',
+  r: [1200, 1204],
+}, {
+  name: '元寿',
+  ruler: '段智廉',
+  r: [1204, 1204],
+}, {
+  name: '天开',
+  ruler: '神宗(段智祥)',
+  r: [1205, 1225],
+}, {
+  name: '天辅',
+  ruler: '神宗(段智祥)',
+  r: [1226, 1226],
+}, {
+  name: '仁寿',
+  ruler: '神宗(段智祥)',
+  r: [1227, 1238],
+}, {
+  name: '道隆',
+  ruler: '段祥兴',
+  r: [1239, 1251],
+}, {
+  name: '天定',
+  ruler: '段兴智',
+  r: [1251, 1254],
+}],
+  },
+  {
+    id: 'vn_tile',
+    name: '前李朝',
+    range: [544, 602],
+    eras: [{
+  name: '天德',
+  ruler: '李贲(李南帝)',
+  r: [544, 548],
+}],
+  },
+  {
+    id: 'vn_dinh',
+    name: '丁朝',
+    range: [968, 980],
+    eras: [{
+  name: '太平',
+  ruler: '丁部领',
+  r: [970, 980],
+}],
+  },
+  {
+    id: 'vn_earlyle',
+    name: '前黎朝',
+    range: [980, 1009],
+    eras: [{
+  name: '天福',
+  ruler: '黎桓',
+  r: [980, 988],
+}, {
+  name: '兴统',
+  ruler: '黎桓',
+  r: [989, 993],
+}, {
+  name: '应天',
+  ruler: '黎桓',
+  r: [994, 1007],
+}, {
+  name: '景瑞',
+  ruler: '黎龙铤',
+  r: [1008, 1009],
+}],
+  },
+  {
+    id: 'vn_ly',
+    name: '李朝',
+    range: [1009, 1225],
+    eras: [{
+  name: '顺天',
+  ruler: '太祖(李公蕴)',
+  r: [1010, 1028],
+}, {
+  name: '天成',
+  ruler: '太宗(李佛玛)',
+  r: [1028, 1034],
+}, {
+  name: '通瑞',
+  ruler: '太宗(李佛玛)',
+  r: [1034, 1039],
+}, {
+  name: '乾符有道',
+  ruler: '太宗(李佛玛)',
+  r: [1039, 1042],
+}, {
+  name: '明道',
+  ruler: '太宗(李佛玛)',
+  r: [1042, 1044],
+}, {
+  name: '天感圣武',
+  ruler: '太宗(李佛玛)',
+  r: [1044, 1049],
+}, {
+  name: '崇兴大宝',
+  ruler: '太宗(李佛玛)',
+  r: [1049, 1054],
+}, {
+  name: '龙瑞太平',
+  ruler: '圣宗(李日尊)',
+  r: [1054, 1058],
+}, {
+  name: '彰圣嘉庆',
+  ruler: '圣宗(李日尊)',
+  r: [1059, 1066],
+}, {
+  name: '龙章天嗣',
+  ruler: '圣宗(李日尊)',
+  r: [1066, 1068],
+}, {
+  name: '天贶宝象',
+  ruler: '圣宗(李日尊)',
+  r: [1068, 1069],
+}, {
+  name: '神武',
+  ruler: '圣宗(李日尊)',
+  r: [1069, 1072],
+}, {
+  name: '太宁',
+  ruler: '仁宗(李乾德)',
+  r: [1072, 1076],
+}, {
+  name: '英武昭胜',
+  ruler: '仁宗(李乾德)',
+  r: [1076, 1085],
+}, {
+  name: '广祐',
+  ruler: '仁宗(李乾德)',
+  r: [1085, 1092],
+}, {
+  name: '会丰',
+  ruler: '仁宗(李乾德)',
+  r: [1092, 1100],
+}, {
+  name: '龙符元化',
+  ruler: '仁宗(李乾德)',
+  r: [1101, 1109],
+}, {
+  name: '会祥大庆',
+  ruler: '仁宗(李乾德)',
+  r: [1110, 1119],
+}, {
+  name: '天符睿武',
+  ruler: '仁宗(李乾德)',
+  r: [1120, 1126],
+}, {
+  name: '天符庆寿',
+  ruler: '仁宗(李乾德)',
+  r: [1127, 1127],
+}, {
+  name: '天顺',
+  ruler: '神宗(李阳焕)',
+  r: [1128, 1132],
+}, {
+  name: '天彰宝嗣',
+  ruler: '神宗(李阳焕)',
+  r: [1133, 1138],
+}, {
+  name: '绍明',
+  ruler: '英宗(李天祚)',
+  r: [1138, 1140],
+}, {
+  name: '大定',
+  ruler: '英宗(李天祚)',
+  r: [1140, 1162],
+}, {
+  name: '政隆宝应',
+  ruler: '英宗(李天祚)',
+  r: [1163, 1174],
+}, {
+  name: '天感至宝',
+  ruler: '英宗(李天祚)',
+  r: [1174, 1175],
+}, {
+  name: '贞符',
+  ruler: '高宗(李龙𣉙)',
+  r: [1176, 1186],
+}, {
+  name: '天资嘉瑞',
+  ruler: '高宗(李龙𣉙)',
+  r: [1186, 1202],
+}, {
+  name: '天嘉宝祐',
+  ruler: '高宗(李龙𣉙)',
+  r: [1202, 1205],
+}, {
+  name: '治平龙应',
+  ruler: '高宗(李龙𣉙)',
+  r: [1205, 1210],
+}, {
+  name: '建嘉',
+  ruler: '惠宗(李旵)',
+  r: [1211, 1224],
+}, {
+  name: '天彰有道',
+  ruler: '昭皇(李天馨)',
+  r: [1224, 1225],
+}],
+  },
+  {
+    id: 'vn_tran',
+    name: '陈朝',
+    range: [1225, 1400],
+    eras: [{
+  name: '建中',
+  ruler: '太宗(陈煚)',
+  r: [1225, 1232],
+}, {
+  name: '天应政平',
+  ruler: '太宗(陈煚)',
+  r: [1232, 1251],
+}, {
+  name: '元丰',
+  ruler: '太宗(陈煚)',
+  r: [1251, 1258],
+}, {
+  name: '绍隆',
+  ruler: '圣宗(陈晃)',
+  r: [1258, 1272],
+}, {
+  name: '宝符',
+  ruler: '圣宗(陈晃)',
+  r: [1273, 1278],
+}, {
+  name: '绍宝',
+  ruler: '仁宗(陈昑)',
+  r: [1279, 1285],
+}, {
+  name: '重兴',
+  ruler: '仁宗(陈昑)',
+  r: [1285, 1293],
+}, {
+  name: '兴隆',
+  ruler: '英宗(陈烇)',
+  r: [1293, 1314],
+}, {
+  name: '大庆',
+  ruler: '明宗(陈奣)',
+  r: [1314, 1323],
+}, {
+  name: '开泰',
+  ruler: '明宗(陈奣)',
+  r: [1324, 1329],
+}, {
+  name: '开祐',
+  ruler: '宪宗(陈旺)',
+  r: [1329, 1341],
+}, {
+  name: '绍丰',
+  ruler: '裕宗(陈暭)',
+  r: [1341, 1357],
+}, {
+  name: '大治',
+  ruler: '裕宗(陈暭)',
+  r: [1358, 1369],
+}, {
+  name: '大定',
+  ruler: '昏德公(杨日礼)',
+  r: [1369, 1370],
+}, {
+  name: '绍庆',
+  ruler: '艺宗(陈暊)',
+  r: [1370, 1372],
+}, {
+  name: '隆庆',
+  ruler: '睿宗(陈曔)',
+  r: [1373, 1377],
+}, {
+  name: '昌符',
+  ruler: '废帝(陈晛)',
+  r: [1377, 1388],
+}, {
+  name: '光泰',
+  ruler: '顺宗(陈颙)',
+  r: [1388, 1398],
+}, {
+  name: '建新',
+  ruler: '少帝(陈𬊌)',
+  r: [1398, 1400],
+}],
+  },
+  {
+    id: 'vn_ho',
+    name: '胡朝',
+    range: [1400, 1407],
+    eras: [{
+  name: '圣元',
+  ruler: '胡季犛',
+  r: [1400, 1400],
+}, {
+  name: '绍成',
+  ruler: '胡汉苍',
+  r: [1401, 1402],
+}, {
+  name: '开大',
+  ruler: '胡汉苍',
+  r: [1403, 1407],
+}],
+  },
+  {
+    id: 'vn_houle',
+    name: '后黎朝',
+    range: [1428, 1527],
+    eras: [{
+  name: '顺天',
+  ruler: '太祖(黎利)',
+  r: [1428, 1433],
+}, {
+  name: '绍平',
+  ruler: '太宗(黎元龙)',
+  r: [1434, 1439],
+}, {
+  name: '大宝',
+  ruler: '太宗(黎元龙)',
+  r: [1440, 1442],
+}, {
+  name: '大和',
+  ruler: '仁宗(黎邦基)',
+  r: [1443, 1453],
+}, {
+  name: '延宁',
+  ruler: '仁宗(黎邦基)',
+  r: [1454, 1459],
+}, {
+  name: '天兴',
+  ruler: '黎宜民',
+  r: [1459, 1460],
+}, {
+  name: '光顺',
+  ruler: '圣宗(黎思诚)',
+  r: [1460, 1469],
+}, {
+  name: '洪德',
+  ruler: '圣宗(黎思诚)',
+  r: [1470, 1497],
+}, {
+  name: '景统',
+  ruler: '宪宗(黎鏳)',
+  r: [1498, 1504],
+}, {
+  name: '泰贞',
+  ruler: '肃宗(黎敬甫)',
+  r: [1504, 1504],
+}, {
+  name: '端庆',
+  ruler: '威穆帝(黎濬)',
+  r: [1505, 1509],
+}, {
+  name: '洪顺',
+  ruler: '襄翼帝(黎瀠)',
+  r: [1509, 1516],
+}, {
+  name: '光绍',
+  ruler: '昭宗(黎椅)',
+  r: [1516, 1522],
+}, {
+  name: '统元',
+  ruler: '恭皇(黎椿)',
+  r: [1522, 1527],
+}],
+  },
+  {
+    id: 'vn_mac',
+    name: '莫朝',
+    range: [1527, 1592],
+    eras: [{
+  name: '明德',
+  ruler: '太祖(莫登庸)',
+  r: [1527, 1529],
+}, {
+  name: '大正',
+  ruler: '太宗(莫登瀛)',
+  r: [1530, 1540],
+}, {
+  name: '广和',
+  ruler: '宪宗(莫福海)',
+  r: [1541, 1546],
+}, {
+  name: '永定',
+  ruler: '宣宗(莫福源)',
+  r: [1547, 1548],
+}, {
+  name: '景历',
+  ruler: '宣宗(莫福源)',
+  r: [1548, 1555],
+}, {
+  name: '光宝',
+  ruler: '宣宗(莫福源)',
+  r: [1555, 1564],
+}, {
+  name: '淳福',
+  ruler: '莫茂洽',
+  r: [1565, 1568],
+}, {
+  name: '崇康',
+  ruler: '莫茂洽',
+  r: [1568, 1578],
+}, {
+  name: '延成',
+  ruler: '莫茂洽',
+  r: [1578, 1585],
+}, {
+  name: '端泰',
+  ruler: '莫茂洽',
+  r: [1585, 1588],
+}, {
+  name: '兴治',
+  ruler: '莫茂洽',
+  r: [1588, 1591],
+}, {
+  name: '洪宁',
+  ruler: '莫茂洽',
+  r: [1591, 1592],
+}, {
+  name: '武安',
+  ruler: '莫全',
+  r: [1592, 1592],
+}],
+  },
+  {
+    id: 'vn_houle_late',
+    name: '后黎朝(后期)',
+    range: [1533, 1789],
+    eras: [{
+  name: '元和',
+  ruler: '庄宗(黎宁)',
+  r: [1533, 1548],
+}, {
+  name: '正治',
+  ruler: '英宗(黎维邦)',
+  r: [1558, 1571],
+}, {
+  name: '洪福',
+  ruler: '英宗(黎维邦)',
+  r: [1572, 1572],
+}, {
+  name: '嘉泰',
+  ruler: '世宗(黎维潭)',
+  r: [1573, 1577],
+}, {
+  name: '光兴',
+  ruler: '世宗(黎维潭)',
+  r: [1578, 1599],
+}, {
+  name: '慎德',
+  ruler: '敬宗(黎维新)',
+  r: [1600, 1600],
+}, {
+  name: '弘定',
+  ruler: '敬宗(黎维新)',
+  r: [1600, 1619],
+}, {
+  name: '永祚',
+  ruler: '神宗(黎维祺)',
+  r: [1619, 1629],
+}, {
+  name: '德隆',
+  ruler: '神宗(黎维祺)',
+  r: [1629, 1635],
+}, {
+  name: '阳和',
+  ruler: '神宗(黎维祺)',
+  r: [1635, 1643],
+}, {
+  name: '福泰',
+  ruler: '真宗(黎维祐)',
+  r: [1643, 1649],
+}, {
+  name: '庆德',
+  ruler: '神宗(黎维祺复辟)',
+  r: [1649, 1653],
+}, {
+  name: '盛德',
+  ruler: '神宗(黎维祺复辟)',
+  r: [1653, 1658],
+}, {
+  name: '永寿',
+  ruler: '神宗(黎维祺复辟)',
+  r: [1658, 1662],
+}, {
+  name: '万庆',
+  ruler: '玄宗(黎维禔)',
+  r: [1662, 1662],
+}, {
+  name: '景治',
+  ruler: '玄宗(黎维禔)',
+  r: [1663, 1671],
+}, {
+  name: '阳德',
+  ruler: '嘉宗(黎维䄔)',
+  r: [1672, 1674],
+}, {
+  name: '永治',
+  ruler: '嘉宗(黎维䄔)',
+  r: [1676, 1680],
+}, {
+  name: '正和',
+  ruler: '熙宗(黎维祫)',
+  r: [1680, 1705],
+}, {
+  name: '永盛',
+  ruler: '裕宗(黎维禟)',
+  r: [1705, 1720],
+}, {
+  name: '保泰',
+  ruler: '裕宗(黎维禟)',
+  r: [1720, 1729],
+}, {
+  name: '永庆',
+  ruler: '昏德公(黎维祊)',
+  r: [1729, 1732],
+}, {
+  name: '龙德',
+  ruler: '纯宗(黎维祥)',
+  r: [1732, 1735],
+}, {
+  name: '永佑',
+  ruler: '懿宗(黎维祳)',
+  r: [1735, 1740],
+}, {
+  name: '景兴',
+  ruler: '显宗(黎维祧)',
+  r: [1740, 1786],
+}, {
+  name: '昭统',
+  ruler: '愍帝(黎维祁)',
+  r: [1787, 1789],
+}],
+  },
+  {
+    id: 'vn_nguyen',
+    name: '阮朝',
+    range: [1802, 1945],
+    eras: [{
+  name: '嘉隆',
+  ruler: '世祖(阮福映)',
+  r: [1802, 1820],
+}, {
+  name: '明命',
+  ruler: '圣祖(阮福晈)',
+  r: [1820, 1841],
+}, {
+  name: '绍治',
+  ruler: '宪祖(阮福暶)',
+  r: [1841, 1847],
+}, {
+  name: '嗣德',
+  ruler: '翼宗(阮福时)',
+  r: [1848, 1883],
+}, {
+  name: '建福',
+  ruler: '简宗(阮福昊)',
+  r: [1884, 1884],
+}, {
+  name: '咸宜',
+  ruler: '废帝(阮福明)',
+  r: [1885, 1885],
+}, {
+  name: '同庆',
+  ruler: '景宗(阮福昪)',
+  r: [1886, 1888],
+}, {
+  name: '成泰',
+  ruler: '成泰帝(阮福昭)',
+  r: [1889, 1907],
+}, {
+  name: '维新',
+  ruler: '维新帝(阮福晃)',
+  r: [1907, 1916],
+}, {
+  name: '启定',
+  ruler: '弘宗(阮福昶)',
+  r: [1916, 1925],
+}, {
+  name: '保大',
+  ruler: '保大帝(阮福晪)',
+  r: [1926, 1945],
+}],
+  },
 ];
+;
 
 // ========================================
 // 构建年份对照数据
@@ -2642,7 +3742,7 @@ function buildFullDataset() {
   }
 
   // Pre-process Japanese era data
-  const jpEraMap = new Map(); // year -> [{period, eraName, eraFull, ruler, notes}]
+  const jpEraMap = new Map(); // year -> [{period, eraName, eraFull, ruler, notes, kind}]
   
   for (const period of JP_PERIODS) {
     for (const era of period.eras) {
@@ -2660,7 +3760,8 @@ function buildFullDataset() {
               eraName: sub.name,
               eraFull: sub.name + yearNumToChinese(y - sStart + 1),
               ruler: era.ruler,
-              notes: era.notes || ''
+              notes: era.notes || '',
+              kind: 'jp'
             });
           }
         }
@@ -2672,7 +3773,31 @@ function buildFullDataset() {
             eraName: era.name,
             eraFull: era.name + yearNumToChinese(y - yrStart + 1),
             ruler: era.ruler,
-            notes: era.notes || ''
+            notes: era.notes || '',
+            kind: 'jp'
+          });
+        }
+      }
+    }
+  }
+
+  // V8.0: 周边政权年号 (朝鲜/渤海/南诏/大理/越南等) 并入"其他朝代"列
+  // kind: 'jp' = 日本, 'ot' = 其他政权
+  const otherStatesMap = new Map(); // year -> [{period, eraName, eraFull, ruler, notes, kind}]
+  if (typeof OTHER_STATES !== 'undefined') {
+    for (const st of OTHER_STATES) {
+      for (const era of (st.eras || [])) {
+        const yrStart = era.r[0];
+        const yrEnd = era.r[1] || yrStart;
+        for (let y = yrStart; y <= yrEnd; y++) {
+          if (!otherStatesMap.has(y)) otherStatesMap.set(y, []);
+          otherStatesMap.get(y).push({
+            period: st.name,
+            eraName: era.name,
+            eraFull: era.name + yearNumToChinese(y - yrStart + 1),
+            ruler: era.ruler,
+            notes: era.notes || '',
+            kind: 'ot'
           });
         }
       }
@@ -2686,8 +3811,9 @@ function buildFullDataset() {
     const zodiac = getZodiac(year);
     
     const cnEntries = cnEraMap.get(year) || [];
-    const jpEntries = jpEraMap.get(year) || [];
-    const hasJapanData = year >= 645;
+    // V8.0: 日本 + 周边政权 合并为"其他朝代"列
+    const jpEntries = (jpEraMap.get(year) || []).concat(otherStatesMap.get(year) || []);
+    const hasJapanData = year >= 645 || jpEntries.length > 0;
     
     // Sort Chinese entries by dynasty group then era name
     cnEntries.sort((a, b) => {
@@ -2713,15 +3839,27 @@ function buildFullDataset() {
     const cnRulerArr = [...new Set(cnEntries.map(e => e.ruler))];
     const cnNotesArr = [...new Set(cnEntries.map(e => e.notes).filter(Boolean))];
     
-    // Merge Japanese entries
+    // Merge Japanese/other-states entries: 日本在前, 其他政权按名称排序
+    jpEntries.sort((a, b) => {
+      if (a.kind !== b.kind) return a.kind === 'jp' ? -1 : 1;
+      return a.period.localeCompare(b.period, 'zh');
+    });
     const jpPeriodArr = [...new Set(jpEntries.map(e => e.period))];
+    // V8.0: 实际年号列表 (排除"无年号"占位)
+    const jpRealEras = jpEntries.filter(e => e.eraName !== '—' && e.eraName !== '-');
+    const jpEraNamesArr = [...new Set(jpRealEras.map(e => e.eraName))];
+    const jpPeriodRealArr = [...new Set(jpRealEras.map(e => e.period))];
+    // V8.0: 「无年号」占位 (—) 不渲染复制按钮, 显示为"无年号"
     const jpEraLines = jpEntries.length > 0
       ? jpEntries.map(e => {
+          if (e.eraName === '—' || e.eraName === '-') {
+            return `<span class="era-entry no-era"><span class="era-text">${e.period}·无年号</span></span>`;
+          }
           const yrDisplay = year < 0 ? '前' + Math.abs(year) : year;
           const copyText = e.eraFull + '（' + yrDisplay + '）';
-          return `<span class="era-entry"><span class="era-text">${e.period}·${e.eraFull}</span><button class="era-copy-btn" data-copy="${escapeHtml(copyText)}" title="复制 ${copyText}" aria-label="复制日本年号"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span>`;
+          return `<span class="era-entry"><span class="era-text">${e.period}·${e.eraFull}</span><button class="era-copy-btn" data-copy="${escapeHtml(copyText)}" title="复制 ${copyText}" aria-label="复制年号"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span>`;
         }).join('<br>')
-      : (hasJapanData ? '—' : '—');
+      : '—';
     const jpRulerArr = [...new Set(jpEntries.map(e => e.ruler))];
     const jpNotesArr = [...new Set(jpEntries.map(e => e.notes).filter(Boolean))];
     
@@ -2729,21 +3867,21 @@ function buildFullDataset() {
     
     // 模糊补全候选 (简体): 年号全名 (如"同治十一年") 与 年号+干支 (如"同治戊戌")
     // 用于搜索建议: 输入"同治一"提示"同治十一年/二十一年", 输入"同治戊"提示"同治戊戌/戊寅"
-    const eraFullCandidates = [...new Set(cnEntries.map(e => e.eraFull).concat(jpEntries.map(e => e.eraFull)))]
-      .filter(s => s && s.length >= 2);
+    const eraFullCandidates = [...new Set(cnEntries.map(e => e.eraFull).concat(jpRealEras.map(e => e.eraFull)))]
+      .filter(s => s && s.length >= 2 && !s.startsWith('—') && !s.startsWith('-'));
     const eraGzCandidates = [...new Set(
-      cnEntries.map(e => e.eraName + getGanzhi(year)).concat(jpEntries.map(e => e.eraName + getGanzhi(year)))
-    )].filter(s => s && s.length >= 3);
+      cnEntries.map(e => e.eraName + getGanzhi(year)).concat(jpRealEras.map(e => e.eraName + getGanzhi(year)))
+    )].filter(s => s && s.length >= 3 && !s.startsWith('—') && !s.startsWith('-'));
     
     // 简体归一化搜索串: 用于繁简无差别检索 (一次构建, 长期复用)
     // 包含 eraFull (如"万历十一年") 以便"万历十一年"这类写法也能命中
     const cnEraFullNames = [...new Set(cnEntries.map(e => e.eraFull))];
-    const jpEraFullNames = [...new Set(jpEntries.map(e => e.eraFull))];
+    const jpEraFullNames = [...new Set(jpRealEras.map(e => e.eraFull))];
     const searchKeyParts = [
       yearStr, ganzhi, zodiac,
       cnDynastyArr.join('、'), cnEraBaseNames.join('、'), cnEraFullNames.join('、'), cnRulerArr.join('、'),
-      jpPeriodArr.join('、'),
-      jpEntries.map(e => e.eraName).join('、'), jpEraFullNames.join('、'), jpRulerArr.join('、'),
+      jpPeriodRealArr.join('、'),
+      jpEraNamesArr.join('、'), jpEraFullNames.join('、'), jpRulerArr.join('、'),
       allNotes.join('；')
     ].filter(Boolean);
     // 统一转为简体, 保证"萬曆"也能匹配"万历"
@@ -2762,16 +3900,15 @@ function buildFullDataset() {
       // for filtering (arrays)
       cnDynasties: cnDynastyArr.length > 0 ? cnDynastyArr : ['—'],
       cnEraNames: cnEraBaseNames.length > 0 ? cnEraBaseNames : ['—'],
-      jpEraNames: [...new Set(jpEntries.map(e => e.eraName))].filter(Boolean).length > 0
-        ? [...new Set(jpEntries.map(e => e.eraName))].filter(Boolean) : ['—'],
-      jpPeriods: jpPeriodArr.length > 0 ? jpPeriodArr : (hasJapanData ? ['—'] : ['—']),
+      jpEraNames: jpEraNamesArr.length > 0 ? jpEraNamesArr : ['—'],
+      jpPeriods: jpPeriodRealArr.length > 0 ? jpPeriodRealArr : ['—'],
       // for display (strings with HTML)
       cnDynasty: cnDynastyArr.length > 0 ? cnDynastyArr.join('、') : '—',
       cnEra: cnEraLines,
       cnRuler: cnRulerArr.length > 0 ? cnRulerArr.join('、') : '—',
-      jpPeriod: jpPeriodArr.length > 0 ? jpPeriodArr.join('、') : (hasJapanData ? '—' : '—'),
+      jpPeriod: jpPeriodRealArr.length > 0 ? jpPeriodRealArr.join('、') : '—',
       jpEra: jpEraLines,
-      jpRuler: jpRulerArr.length > 0 ? jpRulerArr.join('、') : (hasJapanData ? '—' : '—'),
+      jpRuler: jpRulerArr.length > 0 ? jpRulerArr.join('、') : '—',
       notes: allNotes.join('；')
     });
   }
@@ -3072,10 +4209,21 @@ buildEraCandidates();
 // V4.2: 中日年号全集 (用于判断某年号是否专属日本/重名)
 const ALL_CN_ERAS = new Set();
 const ALL_JP_ERAS = new Set();
+const JP_ONLY_ERAS = new Set(); // V8.0: 仅日本时代专属年号 (不含周边政权)
 (function buildEraSets() {
   for (const row of FULL_DATA) {
     (row.cnEraNames || []).forEach(e => { if (e && e !== '—') ALL_CN_ERAS.add(e); });
     (row.jpEraNames || []).forEach(e => { if (e && e !== '—') ALL_JP_ERAS.add(e); });
+  }
+  // V8.0: 日本专属年号 = 只出现在 JP_PERIODS 的年号 (周边政权年号不算)
+  if (typeof JP_PERIODS !== 'undefined') {
+    for (const p of JP_PERIODS) {
+      for (const e of (p.eras || [])) {
+        const push = name => { if (name && name !== '—' && name !== '-') JP_ONLY_ERAS.add(name); };
+        if (e.subEras) e.subEras.forEach(s => push(s.name));
+        else push(e.name);
+      }
+    }
   }
 })();
 
@@ -3110,6 +4258,21 @@ const ERA_JP_SCOPE = new Map(); // 年号名 -> Map(时代 -> [minYear, maxYear]
       else pushEra(e.name, e.r);
     }
   }
+  // V8.0: 周边政权 (朝鲜/渤海/南诏/大理/越南等) 也纳入归属映射
+  if (typeof OTHER_STATES !== 'undefined') {
+    for (const st of OTHER_STATES) {
+      for (const e of (st.eras || [])) {
+        const pushEra = (name, r) => {
+          if (!name || name === '—' || name === '-') return;
+          if (!ERA_JP_SCOPE.has(name)) ERA_JP_SCOPE.set(name, new Map());
+          const m = ERA_JP_SCOPE.get(name);
+          if (!m.has(st.name)) m.set(st.name, [r[0], r[1]]);
+          else { const v = m.get(st.name); v[0] = Math.min(v[0], r[0]); v[1] = Math.max(v[1], r[1]); }
+        };
+        pushEra(e.name, e.r);
+      }
+    }
+  }
 })();
 
 // ========================================
@@ -3138,8 +4301,16 @@ const JAPAN_FILTER_GROUPS = [
 // 当前浮窗中正在查看的朝代/时代 (hover 预览, 不等于选中)
 let qfViewingKey = null;
 
-// 构建筛选数据源: 中国朝代分组 + 日本时代分组, 每项含 eras(含 ruler)
-// 返回 [{ key, label, kind:'cn'|'jp', eras:[{name,ruler,r}] }]
+// V8.0: 周边政权区域分组 (快捷筛选左列分区)
+const OT_SECTIONS = {
+  '高句丽':'朝鲜半岛','新罗':'朝鲜半岛','泰封':'朝鲜半岛','后百济':'朝鲜半岛','高丽':'朝鲜半岛','朝鲜王朝':'朝鲜半岛',
+  '渤海':'东北',
+  '南诏':'云南','大理':'云南',
+  '前李朝':'越南','丁朝':'越南','前黎朝':'越南','李朝':'越南','陈朝':'越南','胡朝':'越南','后黎朝':'越南','莫朝':'越南','后黎朝(后期)':'越南','阮朝':'越南'
+};
+
+// 构建筛选数据源: 中国朝代分组 + 其他朝代 (日本时代 + 周边政权), 每项含 eras(含 ruler)
+// 返回 [{ key, label, kind:'cn'|'jp'|'ot', section, eras:[{name,ruler,r}] }]
 function qfBuildSources() {
   const list = [];
   // 中国: 按 CHINA_FILTER_GROUPS 的组顺序, 展开为各朝代
@@ -3147,12 +4318,24 @@ function qfBuildSources() {
     for (const dynName of g.dynasties) {
       const dyn = CN_DYNASTIES.find(d => d.name === dynName);
       if (!dyn) continue;
-      list.push({ key: 'cn:' + dyn.name, label: dyn.name, kind: 'cn', eras: dyn.eras || [] });
+      list.push({ key: 'cn:' + dyn.name, label: dyn.name, kind: 'cn', section: '中国朝代', eras: dyn.eras || [] });
     }
   }
   // 日本: 各时代
   for (const p of JP_PERIODS) {
-    list.push({ key: 'jp:' + p.name, label: p.name, kind: 'jp', eras: p.eras || [] });
+    list.push({ key: 'jp:' + p.name, label: p.name, kind: 'jp', section: '日本', eras: p.eras || [] });
+  }
+  // V8.0: 周边政权 (朝鲜半岛/东北/云南/越南等)
+  if (typeof OTHER_STATES !== 'undefined') {
+    for (const st of OTHER_STATES) {
+      list.push({
+        key: 'ot:' + st.name,
+        label: st.name,
+        kind: 'ot',
+        section: OT_SECTIONS[st.name] || '周边政权',
+        eras: st.eras || []
+      });
+    }
   }
   return list;
 }
@@ -3194,11 +4377,17 @@ function qfRenderDynCol() {
   const col = document.getElementById('qfDynCol');
   if (!col) return;
   const sources = qfBuildSources();
-  let h = '<div class="qf-dyn-label">中国朝代</div>';
-  let firstJp = true;
+  let h = '';
+  let curSection = null;
   for (const s of sources) {
-    if (s.kind === 'jp' && firstJp) { h += '<div class="qf-dyn-sep"></div><div class="qf-dyn-label">日本时代</div>'; firstJp = false; }
-    const isSel = (s.kind === 'cn') ? selectedChinaFilters.has(s.label) : selectedJapanFilters.has(s.label);
+    if (s.section !== curSection) {
+      if (curSection !== null) h += '<div class="qf-dyn-sep"></div>';
+      h += `<div class="qf-dyn-label">${toDisplay(s.section)}</div>`;
+      curSection = s.section;
+    }
+    const isSel = (s.kind === 'cn') ? selectedChinaFilters.has(s.label)
+      : (s.kind === 'jp') ? selectedJapanFilters.has(s.label)
+      : selectedJapanFilters.has(s.label);
     const cls = 'qf-dyn-item' + (qfViewingKey === s.key ? ' viewing' : '') + (isSel ? ' selected' : '');
     h += `<div class="${cls}" data-key="${s.key}" data-kind="${s.kind}" data-label="${s.label}">${toDisplay(s.label)}</div>`;
   }
@@ -3216,6 +4405,7 @@ function qfRenderDynCol() {
         if (selectedChinaFilters.has(label)) selectedChinaFilters.delete(label);
         else selectedChinaFilters.add(label);
       } else {
+        // jp 与 ot 共用 selectedJapanFilters (其他朝代列)
         if (selectedJapanFilters.has(label)) selectedJapanFilters.delete(label);
         else selectedJapanFilters.add(label);
       }
@@ -3774,34 +4964,34 @@ function updateEraAlert(query) {
     return;
   }
   
-  // 收集该年号所有出现 (中国朝代 + 日本时代 + 年份区间)
+  // 收集该年号所有出现 (中国朝代 + 其他朝代/政权 + 年份区间)
   // V4.3: 用 ERA_CN_SCOPE/ERA_JP_SCOPE 归属映射 (直接从朝代/时代数据生成),
   //       避免 1644 年明亡清立等跨政权年份把年号误归给多个政权
   const cnOcc = ERA_CN_SCOPE.get(eraName) || new Map();
   const jpOcc = ERA_JP_SCOPE.get(eraName) || new Map();
-  
+
   const totalOcc = cnOcc.size + jpOcc.size;
   const hasCrossCn = cnOcc.size > 1;          // 中国内部跨朝代重名
-  const hasCrossJp = jpOcc.size > 1;          // 日本内部跨时代重名
-  const hasCnJp = cnOcc.size > 0 && jpOcc.size > 0; // 中日重名
-  
+  const hasCrossJp = jpOcc.size > 1;          // 其他朝代内部跨政权重名
+  const hasCnJp = cnOcc.size > 0 && jpOcc.size > 0; // 中国与其他朝代重名
+
   if (totalOcc <= 1) {
     alertEl.classList.remove('show');
     alertEl.innerHTML = '';
     lastEraAlert = null;
     return;
   }
-  
+
   const fmtRange = r => (r[0] < 0 ? '前' + Math.abs(r[0]) : r[0]) + '–' + (r[1] < 0 ? '前' + Math.abs(r[1]) : r[1]);
   const cnTags = [...cnOcc.entries()].map(([d, r]) =>
     `<span class="ea-tag">${toDisplay(d)} ${fmtRange(r)}</span>`).join('');
   const jpTags = [...jpOcc.entries()].map(([p, r]) =>
     `<span class="ea-tag ea-jp">${toDisplay(p)} ${fmtRange(r)}</span>`).join('');
-  
+
   let reason = '';
-  if (hasCnJp) reason = '「' + toDisplay(eraName) + '」同時是中國與日本年號，請注意區分所查對象！';
+  if (hasCnJp) reason = '「' + toDisplay(eraName) + '」同時是中國與其他朝代（日本、朝鮮、越南等）年號，請注意區分所查對象！';
   else if (hasCrossCn) reason = '「' + toDisplay(eraName) + '」在中國歷史上被多個朝代使用，請確認朝代！';
-  else if (hasCrossJp) reason = '「' + toDisplay(eraName) + '」在日本歷史上被多個時代使用，請確認時代！';
+  else if (hasCrossJp) reason = '「' + toDisplay(eraName) + '」在其他朝代（日本、朝鮮、越南等）中被多個政權使用，請確認政權！';
   else reason = '「' + toDisplay(eraName) + '」存在重名，請注意區分！';
   
   const html = `<span class="ea-title">年號提醒</span>${reason}<br><span style="color:var(--color-text-secondary);">出現：</span>${cnTags}${jpTags}`;
@@ -3852,6 +5042,20 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// V8.0: 在位君主列 — 默认省略显示, 鼠标悬停/聚焦时展示完整君主名
+function renderRulerHover(text) {
+  if (!text || text === '—') return '—';
+  const disp = toDisplay(text);
+  return `<span class="ruler-hover" tabindex="0" title="${escapeHtml(disp)}"><span class="ruler-mask">${escapeHtml(disp)}</span><span class="ruler-name">${escapeHtml(disp)}</span></span>`;
+}
+
+// V8.0: 其他朝代列 (日本+周边政权) — 政权名渲染为徽标, 高亮保持
+function renderPeriodTags(text, q) {
+  if (!text || text === '—') return '—';
+  const parts = String(text).split('、').filter(Boolean);
+  return parts.map(p => `<span class="ot-state-tag">${highlightText(toDisplay(p), q)}</span>`).join('');
 }
 
 function renderTable() {
@@ -3927,9 +5131,9 @@ function renderTable() {
           <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
           <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
           <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
-          <td class="cell-jp-period">${highlightText(toDisplay(row.jpPeriod), q)}</td>
+          <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
           <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
-          <td class="cell-jp-ruler">${highlightText(toDisplay(row.jpRuler), q)}</td>
+          <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
           <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
           <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
         </tr>`;
@@ -3942,7 +5146,7 @@ function renderTable() {
       if (!jpFlash && searchQuery.trim()) {
         const qq = toSimplified(searchQuery.trim()).toLowerCase();
         const eraN = findEraNameInQuery(qq);
-        if (eraN && !ALL_CN_ERAS.has(eraN) && ALL_JP_ERAS.has(eraN) &&
+        if (eraN && !ALL_CN_ERAS.has(eraN) && JP_ONLY_ERAS.has(eraN) &&
             (row.jpEraNames || []).some(e => e === eraN)) {
           jpFlash = ' jp-flash-cell';
         }
@@ -3954,9 +5158,9 @@ function renderTable() {
         <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
         <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
         <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
-        <td class="cell-jp-period">${highlightText(toDisplay(row.jpPeriod), q)}</td>
+        <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
         <td class="cell-jp-era${jpFlash}">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
-        <td class="cell-jp-ruler">${highlightText(toDisplay(row.jpRuler), q)}</td>
+        <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
         <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
         <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
       </tr>`;
@@ -4436,9 +5640,9 @@ const CSV_COLUMNS = [
   { key:'cnEra',   label:'中国年号', get: row => stripHtml(row.cnEra) },
   { key:'cnDyn',   label:'中国朝代', get: row => row.cnDynasty },
   { key:'cnRuler', label:'在位皇帝', get: row => row.cnRuler },
-  { key:'jpPeriod',label:'日本时代', get: row => row.jpPeriod },
-  { key:'jpEra',   label:'日本年号', get: row => stripHtml(row.jpEra) },
-  { key:'jpRuler', label:'在位天皇', get: row => row.jpRuler },
+  { key:'jpPeriod',label:'其他朝代', get: row => row.jpPeriod },
+  { key:'jpEra',   label:'年号', get: row => stripHtml(row.jpEra) },
+  { key:'jpRuler', label:'在位君主', get: row => row.jpRuler },
   { key:'notes',   label:'备注',     get: row => row.notes.replace(/；/g, ';') },
   { key:'zodiac',  label:'生肖',     get: row => row.zodiac },
 ];
@@ -4546,7 +5750,7 @@ function doExportCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `日本汉籍编目工具_纪年对照_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `古代史及汉籍研究工具_纪年对照_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   
@@ -4865,7 +6069,7 @@ function init() {
     });
   });
   
-  console.log('%c日本汉籍编目工具 — 纪年查询系统已就绪%c\n共' + FULL_DATA.length.toLocaleString() + '条记录 | Ctrl+K 快速搜索 | 支持公元前年份查询',
+  console.log('%c古代史及汉籍研究工具 — 纪年查询系统已就绪%c\n共' + FULL_DATA.length.toLocaleString() + '条记录 | Ctrl+K 快速搜索 | 支持公元前年份查询',
     'font-weight:bold;color:#1a2a4a;font-size:14px;', 'color:#5c564d;');
 }
 

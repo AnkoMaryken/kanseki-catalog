@@ -34,7 +34,7 @@ const URL = 'http://localhost:8765/index.html';
 
   // ===== 1. 标题与图标 =====
   const title = await page.locator('.header-brand h1').textContent();
-  check('标题改为"日本汉籍编目工具"', title === '日本汉籍编目工具', title);
+  check('标题改为"古代史及汉籍研究工具"', title === '古代史及汉籍研究工具', title);
   const icon = await page.locator('.header-brand .brand-icon').textContent();
   check('图标改为"汉"', icon === '汉', icon);
 
@@ -168,7 +168,7 @@ const URL = 'http://localhost:8765/index.html';
   const catNav = await page.locator('.header-nav a').allTextContents();
   check('编目页导航无"首頁"', !catNav.some(t => t.includes('首頁')), JSON.stringify(catNav));
   const catBrand = await page.locator('.header-brand h1').textContent();
-  check('编目页标题"日本汉籍编目工具"', catBrand.includes('日本汉籍编目工具'), catBrand);
+  check('编目页标题"古代史及汉籍研究工具"', catBrand.includes('古代史及汉籍研究工具'), catBrand);
   const catIcon = await page.locator('.header-brand .bi').textContent();
   check('编目页图标"汉"', catIcon === '汉', catIcon);
 

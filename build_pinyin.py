@@ -178,6 +178,28 @@ for p in parse_objects(jp_src):
                 if part and len(part) <= 12:
                     add(part, 'jpRuler', pname)
 
+# V8.0: 周边政权 (OTHER_STATES, 朝鲜/渤海/南诏/大理/越南等)
+if 'OTHER_STATES' in html:
+    ot_src = extract_array('OTHER_STATES')
+    for s in parse_objects(ot_src):
+        sname = get_field(s, 'name')
+        if not sname:
+            continue
+        add(sname, 'period')
+        em = find_field_array(s, 'eras')
+        if not em:
+            continue
+        for e in parse_objects(em[1:-1]):
+            ename = get_field(e, 'name')
+            if ename and ename != '—':
+                add(ename, 'jpEra', sname)
+            ruler = get_field(e, 'ruler')
+            if ruler:
+                for part in re.split(r'[/、]', ruler):
+                    part = part.strip()
+                    if part and len(part) <= 12:
+                        add(part, 'jpRuler', sname)
+
 # ---------------------------------------------------------------
 # 4. pypinyin 生成读音
 # ---------------------------------------------------------------

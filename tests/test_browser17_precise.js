@@ -142,7 +142,7 @@ function check(name, cond, extra) {
   const alertShown = await page.locator('#eraAlert.show').count();
   check('贞观触发重名提醒框', alertShown === 1, 'count=' + alertShown);
   const alertHtml = await page.locator('#eraAlert').innerHTML();
-  check('提醒框含唐/日本/西夏', alertHtml.includes('唐') && alertHtml.includes('日本') && alertHtml.includes('西夏'), 'html=' + alertHtml.slice(0, 80));
+  check('提醒框含唐/其他朝代/西夏', alertHtml.includes('唐') && alertHtml.includes('其他朝代') && alertHtml.includes('西夏'), 'html=' + alertHtml.slice(0, 80));
 
   // 中国内部重名: 太和
   await page.fill('#globalSearch', '太和');
