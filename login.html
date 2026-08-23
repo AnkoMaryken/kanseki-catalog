@@ -222,6 +222,19 @@ body {
 }
 .guest-btn:hover, .theme-toggle:hover { color: var(--color-text); background: var(--color-surface-hover); }
 .guest-btn { color: var(--color-text); font-weight: 600; }
+
+/* ===== V8.2 移动端适配 ===== */
+@media (max-width: 768px) {
+  body { padding: 1.25rem 0.75rem 2rem; justify-content: flex-start; }
+  .top-actions { top: 0.6rem; right: 0.6rem; }
+  .guest-btn, .theme-toggle { padding: 0.45rem 0.8rem; font-size: 0.78rem; }
+  .brand { margin-bottom: 1.4rem; margin-top: 0.6rem; }
+  .card { padding: 1.5rem 1.15rem; border-radius: var(--radius-lg); }
+  .card-title { font-size: 1.15rem; }
+  .field input { min-height: 46px; font-size: 16px; }
+  .btn-primary { min-height: 48px; font-size: 0.95rem; }
+  .switch { margin-top: 1.1rem; }
+}
 </style>
 </head>
 <body>

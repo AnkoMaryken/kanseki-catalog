@@ -146,6 +146,76 @@ tr:hover td { background: var(--color-surface-hover); }
 .dash-footer { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--color-border); font-size: 0.75rem; color: var(--color-text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
 .dash-footer a { color: var(--color-text-secondary); text-decoration: none; }
 .dash-footer a:hover { text-decoration: underline; }
+
+/* ===== V8.2 数据管理 ===== */
+.data-section { margin-top: 2rem; }
+.data-tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; border-bottom: 1px solid var(--color-border); padding-bottom: 0.6rem; margin-bottom: 1.2rem; }
+.data-tab-btn {
+  padding: 0.45rem 1.1rem; font-size: 0.84rem; border: 1px solid var(--color-border);
+  border-radius: 999px; background: var(--color-surface); color: var(--color-text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.data-tab-btn:hover { border-color: var(--color-accent); color: var(--color-text); }
+.data-tab-btn.active { background: var(--color-accent); color: var(--color-bg); border-color: var(--color-accent); font-weight: 600; }
+.data-panel { display: none; }
+.data-panel.active { display: block; }
+.data-toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.data-toolbar .btn-ghost { font-size: 0.78rem; padding: 0.4rem 0.9rem; }
+.edit-drawer {
+  position: fixed; right: 0; top: 0; bottom: 0; width: min(92vw, 460px); z-index: 500;
+  background: var(--color-surface); border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg); transform: translateX(105%); transition: transform var(--transition-md);
+  display: flex; flex-direction: column; padding: 1.2rem 1.3rem 2rem; overflow-y: auto;
+}
+.edit-drawer.open { transform: translateX(0); }
+.edit-drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.edit-drawer-head h3 { font-size: 1rem; font-weight: 600; }
+.edit-drawer .field { margin-bottom: 0.85rem; }
+.edit-drawer label { display: block; font-size: 0.78rem; color: var(--color-text-muted); margin-bottom: 0.3rem; }
+.edit-drawer input, .edit-drawer textarea, .edit-drawer select {
+  width: 100%; padding: 0.5rem 0.7rem; font-size: 0.85rem;
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-bg); color: var(--color-text);
+}
+.edit-drawer textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.78rem; }
+.edit-drawer .btn-row { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+.data-list-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  margin-bottom: 0.5rem; font-size: 0.85rem;
+}
+.data-list-item .li-name { font-weight: 500; }
+.data-list-item .li-meta { font-size: 0.72rem; color: var(--color-text-muted); }
+.data-list-item .li-actions { display: flex; gap: 0.4rem; }
+.data-list-item .li-actions button {
+  font-size: 0.72rem; padding: 0.22rem 0.55rem; border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm); background: var(--color-surface); cursor: pointer;
+}
+.data-list-item .li-actions button.danger { color: #dc2626; border-color: #dc2626; }
+.form-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.form-row .field { flex: 1; min-width: 140px; }
+.data-hint { font-size: 0.74rem; color: var(--color-text-muted); margin: 0.5rem 0; }
+@media (max-width: 768px) {
+  .top-actions { top: 0.6rem; right: 0.6rem; }
+  .btn-ghost, .theme-toggle { padding: 0.45rem 0.8rem; font-size: 0.78rem; }
+  .gate { padding: 1.25rem 0.75rem; justify-content: flex-start; }
+  .gate-card { padding: 1.5rem 1.15rem; border-radius: var(--radius-lg); }
+  .field input { min-height: 46px; font-size: 16px; }
+  .btn-primary { min-height: 48px; font-size: 0.95rem; }
+  .dash { padding: 1.25rem 0.75rem 2rem; }
+  .dash-header { margin-bottom: 1.25rem; }
+  .metrics { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .metric-card { padding: 0.85rem 0.9rem; }
+  .metric-value { font-size: 1.3rem; }
+  .panel { padding: 1rem 0.9rem; }
+  .data-list-item { align-items: flex-start; flex-direction: column; gap: 0.5rem; }
+  .data-list-item .li-actions { width: 100%; }
+  .data-list-item .li-actions button { flex: 1; }
+  .data-tabs { gap: 0.25rem; }
+  .data-tab-btn { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+  .edit-drawer { width: 100vw; }
+  .form-row .field { min-width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -203,6 +273,69 @@ tr:hover td { background: var(--color-surface-hover); }
     </div>
   </div>
 
+  <!-- V8.2 数据管理 -->
+  <div class="data-section" id="dataSection">
+    <h2 style="font-size:1.05rem;font-weight:600;margin-bottom:0.9rem;">数据管理</h2>
+    <div class="data-tabs" role="tablist" aria-label="数据管理分类">
+      <button class="data-tab-btn active" data-tab="calendar" role="tab">纪年数据</button>
+      <button class="data-tab-btn" data-tab="events" role="tab">大事记</button>
+      <button class="data-tab-btn" data-tab="catalog" role="tab">编目规范</button>
+      <button class="data-tab-btn" data-tab="quicklinks" role="tab">快速跳转</button>
+    </div>
+
+    <!-- 纪年数据 -->
+    <div class="data-panel active" id="panel-calendar">
+      <div class="data-toolbar">
+        <select id="calGroup" style="padding:0.4rem 0.7rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:0.82rem;">
+          <option value="cn">中国朝代</option>
+          <option value="jp">日本时代</option>
+          <option value="ot">周边政权</option>
+        </select>
+        <button class="btn-ghost" id="calAddBtn">+ 新增条目</button>
+        <button class="btn-ghost" id="calExportBtn">导出改动</button>
+        <button class="btn-ghost" id="calResetBtn" style="color:#dc2626;border-color:#dc2626;">重置覆盖层</button>
+      </div>
+      <div class="data-hint" id="calHint">覆盖层方式：录入数据写入 kanseki_overlay，查询页优先显示；清空覆盖层即恢复内置基线。</div>
+      <div id="calList"></div>
+    </div>
+
+    <!-- 大事记 -->
+    <div class="data-panel" id="panel-events">
+      <div class="data-toolbar">
+        <input type="number" id="evYearInput" placeholder="年份（如 1644）" min="-1000" max="2100"
+          style="width:120px;padding:0.4rem 0.7rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:0.82rem;">
+        <button class="btn-ghost" id="evBrowseBtn">浏览该年</button>
+        <button class="btn-ghost" id="evAddBtn">+ 新增大事</button>
+      </div>
+      <div class="data-hint">大事记存于 kanseki_events，展示在查询结果对应年份行/卡片下方「大事记」区块，支持全局搜索命中。</div>
+      <div id="evList"></div>
+    </div>
+
+    <!-- 编目规范 -->
+    <div class="data-panel" id="panel-catalog">
+      <div class="data-toolbar">
+        <select id="catTarget" style="padding:0.4rem 0.7rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:0.82rem;">
+          <option value="doc2023">DOC2023（简体细则）</option>
+          <option value="doc2025">DOC2025（繁体细则）</option>
+          <option value="catalogTree">CATALOG_TREE（分类树）</option>
+        </select>
+        <button class="btn-ghost" id="catLoadBtn">加载当前值</button>
+        <button class="btn-ghost" id="catSaveBtn">校验并保存</button>
+      </div>
+      <div class="data-hint">整段 JSON 编辑 + 校验。保存后写入 kanseki_catalog_overlay，catalog.html 加载时覆盖基线；仅本浏览器生效。</div>
+      <textarea id="catEditor" spellcheck="false" style="width:100%;min-height:300px;padding:0.7rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-family:ui-monospace,Consolas,monospace;font-size:0.78rem;" placeholder="点击「加载当前值」载入 DOC2023/DOC2025/CATALOG_TREE 当前内容，编辑后保存…"></textarea>
+    </div>
+
+    <!-- 快速跳转 -->
+    <div class="data-panel" id="panel-quicklinks">
+      <div class="data-toolbar">
+        <button class="btn-ghost" id="qlAddBtn">+ 新增链接</button>
+      </div>
+      <div class="data-hint">管理 embed.html 快速跳转的用户自定义链接（quickLinksCustom）。</div>
+      <div id="qlList"></div>
+    </div>
+  </div>
+
   <div class="table-wrap">
     <h2 style="font-size:0.95rem;font-weight:600;margin:1.5rem 0 0.9rem;">用户列表</h2>
     <table>
@@ -218,6 +351,7 @@ tr:hover td { background: var(--color-surface-hover); }
   </div>
 </div>
 
+<script src="overlay.js"></script>
 <script src="supabase-config.js"></script>
 <script src="admin-config.js" onerror="this.remove()"></script>
 <script>
@@ -287,23 +421,31 @@ function loadSession() {
 function clearSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) {} }
 
 // ===== 站点数据统计 (从 site-data.js 读取, 需在页面加载后执行) =====
+// V8.2: 统计纳入纪年覆盖层 (kanseki_overlay), 与查询页保持一致 (基线 + 本地新增/编辑/删除)
 function loadSiteStats() {
+  var ov = null;
+  try { if (typeof loadOverlay === 'function') ov = loadOverlay(); } catch (e) {}
+  var merged = {
+    cn: (ov && typeof applyOverlayToArray === 'function' && typeof CN_DYNASTIES !== 'undefined')
+      ? applyOverlayToArray(CN_DYNASTIES, ov.cn)
+      : (typeof CN_DYNASTIES !== 'undefined' ? CN_DYNASTIES : []),
+    jp: (ov && typeof applyOverlayToArray === 'function' && typeof JP_PERIODS !== 'undefined')
+      ? applyOverlayToArray(JP_PERIODS, ov.jp)
+      : (typeof JP_PERIODS !== 'undefined' ? JP_PERIODS : []),
+    ot: (ov && typeof applyOverlayToArray === 'function' && typeof OTHER_STATES !== 'undefined')
+      ? applyOverlayToArray(OTHER_STATES, ov.ot)
+      : (typeof OTHER_STATES !== 'undefined' ? OTHER_STATES : [])
+  };
   try {
-    if (typeof CN_DYNASTIES !== 'undefined') {
-      document.getElementById('mDynasty').textContent = CN_DYNASTIES.length;
-    }
+    document.getElementById('mDynasty').textContent = merged.cn.length;
   } catch (e) {}
   try {
-    if (typeof JP_PERIODS !== 'undefined') {
-      document.getElementById('mPeriod').textContent = JP_PERIODS.length;
-    }
+    document.getElementById('mPeriod').textContent = merged.jp.length;
   } catch (e) {}
   try {
     // V8.0: 周边政权数并入 metric-sub
-    if (typeof OTHER_STATES !== 'undefined' && typeof JP_PERIODS !== 'undefined') {
-      document.getElementById('mPeriodSub').textContent =
-        '日本 ' + JP_PERIODS.length + ' 时代 + 周边 ' + OTHER_STATES.length + ' 政权';
-    }
+    document.getElementById('mPeriodSub').textContent =
+      '日本 ' + merged.jp.length + ' 时代 + 周边 ' + merged.ot.length + ' 政权';
   } catch (e) {}
   try {
     // 总记录 = 中国年号 + 日本年号 + 周边政权年号（含子年号）; 若 FULL_DATA 存在则用其行数
@@ -311,38 +453,35 @@ function loadSiteStats() {
       document.getElementById('mTotal').textContent = FULL_DATA.length.toLocaleString();
     } else {
       let cnCnt = 0, jpCnt = 0, otCnt = 0;
-      if (typeof CN_DYNASTIES !== 'undefined') {
-        CN_DYNASTIES.forEach(d => (d.eras || []).forEach(e => {
-          cnCnt += (e.subEras ? e.subEras.length : 1);
-        }));
-      }
-      if (typeof JP_PERIODS !== 'undefined') {
-        JP_PERIODS.forEach(p => (p.eras || []).forEach(e => {
-          jpCnt += (e.subEras ? e.subEras.length : 1);
-        }));
-      }
-      if (typeof OTHER_STATES !== 'undefined') {
-        OTHER_STATES.forEach(s => (s.eras || []).forEach(e => {
-          otCnt += (e.subEras ? e.subEras.length : 1);
-        }));
-      }
+      merged.cn.forEach(d => (d.eras || []).forEach(e => {
+        cnCnt += (e.subEras ? e.subEras.length : 1);
+      }));
+      merged.jp.forEach(p => (p.eras || []).forEach(e => {
+        jpCnt += (e.subEras ? e.subEras.length : 1);
+      }));
+      merged.ot.forEach(s => (s.eras || []).forEach(e => {
+        otCnt += (e.subEras ? e.subEras.length : 1);
+      }));
       document.getElementById('mTotal').textContent = (cnCnt + jpCnt + otCnt).toLocaleString();
       document.getElementById('mTotal').dataset.fallback = '1';
     }
   } catch (e) {}
-  renderDist();
+  renderDist(merged);
 }
 
-function renderDist() {
+function renderDist(merged) {
   const dynBox = document.getElementById('dynTop');
   const perBox = document.getElementById('perTop');
-  if (typeof CN_DYNASTIES === 'undefined' || typeof JP_PERIODS === 'undefined') {
+  const cn = (merged && merged.cn) || (typeof CN_DYNASTIES !== 'undefined' ? CN_DYNASTIES : null);
+  const jp = (merged && merged.jp) || (typeof JP_PERIODS !== 'undefined' ? JP_PERIODS : null);
+  const ot = (merged && merged.ot) || (typeof OTHER_STATES !== 'undefined' ? OTHER_STATES : []);
+  if (!cn || !jp) {
     dynBox.innerHTML = '<p style="font-size:0.78rem;color:var(--color-text-muted);">数据未加载</p>';
     perBox.innerHTML = '<p style="font-size:0.78rem;color:var(--color-text-muted);">数据未加载</p>';
     return;
   }
   let dh = '';
-  CN_DYNASTIES.slice(0, 8).forEach(d => {
+  cn.slice(0, 8).forEach(d => {
     const n = (d.eras || []).length;
     const pct = Math.min(100, Math.round(n / 10 * 100));
     dh += '<div class="stat-row"><span class="k">' + d.name + '</span><span class="v">' + n + ' 个年号</span></div>';
@@ -351,10 +490,9 @@ function renderDist() {
   dynBox.innerHTML = dh;
   let ph = '';
   // V8.0: 日本时代按原顺序前 8 + 周边政权按年号数降序前 5（其他朝代）
-  const otList = (typeof OTHER_STATES !== 'undefined' && Array.isArray(OTHER_STATES)) ? OTHER_STATES : [];
-  const otSorted = otList.slice().sort((a, b) => (b.eras || []).length - (a.eras || []).length).slice(0, 5);
+  const otSorted = ot.slice().sort((a, b) => (b.eras || []).length - (a.eras || []).length).slice(0, 5);
   const perItems = [];
-  JP_PERIODS.slice(0, 8).forEach(p => perItems.push({ name: p.name, eras: (p.eras || []).length, ot: false }));
+  jp.slice(0, 8).forEach(p => perItems.push({ name: p.name, eras: (p.eras || []).length, ot: false }));
   otSorted.forEach(s => perItems.push({ name: s.name, eras: (s.eras || []).length, ot: true }));
   perItems.forEach(it => {
     const n = it.eras;
@@ -481,5 +619,383 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
 });
 </script>
 <script src="site-data.js"></script>
+<script>
+/* ============================================
+   V8.2 数据管理模块 (纪年数据 / 大事记 / 编目规范 / 快速跳转)
+   所有写操作前先校验 loadSession() 门禁
+   ============================================ */
+(function() {
+  if (!window.loadSession) return;
+
+  function guard() {
+    if (!loadSession()) {
+      alert('登录已过期，请重新登录管理员账号');
+      location.href = 'admin.html';
+      return false;
+    }
+    return true;
+  }
+
+  // 简繁: admin 界面固定简体, 录入数据存简体
+  var TABS = ['calendar', 'events', 'catalog', 'quicklinks'];
+
+  function initTabs() {
+    document.querySelectorAll('.data-tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (!guard()) return;
+        document.querySelectorAll('.data-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('.data-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var tab = btn.dataset.tab;
+        document.getElementById('panel-' + tab).classList.add('active');
+        if (tab === 'calendar') renderCalendar();
+        if (tab === 'events') renderEvents();
+        if (tab === 'quicklinks') renderQuickLinks();
+      });
+    });
+  }
+
+  /* ---------- 纪年数据 (overlay CRUD) ---------- */
+  function baseArrays() {
+    return {
+      cn: (typeof CN_DYNASTIES !== 'undefined') ? CN_DYNASTIES : [],
+      jp: (typeof JP_PERIODS !== 'undefined') ? JP_PERIODS : [],
+      ot: (typeof OTHER_STATES !== 'undefined') ? OTHER_STATES : []
+    };
+  }
+
+  function renderCalendar() {
+    var group = document.getElementById('calGroup').value;
+    var ov = loadOverlay();
+    var bases = baseArrays();
+    var base = bases[group];
+    // 基线 + 覆盖层合并 (预览效果)
+    var merged = applyOverlayToArray(base, ov[group]);
+    var list = document.getElementById('calList');
+    var html = merged.map(function(item, i) {
+      var eras = (item.eras || []).length;
+      // 判断是否覆盖层新增
+      var isOverlay = ov[group].some(function(op) { return op.op === 'add' && op.item && op.item.id === item.id; });
+      return '<div class="data-list-item">' +
+        '<div><span class="li-name">' + item.name + '</span>' +
+        '<div class="li-meta">' + (item.group || '') + (item.range ? ' · ' + item.range[0] + '~' + item.range[1] : '') + ' · ' + eras + ' 个年号' + (isOverlay ? ' · <span style="color:#16a34a;">已新增</span>' : '') + '</div></div>' +
+        '<div class="li-actions">' +
+        '<button data-idx="' + i + '" data-op="edit">编辑</button>' +
+        '<button data-idx="' + i + '" data-op="del" class="danger">删除</button>' +
+        '</div></div>';
+    }).join('');
+    list.innerHTML = html || '<p style="color:var(--color-text-muted);font-size:0.8rem;">暂无数据</p>';
+
+    list.querySelectorAll('button[data-op]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (!guard()) return;
+        var idx = parseInt(this.dataset.idx);
+        var op = this.dataset.op;
+        var item = merged[idx];
+        if (!item) return;
+        if (op === 'del') {
+          if (!confirm('确认删除「' + item.name + '」？(覆盖层删除, 基线数据不受影响)')) return;
+          // 若基线含该 id → del; 若为覆盖层新增 → 移除对应 add op
+          var ovNow = loadOverlay();
+          var hasBase = base.some(function(b) { return b.id === item.id; });
+          if (hasBase) {
+            ovNow[group] = ovNow[group].filter(function(x) { return !(x.op === 'del' && x.targetId === item.id); });
+            ovNow[group].push({ op: 'del', targetId: item.id });
+          } else {
+            ovNow[group] = ovNow[group].filter(function(x) { return !(x.op === 'add' && x.item && x.item.id === item.id); });
+          }
+          saveOverlay(ovNow);
+          renderCalendar();
+          toast('已删除「' + item.name + '」');
+        } else if (op === 'edit') {
+          openCalendarEditor(item, group);
+        }
+      });
+    });
+  }
+
+  function openCalendarEditor(item, group) {
+    var name = prompt('名称（如 新朝代/时代/政权）', item.name || '');
+    if (name === null) return;
+    var rangeStr = prompt('起止年份（如 -200,100 或 960,1127）', (item.range || []).join(','));
+    if (rangeStr === null) return;
+    var erasStr = prompt('年号列表 JSON（[{name,ruler,r:[起,止]},...]）', JSON.stringify(item.eras || []));
+    if (erasStr === null) return;
+    var eras;
+    try { eras = JSON.parse(erasStr); if (!Array.isArray(eras)) throw new Error('not array'); }
+    catch (e) { alert('年号 JSON 格式错误'); return; }
+    var range = [];
+    if (rangeStr.trim()) {
+      var parts = rangeStr.split(',').map(function(x) { return parseInt(x.trim(), 10); });
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) range = parts;
+    }
+    var ovNow = loadOverlay();
+    var hasBase = baseArrays()[group].some(function(b) { return b.id === item.id; });
+    var newItem = { id: item.id, name: name, group: item.group || group, range: range, eras: eras };
+    if (hasBase) {
+      ovNow[group] = ovNow[group].filter(function(x) { return !(x.op === 'edit' && x.targetId === item.id); });
+      ovNow[group].push({ op: 'edit', targetId: item.id, item: newItem });
+    } else {
+      ovNow[group] = ovNow[group].filter(function(x) { return !(x.op === 'add' && x.item && x.item.id === item.id); });
+      ovNow[group].push({ op: 'add', item: newItem });
+    }
+    saveOverlay(ovNow);
+    renderCalendar();
+    toast('已保存「' + name + '」');
+  }
+
+  function addCalendarItem() {
+    var group = document.getElementById('calGroup').value;
+    var id = 'custom_' + group + '_' + Date.now();
+    var name = prompt('名称（如 新朝代/时代/政权）', '');
+    if (name === null || !name.trim()) return;
+    var groupName = group === 'cn' ? '自定义' : (group === 'jp' ? '日本' : '周边');
+    var rangeStr = prompt('起止年份（如 1000,1010）', '');
+    var erasStr = prompt('年号列表 JSON（[{name,ruler,r:[起,止]},...]，如 [{"name":"测试年号","ruler":"测试君主","r":[1000,1010]}]）', '[{"name":"","ruler":"","r":[]}]');
+    if (erasStr === null) return;
+    var eras;
+    try { eras = JSON.parse(erasStr); if (!Array.isArray(eras)) throw new Error('not array'); }
+    catch (e) { alert('年号 JSON 格式错误'); return; }
+    var range = [];
+    if (rangeStr.trim()) {
+      var parts = rangeStr.split(',').map(function(x) { return parseInt(x.trim(), 10); });
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) range = parts;
+    }
+    var ovNow = loadOverlay();
+    ovNow[group].push({ op: 'add', item: { id: id, name: name.trim(), group: groupName, range: range, eras: eras } });
+    saveOverlay(ovNow);
+    renderCalendar();
+    toast('已新增「' + name.trim() + '」');
+  }
+
+  /* ---------- 大事记 ---------- */
+  function renderEvents(year) {
+    var y = year || parseInt(document.getElementById('evYearInput').value, 10);
+    if (!y && y !== 0) { document.getElementById('evList').innerHTML = '<p class="data-hint">输入年份后点击「浏览该年」查看/管理该年大事记。</p>'; return; }
+    var ev = loadEvents();
+    var list = ev[String(y)] || [];
+    var box = document.getElementById('evList');
+    if (!list.length) {
+      box.innerHTML = '<p class="data-hint">' + y + ' 年暂无大事记，点击「新增大事」添加。</p>';
+      return;
+    }
+    box.innerHTML = list.map(function(it, i) {
+      return '<div class="data-list-item">' +
+        '<div><span class="li-name">' + (it.title || '') + '</span>' +
+        '<div class="li-meta">' + (it.category || '') + (it.source ? ' · 来源:' + it.source : '') + '</div>' +
+        (it.desc ? '<div class="li-meta" style="margin-top:0.2rem;">' + it.desc + '</div>' : '') +
+        '</div>' +
+        '<div class="li-actions">' +
+        '<button data-i="' + i + '" data-op="edit">编辑</button>' +
+        '<button data-i="' + i + '" data-op="del" class="danger">删除</button>' +
+        '</div></div>';
+    }).join('');
+    box.querySelectorAll('button[data-op]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (!guard()) return;
+        var i = parseInt(this.dataset.i);
+        var op = this.dataset.op;
+        if (op === 'del') {
+          if (!confirm('确认删除该条大事记？')) return;
+          var evNow = loadEvents();
+          evNow[String(y)] = (evNow[String(y)] || []).filter(function(_, idx) { return idx !== i; });
+          if (!evNow[String(y)].length) delete evNow[String(y)];
+          saveEvents(evNow);
+          renderEvents(y);
+          toast('已删除');
+        } else {
+          var it = list[i];
+          var title = prompt('标题', it.title || '');
+          if (title === null) return;
+          var desc = prompt('详情', it.desc || '');
+          if (desc === null) return;
+          var category = prompt('分类（政治/军事/文化/科技/人物/趣闻等）', it.category || '');
+          if (category === null) return;
+          var source = prompt('来源', it.source || '');
+          if (source === null) return;
+          var evNow = loadEvents();
+          evNow[String(y)] = (evNow[String(y)] || []).map(function(x, idx) {
+            if (idx !== i) return x;
+            return { id: x.id, year: y, title: title.trim(), desc: desc.trim(), category: category.trim(), source: source.trim(), updatedAt: new Date().toISOString() };
+          });
+          saveEvents(evNow);
+          renderEvents(y);
+          toast('已保存');
+        }
+      });
+    });
+  }
+
+  function addEventItem() {
+    var y = parseInt(document.getElementById('evYearInput').value, 10);
+    if (!y && y !== 0) { alert('请先输入年份'); return; }
+    var title = prompt('标题（如 甲申之变）', '');
+    if (title === null || !title.trim()) return;
+    var desc = prompt('详情', '');
+    if (desc === null) return;
+    var category = prompt('分类（政治/军事/文化/科技/人物/趣闻等）', '');
+    if (category === null) return;
+    var source = prompt('来源', '');
+    if (source === null) return;
+    var evNow = loadEvents();
+    if (!evNow[String(y)]) evNow[String(y)] = [];
+    evNow[String(y)].push({
+      id: 'ev_' + Date.now(), year: y, title: title.trim(), desc: desc.trim(),
+      category: category.trim(), source: source.trim(), updatedAt: new Date().toISOString()
+    });
+    saveEvents(evNow);
+    renderEvents(y);
+    toast('已新增大事记');
+  }
+
+  /* ---------- 编目规范 ---------- */
+  function loadCatalogValue() {
+    var target = document.getElementById('catTarget').value;
+    var editor = document.getElementById('catEditor');
+    var overlay = loadCatalogOverlay();
+    var baseVal = null;
+    if (target === 'doc2023' && typeof DOC2023 !== 'undefined') baseVal = DOC2023;
+    if (target === 'doc2025' && typeof DOC2025 !== 'undefined') baseVal = DOC2025;
+    if (target === 'catalogTree' && typeof CATALOG_TREE !== 'undefined') baseVal = CATALOG_TREE;
+    var val = overlay[target] !== undefined ? overlay[target] : baseVal;
+    editor.value = JSON.stringify(val, null, 2);
+  }
+
+  function saveCatalogValue() {
+    var target = document.getElementById('catTarget').value;
+    var editor = document.getElementById('catEditor');
+    var parsed;
+    try { parsed = JSON.parse(editor.value); }
+    catch (e) { alert('JSON 格式错误：' + e.message); return; }
+    var overlay = loadCatalogOverlay();
+    overlay[target] = parsed;
+    saveCatalogOverlay(overlay);
+    toast('已保存 ' + target + '（写入 kanseki_catalog_overlay，catalog.html 将自动刷新生效）');
+  }
+
+  /* ---------- 快速跳转 ---------- */
+  function getQuickLinks() {
+    try { var q = JSON.parse(localStorage.getItem('quickLinksCustom') || '[]'); return Array.isArray(q) ? q : []; }
+    catch (e) { return []; }
+  }
+  function saveQuickLinks(arr) {
+    try { localStorage.setItem('quickLinksCustom', JSON.stringify(arr)); } catch (e) {}
+  }
+  function renderQuickLinks() {
+    var links = getQuickLinks();
+    var box = document.getElementById('qlList');
+    box.innerHTML = links.map(function(l, i) {
+      return '<div class="data-list-item">' +
+        '<div><span class="li-name">' + (l.name || '') + '</span><div class="li-meta">' + (l.url || '') + '</div></div>' +
+        '<div class="li-actions">' +
+        '<button data-i="' + i + '" data-op="edit">编辑</button>' +
+        '<button data-i="' + i + '" data-op="del" class="danger">删除</button>' +
+        '</div></div>';
+    }).join('') || '<p class="data-hint">暂无自定义链接。</p>';
+    box.querySelectorAll('button[data-op]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (!guard()) return;
+        var i = parseInt(this.dataset.i);
+        var op = this.dataset.op;
+        if (op === 'del') {
+          if (!confirm('确认删除该链接？')) return;
+          var arr = getQuickLinks().filter(function(_, idx) { return idx !== i; });
+          saveQuickLinks(arr);
+          renderQuickLinks();
+          toast('已删除');
+        } else {
+          var l = links[i];
+          var name = prompt('名称', l.name || '');
+          if (name === null) return;
+          var url = prompt('URL', l.url || '');
+          if (url === null) return;
+          var arr = getQuickLinks().map(function(x, idx) { return idx === i ? { name: name.trim(), url: url.trim() } : x; });
+          saveQuickLinks(arr);
+          renderQuickLinks();
+          toast('已保存');
+        }
+      });
+    });
+  }
+  function addQuickLink() {
+    var name = prompt('名称', '');
+    if (name === null || !name.trim()) return;
+    var url = prompt('URL（https://…）', '');
+    if (url === null || !url.trim()) return;
+    var arr = getQuickLinks();
+    arr.push({ name: name.trim(), url: url.trim() });
+    saveQuickLinks(arr);
+    renderQuickLinks();
+    toast('已新增链接');
+  }
+
+  /* ---------- 工具栏 ---------- */
+  function exportChanges() {
+    if (!guard()) return;
+    var data = (typeof exportAllChanges === 'function') ? exportAllChanges() : null;
+    if (!data) { alert('导出失败'); return; }
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kanseki-changes-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('已导出改动备份');
+  }
+
+  function resetOverlay() {
+    if (!guard()) return;
+    if (!confirm('确认清空所有纪年覆盖层改动？内置基线将恢复，不可撤销。')) return;
+    if (typeof window.resetOverlay === 'function') window.resetOverlay();
+    renderCalendar();
+    toast('已重置覆盖层，恢复内置基线');
+  }
+
+  function toast(msg) {
+    var t = document.getElementById('adminToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'adminToast';
+      t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--color-text);color:var(--color-bg);padding:0.6rem 1.2rem;border-radius:999px;font-size:0.82rem;z-index:999;box-shadow:var(--shadow-lg);opacity:0;transition:opacity .3s;pointer-events:none;';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(function() { t.style.opacity = '0'; }, 2200);
+  }
+
+  /* ---------- 初始化 ---------- */
+  function initDataManager() {
+    initTabs();
+    document.getElementById('calGroup').addEventListener('change', renderCalendar);
+    document.getElementById('calAddBtn').addEventListener('click', function() { if (guard()) addCalendarItem(); });
+    document.getElementById('calExportBtn').addEventListener('click', exportChanges);
+    document.getElementById('calResetBtn').addEventListener('click', resetOverlay);
+    document.getElementById('evBrowseBtn').addEventListener('click', function() { if (guard()) renderEvents(); });
+    document.getElementById('evAddBtn').addEventListener('click', function() { if (guard()) addEventItem(); });
+    document.getElementById('evYearInput').addEventListener('keydown', function(e) { if (e.key === 'Enter' && guard()) renderEvents(); });
+    document.getElementById('catLoadBtn').addEventListener('click', function() { if (guard()) loadCatalogValue(); });
+    document.getElementById('catSaveBtn').addEventListener('click', function() { if (guard()) saveCatalogValue(); });
+    document.getElementById('qlAddBtn').addEventListener('click', function() { if (guard()) addQuickLink(); });
+    renderCalendar();
+  }
+
+  // 登录后初始化
+  var _origEnterDash = window.enterDash;
+  if (typeof _origEnterDash === 'function') {
+    window.enterDash = function(session) {
+      _origEnterDash(session);
+      // 数据管理区在站点统计后初始化 (需 site-data.js 数据就绪)
+      setTimeout(initDataManager, 100);
+    };
+  }
+  // 已登录直接进工作台的情况: enterDash 已在早期脚本执行, 这里补初始化
+  // (site-data.js 此时已就绪, 补刷统计避免时序上统计为 0)
+  if (document.getElementById('dash') && document.getElementById('dash').classList.contains('show')) {
+    if (typeof loadSiteStats === 'function') loadSiteStats();
+    setTimeout(initDataManager, 200);
+  }
+})();
+</script>
 </body>
 </html>

@@ -716,6 +716,16 @@ tr:hover .era-copy-btn, .era-entry:focus-within .era-copy-btn { opacity: 1; }
 tr.nearby-row {
   opacity: 0.78;
 }
+/* V8.3: 干支错写修正命中行 (如 "巳巳" → 己巳年) 弱高亮 */
+tr.typo-hit-row td {
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface)) !important;
+}
+tr.typo-hit-row td.cell-year,
+tr.typo-hit-row td.cell-ganzhi { color: var(--color-accent); font-weight: 700; }
+.year-card.typo-hit { background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface)); }
+.year-card.typo-hit .yc-year,
+.year-card.typo-hit .yc-ganzhi { color: var(--color-accent); }
+.ea-gz-years { color: var(--color-text-secondary); }
 tr.nearby-row td {
   background: color-mix(in srgb, var(--color-bg) 60%, transparent) !important;
   color: var(--color-text-secondary);
@@ -1579,6 +1589,226 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
 .qf-era-tag:hover { border-color: var(--color-scrollbar-hover); color: var(--color-text); }
 .qf-era-tag.selected { background: var(--color-primary); color: var(--color-bg); border-color: var(--color-primary); font-weight: 600; }
 
+/* V8.3: 整朝筛选操作条 (右列顶部) */
+.qf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.75rem; padding-bottom: 0.65rem; border-bottom: 1px dashed var(--color-border); }
+.qf-act-btn {
+  font-size: 0.78rem; padding: 0.28rem 0.75rem; border-radius: 999px;
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast);
+  user-select: none;
+}
+.qf-act-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.qf-act-btn.active { background: var(--color-accent); color: var(--color-bg); border-color: var(--color-accent); font-weight: 600; }
+.qf-act-hint { font-size: 0.7rem; color: var(--color-text-muted); width: 100%; }
+
+/* ============================================
+   V8.2 移动端适配覆盖层 (≤768px)
+   桌面端 (>768px) 架构 100% 不变
+   ============================================ */
+/* ---- 汉堡按钮 (默认隐藏, ≤768px 显示) ---- */
+.m-hamburger {
+  display: none;
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); cursor: pointer;
+  align-items: center; justify-content: center;
+  color: var(--color-text);
+}
+.m-hamburger:hover { background: var(--color-surface-hover); }
+.m-hamburger svg { display: block; }
+
+/* ---- 抽屉遮罩 ---- */
+.drawer-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.45);
+  opacity: 0; visibility: hidden;
+  transition: opacity var(--transition-md), visibility var(--transition-md);
+}
+.drawer-overlay.open { opacity: 1; visibility: visible; }
+
+/* ---- 右滑抽屉 ---- */
+.drawer {
+  display: none;
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 950;
+  width: min(78vw, 320px);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(105%);
+  transition: transform var(--transition-md) var(--ease-spring);
+  overflow-y: auto;
+  padding: 1rem 0.9rem 2rem;
+  flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-brand {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 0.4rem 1rem; border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0.8rem;
+}
+.drawer-brand .brand-icon {
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  background: var(--color-primary); color: var(--color-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 0.95rem;
+}
+.drawer-brand h2 { font-size: 0.92rem; font-weight: 600; margin: 0; }
+.drawer-nav { display: flex; flex-direction: column; gap: 0.1rem; }
+.drawer-nav-group { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.8rem 0.4rem 0.3rem; letter-spacing: 0.03em; }
+.drawer-link {
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.65rem 0.6rem; border-radius: var(--radius-md);
+  font-size: 0.92rem; color: var(--color-text);
+  text-decoration: none; transition: all var(--transition-fast);
+}
+.drawer-link:hover { background: var(--color-surface-hover); }
+.drawer-link.active { background: var(--color-bg-alt); font-weight: 600; }
+.drawer-user { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 0.5rem; }
+.drawer-user .lang-switch { display: flex; gap: 0.3rem; }
+
+/* ---- 卡片视图 (桌面与移动共用, 默认隐藏, body.view-card 或 ≤768px 显示) ---- */
+/* V8.3: 桌面卡片改为横向网格排布 (4列/6列可切换, 由 body 类控制) */
+.card-view { display: none; flex-direction: column; gap: 0.85rem; }
+body.view-card .table-wrapper { display: none !important; }
+body.view-card .card-view { display: flex; }
+/* 桌面网格: 默认 4 列; body.card-cols-6 时为 6 列; ≤1280px 自动降列数; 移动端保持单列 */
+body.view-card .card-view {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+}
+body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 1280px) {
+  body.view-card .card-view { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  body.view-card .card-view, body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  body.view-card .card-view, body.view-card.card-cols-6 .card-view { grid-template-columns: 1fr; }
+}
+/* 分隔行在网格中跨整行 */
+.card-sep { grid-column: 1 / -1; }
+.year-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 0.9rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast);
+}
+.year-card:hover { box-shadow: var(--shadow-md); }
+.year-card.precise { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.yc-top { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.yc-year { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.yc-year.bc { color: var(--color-china-accent); }
+.yc-ganzhi { font-size: 0.92rem; font-weight: 600; color: var(--color-text-secondary); }
+.yc-zodiac { font-size: 0.75rem; color: var(--color-text-muted); }
+.yc-block { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.5rem 0.65rem; margin-bottom: 0.45rem; }
+.yc-block.jp { border-color: var(--color-japan-accent); }
+.yc-block-label { font-size: 0.68rem; color: var(--color-text-muted); letter-spacing: 0.04em; margin-bottom: 0.3rem; }
+.yc-era-row { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; padding: 0.2rem 0; flex-wrap: wrap; }
+.yc-era-name { font-size: 0.9rem; font-weight: 600; }
+.yc-era-name .era-flash { animation: eraFlash 1.6s ease-in-out infinite; }
+@keyframes eraFlash { 0%,100% { background: transparent; } 50% { background: rgba(255, 193, 7, 0.35); } }
+.yc-copy {
+  font-size: 0.66rem; padding: 0.14rem 0.45rem;
+  border: 1px solid var(--color-border); border-radius: 999px;
+  background: var(--color-bg-alt); color: var(--color-text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.yc-copy:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.yc-copy.copied { background: var(--color-accent); color: var(--color-bg); }
+.yc-meta { font-size: 0.75rem; color: var(--color-text-muted); }
+.yc-notes { font-size: 0.78rem; color: var(--color-text-secondary); padding-top: 0.3rem; border-top: 1px dashed var(--color-border); margin-top: 0.4rem; }
+.yc-empty { font-size: 0.82rem; color: var(--color-text-muted); padding: 0.3rem 0; }
+.yc-empty .yc-dash { color: var(--color-text-muted); }
+/* V8.3: 卡片内年号行 (表格 .era-entry 结构复用, 含独立复制按钮) */
+.yc-era-rows { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.15rem 0; }
+.card-view .era-entry { display: flex; align-items: center; gap: 3px; padding: 1px 0; }
+.card-view .era-copy-btn { opacity: 1; } /* 卡片内复制按钮常显 */
+
+/* ---- 大事记区块 (表格子行 + 卡片区块共用) ---- */
+.events-block { padding: 0.4rem 0.2rem; }
+.events-block-title { font-size: 0.74rem; font-weight: 600; color: var(--color-accent); letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+.events-block-title::before { content: '◆'; font-size: 0.6rem; }
+.event-item { padding: 0.45rem 0; border-bottom: 1px dashed var(--color-border); }
+.event-item:last-child { border-bottom: none; }
+.event-title { font-size: 0.9rem; font-weight: 600; }
+.event-title mark { background: rgba(255, 193, 7, 0.3); }
+.event-desc { font-size: 0.82rem; color: var(--color-text-secondary); margin-top: 0.2rem; line-height: 1.55; }
+.event-desc mark { background: rgba(255, 193, 7, 0.3); }
+.event-meta { font-size: 0.7rem; color: var(--color-text-muted); margin-top: 0.25rem; }
+.event-subrow td { background: var(--color-bg-alt); }
+.yc-events { margin-top: 0.55rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border); }
+
+/* ---- 视图切换控件 ---- */
+.view-mode-switch { display: inline-flex; align-items: center; gap: 0.2rem; margin-left: 0.9rem; background: var(--color-bg-alt); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.15rem; }
+.view-mode-switch button {
+  border: none; background: transparent; color: var(--color-text-muted);
+  font-size: 0.74rem; padding: 0.3rem 0.7rem; border-radius: 999px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.3rem; transition: all var(--transition-fast);
+}
+.view-mode-switch button.active { background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-sm); font-weight: 600; }
+/* V8.3: 卡片列数切换 (视图切换组内分隔) */
+.card-cols-switch { display: inline-flex; align-items: center; gap: 0.15rem; margin-left: 0.35rem; padding-left: 0.35rem; border-left: 1px solid var(--color-border); }
+.card-cols-btn {
+  border: none; background: transparent; color: var(--color-text-muted);
+  font-size: 0.72rem; padding: 0.22rem 0.5rem; border-radius: 999px; cursor: pointer;
+  display: inline-flex; align-items: center; transition: all var(--transition-fast);
+  font-variant-numeric: tabular-nums;
+}
+.card-cols-btn:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.card-cols-btn.active { background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-sm); font-weight: 600; }
+@media (max-width: 768px) {
+  .card-cols-switch { display: none !important; }
+}
+
+/* ---- ≤768px 覆盖: 汉堡显示 / 桌面导航隐藏 / 表格强制卡片 / qf 底部抽屉 ---- */
+@media (max-width: 768px) {
+  .m-hamburger { display: inline-flex; }
+  .drawer-overlay, .drawer { display: block; }
+  .header-inner .header-nav { display: none !important; }
+  .header-search { order: 3; }
+  .header-actions .user-dropdown { display: none !important; }
+  
+  /* 修复: 旧移动筛选遮罩仅打开时显示, 平时不遮挡点击 */
+  .filter-panel-overlay { display: none; }
+  .filter-panel-overlay.open { display: block; }
+  .filter-panel-mobile { display: none; }
+  .filter-panel-mobile.open { display: block; }
+  
+  /* 强制卡片 (不依赖 body 类) */
+  .table-wrapper { display: none !important; }
+  .card-view { display: flex !important; }
+  .empty-state { display: block; }
+  
+  /* qf 快捷筛选 → 底部全屏抽屉 */
+  .qf-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+    width: 100%; max-height: 78vh;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.18);
+    z-index: 980;
+    transform: translateY(105%);
+    transition: transform var(--transition-md) var(--ease-spring);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex; flex-direction: column;
+  }
+  .qf-panel.open { transform: translateY(0); }
+  .qf-col-dyn { min-width: 0; width: 50%; }
+  .qf-col-era { min-width: 0; width: 50%; max-height: none; }
+  .qf-wrap .qf-chips { display: none; }
+  
+  .stats-bar .view-mode-switch { display: none; } /* 移动端无需切换 (强制卡片) */
+  
+  /* 卡片内触控友好 */
+  .year-card { padding: 0.8rem 0.9rem; }
+  .yc-copy { padding: 0.28rem 0.7rem; font-size: 0.75rem; }
+}
+
 </style>
 </head>
 <body>
@@ -1588,6 +1818,9 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
      ============================================ -->
 <header class="app-header" role="banner">
   <div class="header-inner">
+    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <div class="header-brand">
       <div class="brand-icon" aria-hidden="true">汉</div>
       <h1>古代史及汉籍研究工具</h1>
@@ -1625,6 +1858,32 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
     </div>
   </div>
 </header>
+
+<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示, 桌面 .header-nav 原样保留) -->
+<div class="drawer-overlay" id="mDrawerOverlay"></div>
+<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
+  <div class="drawer-brand">
+    <div class="brand-icon" aria-hidden="true">汉</div>
+    <h2>古代史及汉籍研究工具</h2>
+  </div>
+  <nav class="drawer-nav">
+    <div class="drawer-nav-group">导航</div>
+    <a href="index.html" class="drawer-link active">纪年查询</a>
+    <a href="catalog.html" class="drawer-link">编目规范</a>
+    <a href="embed.html" class="drawer-link">快速跳转</a>
+    <div class="drawer-nav-group">说明文档</div>
+    <a href="guide.html" class="drawer-link">使用介绍</a>
+    <a href="changelog.html" class="drawer-link">更新日志</a>
+  </nav>
+  <div class="drawer-user">
+    <span style="font-size:0.74rem;color:var(--color-text-muted);">显示字形</span>
+    <div class="lang-switch" role="group" aria-label="显示字形切换">
+      <button id="mLangBtnS" type="button" title="显示简体字">简</button>
+      <button id="mLangBtnT" class="active" type="button" title="显示繁体字">繁</button>
+    </div>
+    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
+  </div>
+</aside>
 
 <!-- ============================================
      Filter Bar (Desktop) — V5.1 起改为 stats-bar 内快捷筛选浮窗
@@ -1676,6 +1935,22 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
     <div class="stats-left">
       <div class="stats-info" id="statsInfo">
         共 <strong id="totalCount">0</strong> 条记录
+      </div>
+      <!-- V8.2 表格/卡片视图切换 (桌面端) -->
+      <div class="view-mode-switch" id="viewModeSwitch" role="group" aria-label="视图切换">
+        <button type="button" id="viewModeTable" class="active" aria-pressed="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          表格
+        </button>
+        <button type="button" id="viewModeCard" aria-pressed="false">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          卡片
+        </button>
+        <!-- V8.3: 卡片列数切换 (4列/6列, 仅卡片视图显示) -->
+        <span class="card-cols-switch" id="cardColsSwitch" role="group" aria-label="卡片列数" style="display:none;">
+          <button type="button" class="card-cols-btn active" data-cols="4" aria-pressed="true">4列</button>
+          <button type="button" class="card-cols-btn" data-cols="6" aria-pressed="false">6列</button>
+        </span>
       </div>
       <!-- 快捷筛选 (V5.1 浮窗式) -->
       <div class="qf-wrap" id="qfWrap">
@@ -1737,6 +2012,9 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
       <tbody id="tableBody"></tbody>
     </table>
   </div>
+
+  <!-- V8.2 卡片视图容器 (表格/卡片双视图 + 移动端强制卡片) -->
+  <div class="card-view" id="cardView" role="region" aria-label="纪年对照数据卡片"></div>
 
   <!-- Empty State -->
   <div class="empty-state" id="emptyState">
@@ -1809,6 +2087,8 @@ body { transition: background-color 0.3s ease, color 0.3s ease; }
      ============================================ -->
 <!-- 拼音数据 (v2.0): 需在主逻辑之前加载 -->
 <script src="pinyin_data.js"></script>
+<script src="overlay.js"></script>
+<script src="mobile-nav.js"></script>
 <script>
 (function() {
 'use strict';
@@ -1973,8 +2253,8 @@ function setDisplayLang(lang) {
     el.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent.trim(), lang); });
   });
   
-  // 表格重渲染 (显示字形)
-  renderTable();
+  // 表格重渲染 (显示字形) — V8.2: 按视图模式渲染
+  renderByViewMode();
 }
 
 // ========================================
@@ -1998,7 +2278,8 @@ function getZodiac(year) {
 // ========================================
 // 中国朝代数据 (range: [start, end], inclusive for both)
 // ========================================
-const CN_DYNASTIES = [
+// V8.2: 由 const 改 let, 供 overlay.js 的 applyOverlayAll() 就地覆盖合并
+let CN_DYNASTIES = [
   { id:'cn_zhou_west', name:'西周', group:'先秦', range:[-1046,-771],
     eras:[
       {name:'共和', ruler:'周召共和', r:[-841,-828]},
@@ -2350,7 +2631,8 @@ const CN_DYNASTIES = [
 // ========================================
 // 日本时代数据
 // ========================================
-const JP_PERIODS = [
+// V8.2: 由 const 改 let, 供 overlay.js 的 applyOverlayAll() 就地覆盖合并
+let JP_PERIODS = [
   { id:'jp_asuka', name:'飞鸟', range:[592,710],
     eras:[
       {name:'大化', ruler:'孝德天皇', r:[645,650]},
@@ -2636,7 +2918,8 @@ const JP_PERIODS = [
     ]}
 ]
 
-const OTHER_STATES = [
+// V8.2: 由 const 改 let, 供 overlay.js 的 applyOverlayAll() 就地覆盖合并
+let OTHER_STATES = [
   {
     id: 'kr_goguryeo',
     name: '高句丽',
@@ -4203,6 +4486,11 @@ function rowPinyinHit(row, q) {
 }
 
 // Build data on load
+// V8.2: 先应用覆盖层 (kanseki_overlay), 再构建 FULL_DATA, 使录入数据进入完整流水线
+// 注: CN_DYNASTIES/JP_PERIODS/OTHER_STATES 为 IIFE 局部 let, 显式传入引用
+if (typeof window.applyOverlayAll === 'function') {
+  window.applyOverlayAll(CN_DYNASTIES, JP_PERIODS, OTHER_STATES);
+}
 FULL_DATA = buildFullDataset();
 buildEraCandidates();
 
@@ -4431,7 +4719,19 @@ function qfRenderEraPanel() {
   const src = sources.find(s => s.key === qfViewingKey);
   if (!src) { body.innerHTML = ''; return; }
   const groups = qfGroupByEmperor(src.eras);
+  // V8.3: 整朝筛选 — 当前朝代是否已被整体选中
+  const dynSelected = (src.kind === 'cn') ? selectedChinaFilters.has(src.label) : selectedJapanFilters.has(src.label);
+  const allErasSel = groups.length > 0 && groups.every(g => g.eras.every(e => selectedChinaEras.has(e.name)));
+  const eraTagCount = groups.reduce((n, g) => n + g.eras.length, 0);
+  // V8.3: 操作条 — 「选择整个朝代」切换 + 「全选/清空本朝年号」
   let h = `<div class="qf-era-label">${toDisplay(src.label)} · 年号（按皇帝分组）</div>`;
+  h += `<div class="qf-actions">
+    <button type="button" class="qf-act-btn${dynSelected ? ' active' : ''}" id="qfActDyn" data-dyn="${src.label}" data-kind="${src.kind}">
+      ${dynSelected ? '✓ 已选整个朝代' : '⊕ 选择整个朝代'}
+    </button>
+    <button type="button" class="qf-act-btn" id="qfActAllEras">${allErasSel ? '清空本朝年号' : '全选本朝年号'}</button>
+    <span class="qf-act-hint">先选整个朝代，再点年号可精确到某皇帝</span>
+  </div>`;
   for (const g of groups) {
     h += '<div class="qf-emperor">';
     h += `<div class="qf-emperor-name">${toDisplay(g.title)}${g.given ? `<span class="qf-emperor-given">${toDisplay(g.given)}</span>` : ''}</div>`;
@@ -4443,6 +4743,31 @@ function qfRenderEraPanel() {
     h += '</div></div>';
   }
   body.innerHTML = h;
+  // V8.3: 整朝切换
+  const actDyn = document.getElementById('qfActDyn');
+  if (actDyn) actDyn.addEventListener('click', () => {
+    const label = actDyn.dataset.dyn, kind = actDyn.dataset.kind;
+    if (kind === 'cn') {
+      if (selectedChinaFilters.has(label)) selectedChinaFilters.delete(label);
+      else selectedChinaFilters.add(label);
+    } else {
+      if (selectedJapanFilters.has(label)) selectedJapanFilters.delete(label);
+      else selectedJapanFilters.add(label);
+    }
+    qfRenderDynCol(); qfRenderEraPanel(); qfRenderChips(); applyFilters();
+  });
+  // V8.3: 全选/清空本朝年号
+  const actAll = document.getElementById('qfActAllEras');
+  if (actAll) actAll.addEventListener('click', () => {
+    const allNames = [];
+    groups.forEach(g => g.eras.forEach(e => allNames.push(e.name)));
+    if (allErasSel) {
+      allNames.forEach(n => selectedChinaEras.delete(n));
+    } else {
+      allNames.forEach(n => selectedChinaEras.add(n));
+    }
+    qfRenderEraPanel(); qfRenderChips(); applyFilters();
+  });
   body.querySelectorAll('.qf-era-tag').forEach(el => {
     el.addEventListener('click', () => {
       const era = el.dataset.era;
@@ -4631,6 +4956,27 @@ function rowSearchHit(row, q, fuzzy) {
     }
   }
   
+  // V8.3: 干支错写兼容 — 查询含 "巳X" (X为地支) 时, 若该行干支为 "己X", 视作命中
+  //        (古籍中「己」常误写为「巳」)
+  //        若查询在错写干支前还有年号关键词 (如"光绪巳巳"), 需同时命中年号
+  const typoQ = detectGanzhiTypo(q);
+  if (typoQ) {
+    if (row.ganzhi === typoQ.corrected) {
+      // 检查错写干支之前是否有其他汉字 (年号关键词)
+      const beforeTypo = q.slice(0, q.indexOf(typoQ.original));
+      if (beforeTypo.trim()) {
+        const kw = beforeTypo.trim();
+        const eraHit = (row.cnEraNames || []).some(e => e && e.includes(kw)) ||
+                       (row.jpEraNames || []).some(j => j && j.includes(kw)) ||
+                       (row.jpPeriods || []).some(p => p && p.includes(kw)) ||
+                       (row.cnDynasties || []).some(d => d && d.includes(kw));
+        if (eraHit) return true;
+      } else {
+        return true;
+      }
+    }
+  }
+  
   // --- 常规文本匹配 (基于预构建的简体 searchKey) ---
   if (row.searchKey && row.searchKey.includes(q)) return true;
   
@@ -4644,6 +4990,9 @@ function rowSearchHit(row, q, fuzzy) {
     const bcStr = '前' + Math.abs(row.year);
     if (bcStr.includes(q) || String(row.year).includes(q)) return true;
   }
+  
+  // V8.2: 大事记命中 (title/desc/source 含 q)
+  if (typeof window.eventsHit === 'function' && window.eventsHit(row, q)) return true;
   
   return false;
 }
@@ -4664,6 +5013,127 @@ function eraPrefixHit(row, q) {
     if (row.eraGzCandidates && row.eraGzCandidates.some(c => c.startsWith(name) && c.includes(rest))) return true;
   }
   return false;
+}
+
+// V8.3: 混合查询解析 — 「汉字+拼音」或「汉字+数字」组合
+// 例: "光绪wushen" → {eraPart:'光绪', gzPart:'戊申'}; "光绪3" → {eraPart:'光绪', numPart:3}
+// 例: "qingwuxu" → 纯拼音走原逻辑; 本函数仅处理"汉字 + 拉丁/数字"混合
+// 返回 null 表示非混合查询 (走原逻辑)
+function parseMixedQuery(q) {
+  if (!q || q.length < 3) return null;
+  const hasHan = /[\u4e00-\u9fff]/.test(q);
+  const hasLat = /[a-z]/.test(q);
+  const hasNum = /[0-9]/.test(q);
+  if (!hasHan || (!hasLat && !hasNum)) return null;
+  // 分离: 汉字段 与 拼音/数字段 (允许交错, 但简化处理: 按位置切分)
+  // 情形A: 汉字前缀 + 拼音后缀 (光绪wushen)
+  const hanMatch = q.match(/^([\u4e00-\u9fff]+)([a-z0-9]+)$/);
+  if (hanMatch) {
+    const eraPart = hanMatch[1];
+    const tail = hanMatch[2];
+    // 纯数字后缀: 光绪3 → 光绪三年 / 光绪1843
+    if (/^\d+$/.test(tail)) {
+      return { eraPart, numPart: parseInt(tail, 10) };
+    }
+    // 拼音后缀: 尝试匹配干支拼音 (wushen → 戊申)
+    if (/^[a-z]+$/.test(tail) && GZ_PY_MAP) {
+      // 精确全拼
+      for (const [k, arr] of GZ_PY_MAP) {
+        if (k === tail && arr.length > 0) {
+          return { eraPart, gzPart: arr[0].gz };
+        }
+      }
+      // 前缀匹配 (取最长的匹配键)
+      let best = null, bestLen = 0;
+      for (const [k, arr] of GZ_PY_MAP) {
+        if (tail.startsWith(k) && k.length > bestLen && arr.length > 0) {
+          best = arr[0].gz; bestLen = k.length;
+        }
+      }
+      if (best) return { eraPart, gzPart: best };
+    }
+    return { eraPart };
+  }
+  // 情形B: 拼音在中间或汉字在中间 (如 "光xu绪") — 拆分汉字与字母, 再重组
+  const hanSegs = q.split(/[a-z0-9]+/).filter(Boolean);
+  const latSegs = q.split(/[\u4e00-\u9fff]+/).filter(Boolean);
+  if (hanSegs.length === 1 && latSegs.length === 1) {
+    const eraPart = hanSegs[0];
+    const tail = latSegs[0];
+    if (/^\d+$/.test(tail)) return { eraPart, numPart: parseInt(tail, 10) };
+    if (/^[a-z]+$/.test(tail) && GZ_PY_MAP) {
+      for (const [k, arr] of GZ_PY_MAP) {
+        if (k === tail && arr.length > 0) return { eraPart, gzPart: arr[0].gz };
+      }
+      let best = null, bestLen = 0;
+      for (const [k, arr] of GZ_PY_MAP) {
+        if (tail.startsWith(k) && k.length > bestLen && arr.length > 0) { best = arr[0].gz; bestLen = k.length; }
+      }
+      if (best) return { eraPart, gzPart: best };
+    }
+    return { eraPart };
+  }
+  return null;
+}
+
+// V8.3: 混合查询行级命中 — 在 rowSearchHit 常规逻辑之外做 AND 匹配
+// 返回 true 表示命中 (年号段 与 干支/年份段 同时满足)
+function mixedQueryHit(row, mq) {
+  if (!mq || !mq.eraPart) return false;
+  const eraPart = mq.eraPart;
+  // 年号段匹配: 行内 cnEraNames/jpEraNames/jpPeriods/cnDynasties 含 eraPart
+  const eraHit = (row.cnEraNames || []).some(e => e && e.includes(eraPart)) ||
+                 (row.jpEraNames || []).some(j => j && j.includes(eraPart)) ||
+                 (row.jpPeriods || []).some(p => p && p.includes(eraPart)) ||
+                 (row.cnDynasties || []).some(d => d && d.includes(eraPart));
+  if (!eraHit) return false;
+  // 干支段: 行干支匹配
+  if (mq.gzPart) {
+    return row.ganzhi === mq.gzPart;
+  }
+  // 数字段: 三种解释 — (a) 年份绝对值 (b) 年号第N年 (c) 公历年份
+  if (mq.numPart !== undefined && mq.numPart !== null) {
+    const n = mq.numPart;
+    // (c) 公历年份 (1000-3000 视为公历)
+    if (n >= 1000 && n <= 3000) {
+      if (row.year === n) return true;
+    }
+    // (a) 年份绝对值
+    if (Math.abs(row.year) === n) return true;
+    // (b) 年号第N年: 该行 eraPart 年号的起始年 + n - 1
+    const eraRows = FULL_DATA.filter(r =>
+      (r.cnEraNames || []).some(e => e && e.includes(eraPart)) ||
+      (r.jpEraNames || []).some(j => j && j.includes(eraPart)));
+    if (eraRows.length > 0) {
+      // 找到与当前行同一归属的最小年份作为起始
+      const startYear = Math.min(...eraRows.map(r => r.year));
+      if (row.year === startYear + n - 1) return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+// V8.3: 干支错写检测 — 古籍常见将「己」误写为「巳」等
+// 例: "巳巳" → 提示"己巳"; "巳卯" → 提示"己卯"; "光绪巳巳" → 提示"光绪己巳"
+// 规则: 查询中出现「巳X」(X为地支) 且「己X」为有效干支组合时, 提示修正
+function detectGanzhiTypo(q) {
+  if (!q || !/[\u4e00-\u9fff]/.test(q)) return null;
+  const dzSet = new Set(GZ_DIZHI_S);
+  // 在任意位置查找 "巳X" (X为地支)
+  for (let i = 0; i < q.length - 1; i++) {
+    if (q[i] !== '巳') continue;
+    const second = q[i + 1];
+    if (!dzSet.has(second)) continue;
+    const candidate = '己' + second;
+    const tgIdx = GZ_TIANGAN_S.indexOf('己'); // 1 (阴干)
+    const dzIdx = GZ_DIZHI_S.indexOf(second);
+    // 阴干配阴支: 己(1, 阴) 需配 阴支 (地支索引为奇数)
+    if (tgIdx >= 0 && dzIdx >= 0 && ((tgIdx % 2) === (dzIdx % 2))) {
+      return { original: q.slice(i, i + 2), corrected: candidate, type: 'si→ji' };
+    }
+  }
+  return null;
 }
 
 function applyFilters() {
@@ -4692,8 +5162,17 @@ function applyFilters() {
   if (searchQuery.trim()) {
     // 查询词转简体后匹配 (繁简无差别)
     const q = toSimplified(searchQuery.trim()).toLowerCase();
-    // v2.0: 拼音/首字母查询走拼音行匹配 (如 "jingtai" -> 景泰年间)
-    if (/^[a-z]+$/.test(q)) {
+    // V8.3: 混合查询 (汉字+拼音/数字) 优先尝试
+    const mixedQ = parseMixedQuery(q);
+    if (mixedQ && mixedQ.eraPart && (mixedQ.gzPart || mixedQ.numPart !== undefined)) {
+      const mixedRows = base.filter(r => mixedQueryHit(r, mixedQ));
+      if (mixedRows.length > 0) {
+        filteredData = mixedRows;
+      } else {
+        filteredData = base.filter(r => rowSearchHit(r, q, true));
+      }
+    } else if (/^[a-z]+$/.test(q)) {
+      // v2.0: 拼音/首字母查询走拼音行匹配 (如 "jingtai" -> 景泰年间)
       const pinyinRows = base.filter(r => rowPinyinHit(r, q));
       filteredData = pinyinRows.length > 0 ? pinyinRows : base.filter(r => rowSearchHit(r, q, true));
     } else {
@@ -4702,6 +5181,30 @@ function applyFilters() {
     }
   } else {
     filteredData = base;
+  }
+  
+  // V8.3: 干支错写处理 — 查询含错写干支 (如 "巳巳") 时:
+  //  1) 无论常规搜索是否有结果, 只要存在错写且修正后有匹配行, 即设置标记 (供弱高亮)
+  //  2) 常规搜索无结果时, 自动改用修正干支重搜, 列出对应年份
+  window.__ganzhiTypoCorrected = null;
+  if (searchQuery.trim()) {
+    const q0 = toSimplified(searchQuery.trim()).toLowerCase();
+    const typo = detectGanzhiTypo(q0);
+    if (typo) {
+      // 修正后是否有匹配行 (含修正干支)
+      const correctedQuery = q0.replace(typo.original, typo.corrected);
+      const q2 = correctedQuery.toLowerCase();
+      const correctedExact = base.filter(r => rowSearchHit(r, q2, false));
+      const correctedRows = correctedExact.length > 0 ? correctedExact : base.filter(r => rowSearchHit(r, q2, true));
+      // 命中修正结果 → 标记 (弱高亮)
+      if (correctedRows.length > 0) {
+        window.__ganzhiTypoCorrected = { original: typo.original, corrected: typo.corrected };
+      }
+      // 常规结果为空 (如 "巳巳" 无直接命中) → 用修正结果兜底
+      if (filteredData.length === 0 && correctedRows.length > 0) {
+        filteredData = correctedRows;
+      }
+    }
   }
   
   // V4.2: 精准查询检测 (排序后进行, 用排序后真实行重新定位, 避免 index 错位)
@@ -4729,7 +5232,8 @@ function applyFilters() {
     filteredData = insertNearbyRows(filteredData, preciseHit);
   }
   
-  renderTable();
+  // V8.2: 按视图模式渲染 (表格/卡片)
+  renderByViewMode();
   renderPagination();
   updateStats();
 }
@@ -4955,6 +5459,28 @@ function updateEraAlert(query) {
     return;
   }
   const q = toSimplified(query.trim()).toLowerCase();
+  
+  // V8.3: 干支错写提醒 (如 "巳巳" → "己巳", "巳卯" → "己卯")
+  // 先于年号重名检测: 若查询本身含疑似错写干支, 优先提示修正
+  const typo = detectGanzhiTypo(q);
+  if (typo) {
+    // 列出正确干支对应的所有年份
+    const rows = FULL_DATA.filter(r => r.ganzhi === typo.corrected);
+    const years = rows.map(r => toDisplay(r.yearStr)).join('、');
+    const gzYear = rows.length > 0
+      ? `<br><span style="color:var(--color-text-secondary);">${toDisplay('对应年份')}：</span><span class="ea-gz-years">${years}</span>`
+      : '';
+    const html = `<span class="ea-title">${toDisplay('干支错写提醒')}</span>`
+      + `${toDisplay('古籍中常见「巳」误写，您输入的「')}${toDisplay(typo.original)}${toDisplay('」应为「')}${toDisplay(typo.corrected)}${toDisplay('」。')}`
+      + gzYear;
+    if (!(lastEraAlert && lastEraAlert.name === 'typo:' + typo.original)) {
+      lastEraAlert = { name: 'typo:' + typo.original };
+      alertEl.innerHTML = html;
+      alertEl.classList.add('show');
+    }
+    return;
+  }
+  
   // 提取查询中的年号关键词 (从搜索词中找命中的年号)
   const eraName = findEraNameInQuery(q);
   if (!eraName) {
@@ -5088,30 +5614,8 @@ function renderTable() {
   tableWrapper.style.display = '';
   pagination.style.display = '';
   
-  // 计算分页 — 注意: 临近行/分隔行不计入分页计数
-  const realRows = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
-  const totalPages = Math.ceil(realRows.length / perPage);
-  if (currentPage > totalPages) currentPage = totalPages;
-  const startIdx = (currentPage - 1) * perPage;
-  
-  // 精确分页窗口: 仅取当前页真实行
-  const pageReal = realRows.slice(startIdx, startIdx + perPage);
-  const pageRealSet = new Set(pageReal);
-  
-  // 扩展: 附加当前页命中行后的临近行/分隔行 (不跨页, 不重复)
-  const pageData = [];
-  let prevRealRowRef = null; // 上一个真实行 (用于判断临近块归属)
-  for (const r of filteredData) {
-    if (isNearbyRow(r) || isNearbySep(r)) {
-      // 临近块跟随其前一个真实行; 若该真实行在本页 → 附加
-      if (pageRealSet.has(prevRealRowRef)) pageData.push(r);
-    } else {
-      prevRealRowRef = r;
-      if (pageRealSet.has(r)) pageData.push(r);
-    }
-  }
-  // 兜底: 若扩展后为空 (理论上不会), 退化为纯真实行
-  const finalPage = pageData.length > 0 ? pageData : pageReal;
+  // V8.2: 分页窗口计算提取为共享函数 (renderTable / renderCardView 共用)
+  const { finalPage } = computeFinalPage();
   
   loadingOverlay.classList.add('active');
   
@@ -5123,6 +5627,9 @@ function renderTable() {
       if (isNearbySep(row)) {
         return `<tr class="nearby-sep-row" role="row"><td colspan="10"><span class="nearby-sep" aria-hidden="true"></span><span class="nearby-label">${toDisplay('该年号下的所有年份')}</span></td></tr>`;
       }
+      // V8.2: 大事记区块 (稀疏渲染, 无数据返回 '')
+      const evBlock = renderEventsBlock(row.year, q);
+      const evSub = evBlock ? `<tr class="event-subrow" role="row"><td colspan="10">${evBlock}</td></tr>` : '';
       // V4.2: 临近行 (同一年号其他年份, 弱化)
       if (isNearbyRow(row)) {
         return `<tr class="nearby-row" role="row">
@@ -5136,11 +5643,13 @@ function renderTable() {
           <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
           <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
           <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
-        </tr>`;
+        </tr>${evSub}`;
       }
       // V4.2: 精准命中行标记 (描边 + 日本闪烁)
       const mark = preciseHitMark.get(row) || null;
       const preciseCls = mark && mark.precise ? ' precise-hit-row' : '';
+      // V8.3: 干支错写修正命中行弱高亮
+      const typoCls = (window.__ganzhiTypoCorrected && row.ganzhi === window.__ganzhiTypoCorrected.corrected) ? ' typo-hit-row' : '';
       let jpFlash = mark && mark.jpFlash ? ' jp-flash-cell' : '';
       // 日本专属年号整体命中: 若行内日本年号含查询年号且非中国年号 → 闪烁
       if (!jpFlash && searchQuery.trim()) {
@@ -5152,7 +5661,7 @@ function renderTable() {
         }
       }
       const yearClass = row.year < 0 ? 'cell-year bc' : 'cell-year';
-      return `<tr role="row" class="${preciseCls.trim()}">
+      return `<tr role="row" class="${preciseCls.trim()}${typoCls}">
         <td class="${yearClass}">${highlightText(toDisplay(row.yearStr), q)}</td>
         <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
         <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
@@ -5163,12 +5672,230 @@ function renderTable() {
         <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
         <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
         <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
-      </tr>`;
+      </tr>${evSub}`;
     });
     
     tbody.innerHTML = fragments.join('');
     loadingOverlay.classList.remove('active');
   });
+}
+
+// ========================================
+// V8.2 卡片视图 (表格/卡片双视图 + 移动端强制卡片)
+// 与 renderTable 共用同一份 finalPage 分页窗口与搜索/筛选/精准命中逻辑
+// ========================================
+
+// 当前视图模式 ('table' | 'card'); 桌面切换持久化; 移动端强制 card 不落盘
+let viewMode = 'table';
+function getViewMode() {
+  try { return localStorage.getItem('kanseki_view_mode') === 'card' ? 'card' : 'table'; }
+  catch (e) { return 'table'; }
+}
+function setViewMode(mode) {
+  viewMode = mode === 'card' ? 'card' : 'table';
+  try { localStorage.setItem('kanseki_view_mode', viewMode); } catch (e) {}
+  document.body.classList.toggle('view-card', viewMode === 'card');
+  const tBtn = document.getElementById('viewModeTable');
+  const cBtn = document.getElementById('viewModeCard');
+  if (tBtn) { tBtn.classList.toggle('active', viewMode !== 'card'); tBtn.setAttribute('aria-pressed', viewMode !== 'card'); }
+  if (cBtn) { cBtn.classList.toggle('active', viewMode === 'card'); cBtn.setAttribute('aria-pressed', viewMode === 'card'); }
+  // V8.3: 列数切换仅在卡片视图且桌面宽度显示
+  const colsSwitch = document.getElementById('cardColsSwitch');
+  if (colsSwitch) colsSwitch.style.display = (viewMode === 'card' && window.innerWidth > 768) ? '' : 'none';
+  renderByViewMode();
+}
+
+// V8.3: 卡片列数 (4/6), 持久化; 应用为 body 类
+function getCardColumns() {
+  try { return localStorage.getItem('kanseki_card_columns') === '6' ? 6 : 4; }
+  catch (e) { return 4; }
+}
+function setCardColumns(cols) {
+  const n = cols === 6 ? 6 : 4;
+  try { localStorage.setItem('kanseki_card_columns', n); } catch (e) {}
+  document.body.classList.toggle('card-cols-6', n === 6);
+  const btns = document.querySelectorAll('.card-cols-btn');
+  btns.forEach(b => {
+    const on = parseInt(b.dataset.cols, 10) === n;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function initCardColsSwitch() {
+  const wrap = document.getElementById('cardColsSwitch');
+  if (!wrap) return;
+  wrap.addEventListener('click', e => {
+    const btn = e.target.closest('.card-cols-btn');
+    if (!btn) return;
+    setCardColumns(parseInt(btn.dataset.cols, 10));
+  });
+}
+
+// 有效视图: 移动端(≤768px)强制卡片; 桌面取用户选择
+function effectiveMode() {
+  return (window.innerWidth <= 768) ? 'card' : viewMode;
+}
+
+// 视图分发渲染
+function renderByViewMode() {
+  if (effectiveMode() === 'card') {
+    renderCardView();
+  } else {
+    renderTable();
+  }
+}
+
+// 从 renderTable 提取的分页窗口计算 (renderTable 与 renderCardView 共用)
+// 返回 { finalPage, totalPages, realRows, pageReal }
+function computeFinalPage() {
+  const realRows = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+  const totalPages = Math.ceil(realRows.length / perPage);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const startIdx = (currentPage - 1) * perPage;
+  const pageReal = realRows.slice(startIdx, startIdx + perPage);
+  const pageRealSet = new Set(pageReal);
+  const pageData = [];
+  let prevRealRowRef = null;
+  for (const r of filteredData) {
+    if (isNearbyRow(r) || isNearbySep(r)) {
+      if (pageRealSet.has(prevRealRowRef)) pageData.push(r);
+    } else {
+      prevRealRowRef = r;
+      if (pageRealSet.has(r)) pageData.push(r);
+    }
+  }
+  const finalPage = pageData.length > 0 ? pageData : pageReal;
+  return { finalPage, totalPages, realRows, pageReal };
+}
+
+// 大事记区块 HTML (表格子行 / 卡片区块共用; 无数据返回 '')
+function renderEventsBlock(year, q) {
+  if (typeof window.getEventsForYear !== 'function') return '';
+  const list = window.getEventsForYear(year);
+  if (!list || list.length === 0) return '';
+  const ql = q ? q.trim() : '';
+  const items = list.map(it => {
+    const title = toDisplay(it.title || '');
+    const desc = toDisplay(it.desc || '');
+    const metaParts = [];
+    if (it.category) metaParts.push(toDisplay(it.category));
+    if (it.source) metaParts.push('来源：' + toDisplay(it.source));
+    const meta = metaParts.length ? '<div class="event-meta">' + metaParts.join(' · ') + '</div>' : '';
+    return '<div class="event-item">' +
+      '<div class="event-title">' + highlightText(title, ql) + '</div>' +
+      (desc ? '<div class="event-desc">' + highlightText(desc, ql) + '</div>' : '') +
+      meta +
+      '</div>';
+  }).join('');
+  return '<div class="events-block"><div class="events-block-title">' + toDisplay('大事记') + '</div>' + items + '</div>';
+}
+
+// 渲染卡片视图 (输入分页窗口与 renderTable 相同来源)
+function renderCardView() {
+  const cardView = document.getElementById('cardView');
+  const emptyState = document.getElementById('emptyState');
+  const tableWrapper = document.getElementById('tableWrapper');
+  const pagination = document.getElementById('pagination');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
+  // V4.2: 重名年号提醒框 (与表格一致)
+  if (typeof updateEraAlert === 'function') updateEraAlert(searchQuery);
+
+  if (!filteredData || filteredData.length === 0) {
+    cardView.innerHTML = '';
+    emptyState.classList.add('active');
+    if (tableWrapper) tableWrapper.style.display = 'none';
+    pagination.style.display = 'none';
+    let msg = '未找到匹配的记录';
+    if (searchQuery.trim()) msg = '未找到包含"' + searchQuery.trim() + '"的记录，请尝试其他关键词';
+    else if (selectedChinaFilters.size > 0 || selectedJapanFilters.size > 0) msg = '当前筛选条件下没有匹配记录，请放宽筛选条件';
+    document.getElementById('emptyStateMsg').textContent = msg;
+    return;
+  }
+
+  emptyState.classList.remove('active');
+  if (tableWrapper) tableWrapper.style.display = '';
+  pagination.style.display = '';
+
+  const { finalPage } = computeFinalPage();
+  loadingOverlay.classList.add('active');
+
+  requestAnimationFrame(() => {
+    const q = queryForDisplay(searchQuery);
+    const ql = q.trim();
+    const html = finalPage.map(row => {
+      // 分隔行 → 卡片间分隔
+      if (isNearbySep(row)) {
+        return '<div class="card-sep" style="text-align:center;padding:0.6rem 0;font-size:0.78rem;color:var(--color-text-muted);">━━ <span>' + toDisplay('该年号下的所有年份') + '</span> ━━</div>';
+      }
+      // 临近行 → 弱化卡片
+      if (isNearbyRow(row)) {
+        return renderOneCard(row, q, true);
+      }
+      return renderOneCard(row, q, false);
+    }).join('');
+
+    cardView.innerHTML = html;
+    loadingOverlay.classList.remove('active');
+  });
+}
+
+// 单卡片渲染
+function renderOneCard(row, q, isNearby) {
+  const mark = preciseHitMark.get(row) || null;
+  const preciseCls = mark && mark.precise ? ' precise' : '';
+  // V8.3: 干支错写修正命中行 (如 "巳巳" → 己巳年) 弱高亮
+  const typoCls = (window.__ganzhiTypoCorrected && row.ganzhi === window.__ganzhiTypoCorrected.corrected) ? ' typo-hit' : '';
+  let jpFlash = mark && mark.jpFlash ? ' era-flash' : '';
+  if (!jpFlash && searchQuery.trim()) {
+    const qq = toSimplified(searchQuery.trim()).toLowerCase();
+    const eraN = findEraNameInQuery(qq);
+    if (eraN && !ALL_CN_ERAS.has(eraN) && JP_ONLY_ERAS.has(eraN) &&
+        (row.jpEraNames || []).some(e => e === eraN)) {
+      jpFlash = ' era-flash';
+    }
+  }
+  const yearClass = row.year < 0 ? 'yc-year bc' : 'yc-year';
+  const nearbyCls = isNearby ? ' year-card-nearby' : '';
+  const yearStr = toDisplay(row.yearStr);
+  // V8.3: 年号行直接复用行内 HTML (含每个年号独立复制按钮)
+  const cnEraHtml = cardEraRows(row.cnEra, q);
+  const jpEraHtml = cardEraRows(row.jpEra, q);
+
+  let eventsHtml = '';
+  if (typeof window.getEventsForYear === 'function') {
+    const evHtml = renderEventsBlock(row.year, q);
+    if (evHtml) eventsHtml = '<div class="yc-events">' + evHtml + '</div>';
+  }
+
+  return `<div class="year-card${preciseCls}${nearbyCls}${typoCls}">
+    <div class="yc-top">
+      <span class="${yearClass}">${highlightText(yearStr, q)}</span>
+      <span class="yc-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</span>
+      <span class="yc-zodiac">${toDisplay(row.zodiac)}</span>
+    </div>
+    <div class="yc-block">
+      <div class="yc-block-label">${toDisplay('中国')}</div>
+      <!-- V8.3: 直接渲染内嵌年号行 (含每个年号独立复制按钮, 与表格一致) -->
+      <div class="yc-era-rows">${cnEraHtml}</div>
+      <div class="yc-meta">${highlightText(toDisplay(row.cnDynasty), q)}${row.cnRuler && row.cnRuler !== '—' ? ' · ' + highlightText(toDisplay(row.cnRuler), q) : ''}</div>
+    </div>
+    <div class="yc-block jp">
+      <div class="yc-block-label">${toDisplay('其他朝代')}</div>
+      <div class="yc-era-rows${jpFlash}">${jpEraHtml}</div>
+      <div class="yc-meta">${highlightText(toDisplay(row.jpPeriod), q)}${row.jpRuler && row.jpRuler !== '—' ? ' · ' + highlightText(toDisplay(row.jpRuler), q) : ''}</div>
+    </div>
+    ${row.notes && row.notes !== '—' ? '<div class="yc-notes">' + highlightHtml(toDisplayHtml(row.notes), q) + '</div>' : ''}
+    ${eventsHtml}
+  </div>`;
+}
+
+// V8.3: 卡片内年号行渲染 — 直接使用行内已构建的 era HTML (含独立复制按钮)
+// 但行内 HTML 是为表格 .era-entry 构建的, 卡片需要包裹容器样式
+// 说明: cnEra/jpEra 已含 <span class="era-entry">...</span> 结构, 直接复用
+function cardEraRows(html, q) {
+  if (!html || html === '—') return '<div class="yc-empty">—</div>';
+  return highlightHtml(toDisplayHtml(html), q);
 }
 
 // Highlight text that may contain HTML tags (preserve tags, highlight only text)
@@ -5234,7 +5961,7 @@ function renderPagination() {
       const page = parseInt(this.dataset.page);
       if (page >= 1 && page <= totalPages) {
         currentPage = page;
-        renderTable();
+        renderByViewMode();
         renderPagination();
         document.getElementById('tableWrapper').scrollIntoView({behavior:'smooth',block:'start'});
       }
@@ -5521,6 +6248,44 @@ function updateSuggestions(query) {
     eraCand.forEach(item => suggestions.add(JSON.stringify(item)));
   }
   
+  // V8.3: 混合查询建议 (汉字+拼音/数字) — "光绪wushen" → "清·光绪 戊申 1908"
+  const mixedQ = parseMixedQuery(q);
+  if (mixedQ && mixedQ.eraPart && (mixedQ.gzPart || mixedQ.numPart !== undefined)) {
+    for (const row of FULL_DATA) {
+      if (suggestions.size >= maxResults) break;
+      if (!mixedQueryHit(row, mixedQ)) continue;
+      // 找到该行匹配的年号 (用于显示)
+      const eraHit = (row.cnEraNames || []).find(e => e && e.includes(mixedQ.eraPart)) ||
+                     (row.jpEraNames || []).find(j => j && j.includes(mixedQ.eraPart));
+      let value = '';
+      if (eraHit) {
+        const pre = (row.cnDynasties || []).find(d => d && d !== '—') || (row.jpPeriods || []).find(p => p && p !== '—') || '';
+        value = (pre ? pre + '·' : '') + eraHit;
+        if (mixedQ.gzPart) value += ' ' + mixedQ.gzPart;
+        else if (mixedQ.numPart !== undefined) {
+          // 数字: 若在 1-60 显示为年号第N年, 否则公历年份
+          if (mixedQ.numPart >= 1 && mixedQ.numPart <= 60) value += ' 第' + mixedQ.numPart + '年';
+          else value += ' ' + mixedQ.numPart + '年';
+        }
+      } else {
+        value = row.ganzhi + ' ' + row.yearStr;
+      }
+      suggestions.add(JSON.stringify({ type:'field', value, year: row.year, yearStr: row.yearStr }));
+    }
+  }
+  // V8.3: 干支错写建议 — "巳巳" → 提示"己巳" 及对应年份
+  if (suggestions.size === 0 && /^[\u4e00-\u9fff]+$/.test(q)) {
+    const typo = detectGanzhiTypo(q);
+    if (typo) {
+      for (const row of FULL_DATA) {
+        if (suggestions.size >= maxResults) break;
+        if (row.ganzhi === typo.corrected) {
+          suggestions.add(JSON.stringify({ type:'field', value: typo.corrected + '（' + toDisplay(row.yearStr) + '）', year: row.year, yearStr: row.yearStr }));
+        }
+      }
+    }
+  }
+  
   // 常规字段匹配 (基于 searchKey), 带匹配质量分
   const suggestionItems = []; // {score, data}
   if (suggestions.size < maxResults) {
@@ -5608,7 +6373,7 @@ function jumpToYear(year) {
   const idx = real.findIndex(r => r.year === year);
   if (idx >= 0) {
     currentPage = Math.floor(idx / perPage) + 1;
-    renderTable();
+    renderByViewMode();
     renderPagination();
     // V4.3: 滚到表格顶部并补偿 sticky header + filter-bar 高度, 避免精准行被遮挡
     var _hdr = document.querySelector('.app-header');
@@ -5826,13 +6591,32 @@ function adjustForMobile() {
   const isMobile = window.innerWidth <= 768;
   const filterDesktop = document.querySelector('.filter-bar.filter-desktop');
   const filterMobile = document.getElementById('mobileFilterBar');
+  const hamburger = document.getElementById('mHamburger');
   
   if (isMobile) {
     if (filterDesktop) filterDesktop.style.display = 'none';
     if (filterMobile) filterMobile.style.display = '';
+    // V8.2: 移动端显示汉堡按钮 (CSS 默认 display:none, 内联兜底)
+    if (hamburger) hamburger.style.display = 'inline-flex';
   } else {
     if (filterDesktop) filterDesktop.style.display = '';
     if (filterMobile) filterMobile.style.display = 'none';
+    if (hamburger) hamburger.style.display = 'none';
+    // V8.2: 回到桌面时按用户选择恢复视图渲染
+    if (viewMode !== getViewMode()) {
+      viewMode = getViewMode();
+      document.body.classList.toggle('view-card', viewMode === 'card');
+      const tBtn = document.getElementById('viewModeTable');
+      const cBtn = document.getElementById('viewModeCard');
+      if (tBtn) tBtn.classList.toggle('active', viewMode !== 'card');
+      if (cBtn) cBtn.classList.toggle('active', viewMode === 'card');
+      renderByViewMode();
+    }
+  }
+  // V8.3: 列数切换跟随视图/窗口宽度显隐 (仅桌面卡片视图)
+  const colsSwitch = document.getElementById('cardColsSwitch');
+  if (colsSwitch) {
+    colsSwitch.style.display = (!isMobile && viewMode === 'card') ? '' : 'none';
   }
 }
 
@@ -5883,6 +6667,32 @@ function init() {
   // 默认繁体显示 (v1.1 起): 初始化表头/筛选标签/placeholder/统计栏等全部 UI
   setDisplayLang('t');
   
+  // V8.2: 初始化视图模式 (桌面持久化; 移动端强制卡片不落盘)
+  viewMode = getViewMode();
+  document.body.classList.toggle('view-card', viewMode === 'card' && window.innerWidth > 768);
+  const vT = document.getElementById('viewModeTable');
+  const vC = document.getElementById('viewModeCard');
+  if (vT) vT.classList.toggle('active', viewMode !== 'card');
+  if (vC) vC.classList.toggle('active', viewMode === 'card');
+  if (vT) vT.addEventListener('click', function() { setViewMode('table'); });
+  if (vC) vC.addEventListener('click', function() { setViewMode('card'); });
+  // V8.3: 卡片列数初始化 + 切换
+  setCardColumns(getCardColumns());
+  initCardColsSwitch();
+  const colsSwitch = document.getElementById('cardColsSwitch');
+  if (colsSwitch) colsSwitch.style.display = (viewMode === 'card' && window.innerWidth > 768) ? '' : 'none';
+  
+  // V8.2: 抽屉内简繁切换 (与顶部一致)
+  const mLangS = document.getElementById('mLangBtnS');
+  const mLangT = document.getElementById('mLangBtnT');
+  if (mLangS) mLangS.addEventListener('click', function() { setDisplayLang('s'); });
+  if (mLangT) mLangT.addEventListener('click', function() { setDisplayLang('t'); });
+  
+  // V8.2: 同源 storage 同步 (admin 写入 → 自动刷新)
+  if (typeof window.registerStorageSync === 'function') {
+    window.registerStorageSync();
+  }
+  
   // Render filter tags
   renderFilterTags();
   
@@ -5929,7 +6739,7 @@ function init() {
   document.getElementById('perPageSelect').addEventListener('change', function() {
     perPage = parseInt(this.value);
     currentPage = 1;
-    renderTable();
+    renderByViewMode();
     renderPagination();
   });
   
@@ -6041,8 +6851,9 @@ function init() {
   updateStats();
   
   // Era copy button — event delegation
-  document.getElementById('tableBody').addEventListener('click', function(e) {
-    const btn = e.target.closest('.era-copy-btn');
+  // 复制按钮统一处理 (表格 .era-copy-btn 与卡片 .yc-copy 共用)
+  function handleCopyClick(e) {
+    const btn = e.target.closest('.era-copy-btn, .yc-copy');
     if (!btn) return;
     e.stopPropagation();
     
@@ -6067,7 +6878,10 @@ function init() {
       showToast('已复制：' + copyText);
       setTimeout(() => btn.classList.remove('copied'), 1500);
     });
-  });
+  }
+  document.getElementById('tableBody').addEventListener('click', handleCopyClick);
+  const cardViewEl = document.getElementById('cardView');
+  if (cardViewEl) cardViewEl.addEventListener('click', handleCopyClick);
   
   console.log('%c古代史及汉籍研究工具 — 纪年查询系统已就绪%c\n共' + FULL_DATA.length.toLocaleString() + '条记录 | Ctrl+K 快速搜索 | 支持公元前年份查询',
     'font-weight:bold;color:#1a2a4a;font-size:14px;', 'color:#5c564d;');
