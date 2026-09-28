@@ -1,11 +1,18 @@
 // ================================================
 // js/app.js — SPA 外壳逻辑（hash 路由 + 视图切换）
 // ================================================
-// 视图：
-//   #/query   纪年查询（iframe 承载 pages/index.html）
-//   #/records 编目记录（占位）
-//   #/sync    同步设置（坚果云 WebDAV）
-//   #/about   关于
+// 视图（V0.6：把静态站顶部导航全部并入左侧栏）：
+//   #/query       纪年查询（iframe pages/index.html）
+//   #/jump        快速跳转（iframe pages/embed.html）
+//   #/catalog     编目规范（iframe pages/catalog.html，tab 由 ?tab=N 指定）
+//   #/guide       使用介绍（iframe pages/guide.html）
+//   #/changelog   更新日志（iframe pages/changelog.html）
+//   #/records     编目记录（占位，待上线）
+//   #/sync        同步设置（坚果云 WebDAV）
+//   #/about       关于
+//
+// iframe 内页面由构建脚本注入嵌入样式（build.mjs），隐藏其自带 header 与
+// 编目规范侧栏；编目规范的整体侧栏改由本文件从 iframe 内「镜像」到 APP 侧栏。
 //
 // 依赖 Phase 1 core 模块：store-indexeddb / sync-engine / provider-webdav
 // 在 Tauri 环境用 Rust 桥 transport（无 CORS）；浏览器调试用 fetch 兜底。
@@ -92,26 +99,225 @@ let engine = null;
 let provider = null;
 
 // ---------- 视图切换 ----------
-const VIEWS = ['query', 'records', 'sync', 'about'];
+// 8 个视图；iframe 视图按需懒加载（data-src -> src）
+const VIEWS = ['query', 'jump', 'catalog', 'guide', 'changelog', 'records', 'sync', 'about'];
+
+// 视图 -> iframe id（懒加载用）
+const FRAMES = {
+  query: 'queryFrame',
+  jump: 'jumpFrame',
+  catalog: 'catalogFrame',
+  guide: 'guideFrame',
+  changelog: 'changelogFrame',
+};
+
+// 懒加载：首次进入某视图时才真正请求 iframe（pages/*.html 体积较大）
+function ensureFrame(view) {
+  const id = FRAMES[view];
+  if (!id) return null;
+  const el = document.getElementById(id);
+  if (!el) return null;
+  if (!el.getAttribute('src') && el.dataset.src) {
+    el.setAttribute('src', el.dataset.src);
+  }
+  return el;
+}
+
+// 解析 hash：'#/catalog?tab=1' -> { view:'catalog', tab:'1' }
+function parseHash() {
+  const raw = (location.hash || '#/query').replace(/^#\/?/, '');
+  const [path, query = ''] = raw.split('?');
+  const view = (path || 'query').trim() || 'query';
+  const params = new URLSearchParams(query);
+  return {
+    view: VIEWS.includes(view) ? view : 'query',
+    tab: params.get('tab'),
+  };
+}
+
+let currentView = 'query';
 
 function navigate() {
-  const hash = location.hash || '#/query';
-  const view = hash.replace('#/', '').split('?')[0] || 'query';
-  const target = VIEWS.includes(view) ? view : 'query';
+  const { view: target, tab } = parseHash();
 
   VIEWS.forEach(v => {
     const sec = $('#view-' + v);
     if (sec) sec.classList.toggle('active', v === target);
   });
+  // 顶层视图项高亮（编目规范三项共享 data-view="catalog"）
   $$('.nav-item').forEach(el => {
+    if (el.dataset.view === 'catalog' && el.dataset.tab) {
+      // 子项高亮以 iframe 内实际 tab 为准，由 syncCatalogSidebar() 处理
+      if (target !== 'catalog') el.classList.remove('active');
+      return;
+    }
     el.classList.toggle('active', el.dataset.view === target);
   });
 
+  currentView = target;
+
+  // 懒加载 iframe
+  const frame = ensureFrame(target);
+
   // 视图进入钩子
   if (target === 'sync') initSyncView();
+  if (target === 'catalog') {
+    // 等 iframe 就绪后再镜像侧栏；已就绪则直接同步
+    whenFrameReady(frame, () => {
+      if (tab !== null) activateCatalogTab(frame, parseInt(tab, 10));
+      syncCatalogSidebar(frame);
+    });
+    document.getElementById('sideAnchors')?.removeAttribute('hidden');
+  } else {
+    hideCatalogAnchors();
+  }
+  if (frame && target !== 'catalog' && target !== 'query') {
+    // 让注入的主题与 APP 保持一致
+    applyThemeToFrame(frame);
+  }
 }
 
 window.addEventListener('hashchange', navigate);
+
+// ---------- iframe 工具 ----------
+// 同源 iframe 可直读 contentDocument；失败时静默降级（不阻断导航）
+function frameDoc(frame) {
+  if (!frame) return null;
+  try { return frame.contentDocument || null; } catch (_) { return null; }
+}
+
+// iframe 就绪后执行（已就绪则立即执行）
+// 注意：未加载的 iframe 其 about:blank 文档 readyState 也是 'complete'，
+// 故须同时要求 body 有子元素，否则会在真正 load 之前就误触发回调。
+function whenFrameReady(frame, fn) {
+  if (!frame) return;
+  const doc = frameDoc(frame);
+  const ready = !!(doc && doc.readyState === 'complete' && doc.body &&
+    doc.body.childElementCount > 0 &&
+    !/^about:blank/.test(doc.location ? doc.location.href : ''));
+  if (ready) { fn(); return; }
+  frame.addEventListener('load', () => fn(), { once: true });
+}
+
+// ---------- 编目规范侧栏合并 ----------
+// 思路：iframe 内 catalog.html 保留渲染逻辑，本文件把它的
+// 「内容导览」tab 态与 #sideAnchors（章节/分类/手册）镜像到 APP 左侧栏；
+// APP 侧栏点击 -> 转发点击 iframe 内同名元素，形成单一数据源。
+let anchorObserver = null;
+let anchorObservedSrc = null;
+
+// 切换 iframe 内编目规范 tab（0 细则查阅 / 1 分类表查询 / 2 工作手册）
+function activateCatalogTab(frame, idx) {
+  if (!Number.isFinite(idx)) return;
+  const doc = frameDoc(frame);
+  if (!doc) return;
+  const btn = doc.querySelector('.tab-btn[data-tab="' + idx + '"]');
+  if (btn && !btn.classList.contains('active')) btn.click();
+}
+
+// 结构签名：判断镜像是否需要整体重建（含标签文字，切换 tab 时会变）
+function anchorSignature(root) {
+  if (!root) return '';
+  const items = Array.from(root.querySelectorAll('.anchor-item,.cfb-side'))
+    .map(el => el.dataset.sid || el.dataset.f || el.textContent || '').join('|');
+  const label = (root.querySelector('.side-label') || {}).textContent || '';
+  const hasCard = root.querySelector('.side-card') ? '1' : '0';
+  return items + '#' + label + '#' + hasCard;
+}
+
+// 只同步 active 态（避免滚动高亮时重建 DOM）
+function syncAnchorActive(dst, src) {
+  const s = src.querySelectorAll('.anchor-item,.cfb-side');
+  const d = dst.querySelectorAll('.anchor-item,.cfb-side');
+  if (s.length !== d.length) return false;
+  d.forEach((el, i) => el.classList.toggle('active', s[i].classList.contains('active')));
+  return true;
+}
+
+// APP 侧栏锚点点击 -> 转发到 iframe 内对应元素（按序号对应，结构一致）
+function bindAnchorForward(dst, frame) {
+  if (dst.dataset.boundForward) return;
+  dst.dataset.boundForward = '1';
+  dst.addEventListener('click', (e) => {
+    const btn = e.target.closest('.anchor-item,.cfb-side');
+    if (!btn) return;
+    const doc = frameDoc(frame);
+    if (!doc) return;
+    const src = doc.getElementById('sideAnchors');
+    if (!src) return;
+    const targets = Array.from(src.querySelectorAll('.anchor-item,.cfb-side'));
+    const idx = Array.from(dst.querySelectorAll('.anchor-item,.cfb-side')).indexOf(btn);
+    if (idx >= 0 && targets[idx]) targets[idx].click();
+  });
+}
+
+function observeAnchorSource(src, frame) {
+  if (anchorObservedSrc === src) return;
+  if (anchorObserver) anchorObserver.disconnect();
+  anchorObserver = new MutationObserver(() => syncCatalogSidebar(frame));
+  anchorObserver.observe(src, {
+    childList: true, subtree: true,
+    attributes: true, attributeFilter: ['class'],
+  });
+  anchorObservedSrc = src;
+}
+
+function hideCatalogAnchors() {
+  const box = document.getElementById('sideAnchors');
+  if (box) box.setAttribute('hidden', '');
+}
+
+function syncCatalogSidebar(frame) {
+  const doc = frameDoc(frame);
+  const box = document.getElementById('sideAnchors');
+  if (!doc || !box) return;
+  const src = doc.getElementById('sideAnchors');
+  if (!src) return;
+
+  const sig = anchorSignature(src);
+  if (box.dataset.sig !== sig) {
+    box.innerHTML = src.innerHTML;
+    box.dataset.sig = sig;
+    box.removeAttribute('data-bound-forward');
+    bindAnchorForward(box, frame);
+  } else {
+    syncAnchorActive(box, src);
+  }
+  // 内容为空（如分类表无导航）时收起整块卡片
+  box.toggleAttribute('hidden', !sig || !src.innerHTML.trim());
+
+  // 「内容导览」三项 tab 高亮（APP 侧栏对应项）
+  const activeTab = doc.querySelector('.tab-btn.active');
+  const idx = activeTab ? activeTab.dataset.tab : '0';
+  $$('.nav-item[data-tab]').forEach(el => {
+    el.classList.toggle('active', currentView === 'catalog' && el.dataset.tab === idx);
+  });
+
+  observeAnchorSource(src, frame);
+}
+
+// ---------- 主题（APP 与各 iframe 同步，共用 localStorage 'theme'） ----------
+function currentTheme() {
+  return localStorage.getItem('theme') || 'light';
+}
+
+function applyThemeToFrame(frame) {
+  const doc = frameDoc(frame);
+  if (doc && doc.documentElement) {
+    doc.documentElement.setAttribute('data-theme', currentTheme());
+  }
+}
+
+function applyThemeToAll() {
+  Object.values(FRAMES).forEach(id => applyThemeToFrame(document.getElementById(id)));
+}
+
+function toggleAppTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', next);
+  applyThemeToAll();
+  showToast(next === 'dark' ? '已切换到暗色模式' : '已切换到亮色模式', 'ok');
+}
 
 async function init() {
   // 绑定导航（点击也更新 hash）
@@ -124,11 +330,19 @@ async function init() {
 
   // 关于页按钮
   $('#openGuideBtn')?.addEventListener('click', () => {
-    // 在新 iframe 打开使用介绍（复用查询 iframe 的容器思路：直接整页打开）
-    window.open('pages/guide.html', '_blank');
+    // 在 APP 内切到「使用介绍」视图（原为弹出新窗口）
+    location.hash = '#/guide';
   });
   $('#openChangelogBtn')?.addEventListener('click', () => {
-    window.open('pages/changelog.html', '_blank');
+    location.hash = '#/changelog';
+  });
+
+  // 侧边栏「切换主题」→ 与 iframe 内页面共用 localStorage 'theme'
+  $('#themeToggleBtn')?.addEventListener('click', toggleAppTheme);
+
+  // 侧边栏「打开网页版」→ GitHub Pages 线上站
+  $('#openWebBtn')?.addEventListener('click', () => {
+    window.open('https://ankomaryken.github.io/kanseki-catalog/', '_blank');
   });
 
   // 编目占位视图初始化（表单弹层 + 校验）
@@ -162,6 +376,11 @@ async function init() {
     console.error('存储初始化失败', e);
     showToast('存储初始化失败：' + (e && e.message), 'err');
   }
+
+  // 查询 iframe 也已加载，同步主题（iframe 内页面自行读 localStorage，此处兜底纠正）
+  whenFrameReady(document.getElementById('queryFrame'), () => {
+    applyThemeToFrame(document.getElementById('queryFrame'));
+  });
 
   navigate();
 }

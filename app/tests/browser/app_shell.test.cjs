@@ -23,10 +23,11 @@ const config = require('../../../tests/helpers/config.js');
   await page.goto(config.resolveAppUrl(), { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(800);
 
-  // 1. 外壳结构
+  // 1. 外壳结构（V0.6：静态站顶部导航并入左侧栏后为 10 项 / 8 视图）
   check('侧边栏存在', await page.locator('.app-sidebar').count() === 1);
-  check('导航项 4 个', await page.locator('.nav-item').count() === 4);
-  check('视图 4 个', await page.locator('.view').count() === 4);
+  check('导航项 10 个', await page.locator('.nav-item').count() === 10);
+  check('视图 8 个', await page.locator('.view').count() === 8);
+  check('侧栏可见导航项 10 个', await page.locator('.nav-item:visible').count() === 10);
   check('查询视图默认激活', await page.locator('#view-query.active').count() === 1);
   check('iframe 加载', await page.locator('#queryFrame').count() === 1);
 

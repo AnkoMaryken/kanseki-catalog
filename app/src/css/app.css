@@ -30,66 +30,107 @@ html, body {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  background: #f5f6f8;
+  padding: 12px;
+  gap: 12px;
 }
 
-/* ---------- 侧边栏 ---------- */
+/* ---------- 侧边栏 (V0.6: catalog 文档站风格 — 深色圆角卡片) ---------- */
 .app-sidebar {
   width: var(--sidebar-w);
   flex: 0 0 var(--sidebar-w);
-  background: #101218;
+  background: #101012;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  padding: 1rem;
   color: #d7dae0;
   display: flex;
   flex-direction: column;
+  gap: .6rem;
+  overflow-y: auto;
   user-select: none;
 }
+.app-sidebar::-webkit-scrollbar { width: 5px; }
+.app-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: 4px; }
 
-.sidebar-brand {
+/* 品牌区 (catalog .side-title) */
+.side-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 18px 16px;
+  gap: .5rem;
+  padding: .15rem .35rem .6rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-bottom: .25rem;
 }
-
-.sidebar-brand .bi {
-  width: 36px; height: 36px;
+.side-title .st-ic {
+  width: 26px; height: 26px;
   border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(135deg, #3b3b40, #242428);
   display: flex; align-items: center; justify-content: center;
-  font-family: serif; font-size: 20px; font-weight: 700;
-  flex: 0 0 36px;
+  color: #e4e4e7;
+  font-family: serif; font-size: 14px; font-weight: 700;
+  flex-shrink: 0;
+}
+.side-title .st-tx {
+  font-family: "Noto Serif SC", "SimSun", serif;
+  font-size: .92rem;
+  font-weight: 700;
+  color: #f4f4f5;
+  letter-spacing: .02em;
+  display: block;
+  white-space: nowrap;
+}
+.side-title .st-sub {
+  font-size: .7rem;
+  color: #8b8b93;
+  font-weight: 400;
+  display: block;
+  margin-top: 1px;
+  white-space: nowrap;
 }
 
-.brand-text { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; }
-.brand-text strong { font-size: 13px; color: #fff; white-space: nowrap; }
-.brand-text span { font-size: 11px; color: #8a8f99; }
-
-.sidebar-nav {
-  flex: 1;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow-y: auto;
+/* 分组卡片 (catalog .side-sec) */
+.side-sec {
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: .55rem;
 }
+.side-sec[hidden] { display: none; }
+.side-label {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #8b8b93;
+  padding: .1rem .3rem .45rem;
+}
+
+/* 主导航 (catalog .side-nav + .tab-btn.side-item 样式合并进 .nav-item) */
+.side-nav { display: flex; flex-direction: column; gap: .2rem; }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  color: #b9bec8;
+  gap: .55rem;
+  width: 100%;
+  padding: .44rem .6rem;
+  border-radius: 8px;
+  font-size: .83rem;
+  font-weight: 500;
+  color: #a1a1aa;
   text-decoration: none;
-  font-size: 14px;
+  text-align: left;
   transition: background .15s, color .15s;
-  position: relative;
 }
-.nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
-.nav-item.active { background: var(--accent); color: #fff; }
-
-.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-item svg { flex-shrink: 0; opacity: .75; }
+.nav-item:hover { background: rgba(255,255,255,.07); color: #e4e4e7; }
+.nav-item.active {
+  background: linear-gradient(135deg, #e4e4e7, #c9c9cf);
+  color: #161618;
+  font-weight: 600;
+}
+.nav-item.active svg { opacity: 1; color: #161618; }
 
 .nav-badge {
   margin-left: auto;
@@ -99,16 +140,94 @@ html, body {
   background: rgba(255,255,255,.12);
   color: #cfd3db;
 }
-.nav-badge.soon { background: rgba(209,67,67,.25); color: #ff9d9d; }
+.nav-badge.soon { background: rgba(209,67,67,.3); color: #ff9d9d; }
+.nav-item.active .nav-badge { background: rgba(22,22,24,.15); color: #52525b; }
+.nav-item.active .nav-badge.soon { background: rgba(209,67,67,.2); color: #b91c1c; }
 
-.sidebar-footer {
-  padding: 12px 16px;
-  border-top: 1px solid rgba(255,255,255,.08);
+/* ---------- 编目规范侧栏（从 iframe 内 #sideAnchors 镜像） ---------- */
+/* 章节锚点 / 分类导航按钮，样式对齐 catalog.html */
+.anchor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 196px;
+  overflow-y: auto;
+}
+.anchor-list::-webkit-scrollbar { width: 4px; }
+.anchor-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 4px; }
+
+.anchor-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: .76rem;
+  line-height: 1.4;
+  color: #8b8b93;
+  padding: .34rem .5rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.anchor-item:hover { background: rgba(255,255,255,.06); color: #d4d4d8; }
+.anchor-item.active { background: rgba(255,255,255,.09); color: #fafafa; font-weight: 600; }
+
+/* 分类表查询侧栏（catalog .cfb-side） */
+.cfb-side {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: .76rem;
+  color: #a1a1aa;
+  padding: .4rem .5rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.cfb-side:hover { background: rgba(255,255,255,.06); color: #e4e4e7; }
+.cfb-side.active {
+  background: linear-gradient(135deg, #e4e4e7, #c9c9cf);
+  color: #161618;
+  font-weight: 600;
+}
+
+/* 工作手册信息卡（catalog .side-card） */
+.side-card { display: flex; flex-direction: column; gap: .35rem; }
+.side-card .cr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  font-size: .74rem;
+  padding: .3rem .2rem;
+  border-bottom: 1px dashed rgba(255,255,255,.09);
+}
+.side-card .cr:last-child { border-bottom: none; }
+.side-card .cr span { color: #8b8b93; }
+.side-card .cr b {
+  color: #e4e4e7;
+  font-weight: 600;
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+  font-size: .7rem;
+  word-break: break-all;
+  text-align: right;
+}
+
+/* 同步状态卡片 */
+/* 侧栏分组增多后不再用 margin-top:auto（会把状态卡推到底部留下大片空白） */
+.side-status { flex-shrink: 0; }
+.status-row {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #8a8f99;
+  color: #8b8b93;
+  padding: .15rem .3rem;
 }
 
 .status-dot {
@@ -122,6 +241,36 @@ html, body {
 .status-dot.sync { background: #e6a23c; animation: pulse 1s infinite; }
 
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* 底部按钮组 (catalog .side-footer / .side-btn) */
+/* V0.6：侧栏项目变多后，两个按钮并排以节省纵向空间 */
+.side-footer {
+  display: flex;
+  flex-direction: row;
+  gap: .45rem;
+  margin-top: auto;
+  padding-top: .15rem;
+  flex-shrink: 0;
+}
+.side-footer .side-btn { flex: 1; min-width: 0; padding: .5rem .35rem; font-size: .74rem; }
+.side-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  padding: .5rem .6rem;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .15s;
+}
+.side-btn.sb-primary { background: #fafafa; color: #18181b; border: 1px solid #fafafa; }
+.side-btn.sb-primary:hover { background: #e4e4e7; }
+.side-btn.sb-ghost { background: rgba(255,255,255,.05); color: #c9c9cf; border: 1px solid rgba(255,255,255,.1); }
+.side-btn.sb-ghost:hover { background: rgba(255,255,255,.1); color: #fafafa; }
 
 /* ---------- 主内容区 ---------- */
 .app-main {
@@ -405,8 +554,21 @@ html, body {
 
 /* ---------- 窄屏适配 ---------- */
 @media (max-width: 768px) {
-  .app-sidebar { width: 64px; flex-basis: 64px; }
-  .brand-text, .nav-item span:not(.nav-icon), .nav-badge, .sidebar-footer span:last-child { display: none; }
-  .nav-item { justify-content: center; }
-  .sidebar-footer { justify-content: center; }
+  .app-shell { padding: 6px; gap: 6px; }
+  .app-sidebar { width: 60px; flex-basis: 60px; padding: .5rem; border-radius: 12px; }
+  .side-title { flex-direction: column; gap: .35rem; padding: .15rem 0 .6rem; }
+  .side-title > div:last-child { display: none; }
+  .side-label { display: none; }
+  .side-sec { padding: .35rem; }
+  .nav-item { justify-content: center; padding: .52rem .3rem; }
+  .nav-item span:not(.nav-badge) { display: none; }
+  .nav-badge { position: absolute; top: 2px; right: 2px; margin-left: 0; transform: scale(.85); }
+  .side-status .status-row { justify-content: center; }
+  .side-status .status-row span:last-child { display: none; }
+  .side-btn span { display: none; }
+  /* 章节锚点：窄屏仅显示可滚动列表，隐藏长信息卡内容 */
+  .anchor-list { max-height: 180px; }
+  .anchor-item, .cfb-side { text-align: center; padding: .4rem .3rem; }
+  .side-card .cr span { display: none; }
+  .side-card .cr { justify-content: center; }
 }
