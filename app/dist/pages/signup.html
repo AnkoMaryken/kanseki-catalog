@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册 · Juvenile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<style>
+:root {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f5f5;
+  --color-accent: #171717;
+  --color-text: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-input-bg: #fafafa;
+  --color-input-border: #d4d4d4;
+  --color-input-focus: #171717;
+  --color-placeholder: #a3a3a3;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+}
+[data-theme="dark"] {
+  --color-bg: #0a0a0a;
+  --color-surface: #171717;
+  --color-surface-hover: #262626;
+  --color-accent: #fafafa;
+  --color-text: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-border: rgba(255,255,255,0.1);
+  --color-input-bg: #1f1f1f;
+  --color-input-border: rgba(255,255,255,0.14);
+  --color-input-focus: #fafafa;
+  --color-placeholder: #6b6b6b;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  -webkit-font-smoothing: antialiased;
+}
+/* 顶部 logo + 品牌名 */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.75rem;
+  text-decoration: none;
+}
+.brand .brand-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.brand span {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+/* 卡片 */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 1px 2px var(--color-shadow);
+}
+.card-title {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+.card-sub {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+/* 表单 */
+.field { margin-bottom: 1rem; }
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+.field input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input::placeholder { color: var(--color-placeholder); }
+.field input:focus {
+  border-color: var(--color-input-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 12%, transparent);
+}
+.field-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: -0.25rem;
+  margin-bottom: 1rem;
+}
+/* 主按钮 */
+.btn-primary {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+/* 底部切换 */
+.switch {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 1.25rem;
+}
+.switch a {
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.switch a:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* 条款 */
+.terms {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+  max-width: 420px;
+}
+.terms a {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* 错误提示 */
+.form-error {
+  display: none;
+  font-size: 0.78rem;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem;
+}
+[data-theme="dark"] .form-error { color: #fca5a5; background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.3); }
+.form-error.show { display: block; }
+/* 顶部右上角操作区 */
+.top-actions {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.guest-btn, .theme-toggle {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.guest-btn:hover, .theme-toggle:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.guest-btn { color: var(--color-text); font-weight: 600; }
+
+/* ===== V8.2 移动端适配 ===== */
+@media (max-width: 768px) {
+  body { padding: 1.25rem 0.75rem 2rem; justify-content: flex-start; }
+  .top-actions { top: 0.6rem; right: 0.6rem; }
+  .guest-btn, .theme-toggle { padding: 0.45rem 0.8rem; font-size: 0.78rem; }
+  .brand { margin-bottom: 1.4rem; margin-top: 0.6rem; }
+  .card { padding: 1.5rem 1.15rem; border-radius: var(--radius-lg); }
+  .card-title { font-size: 1.15rem; }
+  .field-row-2 { grid-template-columns: 1fr; gap: 0; }
+  .field input { min-height: 46px; font-size: 16px; }
+  .btn-primary { min-height: 48px; font-size: 0.95rem; }
+  .switch { margin-top: 1.1rem; }
+}
+</style>
+</head>
+<body>
+<div class="top-actions">
+  <a class="guest-btn" href="index.html">游客访问</a>
+  <button class="theme-toggle" id="themeToggle">深色</button>
+</div>
+
+<a class="brand" href="index.html">
+  <div class="brand-mark">J</div>
+  <span>Juvenile</span>
+</a>
+
+<div class="card">
+  <div class="card-title">Create your account</div>
+  <div class="card-sub">输入邮箱开始你的学习之旅</div>
+
+  <div class="form-error" id="formError"></div>
+
+  <form id="signupForm" novalidate>
+    <div class="field">
+      <label for="name">姓名 / 昵称</label>
+      <input type="text" id="name" placeholder="你的名字" autocomplete="name" required>
+    </div>
+    <div class="field">
+      <label for="email">邮箱</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+    </div>
+    <div class="field-row-2">
+      <div class="field">
+        <label for="password">密码</label>
+        <input type="password" id="password" placeholder="至少 8 位" autocomplete="new-password" required>
+      </div>
+      <div class="field">
+        <label for="confirmPassword">确认密码</label>
+        <input type="password" id="confirmPassword" placeholder="再次输入" autocomplete="new-password" required>
+      </div>
+    </div>
+    <div class="hint">密码至少 8 位字符</div>
+    <button type="submit" class="btn-primary" id="signupBtn">创建账号</button>
+  </form>
+
+  <div class="switch">已有账号？<a href="login.html">登录</a></div>
+</div>
+
+<div class="terms">
+  注册即表示你同意我们的<a href="terms.html">服务条款</a>和<a href="privacy.html">隐私政策</a>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+// 深浅主题 (与全站 localStorage 键一致)
+(function() {
+  const KEY = 'theme';
+  const btn = document.getElementById('themeToggle');
+  function apply(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '浅色' : '深色';
+  }
+  apply(localStorage.getItem(KEY) || 'light');
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(KEY, cur);
+    apply(cur);
+  });
+})();
+
+// 表单逻辑 (V6.0: Supabase 接入, 未配置时演示模式)
+const form = document.getElementById('signupForm');
+const errBox = document.getElementById('formError');
+const signupBtn = document.getElementById('signupBtn');
+
+// 管理员入口 (V6.1): 连续快速点击 Juvenile 品牌 5 次 → 管理员登录页
+// 单击仍回首页 (500ms 内未凑满 5 次即恢复导航)
+(function() {
+  const brand = document.querySelector('.brand');
+  if (!brand) return;
+  let clicks = 0, timer = null;
+  brand.addEventListener('click', (e) => {
+    e.preventDefault();   // 阻止 <a href="index.html"> 默认导航, 以便连点计数
+    clicks++;
+    if (timer) clearTimeout(timer);
+    const hit = clicks;
+    timer = setTimeout(() => {
+      clicks = 0;
+      if (hit < 5) location.href = 'index.html';  // 未满 5 次: 单击回首页
+    }, 500);
+    if (clicks >= 5) {
+      e.stopPropagation();
+      if (timer) clearTimeout(timer);
+      clicks = 0;
+      location.href = 'admin.html';
+    }
+  });
+})();
+
+function showError(msg) {
+  errBox.textContent = msg;
+  errBox.classList.add('show');
+}
+function clearError() { errBox.classList.remove('show'); }
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  if (!name) { showError('请输入姓名或昵称'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('请输入有效的邮箱地址'); return; }
+  if (password.length < 8) { showError('密码至少 8 位字符'); return; }
+  if (password !== confirmPassword) { showError('两次输入的密码不一致'); return; }
+
+  signupBtn.disabled = true;
+  signupBtn.textContent = '创建中…';
+  try {
+    const { data, error } = await window.SupabaseAuth.signUp(email, password, name);
+    if (error) throw new Error(error.message || '注册失败');
+    // 注册成功 (V8.1: 已写入本地账号兜底, 真实模式若返回无 session 可能是邮箱验证, 但本地账号已可用)
+    if (window.SupabaseAuth.isConfigured() && data && data.user && !data.session) {
+      showError('注册成功！已保存本地账号，可直接返回登录页登录（无需等待邮箱验证）。');
+      signupBtn.disabled = false;
+      signupBtn.textContent = '创建账号';
+      return;
+    }
+    location.href = 'login.html?registered=1';
+  } catch (err) {
+    showError(err.message || '注册失败，请稍后重试');
+  } finally {
+    signupBtn.disabled = false;
+    signupBtn.textContent = '创建账号';
+  }
+});
+</script>
+</body>
+</html>

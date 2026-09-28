@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人中心 · Juvenile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<style>
+:root {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f5f5f5;
+  --color-accent: #171717;
+  --color-text: #0a0a0a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-border: #e5e5e5;
+  --color-input-bg: #fafafa;
+  --color-input-border: #d4d4d4;
+  --color-input-focus: #171717;
+  --color-placeholder: #a3a3a3;
+  --color-shadow: rgba(0, 0, 0, 0.05);
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+}
+[data-theme="dark"] {
+  --color-bg: #0a0a0a;
+  --color-surface: #171717;
+  --color-surface-hover: #262626;
+  --color-accent: #fafafa;
+  --color-text: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-border: rgba(255,255,255,0.1);
+  --color-input-bg: #1f1f1f;
+  --color-input-border: rgba(255,255,255,0.14);
+  --color-input-focus: #fafafa;
+  --color-placeholder: #6b6b6b;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2.5rem 1rem 3rem;
+  -webkit-font-smoothing: antialiased;
+}
+/* 顶部 logo + 品牌名 */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.75rem;
+  text-decoration: none;
+}
+.brand .brand-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.brand span {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+/* 卡片 */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 1px 2px var(--color-shadow);
+}
+.card-title {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+.card-sub {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+  font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
+  letter-spacing: 0.02em;
+}
+/* 头像区 */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+#avatarPreview {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  user-select: none;
+  -webkit-user-select: none;
+}
+#avatarPreview img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+/* 按钮 */
+.btn {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn:hover { background: var(--color-surface-hover); }
+.btn-primary {
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.btn-primary:hover { opacity: 0.88; background: var(--color-accent); }
+.btn-danger {
+  color: #dc2626;
+  background: transparent;
+  border-color: rgba(220,38,38,0.35);
+}
+.btn-danger:hover { background: rgba(220,38,38,0.08); }
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
+/* 颜色预设 */
+.color-presets {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 0.6rem 0 1.1rem;
+}
+.color-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.color-dot:hover { transform: scale(1.12); }
+.color-dot.selected { border-color: var(--color-text); transform: scale(1.08); }
+/* 表单 */
+.field { margin-bottom: 1rem; }
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+.field input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus {
+  border-color: var(--color-input-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-input-focus) 12%, transparent);
+}
+.field input:disabled { opacity: 0.55; cursor: not-allowed; }
+.field-hint { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.3rem; }
+/* 分割线 */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.25rem 0;
+}
+/* 按钮行 */
+.btn-row { display: flex; gap: 0.6rem; margin-top: 0.25rem; }
+.btn-row .btn { flex: 1; justify-content: center; }
+/* 错误/提示 */
+.form-error {
+  display: none;
+  font-size: 0.78rem;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem;
+}
+[data-theme="dark"] .form-error { color: #fca5a5; background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.3); }
+.form-error.show { display: block; }
+.form-success {
+  display: none;
+  font-size: 0.78rem;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem;
+}
+[data-theme="dark"] .form-success { color: #86efac; background: rgba(22,163,74,0.12); border-color: rgba(22,163,74,0.3); }
+.form-success.show { display: block; }
+/* 底部操作 */
+.logout-wrap { margin-top: 1.5rem; }
+/* 顶部右上角 */
+.top-actions {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.guest-btn, .theme-toggle {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.guest-btn:hover, .theme-toggle:hover { color: var(--color-text); background: var(--color-surface-hover); }
+.guest-btn { color: var(--color-text); font-weight: 600; }
+/* 隐藏的文件输入 */
+.hidden-input { display: none; }
+/* 头像裁剪弹窗 */
+.crop-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+.crop-overlay.show { display: flex; }
+.crop-modal {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.25rem 1.1rem;
+  box-shadow: 0 8px 30px var(--color-shadow);
+}
+.crop-modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+.crop-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #0a0a0a;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.crop-img {
+  position: absolute;
+  left: 0; top: 0;
+  cursor: grab;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.crop-img.dragging { cursor: grabbing; }
+.crop-ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 70%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,0.9);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+}
+.crop-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+.crop-controls input[type="range"] {
+  flex: 1;
+  accent-color: var(--color-accent);
+}
+.crop-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.crop-actions .btn { flex: 1; justify-content: center; }
+
+/* ===== V8.2 移动端适配 ===== */
+@media (max-width: 768px) {
+  body { padding: 1.25rem 0.75rem 2rem; }
+  .top-actions { top: 0.6rem; right: 0.6rem; }
+  .guest-btn, .theme-toggle { padding: 0.45rem 0.8rem; font-size: 0.78rem; }
+  .brand { margin-bottom: 1.4rem; margin-top: 0.6rem; }
+  .card { padding: 1.5rem 1.15rem; border-radius: var(--radius-lg); }
+  .card-title { font-size: 1.15rem; }
+  .field input { min-height: 46px; font-size: 16px; }
+  .btn { padding: 0.55rem 0.95rem; font-size: 0.84rem; min-height: 42px; }
+  .btn-sm { min-height: 40px; }
+  .btn-row { gap: 0.5rem; }
+  .crop-modal { max-width: none; padding: 1rem 0.9rem 0.9rem; }
+  .crop-controls { gap: 0.35rem; }
+}
+</style>
+</head>
+<body>
+<div class="top-actions">
+  <a class="guest-btn" href="index.html">返回首页</a>
+  <button class="theme-toggle" id="themeToggle">深色</button>
+</div>
+
+<a class="brand" href="index.html">
+  <div class="brand-mark">J</div>
+  <span>Juvenile</span>
+</a>
+
+<div class="card">
+  <div class="card-title">个人中心</div>
+  <div class="card-sub" id="profileMotto">笃学慎思，明辨尚行</div>
+
+  <div class="form-error" id="formError"></div>
+  <div class="form-success" id="formSuccess"></div>
+
+  <!-- 头像 -->
+  <div class="avatar-section">
+    <div id="avatarPreview"></div>
+    <div class="avatar-actions">
+      <button class="btn btn-sm" id="uploadAvatarBtn" type="button">上传图片</button>
+      <button class="btn btn-sm" id="pickColorBtn" type="button">颜色+文字</button>
+      <button class="btn btn-sm" id="resetAvatarBtn" type="button">恢复默认</button>
+    </div>
+    <input type="file" id="avatarFileInput" class="hidden-input" accept="image/*">
+    <!-- 颜色+文字预设区 (默认隐藏) -->
+    <div id="colorPickerWrap" style="display:none;width:100%;text-align:center;margin-top:0.4rem;">
+      <div class="color-presets" id="colorPresets">
+        <button type="button" class="color-dot" data-bg="#6366f1" title="靛蓝" aria-label="靛蓝"></button>
+        <button type="button" class="color-dot" data-bg="#8b5cf6" title="紫罗兰" aria-label="紫罗兰"></button>
+        <button type="button" class="color-dot" data-bg="#ec4899" title="粉红" aria-label="粉红"></button>
+        <button type="button" class="color-dot" data-bg="#f59e0b" title="琥珀" aria-label="琥珀"></button>
+        <button type="button" class="color-dot" data-bg="#10b981" title="翡翠" aria-label="翡翠"></button>
+        <button type="button" class="color-dot" data-bg="#0ea5e9" title="天蓝" aria-label="天蓝"></button>
+        <button type="button" class="color-dot" data-bg="#f43f5e" title="玫红" aria-label="玫红"></button>
+        <button type="button" class="color-dot" data-bg="#171717" title="墨黑" aria-label="墨黑"></button>
+      </div>
+      <div class="field" style="max-width:220px;margin:0 auto;">
+        <input type="text" id="avatarCharInput" maxlength="2" placeholder="输入文字（如：逐）" style="text-align:center;">
+      </div>
+      <button class="btn btn-sm btn-primary" id="applyColorBtn" type="button">应用</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 昵称 -->
+  <div class="field">
+    <label for="nickname">昵称</label>
+    <input type="text" id="nickname" placeholder="设置你的昵称" maxlength="20">
+    <div class="field-hint">昵称将显示在站点右上角。</div>
+  </div>
+
+  <!-- 邮箱 -->
+  <div class="field">
+    <label for="email">邮箱</label>
+    <input type="email" id="email" disabled>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="saveBtn" type="button">保存资料</button>
+    <button class="btn" id="toIndexBtn" type="button">返回首页</button>
+  </div>
+
+  <div class="logout-wrap">
+    <button class="btn btn-danger" id="logoutBtn" type="button" style="width:100%;justify-content:center;">退出登录</button>
+  </div>
+</div>
+
+<!-- 头像裁剪弹窗 -->
+<div class="crop-overlay" id="cropOverlay" role="dialog" aria-modal="true" aria-label="裁剪头像">
+  <div class="crop-modal">
+    <div class="crop-modal-title">拖动 / 缩放，裁剪头像</div>
+    <div class="crop-stage" id="cropStage">
+      <img class="crop-img" id="cropImg" alt="待裁剪图片">
+      <div class="crop-ring"></div>
+    </div>
+    <div class="crop-controls">
+      <button class="btn btn-sm" id="cropZoomOutBtn" type="button" aria-label="缩小">−</button>
+      <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" aria-label="缩放">
+      <button class="btn btn-sm" id="cropZoomInBtn" type="button" aria-label="放大">＋</button>
+    </div>
+    <div class="crop-actions">
+      <button class="btn" id="cropCancelBtn" type="button">取消</button>
+      <button class="btn btn-primary" id="cropConfirmBtn" type="button">确定</button>
+    </div>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="user-state.js"></script>
+<script>
+// 深浅主题 (与全站 localStorage 键一致)
+(function() {
+  const KEY = 'theme';
+  const btn = document.getElementById('themeToggle');
+  function apply(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '浅色' : '深色';
+  }
+  apply(localStorage.getItem(KEY) || 'light');
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(KEY, cur);
+    apply(cur);
+  });
+})();
+
+// 登录门禁: 未登录跳转登录页
+(function() {
+  if (!window.UserState || !UserState.isLoggedIn()) {
+    location.href = 'login.html';
+    return;
+  }
+})();
+
+// ===== 头像与资料 =====
+(function() {
+  if (!window.UserState) return;
+  const us = UserState;
+  const preview = document.getElementById('avatarPreview');
+  const avatarCharInput = document.getElementById('avatarCharInput');
+  const colorPickerWrap = document.getElementById('colorPickerWrap');
+  const formError = document.getElementById('formError');
+  const formSuccess = document.getElementById('formSuccess');
+  let selectedColor = '#6366f1';
+
+  function showError(msg) { formError.textContent = msg; formError.classList.add('show'); formSuccess.classList.remove('show'); }
+  function showSuccess(msg) { formSuccess.textContent = msg; formSuccess.classList.add('show'); formError.classList.remove('show'); }
+  function clearMsg() { formError.classList.remove('show'); formSuccess.classList.remove('show'); }
+
+  function renderPreview() {
+    const av = us.getAvatarData();
+    const name = us.getDisplayName() || '?';
+    const ch = (av && av.type === 'color' && av.char) ? av.char : (name.trim()[0] || '?');
+    if (av && av.type === 'img' && av.data) {
+      preview.innerHTML = '<img src="' + av.data + '" alt="avatar">';
+    } else if (av && av.type === 'color' && av.bg) {
+      preview.style.background = av.bg;
+      preview.style.color = av.fg || '#fff';
+      preview.style.fontSize = '2.2rem';
+      preview.textContent = ch;
+    } else {
+      // 默认: 邮箱哈希取色
+      const colors = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#0ea5e9','#f43f5e'];
+      let idx = 0; const em = us.getEmail() || name;
+      for (let i = 0; i < em.length; i++) idx = (idx + em.charCodeAt(i)) % colors.length;
+      preview.style.background = colors[idx];
+      preview.style.color = '#fff';
+      preview.style.fontSize = '2.2rem';
+      preview.textContent = ch;
+    }
+  }
+
+  // ===== 头像裁剪 (选图 → 裁剪 → 保存) =====
+  // 坐标模型: 图片左上角在 stage 中的显示位置 = (tx, ty), 显示尺寸 = (imgW*scale, imgH*scale)
+  // 裁剪圈: 圆心 = stage 中心 (cx, cy), 直径 = 70% stage 宽
+  // 缩放统一以「图片中心」为锚点, 保证所见即所得
+  const cropOverlay = document.getElementById('cropOverlay');
+  const cropStage = document.getElementById('cropStage');
+  const cropImg = document.getElementById('cropImg');
+  const cropZoom = document.getElementById('cropZoom');
+  let cropState = null; // { imgW, imgH, scale, tx, ty }
+  let cropImgEl = null; // 用于 canvas 绘制的图像对象
+
+  function stageMetrics() {
+    const w = cropStage.clientWidth;   // stage 为正方形
+    return { stageW: w, diameter: w * 0.7, cx: w / 2, cy: w / 2 };
+  }
+
+  function openCrop(dataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      cropImgEl = img;
+      cropImg.src = dataUrl;
+      // 必须先显示弹窗再读尺寸, 否则 display:none 下 clientWidth=0 → scale=0 → 图片不可见
+      cropOverlay.classList.add('show');
+      requestAnimationFrame(() => {
+        const { stageW, diameter } = stageMetrics();
+        // 初始缩放: 图片最短边 = 裁剪直径 × 1.7 (留足移动空间, 便于定位)
+        const minSide = Math.min(img.naturalWidth, img.naturalHeight);
+        const baseScale = (diameter * 1.7) / minSide;
+        cropState = {
+          imgW: img.naturalWidth, imgH: img.naturalHeight,
+          scale: baseScale,
+          tx: (stageW - img.naturalWidth * baseScale) / 2,
+          ty: (stageW - img.naturalHeight * baseScale) / 2
+        };
+        applyCropTransform();
+        cropZoom.value = 1;
+      });
+    };
+    img.onerror = () => showError('图片加载失败');
+    img.src = dataUrl;
+  }
+
+  function applyCropTransform() {
+    if (!cropState) return;
+    cropImg.style.width = cropState.imgW + 'px';
+    cropImg.style.height = cropState.imgH + 'px';
+    cropImg.style.transform = `translate(${cropState.tx}px, ${cropState.ty}px) scale(${cropState.scale})`;
+  }
+
+  function closeCrop() {
+    cropOverlay.classList.remove('show');
+    cropState = null;
+    cropImgEl = null;
+  }
+
+  // 缩放: 以图片中心为锚点 (放大/缩小时图片中心不动)
+  function setScaleByZoom(zoom) {
+    if (!cropState) return;
+    const { diameter } = stageMetrics();
+    // 最小缩放: 图片最短边 = 裁剪直径 (zoom=1)
+    const minSide = Math.min(cropState.imgW, cropState.imgH);
+    const minScale = diameter / minSide;
+    const newScale = minScale * zoom;
+    // 图片中心点 (显示坐标)
+    const imgCx = cropState.tx + (cropState.imgW * cropState.scale) / 2;
+    const imgCy = cropState.ty + (cropState.imgH * cropState.scale) / 2;
+    // 保持中心点不动
+    cropState.tx = imgCx - (cropState.imgW * newScale) / 2;
+    cropState.ty = imgCy - (cropState.imgH * newScale) / 2;
+    cropState.scale = newScale;
+    applyCropTransform();
+  }
+
+  // 计算 tx/ty 合法范围: 保证裁剪圈 (圆心=stage中心, 半径 r) 完全在图片显示区域内
+  //   裁剪圈左缘 = Ws/2 - r ≥ tx; 裁剪圈右缘 = Ws/2 + r ≤ tx + dispW
+  //   => minTx = Ws/2 + r - dispW, maxTx = Ws/2 - r
+  // 注意: 若图片显示尺寸 < 裁剪圈 (dispW < Ws 或 dispH < Ws), 任何位置都放不下整个圈,
+  //   此时退化为自由移动 (不约束), 避免小图完全拖不动
+  function txBounds() {
+    if (!cropState) return null;
+    const { stageW, diameter } = stageMetrics();
+    const r = diameter / 2;
+    const dispW = cropState.imgW * cropState.scale;
+    const dispH = cropState.imgH * cropState.scale;
+    if (dispW < stageW || dispH < stageW) return null;
+    const minTx = stageW / 2 + r - dispW;
+    const maxTx = stageW / 2 - r;
+    const minTy = stageW / 2 + r - dispH;
+    const maxTy = stageW / 2 - r;
+    return { minTx, maxTx, minTy, maxTy };
+  }
+
+  // 确定: 按裁剪圈区域 (stage 中心, 直径 70%) 裁剪输出 — 所见即所得
+  function confirmCrop() {
+    if (!cropState || !cropImgEl) return;
+    const { stageW, diameter, cx, cy } = stageMetrics();
+    // 裁剪圈圆心在图片原始坐标系中的位置
+    const srcCx = (cx - cropState.tx) / cropState.scale;
+    const srcCy = (cy - cropState.ty) / cropState.scale;
+    // 裁剪直径对应原始尺寸
+    const srcD = diameter / cropState.scale;
+    const half = srcD / 2;
+    // 兜底 clamp (正常情况下拖拽已限制在图片内, 不会越界)
+    const srcX = Math.max(0, Math.min(srcCx - half, cropState.imgW - srcD));
+    const srcY = Math.max(0, Math.min(srcCy - half, cropState.imgH - srcD));
+    const out = document.createElement('canvas');
+    const OUT = 256;
+    out.width = OUT; out.height = OUT;
+    const c = out.getContext('2d');
+    // 圆形裁剪
+    c.beginPath();
+    c.arc(OUT / 2, OUT / 2, OUT / 2, 0, Math.PI * 2);
+    c.clip();
+    c.drawImage(cropImgEl, srcX, srcY, srcD, srcD, 0, 0, OUT, OUT);
+    const dataUrl = out.toDataURL('image/png');
+    us.setAvatarData({ type: 'img', data: dataUrl });
+    renderPreview();
+    closeCrop();
+    showSuccess('头像已更新');
+  }
+
+  document.getElementById('uploadAvatarBtn').addEventListener('click', () => {
+    document.getElementById('avatarFileInput').click();
+  });
+  document.getElementById('avatarFileInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showError('请选择图片文件'); return; }
+    if (file.size > 5 * 1024 * 1024) { showError('图片不能超过 5MB'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => { openCrop(ev.target.result); };
+    reader.onerror = () => showError('读取图片失败');
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  // 拖拽移动 (带边界约束: 裁剪圈始终完全落在图片内)
+  let drag = null;
+  let suppressOverlayClick = 0; // 拖拽结束后短暂抑制 overlay 点击关闭 (鼠标松在遮罩上也会触发 click)
+  cropStage.addEventListener('mousedown', (e) => {
+    if (!cropState) return;
+    drag = { sx: e.clientX, sy: e.clientY, tx: cropState.tx, ty: cropState.ty };
+    cropImg.classList.add('dragging');
+    suppressOverlayClick = Date.now() + 300;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!drag || !cropState) return;
+    cropState.tx = drag.tx + (e.clientX - drag.sx);
+    cropState.ty = drag.ty + (e.clientY - drag.sy);
+    // 边界约束: 裁剪圈完全在图片内
+    const b = txBounds();
+    if (b) {
+      cropState.tx = Math.min(Math.max(b.minTx, cropState.tx), b.maxTx);
+      cropState.ty = Math.min(Math.max(b.minTy, cropState.ty), b.maxTy);
+    }
+    applyCropTransform();
+  });
+  window.addEventListener('mouseup', () => {
+    if (drag) suppressOverlayClick = Date.now() + 300;
+    drag = null;
+    cropImg.classList.remove('dragging');
+  });
+  // 触摸支持
+  cropStage.addEventListener('touchstart', (e) => {
+    if (!cropState || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    drag = { sx: t.clientX, sy: t.clientY, tx: cropState.tx, ty: cropState.ty };
+    e.preventDefault();
+  }, { passive: false });
+  cropStage.addEventListener('touchmove', (e) => {
+    if (!drag || !cropState || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    cropState.tx = drag.tx + (t.clientX - drag.sx);
+    cropState.ty = drag.ty + (t.clientY - drag.sy);
+    const b = txBounds();
+    if (b) {
+      cropState.tx = Math.min(Math.max(b.minTx, cropState.tx), b.maxTx);
+      cropState.ty = Math.min(Math.max(b.minTy, cropState.ty), b.maxTy);
+    }
+    applyCropTransform();
+    e.preventDefault();
+  }, { passive: false });
+  cropStage.addEventListener('touchend', () => { drag = null; }, { passive: true });
+
+  // 缩放 (以图片中心为锚点)
+  cropZoom.addEventListener('input', () => {
+    if (!cropState) return;
+    setScaleByZoom(parseFloat(cropZoom.value) || 1);
+  });
+  document.getElementById('cropZoomInBtn').addEventListener('click', () => { cropZoom.value = Math.min(4, parseFloat(cropZoom.value) + 0.2); cropZoom.dispatchEvent(new Event('input')); });
+  document.getElementById('cropZoomOutBtn').addEventListener('click', () => { cropZoom.value = Math.max(1, parseFloat(cropZoom.value) - 0.2); cropZoom.dispatchEvent(new Event('input')); });
+
+  document.getElementById('cropConfirmBtn').addEventListener('click', confirmCrop);
+  document.getElementById('cropCancelBtn').addEventListener('click', closeCrop);
+  cropOverlay.addEventListener('click', (e) => {
+    if (e.target === cropOverlay && Date.now() > suppressOverlayClick) closeCrop();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cropOverlay.classList.contains('show')) closeCrop(); });
+
+  // 颜色+文字
+  document.getElementById('pickColorBtn').addEventListener('click', () => {
+    colorPickerWrap.style.display = colorPickerWrap.style.display === 'none' ? 'block' : 'none';
+  });
+  const dots = document.querySelectorAll('.color-dot');
+  dots.forEach(d => {
+    d.addEventListener('click', () => {
+      dots.forEach(x => x.classList.remove('selected'));
+      d.classList.add('selected');
+      selectedColor = d.dataset.bg;
+    });
+  });
+  document.getElementById('applyColorBtn').addEventListener('click', () => {
+    const ch = (avatarCharInput.value || '').trim();
+    if (!ch) { showError('请输入文字（如：逐）'); return; }
+    us.setAvatarData({ type: 'color', bg: selectedColor, char: ch[0], fg: '#ffffff' });
+    renderPreview();
+    colorPickerWrap.style.display = 'none';
+    showSuccess('头像已更新');
+  });
+  document.getElementById('resetAvatarBtn').addEventListener('click', () => {
+    us.setAvatarData(null);
+    renderPreview();
+    showSuccess('已恢复默认头像');
+  });
+
+  // 昵称
+  const nicknameInput = document.getElementById('nickname');
+  const emailInput = document.getElementById('email');
+  nicknameInput.value = us.getDisplayName() === us.getEmail().split('@')[0] ? '' : us.getDisplayName();
+  emailInput.value = us.getEmail();
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const name = nicknameInput.value.trim();
+    if (name) {
+      us.setProfile({ name: name });
+    } else {
+      // 清空昵称: 存空串让 getDisplayName 回退邮箱前缀
+      us.setProfile({ name: '' });
+    }
+    renderPreview();
+    showSuccess('资料已保存');
+  });
+
+  document.getElementById('toIndexBtn').addEventListener('click', () => { location.href = 'index.html'; });
+  document.getElementById('logoutBtn').addEventListener('click', () => { us.logout(); });
+
+  renderPreview();
+})();
+</script>
+</body>
+</html>

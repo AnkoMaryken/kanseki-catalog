@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
-<title>更新日志 — 日本汉籍编目工具</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<title>更新日志 — 古代史及汉籍研究工具</title>
 <style>
 :root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
 [data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
@@ -74,7 +74,48 @@ body{transition:background-color .3s ease,color .3s ease}
 .nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
 .nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
 .nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.user-dropdown{position:relative}
+.user-btn{display:inline-flex;align-items:center}
+.user-login-link{color:inherit;text-decoration:none}
+.user-menu{right:0;left:auto;min-width:120px}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
+
+/* ===== V8.2 移动端适配 ===== */
+.m-hamburger {
+  display: none; width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); cursor: pointer;
+  align-items: center; justify-content: center; color: var(--color-text);
+}
+.drawer-overlay {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.45); opacity: 0; visibility: hidden;
+  transition: opacity 250ms cubic-bezier(.16,1,.3,1), visibility 250ms cubic-bezier(.16,1,.3,1);
+}
+.drawer-overlay.open { opacity: 1; visibility: visible; }
+.drawer {
+  display: none; position: fixed; top: 0; right: 0; bottom: 0; z-index: 950;
+  width: min(78vw, 320px); background: var(--color-surface);
+  border-left: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
+  transform: translateX(105%); transition: transform 250ms cubic-bezier(.16,1,.3,1);
+  overflow-y: auto; padding: 1rem 0.9rem 2rem; flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-brand { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.4rem 1rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0.8rem; }
+.drawer-brand .brand-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
+.drawer-brand h2 { font-size: 0.92rem; font-weight: 600; margin: 0; }
+.drawer-nav { display: flex; flex-direction: column; gap: 0.1rem; }
+.drawer-nav-group { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.8rem 0.4rem 0.3rem; letter-spacing: 0.03em; }
+.drawer-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.6rem; border-radius: var(--radius-md); font-size: 0.92rem; color: var(--color-text); text-decoration: none; transition: all var(--transition-fast); }
+.drawer-link:hover { background: var(--color-surface-hover); }
+.drawer-link.active { background: var(--color-bg-alt); font-weight: 600; }
+.drawer-user { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--color-border); }
+@media (max-width: 768px) {
+  .m-hamburger { display: inline-flex; }
+  .drawer-overlay, .drawer { display: block; }
+  .header-inner .header-nav { display: none !important; }
+  .header-actions { display: none !important; }
+}
 
 </style>
 <style id="kanseki-app-embed">/* kanseki-app-embed */
@@ -94,19 +135,267 @@ body{transition:background-color .3s ease,color .3s ease}
 
 <header class="app-header">
   <div class="header-inner">
-    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>日本汉籍编目工具</h1></a>
+    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>古代史及汉籍研究工具</h1></a>
     <nav class="header-nav">
       <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">快速跳转</a>
     </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button></div>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
+          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <a href="login.html" role="menuitem">登录</a>
+          <a href="signup.html" role="menuitem">注册</a>
+        </div>
+      </div></div>
   </div>
 </header>
+
+<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
+<div class="drawer-overlay" id="mDrawerOverlay"></div>
+<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
+  <div class="drawer-brand"><div class="brand-icon" aria-hidden="true">汉</div><h2>古代史及汉籍研究工具</h2></div>
+  <nav class="drawer-nav">
+    <div class="drawer-nav-group">导航</div>
+    <a href="index.html" class="drawer-link">纪年查询</a>
+    <a href="catalog.html" class="drawer-link">编目规范</a>
+    <a href="embed.html" class="drawer-link">快速跳转</a>
+    <div class="drawer-nav-group">说明文档</div>
+    <a href="guide.html" class="drawer-link">使用介绍</a>
+    <a href="changelog.html" class="drawer-link active">更新日志</a>
+  </nav>
+  <div class="drawer-user">
+    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
+  </div>
+</aside>
 
 <main class="page">
   <a href="index.html" class="back-link">← 返回纪年查询</a>
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v8.4 · 桌面版 0.6.2</span>
+      <span class="cl-date">2026-09-28</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>桌面版：顶部导航全部并入左侧栏</b>：Windows 桌面版把「纪年查询 / 快速跳转 / 编目规范 / 说明文档」以及「编目记录 / 同步设置 / 关于」统一收进左侧栏，页面内不再重复出现顶部导航条；由原来的 4 个入口扩展为 10 个，分组为「纪年查询 / 编目规范 / 说明文档 / 应用」。</li>
+      <li><b>桌面版：编目规范侧栏合并进主侧栏</b>：编目规范页原来自带的深色侧栏（内容导览 + 章节导航）整体并入软件主侧栏——「细则查阅 / 分类表查询 / 工作手册」三项可直接在左侧栏切换；「章节导航」随所选版本（2023 旧版 / 2025 新版）自动列出章节，点章节即滚动定位；「分类表查询」显示分类导航并联动表格；「工作手册」显示 PDF 信息卡。</li>
+      <li><b>桌面版：新增「切换主题」与侧栏状态区</b>：左侧栏底部新增「切换主题」按钮，一键在明/暗色间切换并同步到所有内嵌页面；侧栏常驻显示同步状态指示灯。</li>
+      <li><b>桌面版：页面内导航精简</b>：编目规范、快速跳转、使用介绍、更新日志四个内嵌页面不再显示自带顶栏；纪年查询页保留搜索框与「简 / 繁」字形切换、主题按钮（导航部分已上移到侧栏）。「关于」页的「使用介绍 / 更新日志」按钮改为在软件内直接切换视图。</li>
+      <li><b>桌面版：内嵌页面按需加载</b>：各内嵌页仅在首次点击时加载，启动更快；侧栏与内嵌页的主题、分类筛选、章节高亮保持双向联动。</li>
+      <li><b>桌面版：修复各页面内容显示不全</b>：修正内嵌页高度失效问题（编目规范等页面此前只显示很窄一条），现在「细则查阅 / 分类表查询 / 工作手册」内容区均完整铺满窗口；同时修正顶栏隐藏后残留的空白与「快速跳转」浮动输入框的悬空错位，侧栏底部「切换主题 / 打开网页版」改为吸底常显。</li>
+      <li><b>桌面版：内嵌内容改为实时同步网页版</b>：修正桌面版内嵌页面长期使用旧版快照的问题——此前它停留在 v6.0 时期的副本，缺少其后 7 个版本的全部内容（周边政权数据、《使用介绍》改版、手机端适配、卡片网格排布等），且缺少三个必要脚本导致部分交互失效。现改为打包时从网页版源文件实时同步，今后网页版更新即自动生效，不会再出现「软件版内容陈旧」。</li>
+      <li><b>桌面版：补齐账号相关页面</b>：登录、注册、服务条款、隐私政策、个人中心页面一并纳入桌面版，页面内的账号入口不再指向空白页。</li>
+      <li><b>桌面版：侧栏在矮窗口下完整可见</b>：压缩侧栏间距并为矮窗口单独适配，在最小窗口（960×600）下 10 个导航项与底部按钮也能一屏显示，不再需要滚动查找。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v8.3</span>
+      <span class="cl-date">2026-08-22</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>卡片模式横向排布 + 列数可调</b>：电脑端卡片视图由「一卡拉全屏」改为横向网格排布，默认 4 列、可切换 6 列（视图切换旁新增「4列/6列」按钮，选择持久化）；窗口变窄时自动降为 3/2/1 列，移动端保持单列。</li>
+      <li><b>卡片视图按年号独立复制</b>：修复卡片视图中「其他朝代」年份复制是一大串的问题——现与表格一致，每个年号都有独立复制按钮（如「日本·天正」「高丽·xx」分开复制），不再整段复制。</li>
+      <li><b>快捷筛选支持整朝筛选</b>：快捷筛选右列顶部新增「选择整个朝代」按钮——点击一次即筛选该朝代全部年份，也可再点年号精确到某皇帝；另有「全选本朝年号/清空本朝年号」快捷按钮，筛选更灵活。</li>
+      <li><b>组合搜索：汉字+拼音/数字</b>：支持「年号+拼音干支」与「年号+数字」混合查询——输入「光绪wushen」直接命中「光绪戊申」年，「光绪3」命中「光绪三年」，「光绪1843」直接定位公历 1843 年；搜索建议同步给出组合候选。</li>
+      <li><b>干支错写「猜你想搜」</b>：古籍中「己」常误写为「巳」（如「己巳」写成「巳巳」、「己卯」写成「巳卯」）。输入此类错写时，表格上方弹出「干支错写提醒」框，提示正确干支并列出对应年份，同时自动用修正后的干支显示搜索结果并弱高亮。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v8.2</span>
+      <span class="cl-date">2026-08-21</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>全站手机端适配（11 页）</b>：为「手机软件化」第一步——所有页面新增顶部汉堡按钮 + 右侧滑出抽屉导航（含字形切换/登录入口），≤768px 自动启用；桌面端布局完全不变。</li>
+      <li><b>纪年查询卡片视图</b>：新增「表格/卡片」双视图切换（桌面端可自由切换并记忆）；移动端强制卡片式布局——一行一卡，保留年份/干支/中国/其他朝代/备注/生肖全部信息，触屏友好（复制按钮常显）。</li>
+      <li><b>快捷筛选全屏底部抽屉</b>：移动端快捷筛选改为从底部滑出的全屏抽屉（左侧朝代 + 右侧年号），带安全区适配。</li>
+      <li><b>数据覆盖层 + 大事记（管理端配套）</b>：新增 overlay.js 数据层——管理员在后台录入的朝代/年号（kanseki_overlay）、大事记（kanseki_events）、编目规范覆盖（kanseki_catalog_overlay）统一经 localStorage 存储、查询页优先显示；同源多标签页自动同步刷新。</li>
+      <li><b>管理员工作台移动端适配</b>：工作台指标卡、数据面板在窄屏单列排布；新增编辑抽屉（edit-drawer）用于录改数据。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v8.1</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-fix">修复</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>修复登录后重新进入「登录信息/头像丢失」问题</b>：根因是 Supabase 默认开启邮箱验证，未验证账号登录返回 400「账号或密码错误」，登录从未成功、浏览器自然不保存登录态（头像其实一直在，只是登不进去看不到）。现新增<b>本地账号兜底</b>——注册时同步在浏览器本地保存账号（密码仅存 SHA-256 哈希），真实模式登录失败时自动回退本地账号校验，<b>同一浏览器内注册的账号无需邮箱验证即可登录</b>，登录态与头像可持久保留。</li>
+      <li><b>登录/注册页体验优化</b>：注册成功但 Supabase 需邮箱验证时，明确提示「已保存本地账号，可直接登录」；登录失败时根据是否存在本地账号给出针对性提示。</li>
+      <li><b>说明</b>：登录数据保存在浏览器 localStorage，按「源」隔离（localhost 与 127.0.0.1 互不可见属正常）；清理浏览器数据/无痕模式会清除本地账号，跨设备登录仍需 Supabase 账号（建议完成邮箱验证）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v8.0</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>日本部分扩展为「其他朝代」</b>：纪年查询表「日本时代/日本年号/在位天皇」三列更名为「其他朝代/年号/在位君主」，除日本外新增朝鲜半岛（高句丽、新罗、泰封、后百济、高丽、朝鲜王朝）、渤海、云南（南诏、大理）、越南（前李朝、丁朝、前黎朝、李朝、陈朝、胡朝、后黎朝、莫朝、后黎朝后期、阮朝）等 19 个周边政权的约 230 个年号，全部支持一键复制；「在位君主」列改为鼠标悬停显示完整君主名，默认省略显示。</li>
+      <li><b>快捷筛选支持单独筛选朝代/时代</b>：快捷筛选左列除中国朝代、日本时代外，新增朝鲜半岛/东北/云南/越南分区的周边政权，点击朝代名即可单独筛选该政权全部年号（不必再逐年号点选）。</li>
+      <li><b>全站品牌名更新</b>：左上角标题由「日本汉籍编目工具」更名为「古代史及汉籍研究工具」（繁体「古代史及漢籍研究工具」），同步更新各页标题、meta 描述、CSV 导出文件名与控制台标识。</li>
+      <li><b>无年号时期友好显示</b>：日本历史上无年号时期（如飞鸟时代 655-701 等）由「飞鸟·—四年」改为「飞鸟·无年号」，不再生成复制按钮、不再干扰搜索匹配。</li>
+      <li><b>重名提醒范围扩大</b>：年号重名提醒文案更新为「中國與其他朝代（日本、朝鮮、越南等）」，周边政权年号纳入重名检测（如「天授」= 武周 + 高丽、「建福」= 越南 + 渤海等）。</li>
+      <li><b>管理员工作台同步「其他朝代」</b>：工作台「日本时代」指标卡更名为「其他朝代」，数据分布面板并入周边政权（按年号数排序前 5，标注「周边」徽标），数据源 site-data.js 同步提取 19 个周边政权数据。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v7.2</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-opt">修复</span>
+    </div>
+    <ul>
+      <li><b>头像裁剪「所见即所得」修复</b>：修复裁剪预览与最终头像不一致的问题——1) 弹窗打开时先显示再初始化，避免隐藏状态下图片不可见；2) 拖拽/缩放统一以图片中心为锚点、以裁剪圈中心为输出中心，坐标计算与显示完全一致；3) 拖拽范围限制在图片内，裁剪圈不会拖出图片外；4) 拖拽结束鼠标落在遮罩上不再误关弹窗；5) 图片过小（小于裁剪圈）时仍可自由拖动定位。修复后所见即所得：圆框内显示什么，最终头像就是什么。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v7.1</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>头像上传支持裁剪</b>：个人中心上传图片后先进入裁剪弹窗——可拖动图片、滑块缩放（或 −/+ 按钮微调），圆形裁剪框内所见即所得，确定后输出 256px 圆形头像。图片上限放宽至 5MB；Esc/遮罩点击/取消按钮均可关闭。</li>
+      <li><b>全站标签页图标统一为「J」</b>：纪年查询/使用介绍/编目规范/更新日志/快速跳转五页的标签页小图标由「漢」改为与登录页一致的 Juvenile「J」黑色圆角标（此前登录/注册/条款/隐私/管理员/个人中心页已为「J」），全站 11 个页面图标风格统一。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v7.0</span>
+      <span class="cl-date">2026-08-17</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>个人中心页（新）</b>：新增 profile.html 个人中心——头像自定义（上传图片 / 颜色+文字 / 恢复默认）、昵称编辑、邮箱展示、退出登录；未登录访问自动跳转登录页。头像与昵称保存在浏览器本地（kanseki_profile），仅登录后可见。</li>
+      <li><b>表头登录区改为头像+昵称</b>：登录后五页（纪年查询/使用介绍/编目规范/更新日志/快速跳转）右上角「登录」替换为头像+昵称下拉，内含「个人中心」「退出登录」（纪年查询页保留显示字形切换）；未登录仍显示「登录」。用户登录后不再「感觉跟没登录一样」。</li>
+      <li><b>登录后状态同步</b>：登录成功即写入本地用户信息（邮箱/昵称），全站各页刷新即显示头像；昵称、头像修改后全站同步生效。</li>
+      <li><b>头像方案</b>：优先用户自定义（图片 base64 或颜色+文字），未设置时按邮箱哈希自动生成彩色首字母头像。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.4</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员角色判断增强（适配线上部署）</b>：管理员判定改为「用户角色优先 + 白名单兜底」——支持 user_metadata.role / app_metadata.role（'admin'/'administrator' 或布尔值），不再依赖本地白名单文件。线上部署无需 admin-config.js 即可用：在 Supabase Dashboard 给管理员用户设置 role='admin' 即生效。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.3</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员登录升级为 Supabase 认证（方案A）</b>：管理员工作台登录改用 Supabase 邮箱+密码认证，登录后校验邮箱是否在管理员白名单（window.ADMIN_CONFIG.emails）或用户角色为 admin；非管理员账号登录会被拒绝并提示「该账号无管理员权限」。会话信息（含邮箱）24 小时有效。未配置 Supabase 时保留本地演示登录。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.2</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>Supabase 真实接入</b>：填入正式 Project URL 与 anon key，登录/注册从演示模式切换为真实邮箱密码认证（Supabase 托管，注册用户需邮箱验证后登录）。管理员工作台用户列表自动切换为「Supabase 已连接」状态，可在 Supabase Dashboard → Authentication → Users 中管理。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.1</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>管理员入口改为隐藏触发</b>：管理员登录入口不再显示在页面任何位置——在登录页或注册页连续快速点击品牌「Juvenile」区域 5 次，即可进入管理员登录界面。普通用户正常单击品牌仍会返回首页，不受影响。</li>
+      <li><b>管理员凭据去敏</b>：更新日志与登录界面不再展示任何管理员演示身份信息，避免公开发布后被滥用；管理员账号密码仅由部署方在服务器端（window.ADMIN_CONFIG）配置。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v6.0</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>深浅色模式全站同步</b>：主题偏好统一存储于全站共用键（localStorage.theme），在登录页、注册页或任意页面切换深浅色后，进入其他任何页面（主页、编目规范、使用介绍、更新日志、快速跳转、管理员工作台、条款、隐私页）均保持同一主题，不再出现"登录页选了深色、进主页变浅色"的情况。</li>
+      <li><b>Supabase 接入（预留）</b>：新增 supabase-config.js 统一管理 Supabase 配置与认证封装（signIn / signUp / signOut / getSession）。当前未填入真实 URL 与 Key 时自动进入演示模式（本地模拟登录/注册），配置真实凭据后即切换为真实认证。</li>
+      <li><b>管理员工作台（admin.html）</b>：新增管理员工作台页面，需管理员身份验证后进入；含站点数据总览（总记录、中国朝代、日本时代、注册用户）、中国朝代/日本时代数据分布图表、用户列表（Supabase 配置后自动切换真实用户管理）。管理员入口采用隐藏触发方式，登录会话 24 小时有效，支持退出登录。</li>
+      <li><b>登录/注册表单接入认证</b>：登录与注册表单已接入 SupabaseAuth 封装：真实模式走 Supabase 邮箱密码认证（注册需邮箱验证），演示模式本地模拟成功并写入本地用户信息。</li>
+      <li><b>条款与隐私页支持深色主题</b>：服务条款、隐私政策页面补全主题应用逻辑，跟随全站深浅色设置。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v5.1</span>
+      <span class="cl-date">2026-08-16</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>快捷筛选浮窗</b>：纪年查询的朝代/年号筛选改为浮窗式——记录数右侧新增「快捷筛选」按钮，点击展开两栏浮窗（左：中国朝代 + 日本时代，右：年号），原顶部朝代/年号/日本时代标签筛选区移除，界面更清爽。</li>
+      <li><b>年号按皇帝分组</b>：浮窗内各朝代/时代的年号按时间顺序排布，同一皇帝的年号归为一组（帝号加粗、名字小字跟随，如「唐太宗 李世民」），既可选单个年号，也能直观按皇帝浏览。</li>
+      <li><b>选中框与一键清除</b>：选中的朝代、年号以圆角框沿「快捷筛选」按钮向右依次排列，点击框上 × 可单独移除；末尾垃圾桶按钮一键清空全部筛选，清空后自动隐藏。</li>
+      <li><b>登录入口右置 + 用户菜单</b>：五页导航的「登录」移至表头最右侧（深浅色切换按钮右边），并加下拉箭头；纪年查询页的下拉内含「显示字形（简/繁）」切换（原表头简/繁按钮并入此处，为后续个人中心预留），其余四页下拉含登录/注册入口。</li>
+      <li><b>登录/注册页「游客访问」</b>：登录、注册页右上角「深色」按钮旁新增「游客访问」按钮，不登录也能直接进入主页查看内容；登录页品牌「J」图标调小，与「Juvenile」文字比例协调。</li>
+      <li><b>界面统一简体</b>：除纪年查询结果内容可切换简繁外，全站交互界面（含编目规范页）统一为简体；编目规范页界面文字与 2025 新版细则正文均转为简体显示。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v5.0</span>
+      <span class="cl-date">2026-08-15</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>登录与注册页面</b>：新增 login.html（登录）与 signup.html（注册）页面，黑白极简卡片式设计，品牌名 Juvenile（逐风少年），支持深浅主题切换，表单含基础校验（邮箱格式、密码长度、两次密码一致）。</li>
+      <li><b>服务条款与隐私政策</b>：新增 terms.html 与 privacy.html 两个文档页面，登录/注册页底部均提供条款链接。</li>
+      <li><b>全站导航新增「登录」入口</b>：五页导航栏统一加入「登录」链接（繁体页显示「登錄」）。</li>
+      <li><b>登录体系规划</b>：登录/注册表单已预留 Supabase 接入口（邮箱 + 密码认证），后续接入后即可实现真实的注册、登录与用户数据存储。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">
@@ -382,7 +671,7 @@ body{transition:background-color .3s ease,color .3s ease}
       <li><b>删除首页</b>：移除首页入口页面及顶部导航中的「首页」链接，直接进入纪年查询。</li>
       <li><b>删除跳转年份按钮</b>：移除搜索框旁的「跳转年份」输入框与按钮（搜索框已支持年份直达，功能重复）。</li>
       <li><b>标题条宽度统一</b>：纪年查询页与编目规范页的顶部标题条改为一致宽度与高度。</li>
-      <li><b>标题更名</b>：「中日历代纪年对照」更名为「日本汉籍编目工具」，标题左侧图标由「历」改为「汉」。</li>
+      <li><b>标题更名</b>：「中日历代纪年对照」更名为「古代史及汉籍研究工具」，标题左侧图标由「历」改为「汉」。</li>
     </ul>
   </div>
 
@@ -402,9 +691,11 @@ body{transition:background-color .3s ease,color .3s ease}
 </main>
 
 <footer class="app-footer">
-  <div class="footer-inner">日本汉籍编目工具 · 学术参考工具</div>
+  <div class="footer-inner">古代史及汉籍研究工具 · 学术参考工具</div>
 </footer>
 
+<script src="overlay.js"></script>
+<script src="mobile-nav.js"></script>
 <script>
 (function(){
   function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
@@ -418,5 +709,6 @@ body{transition:background-color .3s ease,color .3s ease}
   });
 })();
 </script>
+<script src="user-state.js"></script>
 </body>
 </html>

@@ -7,7 +7,8 @@
 //   src/css/*              -> dist/css/*
 //   src/js/**/*.mjs|*.js   -> dist/js/**/*（ES 模块，浏览器直接加载）
 //   src/assets/*           -> dist/assets/*（PDF、图标等）
-//   ../docs/manual.pdf     -> dist/docs/manual.pdf（工作手册）
+//   ../（仓库根）HTML/JS    -> dist/pages/*（静态站，构建时实时拷贝）
+//   ../docs/manual.pdf     -> dist/docs/ 与 dist/pages/docs/（工作手册）
 // ================================================
 import { cpSync, mkdirSync, rmSync, readdirSync, existsSync, statSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -19,10 +20,12 @@ const SRC = join(APP_ROOT, 'src');
 const DIST = join(APP_ROOT, 'dist');
 const ROOT = resolve(APP_ROOT, '..'); // 仓库根（docs/manual.pdf 所在）
 
-function copyDir(src, dest) {
+// 拷贝目录（可排除顶层子项，如已废弃的 src/pages）
+function copyDir(src, dest, excludeTop = new Set()) {
   if (!existsSync(src)) return;
   mkdirSync(dest, { recursive: true });
   for (const entry of readdirSync(src, { withFileTypes: true })) {
+    if (excludeTop.has(entry.name)) continue;
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
     if (entry.isDirectory()) copyDir(s, d);
@@ -33,8 +36,53 @@ function copyDir(src, dest) {
 function copyFileIfExists(src, dest) {
   if (existsSync(src)) {
     mkdirSync(dirname(dest), { recursive: true });
-    cpSync(src, dest);
+    // read+write 而非 cpSync：目标可能已存在，Windows 下 cpSync 覆盖会触发 unlink shim 报错
+    writeFileSync(dest, readFileSync(src));
   }
+}
+
+// ================================================
+// 静态站页面同步（V0.6.2）
+// -------------------------------------------------
+// 历史坑：src/pages/ 曾是 v6.0 时期的一次性快照，落后根目录 7 个版本，
+// 导致桌面版跑旧内容（缺 V8.0 周边政权 / V8.2 移动端 / V8.3 卡片网格，
+// 且缺 overlay.js / mobile-nav.js / user-state.js 三个脚本）。
+// 现改为构建时从仓库根实时拷贝，副本不再维护，永不过期。
+// 注意：源文件零改动，APP 专属差异全部由下方 injectEmbedCss 在 dist 阶段注入。
+// ================================================
+const PAGES_DIR = join(DIST, 'pages');
+
+// 静态站页面（iframe 承载）
+const SITE_PAGES = ['index.html', 'catalog.html', 'embed.html', 'guide.html', 'changelog.html'];
+// 账号体系页面（页内登录/注册链接指向，缺失会 404）
+const ACCOUNT_PAGES = ['login.html', 'signup.html', 'terms.html', 'privacy.html', 'profile.html'];
+// 页面依赖的脚本（根目录同名）
+const SITE_SCRIPTS = [
+  'user-state.js',      // V7.0 用户态（页面菜单）
+  'overlay.js',         // 遮罩层
+  'mobile-nav.js',      // 移动端抽屉
+  'conv_tables.js',     // 简繁转换表
+  'pinyin_data.js',     // 拼音数据
+  'knowledge.js',       // 知识数据
+  'catalog_data.js',    // 编目数据
+  'calc.js',            // 卷数计算
+  'supabase-config.js', // 认证配置（账号页依赖）
+];
+
+function syncSiteFiles(stats) {
+  mkdirSync(PAGES_DIR, { recursive: true });
+  const missing = [];
+  for (const rel of [...SITE_PAGES, ...ACCOUNT_PAGES, ...SITE_SCRIPTS]) {
+    const s = join(ROOT, rel);
+    if (!existsSync(s)) { missing.push(rel); continue; }
+    // 用 read+write 而非 cpSync：目标可能已存在（同名脚本/PDF），
+    // Windows 下 cpSync 覆盖会触发 unlink shim 报错。
+    writeFileSync(join(PAGES_DIR, rel), readFileSync(s));
+    stats.push(rel);
+  }
+  // 工作手册：catalog.html 以 docs/manual.pdf 相对路径引用
+  copyFileIfExists(join(ROOT, 'docs', 'manual.pdf'), join(PAGES_DIR, 'docs', 'manual.pdf'));
+  return missing;
 }
 
 // ================================================
@@ -42,7 +90,7 @@ function copyFileIfExists(src, dest) {
 // -------------------------------------------------
 // APP 外壳已把「顶部导航」与「编目规范侧栏」搬到 APP 左侧栏，
 // 因此 iframe 内页面需隐藏自带的 header / docs-sidebar，避免重复。
-// 注意：只改 dist 产物，src/pages/*.html 保持与静态站一致（便于再同步）。
+// 注意：只在 dist 阶段注入，仓库根目录的源文件始终保持「网页版」原样。
 // ================================================
 const EMBED_CSS_MARK = '/* kanseki-app-embed */';
 
@@ -142,7 +190,16 @@ emptyDir(DIST);
 mkdirSync(DIST, { recursive: true });
 
 console.log('[build] 拷贝 src -> dist...');
-copyDir(SRC, DIST);
+copyDir(SRC, DIST, new Set(['pages'])); // pages 由下方从仓库根同步，不用 src 里的历史副本
+
+// 静态站页面从仓库根实时同步（忽略 src/pages 里的历史副本，保证与网页版一致）
+console.log('[build] 同步静态站页面（仓库根 -> dist/pages）...');
+const synced = [];
+const missing = syncSiteFiles(synced);
+console.log(`[build] 已同步 ${synced.length} 个文件：${synced.join(', ')}`);
+if (missing.length) {
+  console.warn(`[build] ⚠ 缺失 ${missing.length} 个源文件（未同步）：${missing.join(', ')}`);
+}
 
 // APP 化：给 iframe 承载的静态页注入嵌入样式
 console.log('[build] 注入 APP 嵌入样式...');

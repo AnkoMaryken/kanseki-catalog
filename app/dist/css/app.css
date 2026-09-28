@@ -145,14 +145,29 @@ html, body {
 .nav-item.active .nav-badge.soon { background: rgba(209,67,67,.2); color: #b91c1c; }
 
 /* ---------- 编目规范侧栏（从 iframe 内 #sideAnchors 镜像） ---------- */
-/* 章节锚点 / 分类导航按钮，样式对齐 catalog.html */
+/* 锚点区自适应：空间充足时最高 196px，空间紧张（Tauri 最小窗口 960x600）
+   时自动收缩，把空间让给上方导航项，避免导航被挤出视野 */
+#sideAnchors {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 必须显式覆盖：上面 id 选择器优先级高于 .side-sec[hidden]，
+   否则非编目规范视图下 hidden 失效、锚点仍会显示 */
+#sideAnchors[hidden] { display: none; }
 .anchor-list {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  flex: 0 1 auto;
+  min-height: 0;
   max-height: 196px;
   overflow-y: auto;
 }
+/* 分类导航同规则（与 anchor-list 一样的可收缩列表） */
+#sideAnchors .cfb-side { flex: 0 1 auto; min-height: 0; }
 .anchor-list::-webkit-scrollbar { width: 4px; }
 .anchor-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 4px; }
 
@@ -573,6 +588,19 @@ html, body {
   gap: 10px;
   padding: 14px 20px;
   border-top: 1px solid var(--border);
+}
+
+/* ---------- 矮窗口适配（Tauri 最小窗口 960x600） ---------- */
+/* 侧栏内容多时仍可滚动，但通过压缩间距让 10 个导航项尽量一屏放下 */
+@media (max-height: 680px) {
+  .app-sidebar { gap: .4rem; padding: .7rem; }
+  .side-title { padding: .1rem .3rem .35rem; margin-bottom: .1rem; }
+  .side-sec { padding: .38rem; }
+  .side-label { padding: 0 .3rem .25rem; }
+  .side-nav { gap: .12rem; }
+  .nav-item { padding: .34rem .5rem; }
+  .anchor-list { max-height: 150px; }
+  .anchor-item, .cfb-side { padding: .26rem .45rem; }
 }
 
 /* ---------- 窄屏适配 ---------- */

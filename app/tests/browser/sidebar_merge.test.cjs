@@ -280,8 +280,73 @@ const config = require('../../../tests/helpers/config.js');
     });
     check('底部按钮可见（' + name + '）', vis === true);
   }
+
+  // ---------- 13b. Tauri 真实窗口尺寸下侧栏不溢出 ----------
+  // 主窗口 1280x800，最小窗口 960x600（见 tauri.conf.json）
+  for (const vp of [{ width: 1280, height: 800 }, { width: 960, height: 600 }]) {
+    await page.setViewportSize(vp);
+    await page.waitForTimeout(400);
+    for (const [name, sel] of [
+      ['查询', '.nav-item[data-view="query"]'],
+      ['细则查阅', '.nav-item[data-view="catalog"][data-tab="0"]'],
+      ['分类表', '.nav-item[data-view="catalog"][data-tab="1"]'],
+      ['手册', '.nav-item[data-view="catalog"][data-tab="2"]'],
+    ]) {
+      await page.click(sel);
+      await page.waitForTimeout(1800);
+      const m = await page.evaluate(() => {
+        const sb = document.querySelector('.app-sidebar');
+        const sr = sb.getBoundingClientRect();
+        const items = [...document.querySelectorAll('.nav-item')];
+        const vis = items.filter(el => {
+          const b = el.getBoundingClientRect();
+          return b.top >= sr.top - 1 && b.bottom <= sr.bottom + 1;
+        }).length;
+        return { overflow: sb.scrollHeight - sb.clientHeight, vis, total: items.length };
+      });
+      const tag = `${vp.width}x${vp.height} ${name}`;
+      check('侧栏不溢出（' + tag + '）', m.overflow <= 0, '溢出=' + m.overflow);
+      check('导航项全部可见（' + tag + '）', m.vis === m.total, `${m.vis}/${m.total}`);
+    }
+  }
+
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.waitForTimeout(400);
+
+  // ---------- 15. 内容新鲜度（防 src/pages 历史副本回退） ----------
+  // 历史坑：src/pages/ 曾是 v6.0 一次性快照，落后根目录 7 个版本，
+  // 桌面版跑旧内容。现由 build.mjs 从仓库根实时同步，此处守卫不得回退。
+  const fresh = await page.evaluate(async () => {
+    const get = async (u) => (await fetch(u, { cache: 'no-store' })).text();
+    const idx = await get('pages/index.html');
+    const cat = await get('pages/catalog.html');
+    return {
+      hasOtherStates: idx.includes('OTHER_STATES'),          // V8.0 周边政权
+      hasUserState: idx.includes('user-state.js'),           // V7.0 用户态
+      hasMobileNav: idx.includes('mobile-nav.js'),           // V8.2 移动端
+      hasSideAnchors: cat.includes('id="sideAnchors"'),      // 侧栏镜像源
+      embedInjected: idx.includes('kanseki-app-embed'),      // APP 样式已注入
+    };
+  });
+  check('内容含 V8.0 周边政权数据', fresh.hasOtherStates === true);
+  check('内容含 user-state.js（V7.0）', fresh.hasUserState === true);
+  check('内容含 mobile-nav.js（V8.2）', fresh.hasMobileNav === true);
+  check('catalog 保留 #sideAnchors 镜像源', fresh.hasSideAnchors === true);
+  check('APP 嵌入样式已注入', fresh.embedInjected === true);
+
+  // 账号页与依赖脚本就位（页内登录链接否则会 404）
+  const assets = await page.evaluate(async () => {
+    const paths = ['pages/login.html', 'pages/signup.html', 'pages/terms.html',
+      'pages/privacy.html', 'pages/profile.html', 'pages/user-state.js',
+      'pages/overlay.js', 'pages/mobile-nav.js', 'pages/docs/manual.pdf'];
+    const out = {};
+    for (const p of paths) {
+      try { out[p] = (await fetch(p, { method: 'HEAD' })).ok; } catch (e) { out[p] = false; }
+    }
+    return out;
+  });
+  const missingAssets = Object.entries(assets).filter(([, ok]) => !ok).map(([p]) => p);
+  check('账号页与依赖脚本齐备', missingAssets.length === 0, missingAssets.join(', ') || '全部就位');
 
   // ---------- 14. 无 JS 错误 ----------
   const realErrors = errors.filter(e => !/favicon|ERR_/.test(e));
