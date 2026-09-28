@@ -85,27 +85,27 @@
   <!-- 主内容区 -->
   <main class="app-main">
     <!-- 查询视图：iframe 承载静态站 -->
-    <section id="view-query" class="view active">
+    <section id="view-query" class="view has-frame active">
       <iframe id="queryFrame" src="pages/index.html" title="纪年查询" class="page-frame"></iframe>
     </section>
 
     <!-- 编目规范视图（懒加载 iframe；侧栏已合并其内容导览与章节导航） -->
-    <section id="view-catalog" class="view">
+    <section id="view-catalog" class="view has-frame">
       <iframe id="catalogFrame" data-src="pages/catalog.html" title="编目规范" class="page-frame" loading="lazy"></iframe>
     </section>
 
     <!-- 快速跳转视图 -->
-    <section id="view-jump" class="view">
+    <section id="view-jump" class="view has-frame">
       <iframe id="jumpFrame" data-src="pages/embed.html" title="快速跳转" class="page-frame" loading="lazy"></iframe>
     </section>
 
     <!-- 使用介绍视图 -->
-    <section id="view-guide" class="view">
+    <section id="view-guide" class="view has-frame">
       <iframe id="guideFrame" data-src="pages/guide.html" title="使用介绍" class="page-frame" loading="lazy"></iframe>
     </section>
 
     <!-- 更新日志视图 -->
-    <section id="view-changelog" class="view">
+    <section id="view-changelog" class="view has-frame">
       <iframe id="changelogFrame" data-src="pages/changelog.html" title="更新日志" class="page-frame" loading="lazy"></iframe>
     </section>
 

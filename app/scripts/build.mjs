@@ -55,7 +55,7 @@ const EMBED_CSS_MARK = '/* kanseki-app-embed */';
 const EMBED_RULES = {
   'index.html': { hideHeaderNav: true, hideBrand: true },
   'catalog.html': { hideHeaderAll: true, hideDocsAside: true, gridTwoCol: true },
-  'embed.html': { hideHeaderAll: true },
+  'embed.html': { hideHeaderAll: true, fixedOffset: true },
   'guide.html': { hideHeaderAll: true },
   'changelog.html': { hideHeaderAll: true },
 };
@@ -79,6 +79,23 @@ function embedStyleFor(rule) {
   if (rule.gridTwoCol) {
     css.push('.docs-layout{grid-template-columns:minmax(0,1fr) 216px !important;max-width:1400px;padding-top:.9rem}');
     css.push('@media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}');
+  }
+  // 视口高度校正：页面内若干 calc(100vh - Npx) 是按「顶栏(约 60px) + 页脚/内边距」估的，
+  // 嵌入 APP 后顶栏已被隐藏，需把这部分高度还给内容区，否则底部会留下大片空白。
+  if (rule.hideHeaderAll) {
+    css.push('.doc-body{max-height:calc(100vh - 132px) !important}');
+    css.push('.cat-scroll{max-height:calc(100vh - 132px) !important}');
+    css.push('.pdf-frame{height:calc(100vh - 116px) !important}');
+    css.push('.docs-toc{max-height:calc(100vh - 24px) !important;top:12px !important}');
+    css.push('.docs-layout{padding-bottom:1rem !important}');
+  } else if (rule.hideHeaderNav) {
+    // index：仅隐藏导航条，header 仍在（含搜索框），高度链不受影响，无需校正
+    void 0;
+  }
+  // 浮动控件的固定偏移校正：原为避开顶栏而设（top:76px/122px），顶栏隐藏后需上移
+  if (rule.fixedOffset) {
+    css.push('.jump-bar{top:16px !important}');
+    css.push('.jump-hint{top:62px !important}');
   }
   // 移动端：APP 侧栏已承担导航，隐藏页内汉堡按钮与抽屉
   css.push('.m-hamburger{display:none !important}');

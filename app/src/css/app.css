@@ -94,16 +94,16 @@ html, body {
   background: rgba(255,255,255,.045);
   border: 1px solid rgba(255,255,255,.07);
   border-radius: 10px;
-  padding: .55rem;
+  padding: .5rem;
 }
 .side-sec[hidden] { display: none; }
 .side-label {
-  font-size: .68rem;
+  font-size: .66rem;
   font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: #8b8b93;
-  padding: .1rem .3rem .45rem;
+  padding: .08rem .3rem .38rem;
 }
 
 /* 主导航 (catalog .side-nav + .tab-btn.side-item 样式合并进 .nav-item) */
@@ -243,14 +243,20 @@ html, body {
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
 
 /* 底部按钮组 (catalog .side-footer / .side-btn) */
-/* V0.6：侧栏项目变多后，两个按钮并排以节省纵向空间 */
+/* V0.6：侧栏项目变多后，两个按钮并排以节省纵向空间；
+   并改为 sticky 吸底——侧栏在 800px 高等窗口下会超出一屏，
+   吸底可保证「切换主题 / 打开网页版」始终可见可点。 */
 .side-footer {
   display: flex;
   flex-direction: row;
   gap: .45rem;
   margin-top: auto;
-  padding-top: .15rem;
+  padding: .4rem 0 .15rem;
   flex-shrink: 0;
+  position: sticky;
+  bottom: -.15rem;
+  z-index: 2;
+  background: linear-gradient(to bottom, rgba(16,16,18,0), #101012 34%);
 }
 .side-footer .side-btn { flex: 1; min-width: 0; padding: .5rem .35rem; font-size: .74rem; }
 .side-btn {
@@ -284,14 +290,31 @@ html, body {
   height: 100%;
   overflow: auto;
 }
+/* 视图内含 iframe 时容器不滚动，交由 iframe 内部自行滚动 */
 .view.active { display: flex; flex-direction: column; }
+.view.has-frame.active { overflow: hidden; }
 
-/* iframe 查询视图 */
-#view-query .page-frame {
+/* iframe 承载视图（查询 / 编目规范 / 快速跳转 / 使用介绍 / 更新日志）
+   注意：必须作用于全部 .page-frame，否则未覆盖的视图会退化为
+   iframe 默认高度 150px（表现为「显示不全」） */
+#view-query .page-frame,
+#view-catalog .page-frame,
+#view-jump .page-frame,
+#view-guide .page-frame,
+#view-changelog .page-frame,
+.view .page-frame {
   width: 100%;
   height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   border: none;
   background: #fff;
+  display: block;
+}
+/* 卡片式外观：与 APP 外壳的圆角留白风格一致 */
+.view.has-frame .page-frame {
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16,18,24,.04);
 }
 
 /* 通用视图头部 */

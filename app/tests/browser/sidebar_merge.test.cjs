@@ -192,7 +192,98 @@ const config = require('../../../tests/helpers/config.js');
   await page.click('#themeToggleBtn');
   await page.waitForTimeout(600);
 
-  // ---------- 10. 无 JS 错误 ----------
+  // ---------- 10. iframe 尺寸（防「显示不全」回归） ----------
+  // 历史 bug：尺寸规则只绑 #view-query，其余视图的 iframe 退化为浏览器默认 150px
+  const frameSizes = [];
+  const sizeCases = [
+    ['query', 'queryFrame', '.nav-item[data-view="query"]'],
+    ['catalog', 'catalogFrame', '.nav-item[data-view="catalog"][data-tab="0"]'],
+    ['jump', 'jumpFrame', '.nav-item[data-view="jump"]'],
+    ['guide', 'guideFrame', '.nav-item[data-view="guide"]'],
+    ['changelog', 'changelogFrame', '.nav-item[data-view="changelog"]'],
+  ];
+  for (const [view, fid, sel] of sizeCases) {
+    await page.click(sel);
+    await page.waitForTimeout(1000);
+    const box = await page.evaluate(({ view, fid }) => {
+      const fr = document.getElementById(fid);
+      const main = document.querySelector('.app-main');
+      if (!fr) return null;
+      const r = fr.getBoundingClientRect();
+      const mr = main.getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height), mainH: Math.round(mr.height) };
+    }, { view, fid });
+    frameSizes.push({ view, ...(box || { w: 0, h: 0, mainH: 0 }) });
+    const ok = box && box.h > 400 && Math.abs(box.h - box.mainH) <= 2;
+    check('iframe 撑满视图：' + view, ok,
+      box ? box.w + 'x' + box.h + ' (main ' + box.mainH + ')' : '未找到');
+  }
+  check('全部 iframe 高度 > 400px', frameSizes.every(f => f.h > 400),
+    frameSizes.map(f => f.view + '=' + f.h).join(' '));
+
+  // ---------- 11. 内嵌页高度链校正 ----------
+  await page.click('.nav-item[data-view="catalog"][data-tab="0"]');
+  await page.waitForTimeout(2000);
+  const fCat2 = page.frames().find(f => /pages\/catalog\.html/.test(f.url() || ''));
+  if (fCat2) {
+    const inner = await fCat2.evaluate(() => {
+      const db = document.getElementById('db');
+      const r = db ? db.getBoundingClientRect() : null;
+      return { innerH: window.innerHeight, dbH: r ? Math.round(r.height) : 0, dbTop: r ? Math.round(r.top) : 0 };
+    });
+    // 隐藏顶栏后正文区应占满大部分视口（旧值仅约 62px，修复后约 744px）
+    check('细则正文区高度合理', inner.dbH > inner.innerH * 0.7,
+      'db=' + inner.dbH + ' / innerH=' + inner.innerH);
+    check('细则正文区顶部偏移 < 120px', inner.dbTop < 120, 'top=' + inner.dbTop);
+  }
+
+  await page.click('.nav-item[data-view="catalog"][data-tab="2"]');
+  await page.waitForTimeout(2000);
+  const fPdf = page.frames().find(f => /pages\/catalog\.html/.test(f.url() || ''));
+  if (fPdf) {
+    const pdf = await fPdf.evaluate(() => {
+      const el = document.querySelector('.pdf-frame');
+      return el ? { h: Math.round(el.getBoundingClientRect().height), innerH: window.innerHeight } : null;
+    });
+    check('PDF 手册高度合理', !!pdf && pdf.h > pdf.innerH * 0.7,
+      pdf ? pdf.h + ' / ' + pdf.innerH : '未找到');
+  }
+
+  // ---------- 12. 快速跳转浮动栏不得悬空 ----------
+  await page.click('.nav-item[data-view="jump"]');
+  await page.waitForTimeout(1600);
+  const fj = page.frames().find(f => /pages\/embed\.html/.test(f.url() || ''));
+  if (fj) {
+    const bar = await fj.evaluate(() => {
+      const el = document.querySelector('.jump-bar');
+      return el ? { top: Math.round(el.getBoundingClientRect().top) } : null;
+    });
+    check('跳转浮动栏贴近顶部', !!bar && bar.top < 40, bar ? 'top=' + bar.top : '未找到');
+  }
+
+  // ---------- 13. 侧栏底部按钮吸底（低矮窗口下不得被挤出） ----------
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.waitForTimeout(400);
+  for (const [name, sel] of [
+    ['查询', '.nav-item[data-view="query"]'],
+    ['细则查阅', '.nav-item[data-view="catalog"][data-tab="0"]'],
+    ['工作手册', '.nav-item[data-view="catalog"][data-tab="2"]'],
+  ]) {
+    await page.click(sel);
+    await page.waitForTimeout(2000);
+    const vis = await page.evaluate(() => {
+      const sb = document.querySelector('.app-sidebar');
+      const ft = document.querySelector('.side-footer');
+      const sr = sb.getBoundingClientRect();
+      const fr = ft.getBoundingClientRect();
+      return fr.bottom <= sr.bottom + 1 && fr.top >= sr.top - 1 && fr.height > 10;
+    });
+    check('底部按钮可见（' + name + '）', vis === true);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(400);
+
+  // ---------- 14. 无 JS 错误 ----------
   const realErrors = errors.filter(e => !/favicon|ERR_/.test(e));
   check('0 JS 错误', realErrors.length === 0, realErrors.slice(0, 3).join(' ;; '));
 
