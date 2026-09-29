@@ -253,9 +253,25 @@ function toggleSidebar() {
   applyCollapse(next);
 }
 
-// ---------- 窗口控制（V0.7） ----------
+// ---------- 窗口控制（V0.7，V0.8.1 修正命令名） ----------
 // Tauri v2 无构建工具方式调用窗口 API：走 __TAURI_INTERNALS__.invoke('plugin:window|...')
 // 权限见 tauri/capabilities/default.json（需显式列出 allow-* 项）
+//
+// ⚠️ 命令名必须是 snake_case（与服务端注册名一致），不能写 camelCase：
+//    · tauri-2.12.0/src/window/plugin.rs 的 generate_handler! 注册的是
+//      is_maximized / toggle_maximize / set_size / set_fullscreen …
+//    · ACL 清单（tauri/gen/schemas/acl-manifests.json）里
+//      core:window:allow-toggle-maximize 的 commands 也是 "toggle_maximize"
+//    此前误传 camelCase（toggleMaximize），ACL 直接拒绝并报
+//    「Command plugin:window|toggleMaximize not allowed by ACL」；
+//    只有 minimize / maximize / unmaximize / center / close 这类单词命令
+//    恰好两种写法同形才「碰巧可用」——这就是「窗口栏很多操作无法使用」的成因。
+//
+// ⚠️ 带参 setter 的参数名一律是 `value`（Rust 宏签名为 label + value），
+//    不是 camelCase 字段名（alwaysOnTop / width+height 都是错的）：
+//    · set_fullscreen / set_always_on_top -> value: boolean
+//    · set_size                           -> value: { Logical|Physical: {width,height} }
+//    · start_resize_dragging              -> value: 'North' | 'SouthEast' …（PascalCase）
 const winState = { alwaysOnTop: false, maximized: false, fullscreen: false };
 
 async function winInvoke(cmd, args) {
@@ -283,30 +299,33 @@ async function runWinAction(action, payload) {
     switch (action) {
       case 'min': await call('minimize'); break;
       case 'max':
-        await call('toggleMaximize');
-        winState.maximized = !winState.maximized;
-        syncMaxLabel();
+        // V0.8.1: 不再对布尔量取反，改为命令执行后回读真实状态，
+        // 避免与拖边框 / Win+↑ / 双击标题栏等外部改动后的状态不同步
+        await call('toggle_maximize');
+        await refreshMaxState();
         break;
       case 'close': await call('close'); break;
       case 'center': await call('center'); showToast('窗口已居中'); break;
       case 'fullscreen':
         winState.fullscreen = !winState.fullscreen;
-        await call('setFullscreen', { value: winState.fullscreen });
+        await call('set_fullscreen', { value: winState.fullscreen });
         showToast(winState.fullscreen ? '已进入全屏（再点一次退出）' : '已退出全屏');
         break;
       case 'ontop':
         winState.alwaysOnTop = !winState.alwaysOnTop;
-        await call('setAlwaysOnTop', { alwaysOnTop: winState.alwaysOnTop });
+        await call('set_always_on_top', { value: winState.alwaysOnTop });
         syncTopCheck();
         showToast(winState.alwaysOnTop ? '窗口已置顶' : '已取消置顶');
         break;
       case 'size': {
-        // 逻辑尺寸 -> 物理像素（Tauri 的 setSize 用物理像素，需乘缩放比）
-        const dpr = window.devicePixelRatio || 1;
         const [w, h] = String(payload || '').split('x').map(Number);
         if (!w || !h) break;
-        await call('setSize', { width: Math.round(w * dpr), height: Math.round(h * dpr) });
+        // set_size 收 tauri::Size：显式用 Logical，由内核按 DPI 换算，
+        // 无需自行乘 devicePixelRatio（旧写法会在大字号屏幕下算错）
+        await call('set_size', { value: { Logical: { width: w, height: h } } });
         await call('center');
+        // 设定尺寸会让窗口退出最大化态，同步图标
+        await refreshMaxState();
         showToast(`窗口尺寸已设为 ${w}×${h}`);
         break;
       }
@@ -315,6 +334,15 @@ async function runWinAction(action, payload) {
   } catch (e) {
     showToast('窗口操作失败：' + (e && e.message ? e.message : e), 'err');
   }
+}
+
+// 回读最大化真实状态并刷新 UI（命令名同前，须为 snake_case）
+async function refreshMaxState() {
+  try {
+    const m = !!(await winInvoke('is_maximized', { label: currentWindowLabel() }));
+    if (m !== winState.maximized) { winState.maximized = m; }
+    syncMaxLabel();
+  } catch (_) { /* 忽略：不影响主流程 */ }
 }
 
 function syncMaxLabel() {
@@ -346,9 +374,10 @@ async function initWinState() {
   if (!isTauri) return;
   const label = currentWindowLabel();
   const call = (cmd, args) => winInvoke(cmd, Object.assign({ label }, args || {}));
-  try { winState.maximized = !!(await call('isMaximized')); } catch (_) { /* 忽略 */ }
-  try { winState.fullscreen = !!(await call('isFullscreen')); } catch (_) { /* 忽略 */ }
-  try { winState.alwaysOnTop = !!(await call('isAlwaysOnTop')); } catch (_) { /* 忽略 */ }
+  // 命令名须 snake_case，见本节顶部说明
+  try { winState.maximized = !!(await call('is_maximized')); } catch (_) { /* 忽略 */ }
+  try { winState.fullscreen = !!(await call('is_fullscreen')); } catch (_) { /* 忽略 */ }
+  try { winState.alwaysOnTop = !!(await call('is_always_on_top')); } catch (_) { /* 忽略 */ }
   syncMaxLabel();
   syncTopCheck();
 }
@@ -361,7 +390,7 @@ function scheduleWinStateSync() {
   resizeSyncTimer = setTimeout(async () => {
     const label = currentWindowLabel();
     try {
-      const m = !!(await winInvoke('isMaximized', { label }));
+      const m = !!(await winInvoke('is_maximized', { label }));
       if (m !== winState.maximized) { winState.maximized = m; syncMaxLabel(); }
     } catch (_) { /* 忽略 */ }
   }, 160);
@@ -696,13 +725,14 @@ async function init() {
   $('#tbMin')?.addEventListener('click', () => runWinAction('min'));
   $('#tbMax')?.addEventListener('click', () => runWinAction('max'));
   $('#tbClose')?.addEventListener('click', () => runWinAction('close'));
-  // 无边框窗口八向缩放：热区 mousedown → startResizeDragging
+  // 无边框窗口八向缩放：热区 mousedown → start_resize_dragging
+  // 参数名须为 value，取值为 PascalCase 方向名（见本节顶部说明）
   $('#winResize')?.addEventListener('mousedown', (e) => {
     const zone = e.target.closest('[data-dir]');
     if (!zone || !isTauri) return;
     e.preventDefault();
     const label = currentWindowLabel();
-    winInvoke('startResizeDragging', { label, direction: zone.dataset.dir })
+    winInvoke('start_resize_dragging', { label, value: zone.dataset.dir })
       .catch(() => { /* 最大化态等情形静默忽略 */ });
   });
   if (!isTauri) $('#app')?.classList.add('no-tauri');

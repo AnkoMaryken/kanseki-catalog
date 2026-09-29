@@ -26,6 +26,12 @@ function ok(name, cond, extra = '') {
   const page = await ctx.newPage();
   page.setDefaultTimeout(15000);
 
+  // V8.1.1: 本测试验证「真实模式（Supabase 认证）」分支。真实模式现在要求
+  //   端点探测通过（supabase-config.js 会请求 /auth/v1/health）；本机测试
+  //   环境到该端点的连通性不可控，故用官方覆盖开关锁定为真实模式。
+  //   —— 这不是绕过校验：见 supabase-config.js 中 SUPABASE_ENDPOINT_STATE 说明。
+  await page.addInitScript(() => { window.SUPABASE_ENDPOINT_STATE = 'ok'; });
+
   console.log('\n[1] 真实模式门禁提示');
   await page.goto(`${BASE}/admin.html`);
   await page.waitForSelector('#gateForm');

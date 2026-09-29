@@ -12,6 +12,10 @@ debug_*.js
 # app 依赖与临时调试
 app/node_modules/
 app/.tmp/
+
+# 探针脚本产出的诊断截图（仅本地取证，不入库）
+app/.shot_*.png
+app/*.log
 # 安装包工具
 app/tools/
 

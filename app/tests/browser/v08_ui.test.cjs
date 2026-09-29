@@ -69,9 +69,11 @@ const config = require('../../../tests/helpers/config.js');
   ok('标题栏为外壳首元素', tbFirst === true);
   // 拖动区域
   ok('标题栏含拖动区', await page.locator('[data-tauri-drag-region]').count() >= 1);
-  // 中间标题文字
-  const tbTx = await page.locator('.tb-title-tx').textContent().catch(() => '');
-  ok('标题栏显示程序名', tbTx.trim() === '古代史及汉籍研究工具', tbTx);
+  // V0.8.1: 标题栏不再重复显示程序名（侧栏品牌栏已显示），避免「UI 重复」
+  const tbTxCount = await page.locator('.tb-title-tx').count();
+  ok('标题栏不再重复程序名', tbTxCount === 0, 'tb-title-tx 数量=' + tbTxCount);
+  const tbTitleBox = await page.locator('.tb-title').boundingBox();
+  ok('标题栏中部仍为可拖动区块', !!tbTitleBox && tbTitleBox.width > 200, JSON.stringify(tbTitleBox));
   // 关闭键悬停变红（CSS 生效性粗检）
   const closeBg = await page.evaluate(() => {
     const el = document.querySelector('#tbClose');

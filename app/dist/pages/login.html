@@ -324,10 +324,25 @@ const loginBtn = document.getElementById('loginBtn');
 })();
 
 function showError(msg) {
+  errBox.style.color = '';   // 恢复为样式表默认的错误色
   errBox.textContent = msg;
   errBox.classList.add('show');
 }
-function clearError() { errBox.classList.remove('show'); }
+function clearError() { errBox.style.color = ''; errBox.classList.remove('show'); }
+
+// 注册成功后跳回本页时给出明确提示（signup.html → login.html?registered=1）
+// 修复：原先 signup 传了 registered=1 但本页从不读取，用户跳转后毫无反馈，
+//       看起来就像「注册没成功」。
+(function () {
+  const q = new URLSearchParams(location.search);
+  if (q.get('registered') !== '1') return;
+  const pre = document.getElementById('email');
+  const saved = q.get('email');
+  if (saved && pre) pre.value = saved;
+  errBox.style.color = '#0a7d33';
+  errBox.textContent = '注册成功！请使用刚才设置的邮箱与密码登录。';
+  errBox.classList.add('show');
+})();
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -344,14 +359,23 @@ form.addEventListener('submit', async (e) => {
     if (error) {
       // V8.1: 本地账号兜底 — 若 Supabase 无此账号/未验证, 但本地注册过, 已自动回退成功
       // 走到这里说明 Supabase 与本地都未通过
+      // V8.1.1: 非真实模式下改为严格校验，错误信息已带明确原因（密码错误 / 尚未注册）
       const localRec = window.SupabaseLocal && window.SupabaseLocal.find(email);
-      const msg = localRec
-        ? '账号或密码错误（提示：本地存在该邮箱账号，请检查密码；或前往注册页重新注册一次以覆盖）。'
-        : '账号或密码错误。若你注册过但未验证邮箱，请直接重新注册一次（本站已支持本地账号，注册后无需邮箱验证即可登录）。';
-      showError(error.message || msg);
-      if (error.message && error.message.indexOf('Invalid login') >= 0) {
-        // 保留原生报错, 但追加友好提示
-        errBox.textContent = '登录失败：' + error.message + '。' + (localRec ? '本地存在该邮箱账号，请核对密码。' : '若未验证邮箱，可在注册页重新注册（无需邮箱验证）。');
+      const em = String(error.message || '');
+      let msg = em;
+      if (!msg) {
+        msg = localRec
+          ? '账号或密码错误（提示：本地存在该邮箱账号，请检查密码；或前往注册页重新注册一次以覆盖）。'
+          : '账号或密码错误。若你注册过但未验证邮箱，请直接重新注册一次（本站已支持本地账号，注册后无需邮箱验证即可登录）。';
+      }
+      // 尚未注册的邮箱：直接引导去注册，减少困惑
+      if (em.indexOf('尚未注册') >= 0) {
+        msg = '该邮箱尚未注册。';
+      }
+      showError(msg);
+      // 附带注册入口，便于用户一键前往
+      if (!localRec || em.indexOf('尚未注册') >= 0) {
+        errBox.innerHTML = msg + ' <a href="signup.html" style="color:inherit;text-decoration:underline">前往注册</a>';
         errBox.classList.add('show');
       }
       return;

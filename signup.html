@@ -359,7 +359,7 @@ form.addEventListener('submit', async (e) => {
       signupBtn.textContent = '创建账号';
       return;
     }
-    location.href = 'login.html?registered=1';
+    location.href = 'login.html?registered=1&email=' + encodeURIComponent(email);
   } catch (err) {
     showError(err.message || '注册失败，请稍后重试');
   } finally {

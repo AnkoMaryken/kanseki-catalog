@@ -82,23 +82,11 @@ html, body {
   z-index: 40;
 }
 .tb-left { display: flex; align-items: center; gap: .1rem; flex-shrink: 0; }
+/* 中部：纯拖动区（V0.8.1 起不再显示程序名，避免与侧栏品牌栏重复） */
 .tb-title {
   flex: 1 1 auto;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-}
-.tb-title-tx {
-  font-family: var(--font-display);
-  font-size: .8rem;
-  font-weight: 600;
-  letter-spacing: .02em;
-  color: var(--text-sec);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .tb-iconbtn {
   display: inline-flex;
@@ -1202,7 +1190,6 @@ html, body {
 [data-theme="dark"] .tb-win:hover { background: rgba(255,255,255,.1); color: var(--text); }
 [data-theme="dark"] .tb-win:focus-visible { outline-color: rgba(255,255,255,.4); }
 [data-theme="dark"] .tb-close:hover { background: #e81123; color: #fff; }
-[data-theme="dark"] .tb-title-tx { color: var(--text-sec); }
 
 /* 窗口下拉菜单：跟随页面主题（展开在标题栏，不能沿用侧栏深色） */
 [data-theme="dark"] .st-menu { background: #1b1b1f; border-color: rgba(255,255,255,.12); }

@@ -178,8 +178,10 @@ const config = require('../../../tests/helpers/config.js');
 
   await page.click('.nav-item[data-view="about"]');
   await page.waitForTimeout(400);
-  ok('关于页版本为 0.8.0',
-    (await page.textContent('.av-ver')).includes('0.8.0'),
+  // 版本号断言与 package.json 保持一致，避免每次发版都要改测试
+  const pkgVer = require('../../package.json').version;
+  ok('关于页版本与 package.json 一致（' + pkgVer + '）',
+    (await page.textContent('.av-ver')).includes(pkgVer),
     await page.textContent('.av-ver'));
   ok('关于页 logo 为内联 SVG', await page.locator('.av-logo svg').count() === 1);
 

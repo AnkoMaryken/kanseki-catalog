@@ -50,10 +50,12 @@
       </div>
     </div>
 
-    <!-- 中间：标题文字（可拖动区域，双击切换最大化） -->
-    <div class="tb-title" data-tauri-drag-region>
-      <span class="tb-title-tx" data-tauri-drag-region>古代史及汉籍研究工具</span>
-    </div>
+    <!-- 中间：纯拖动区域（双击切换最大化）
+         注：不再重复显示程序名 —— 侧栏品牌栏（.side-title）已在同屏显示
+         「漢 古代史及汉籍研究工具 / Windows 桌面版」，标题栏再显示一遍
+         即用户反馈的「UI 重复」。此处保留空的可拖动区域，标题文字交给
+         窗口标题（任务栏/Alt-Tab 可见）。 -->
+    <div class="tb-title" data-tauri-drag-region></div>
 
     <!-- 右侧：最小化 / 最大化 / 关闭 -->
     <div class="tb-right">
@@ -320,13 +322,13 @@
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.8.0（V5 路线图）</p>
+          <p class="av-ver">版本 0.8.1（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.1</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

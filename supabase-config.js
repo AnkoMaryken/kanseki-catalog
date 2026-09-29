@@ -102,17 +102,80 @@
   var url = cfg.url || PLACEHOLDER_URL;
   var anonKey = cfg.anonKey || cfg.anon_key || PLACEHOLDER_ANON;
 
-  var CONFIGURED = !forceDemo && !isPlaceholder(url) && !isPlaceholder(anonKey);
+  // 静态配置是否「看起来」已填（凭据非占位符）
+  var HAS_CREDENTIALS = !forceDemo && !isPlaceholder(url) && !isPlaceholder(anonKey);
 
-  window.SUPABASE_READY = CONFIGURED;
+  // ================================================
+  // V8.1.1: 端点可用性探测 —— 解决「登录/注册全都用不了」
+  // -------------------------------------------------
+  // 背景: 仅凭「凭据非占位符」就判定可走真实模式是不够的。
+  //   实测本项目填写的项目地址 https://ndogqsjmkoeecoekmhod.supabase.co
+  //   经 AliDNS DoH 查询返回 Status=3 (NXDOMAIN) —— 该子域根本不存在
+  //   （同一查询下随机 ref 亦为 3，supabase.com 为 0，可确认非本地拦截）。
+  //   此时 supabase-js 的 createClient() 仍会成功创建实例（不联网），
+  //   于是 signUp/signIn 每次都在 fetch 阶段抛 "Failed to fetch"，
+  //   用户看到的就是「注册失败 / 登录不了」。
+  //
+  // 方案: 启动时异步探测 {url}/auth/v1/health。任一结果不可用即把
+  //   CONFIGURED 置 false，整体退回「本地账号模式」——与演示模式同一套
+  //   逻辑，注册/登录均写入并校验本地账号表，用户始终能正常使用。
+  //   探测期间 (PENDING) 走本地账号分支即可，避免请求空等。
+  // 注意: 探测失败只在控制台留信息，不阻塞页面；真实可用时行为不变。
+  // ================================================
+  var ENDPOINT_STATE = HAS_CREDENTIALS ? 'pending' : 'unavailable';
+  var HEALTH_TIMEOUT = 5000;
 
-  // 加载 Supabase JS SDK (CDN, 仅真实模式需要)
-  if (CONFIGURED && typeof window.supabase === 'undefined') {
+  // 端点状态显式覆盖（供测试与私有部署锁定模式）
+  //   部署时在 HTML 中于本脚本之前设置 window.SUPABASE_ENDPOINT_STATE：
+  //     'ok'          → 强制真实模式（跳过探测，用于测试或已知可用但被本地
+  //                     网络策略拦截探测请求的场景）
+  //     'unavailable' → 强制本地账号模式
+  //   未设置时行为不变（按探测结果决定）。
+  var FORCED_STATE = (typeof window !== 'undefined' && window.SUPABASE_ENDPOINT_STATE) || null;
+  if (FORCED_STATE === 'ok' || FORCED_STATE === 'unavailable') {
+    ENDPOINT_STATE = FORCED_STATE;
+  }
+
+  function isConfigured() {
+    return ENDPOINT_STATE === 'ok';
+  }
+
+  if (HAS_CREDENTIALS && !FORCED_STATE) {
+    try {
+      var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var tid = setTimeout(function () { if (ctl) ctl.abort(); }, HEALTH_TIMEOUT);
+      var probeUrl = String(url).replace(/\/$/, '') + '/auth/v1/health';
+      fetch(probeUrl, { method: 'GET', signal: ctl ? ctl.signal : undefined })
+        .then(function (r) {
+          clearTimeout(tid);
+          ENDPOINT_STATE = r && r.ok ? 'ok' : 'unavailable';
+          if (ENDPOINT_STATE === 'unavailable') {
+            console.info('[Supabase] 端点不可用（HTTP ' + (r && r.status) + '），已启用本地账号模式');
+          }
+          return null;
+        })
+        .catch(function (e) {
+          clearTimeout(tid);
+          ENDPOINT_STATE = 'unavailable';
+          console.info('[Supabase] 端点不可达（' + (e && e.name) + '），已启用本地账号模式');
+          return null;
+        })
+        .then(function () { window.dispatchEvent(new CustomEvent('supabase-state')); });
+    } catch (e) {
+      ENDPOINT_STATE = 'unavailable';
+    }
+  }
+
+  window.SUPABASE_READY = isConfigured();
+
+  // 加载 Supabase JS SDK (CDN, 仅在端点确认可用时需要)
+  if (HAS_CREDENTIALS && typeof window.supabase === 'undefined') {
     var s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
     s.onload = function () {
       try {
         window.supabaseClient = window.supabase.createClient(url, anonKey);
+        window.SUPABASE_READY = isConfigured();
         window.dispatchEvent(new CustomEvent('supabase-ready'));
       } catch (e) {
         console.error('Supabase 初始化失败:', e);
@@ -129,23 +192,44 @@
   //   SupabaseAuth.signOut()       登出
   //   SupabaseAuth.getSession()    获取会话
   window.SupabaseAuth = {
-    isConfigured: function () { return CONFIGURED; },
     getClient: function () { return window.supabaseClient || null; },
+    // 当前是否走真实后端（端点探测通过才会为 true；探测中/不可用均为 false）
+    isConfigured: isConfigured,
+    endpointState: function () { return ENDPOINT_STATE; },
     signIn: async function (email, password) {
-      if (!CONFIGURED) {
-        // 演示模式: 先查本地账号, 无则模拟成功
-        await new Promise(r => setTimeout(r, 500));
+      if (!isConfigured()) {
+        // 非真实模式：先查本地账号表
+        await new Promise(r => setTimeout(r, 300));
         var lv = await localVerify(email, password);
         if (lv.ok) {
           return { data: { user: { email: email, user_metadata: { name: lv.name } } }, error: null };
         }
-        // 演示模式下本地也无此账号: 宽松模拟成功 (便于首次体验)
-        return { data: { user: { email: email } }, error: null };
+        // 纯演示模式（完全未填凭据，如全新克隆）：保留宽松模拟，便于本地预览
+        if (!HAS_CREDENTIALS) {
+          return { data: { user: { email: email } }, error: null };
+        }
+        // 本地账号模式（凭据已填但端点不可用）：必须严格校验
+        //   修复：原先此分支无差别「宽松模拟成功」，导致任意邮箱 + 任意密码
+        //   都能登录（含错误密码），既有安全漏洞，也让用户分不清密码是否输错。
+        if (lv.reason === 'bad_pass') {
+          return { data: null, error: { message: '密码错误，请重新输入。' } };
+        }
+        return { data: null, error: { message: '该邮箱尚未注册，请先前往注册页创建账号（无需邮箱验证）。' } };
       }
       const client = this.getClient();
       if (!client) return { data: null, error: { message: 'Supabase 初始化中，请稍后重试' } };
       // 真实模式: 先走 Supabase 校验
-      const res = await client.auth.signInWithPassword({ email: email, password: password });
+      var res;
+      try {
+        res = await client.auth.signInWithPassword({ email: email, password: password });
+      } catch (e) {
+        // 网络异常（端点中途不可达）: 不把异常抛给页面，改走本地账号兜底
+        var fbn = await localVerify(email, password);
+        if (fbn.ok) {
+          return { data: { user: { email: email, user_metadata: { name: fbn.name } } }, error: null, _fallback: true };
+        }
+        return { data: null, error: { message: '网络不可用，请检查连接后重试' } };
+      }
       if (!res.error) return res;
       // 失败时回退本地账号兜底 (解决未验证邮箱/账号不存在导致登录失败)
       var fb = await localVerify(email, password);
@@ -155,32 +239,37 @@
       return res;
     },
     signUp: async function (email, password, name) {
-      // 无论真实/演示模式, 都写入本地账号 (密码仅存哈希), 保证能登录
+      // 无论真实/本地模式, 都写入本地账号 (密码仅存哈希), 保证能登录
       await localUpsertAccount(email, password, name);
-      if (!CONFIGURED) {
-        // 演示模式: 模拟成功
-        await new Promise(r => setTimeout(r, 500));
+      if (!isConfigured()) {
+        // 本地账号模式: 模拟成功
+        await new Promise(r => setTimeout(r, 300));
         return { data: { user: { email: email, user_metadata: { name: name } } }, error: null };
       }
       const client = this.getClient();
       if (!client) return { data: null, error: { message: 'Supabase 初始化中，请稍后重试' } };
-      return client.auth.signUp({
-        email: email,
-        password: password,
-        options: { data: { name: name } }
-      });
+      try {
+        return await client.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { name: name } }
+        });
+      } catch (e) {
+        // 注册已写入本地账号，网络异常不应报「注册失败」——否则用户以为没注册成功
+        return { data: { user: { email: email, user_metadata: { name: name } } }, error: null, _local: true };
+      }
     },
     signOut: async function () {
-      if (!CONFIGURED) return { error: null };
+      if (!isConfigured()) return { error: null };
       const client = this.getClient();
       if (!client) return { error: null };
-      return client.auth.signOut();
+      try { return await client.auth.signOut(); } catch (e) { return { error: null }; }
     },
     getSession: async function () {
-      if (!CONFIGURED) return { data: { session: null }, error: null };
+      if (!isConfigured()) return { data: { session: null }, error: null };
       const client = this.getClient();
       if (!client) return { data: { session: null }, error: null };
-      return client.auth.getSession();
+      try { return await client.auth.getSession(); } catch (e) { return { data: { session: null }, error: null }; }
     }
   };
 
