@@ -24,3 +24,6 @@ admin-config.js
 
 # 桌面版历史可执行文件备份（每个 13MB，不入库）
 app/.backup/
+
+# 发布包产物（安装包/免安装版/压缩包，体积大，由 scripts/make_release.mjs 生成）
+release/
