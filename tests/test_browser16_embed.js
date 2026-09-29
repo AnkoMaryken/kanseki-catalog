@@ -85,13 +85,17 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
   check('空输入警告提示', hintShown);
 
   // 12. Enter 提交跳转
-  await page.fill('#jumpInput', 'github.com');
+  // 注：断言只看 popup.url()（即跳转目标是否正确），不依赖目标站点真实可达。
+  //     但 popup 事件本身需要浏览器能解析域名并创建窗口——若域名被网络/代理屏蔽
+  //     （如本环境的 github.com），popup 不会触发，测试会误报失败。
+  //     故此处用稳定可达的域名，避免把网络环境问题误判为功能缺陷。
+  await page.fill('#jumpInput', 'guji99.com');
   const [popup2] = await Promise.all([
     page.waitForEvent('popup', { timeout: 10000 }),
     page.press('#jumpInput', 'Enter')
   ]);
   await popup2.waitForTimeout(800);
-  check('Enter 提交跳转', popup2.url() === 'https://github.com/', popup2.url());
+  check('Enter 提交跳转', popup2.url() === 'https://guji99.com/', popup2.url());
   await popup2.close().catch(() => {});
 
   // 13. 预置标签点击跳转 (popup)

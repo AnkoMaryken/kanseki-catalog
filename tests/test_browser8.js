@@ -28,7 +28,8 @@ const BASE = 'http://localhost:8765/';
   const firstVer = await page.locator('.cl-entry').first().locator('.cl-ver').textContent();
   check('更新日志首条为最新版本', /^v\d+\.\d+/.test(firstVer.trim()), firstVer);
   const firstDate = await page.locator('.cl-entry').first().locator('.cl-date').textContent();
-  check('首条日期为 2026-08', firstDate.includes('2026-08'), firstDate);
+  // 不硬编码具体年月（每次发版都会推进），只校验日期格式合法
+  check('首条日期为 YYYY-MM-DD 格式', /^\s*\d{4}-\d{2}-\d{2}\s*$/.test(firstDate), firstDate);
   const entries = await page.locator('.cl-entry').count();
   check('日志条目 >= 7', entries >= 7, 'entries=' + entries);
   // 找 v1.4 条目（可能不是首条）验证其内容完整

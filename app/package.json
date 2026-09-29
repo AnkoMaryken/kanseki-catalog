@@ -5,8 +5,9 @@
   "type": "module",
   "description": "日本汉籍编目工具 - Windows 桌面 APP（Tauri）共享前端（V5 路线图）",
   "scripts": {
-    "test": "node --test tests/unit/",
-    "test:unit": "node --test tests/unit/"
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "test:unit": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "node --test tests/browser/*.test.cjs"
   },
   "engines": {
     "node": ">=18"

@@ -188,7 +188,10 @@ setTimeout(() => { console.log('[guard] 超时强制退出 (断言结果以上�
   const p3 = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await p3.goto(BASE + '/changelog.html', { waitUntil: 'networkidle' });
   const cl = await p3.evaluate(() => document.querySelector('.cl-entry .cl-ver').textContent);
-  ok('changelog 最新 v8.3', cl === 'v8.3', 'ver=' + cl);
+  // 只校验「首条为合法版本号且不低于本测试所对应的 V8.3」，
+  // 不硬编码具体版本——否则每次发版都会让测试过期误报（V8.4 起已遇到）。
+  const clNum = (cl.match(/v(\d+)\.(\d+)/) || [0, 0, 0]).slice(1).map(Number);
+  ok('changelog 首条版本 >= v8.3', clNum[0] > 8 || (clNum[0] === 8 && clNum[1] >= 3), 'ver=' + cl);
 
   // 注: Windows 上逐个 page.close() 可能挂起, 直接 browser.close() 统一回收
   await browser.close();
