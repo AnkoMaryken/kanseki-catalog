@@ -8,7 +8,6 @@
 // ================================================
 use base64::Engine;
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
 
 #[derive(Deserialize)]
 pub struct WebDavRequest {
@@ -54,7 +53,15 @@ async fn do_request(req: &WebDavRequest) -> Result<WebDavResponse, String> {
         "PUT" => client.put(&req.url),
         "POST" => client.post(&req.url),
         "DELETE" => client.delete(&req.url),
-        "PROPFIND" => client.request(reqwest::Method::PROPFIND, &req.url),
+        "HEAD" => client.head(&req.url),
+        // WebDAV 扩展方法：reqwest::Method 只有标准方法常量（GET/PUT/...），
+        // 没有 PROPFIND/MKCOL 等；须用 Method::from_bytes 自行构造。
+        // PROPFIND 用于列目录（provider-webdav.js 的 list 操作），是同步功能的核心。
+        "PROPFIND" | "MKCOL" | "MOVE" | "COPY" | "OPTIONS" => {
+            let m = reqwest::Method::from_bytes(req.method.to_uppercase().as_bytes())
+                .map_err(|e| format!("invalid method {}: {}", req.method, e))?;
+            client.request(m, &req.url)
+        }
         other => {
             return Err(format!("unsupported method: {}", other));
         }

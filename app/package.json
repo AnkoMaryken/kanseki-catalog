@@ -1,6 +1,6 @@
 {
   "name": "kanseki-app",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "private": true,
   "type": "module",
   "description": "日本汉籍编目工具 - Windows 桌面 APP（Tauri）共享前端（V5 路线图）",

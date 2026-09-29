@@ -10,7 +10,7 @@
 //   ../（仓库根）HTML/JS    -> dist/pages/*（静态站，构建时实时拷贝）
 //   ../docs/manual.pdf     -> dist/docs/ 与 dist/pages/docs/（工作手册）
 // ================================================
-import { cpSync, mkdirSync, rmSync, readdirSync, existsSync, statSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, readdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,6 +21,10 @@ const DIST = join(APP_ROOT, 'dist');
 const ROOT = resolve(APP_ROOT, '..'); // 仓库根（docs/manual.pdf 所在）
 
 // 拷贝目录（可排除顶层子项，如已废弃的 src/pages）
+// 注意：不能用 cpSync —— 目标文件已存在时（如重复构建、Tauri 触发构建）
+// cpSync 会先 unlink 再写，在 WorkBuddy 的 fs shim 下会抛
+// `Error: , The operation completed successfully`（errno 0）导致构建中断。
+// 改用 readFileSync + writeFileSync 直接覆盖，无 unlink 步骤。
 function copyDir(src, dest, excludeTop = new Set()) {
   if (!existsSync(src)) return;
   mkdirSync(dest, { recursive: true });
@@ -29,14 +33,14 @@ function copyDir(src, dest, excludeTop = new Set()) {
     const s = join(src, entry.name);
     const d = join(dest, entry.name);
     if (entry.isDirectory()) copyDir(s, d);
-    else cpSync(s, d);
+    else writeFileSync(d, readFileSync(s));
   }
 }
 
 function copyFileIfExists(src, dest) {
   if (existsSync(src)) {
     mkdirSync(dirname(dest), { recursive: true });
-    // read+write 而非 cpSync：目标可能已存在，Windows 下 cpSync 覆盖会触发 unlink shim 报错
+    // 同上：read+write 而非 cpSync，避免覆盖时报 unlink shim 错误
     writeFileSync(dest, readFileSync(src));
   }
 }

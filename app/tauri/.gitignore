@@ -1,3 +1,5 @@
 node_modules/
 dist/
 target/
+# Tauri 自动生成的 ACL/capabilities schema（每次构建重建，无需入库）
+gen/

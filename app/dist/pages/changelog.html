@@ -182,12 +182,15 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
-      <span class="cl-ver">v8.4 · 桌面版 0.6.2</span>
-      <span class="cl-date">2026-09-28</span>
+      <span class="cl-ver">v8.4 · 桌面版 0.6.3</span>
+      <span class="cl-date">2026-09-29</span>
       <span class="cl-tag t-new">新增</span>
       <span class="cl-tag t-opt">调整</span>
     </div>
     <ul>
+      <li><b>桌面版：首个可直接运行的 Windows 程序</b>：完成 Windows 桌面版的编译，生成可独立运行的 <b>kanseki-app.exe</b>（约 13 MB，界面资源已内置，双击即用，无需安装浏览器或其他依赖）。此前仅存在源码、从未成功构建过——本次修复了 4 处阻断构建的问题（详见下方「修复」）。</li>
+      <li><b>桌面版：修复构建被阻断</b>：① <code>Cargo.toml</code> 声明了 <code>[lib]</code> 目标但 <code>src/lib.rs</code> 并不存在（移动端模板残留），导致 cargo 无法解析项目；② 依赖链中 <code>schemars 0.8</code> 需要的 <code>indexmap</code> 在当前工具链下编译报错（缺少默认泛型参数），已显式启用其 std 特性修补；③ <code>PROPFIND</code> 是 WebDAV 扩展方法，<code>reqwest</code> 没有对应常量，已改用运行时构造方式；④ 打包命令的相对路径基准有误，导致构建前置步骤找不到脚本。以上均已在代码中注明原因，避免日后被误删。</li>
+      <li><b>桌面版：打包流程可重复执行</b>：修复了构建脚本在「目标文件已存在」时报错中断的问题（Windows 文件系统限制），现在连续重复构建不会失败。</li>
       <li><b>桌面版：顶部导航全部并入左侧栏</b>：Windows 桌面版把「纪年查询 / 快速跳转 / 编目规范 / 说明文档」以及「编目记录 / 同步设置 / 关于」统一收进左侧栏，页面内不再重复出现顶部导航条；由原来的 4 个入口扩展为 10 个，分组为「纪年查询 / 编目规范 / 说明文档 / 应用」。</li>
       <li><b>桌面版：编目规范侧栏合并进主侧栏</b>：编目规范页原来自带的深色侧栏（内容导览 + 章节导航）整体并入软件主侧栏——「细则查阅 / 分类表查询 / 工作手册」三项可直接在左侧栏切换；「章节导航」随所选版本（2023 旧版 / 2025 新版）自动列出章节，点章节即滚动定位；「分类表查询」显示分类导航并联动表格；「工作手册」显示 PDF 信息卡。</li>
       <li><b>桌面版：新增「切换主题」与侧栏状态区</b>：左侧栏底部新增「切换主题」按钮，一键在明/暗色间切换并同步到所有内嵌页面；侧栏常驻显示同步状态指示灯。</li>

@@ -1,17 +1,14 @@
 [package]
 name = "kanseki-app"
-version = "0.5.0"
+version = "0.6.3"
 description = "日本汉籍编目工具 - Windows 桌面 APP"
 authors = ["kanseki"]
 edition = "2021"
 
 # 仅 Windows 桌面（本期）；tauri v2
-[lib]
-name = "kanseki_app_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
-
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
+# 注：本项目为纯桌面端，无 lib 目标 —— 逻辑全部在 src/main.rs + src/http.rs。
+# （原 [lib] kanseki_app_lib 声明对应移动端模板，但 src/lib.rs 从未创建，
+#   会导致 cargo 报 "can't find library `kanseki_app_lib`" 而无法构建。）
 
 [dependencies]
 tauri = { version = "2", features = [] }
@@ -20,3 +17,20 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 base64 = "0.22"
+
+# ---- 工具链兼容修补（必留）----
+# 背景：schemars 0.8（tauri-build / tauri-utils 的传递依赖）依赖 indexmap 1.x，
+# 而 indexmap 1.9.3 的 build.rs 会用 autocfg 去「探测」std 是否可用：
+#     Some(CARGO_FEATURE_STD) => autocfg::emit("has_std")   // 跳过探测
+#     None                    => autocfg::new().emit_sysroot_crate("std")  // 探测
+# 当前工具链（Rust 1.97 / MSVC）下探测失败 → has_std 未置位 →
+# IndexMap 结构体退化为 `<K, V, S>`（无默认 S），schemars 里 `IndexMap<K, V>`
+# 的写法即报 E0107「expected 3 generic arguments」。
+# 显式启用 indexmap 的 std 特性（空特性，无副作用）即可让 build.rs 直接 emit。
+# 注意：Cargo 解析器 v2 会分别统一「普通依赖」与「构建依赖」的特性，
+# 因此两处都要声明，才能覆盖 schemars 的两条引用路径。
+indexmap = { version = "1.9", features = ["std"] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+indexmap = { version = "1.9", features = ["std"] }
