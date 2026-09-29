@@ -118,6 +118,13 @@ def capture(hwnd, out_path):
     # 强制置顶并激活，确保屏幕抓取拿到的是本窗口而非遮挡窗口
     HWND_TOPMOST = -1
     SWP_NOSIZE, SWP_NOMOVE, SWP_SHOWWINDOW = 0x0001, 0x0002, 0x0040
+    u32.ShowWindow.argtypes = [ctypes.c_void_p, ctypes.c_int]
+    u32.SetWindowPos.argtypes = [ctypes.c_void_p, ctypes.c_void_p,
+                                 ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                 ctypes.c_uint]
+    u32.SetForegroundWindow.argtypes = [ctypes.c_void_p]
+    u32.BringWindowToTop.argtypes = [ctypes.c_void_p]
+    u32.GetWindowRect.argtypes = [ctypes.c_void_p, ctypes.POINTER(wt.RECT)]
     u32.ShowWindow(hwnd, 9)  # SW_RESTORE
     u32.SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
                      SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW)
@@ -130,6 +137,17 @@ def capture(hwnd, out_path):
     w, h = r.right - r.left, r.bottom - r.top
 
     # --- 屏幕 DC 抓取窗口所在区域 ---
+    # 注意：BitBlt / GetDIBits 必须声明 argtypes。否则 ctypes 把入参一律当 c_int，
+    # 而 DC 与位图句柄在 64 位下可能超出 int32 → OverflowError: int too long to convert。
+    g32.BitBlt.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int,
+                           ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                           ctypes.c_int, ctypes.c_int, ctypes.c_uint]
+    g32.BitBlt.restype = wt.BOOL
+    g32.GetDIBits.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint,
+                              ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p,
+                              ctypes.c_uint]
+    g32.GetDIBits.restype = ctypes.c_int
+
     screen = u32.GetDC(0)
     memdc = g32.CreateCompatibleDC(screen)
     bmp = g32.CreateCompatibleBitmap(screen, w, h)
