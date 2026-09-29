@@ -229,13 +229,13 @@ function applyCollapse(collapsed) {
   const shell = $('#app');
   if (!shell) return;
   shell.classList.toggle('sb-collapsed', !!collapsed);
+  // 收起/展开按钮位于自绘标题栏，收起后仍在原位，可直接反向切回
   const btn = $('#collapseBtn');
-  if (btn) btn.setAttribute('aria-expanded', String(!collapsed));
-  // 浮动展开按钮：收起态显示，展开态隐藏（需同步 hidden，否则 CSS 覆盖不掉）
-  const pill = $('#expandPill');
-  if (pill) {
-    if (collapsed) pill.removeAttribute('hidden');
-    else pill.setAttribute('hidden', '');
+  if (btn) {
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    const t = collapsed ? '展开侧边栏' : '收起侧边栏';
+    btn.title = t;
+    btn.setAttribute('aria-label', t);
   }
   // 收起后侧栏不可交互，需把焦点移出，避免 Tab 进入隐藏区域
   if (collapsed) {
@@ -320,6 +320,21 @@ async function runWinAction(action, payload) {
 function syncMaxLabel() {
   const el = $('#winMaxLabel');
   if (el) el.textContent = winState.maximized ? '还原' : '最大化';
+  // 自绘标题栏：最大化图标 ←→ 还原图标
+  const maxBtn = $('#tbMax');
+  if (maxBtn) {
+    const t = winState.maximized ? '还原' : '最大化';
+    maxBtn.title = t;
+    maxBtn.setAttribute('aria-label', t);
+    maxBtn.setAttribute('aria-pressed', String(winState.maximized));
+  }
+  const icoMax = document.querySelector('#tbMax .tb-ico-max');
+  const icoRes = document.querySelector('#tbMax .tb-ico-restore');
+  if (icoMax) icoMax.toggleAttribute('hidden', !!winState.maximized);
+  if (icoRes) icoRes.toggleAttribute('hidden', !winState.maximized);
+  // 最大化时禁用缩放热区（CSS 亦有兜底）
+  const shell = $('#app');
+  if (shell) shell.classList.toggle('is-maximized', !!winState.maximized);
 }
 function syncTopCheck() {
   const item = document.querySelector('.st-menu-item[data-win="ontop"]');
@@ -338,6 +353,20 @@ async function initWinState() {
   syncTopCheck();
 }
 
+// 窗口尺寸变化时回读最大化态（用户拖边框、双击标题栏、系统 Win+↑ 均触发）
+let resizeSyncTimer = null;
+function scheduleWinStateSync() {
+  if (!isTauri) return;
+  clearTimeout(resizeSyncTimer);
+  resizeSyncTimer = setTimeout(async () => {
+    const label = currentWindowLabel();
+    try {
+      const m = !!(await winInvoke('isMaximized', { label }));
+      if (m !== winState.maximized) { winState.maximized = m; syncMaxLabel(); }
+    } catch (_) { /* 忽略 */ }
+  }, 160);
+}
+
 // 窗口菜单开合
 function toggleWinMenu(force) {
   const btn = $('#winBtn');
@@ -350,7 +379,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.7.0';
+const APP_VERSION = '0.8.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -443,12 +472,11 @@ function navigate() {
     });
   }
   if (target === 'catalog') {
-    // 等 iframe 就绪后再镜像侧栏；已就绪则直接同步
+    // 等 iframe 就绪后再同步弹窗数据源；已就绪则直接同步
     whenFrameReady(frame, () => {
       if (tab !== null) activateCatalogTab(frame, parseInt(tab, 10));
       syncCatalogSidebar(frame);
     });
-    document.getElementById('sideAnchors')?.removeAttribute('hidden');
   } else {
     hideCatalogAnchors();
   }
@@ -515,7 +543,9 @@ function syncAnchorActive(dst, src) {
   return true;
 }
 
-// APP 侧栏锚点点击 -> 转发到 iframe 内对应元素（按序号对应，结构一致）
+// 弹窗内锚点点击 -> 转发到 iframe 内对应元素（按序号对应，结构一致）
+// 注意：监听器挂在常驻的 #anchorPopBody 上，innerHTML 替换不会移除它，
+// 故只在首次绑定时注册，不可用 dataset 标记做「重绑」。
 function bindAnchorForward(dst, frame) {
   if (dst.dataset.boundForward) return;
   dst.dataset.boundForward = '1';
@@ -529,6 +559,8 @@ function bindAnchorForward(dst, frame) {
     const targets = Array.from(src.querySelectorAll('.anchor-item,.cfb-side'));
     const idx = Array.from(dst.querySelectorAll('.anchor-item,.cfb-side')).indexOf(btn);
     if (idx >= 0 && targets[idx]) targets[idx].click();
+    // 跳转后收起弹窗，让用户直接看到主区滚动结果
+    closeAnchorPop();
   });
 }
 
@@ -544,28 +576,68 @@ function observeAnchorSource(src, frame) {
 }
 
 function hideCatalogAnchors() {
-  const box = document.getElementById('sideAnchors');
-  if (box) box.setAttribute('hidden', '');
+  closeAnchorPop();
+}
+
+// 「内容导览」弹窗（V0.8）：镜像 iframe 内 #sideAnchors，但显示在浮层中，
+// 不再占用侧栏纵向空间（V0.7 内联展开会把导航挤出视野）。
+const ANCHOR_POP_TITLES = ['章节导航', '分类导航', '工作手册'];
+
+function anchorPopBody() { return $('#anchorPopBody'); }
+
+function openAnchorPop(tabIdx) {
+  const pop = $('#anchorPop');
+  const body = anchorPopBody();
+  if (!pop || !body) return;
+  const frame = document.getElementById(FRAMES.catalog);
+  const doc = frameDoc(frame);
+  const src = doc && doc.getElementById('sideAnchors');
+  if (!src || !src.innerHTML.trim()) {
+    showToast('当前页面暂无可导航内容');
+    return;
+  }
+  const title = $('#anchorPopTitle');
+  if (title) title.textContent = ANCHOR_POP_TITLES[tabIdx] || '内容导览';
+  body.innerHTML = src.innerHTML;
+  bindAnchorForward(body, frame);
+  const sig = anchorSignature(src);
+  body.dataset.sig = sig;
+  pop.removeAttribute('hidden');
+  // 打开动画结束后焦点移到关闭键，便于键盘操作
+  $('#anchorPopClose')?.focus({ preventScroll: true });
+}
+
+function closeAnchorPop() {
+  const pop = $('#anchorPop');
+  if (pop && !pop.hasAttribute('hidden')) pop.setAttribute('hidden', '');
+}
+
+function isAnchorPopOpen() {
+  const pop = $('#anchorPop');
+  return !!pop && !pop.hasAttribute('hidden');
 }
 
 function syncCatalogSidebar(frame) {
   const doc = frameDoc(frame);
-  const box = document.getElementById('sideAnchors');
-  if (!doc || !box) return;
-  const src = doc.getElementById('sideAnchors');
-  if (!src) return;
+  // 弹窗打开时同步内容；关闭时仍需读取源数据以便即时打开
+  const src = doc && doc.getElementById('sideAnchors');
+  const body = anchorPopBody();
+  if (!src || !body) return;
 
   const sig = anchorSignature(src);
-  if (box.dataset.sig !== sig) {
-    box.innerHTML = src.innerHTML;
-    box.dataset.sig = sig;
-    box.removeAttribute('data-bound-forward');
-    bindAnchorForward(box, frame);
+  if (isAnchorPopOpen() && body.dataset.sig !== sig) {
+    body.innerHTML = src.innerHTML;
+    body.dataset.sig = sig;
+    bindAnchorForward(body, frame);
+  } else if (isAnchorPopOpen()) {
+    syncAnchorActive(body, src);
   } else {
-    syncAnchorActive(box, src);
+    // 关闭态只记录签名，打开时按需重建
+    body.dataset.sig = sig;
   }
-  // 内容为空（如分类表无导航）时收起整块卡片
-  box.toggleAttribute('hidden', !sig || !src.innerHTML.trim());
+
+  // 空内容时收起弹窗，避免弹出空白面板
+  if (isAnchorPopOpen() && !src.innerHTML.trim()) closeAnchorPop();
 
   // 「内容导览」三项 tab 高亮（APP 侧栏对应项）
   const activeTab = doc.querySelector('.tab-btn.active');
@@ -619,8 +691,45 @@ async function init() {
   // ---------- 侧栏收起 / 展开 ----------
   applyCollapse(localStorage.getItem(COLLAPSE_KEY) === '1');
   $('#collapseBtn')?.addEventListener('click', toggleSidebar);
-  $('#expandBtn')?.addEventListener('click', toggleSidebar);
-  $('#expandPill')?.addEventListener('click', toggleSidebar);
+
+  // ---------- 自绘标题栏：三键 + 缩放手柄 ----------
+  $('#tbMin')?.addEventListener('click', () => runWinAction('min'));
+  $('#tbMax')?.addEventListener('click', () => runWinAction('max'));
+  $('#tbClose')?.addEventListener('click', () => runWinAction('close'));
+  // 无边框窗口八向缩放：热区 mousedown → startResizeDragging
+  $('#winResize')?.addEventListener('mousedown', (e) => {
+    const zone = e.target.closest('[data-dir]');
+    if (!zone || !isTauri) return;
+    e.preventDefault();
+    const label = currentWindowLabel();
+    winInvoke('startResizeDragging', { label, direction: zone.dataset.dir })
+      .catch(() => { /* 最大化态等情形静默忽略 */ });
+  });
+  if (!isTauri) $('#app')?.classList.add('no-tauri');
+  window.addEventListener('resize', scheduleWinStateSync);
+
+  // ---------- 编目规范「内容导览」弹窗（V0.8） ----------
+  // 导航项右侧 ▸ 按钮：先切到对应 tab，再弹出该页导览
+  $$('.nav-dir').forEach(el => {
+    const open = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const idx = parseInt(el.dataset.dirOpen, 10);
+      const item = el.closest('.nav-item');
+      if (item && !item.classList.contains('active')) item.click();
+      // 等 iframe 切 tab 渲染完再读锚点（tab 切换含渲染，需留时间）
+      setTimeout(() => openAnchorPop(idx), 420);
+    };
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') open(e);
+    });
+  });
+  $('#anchorPopClose')?.addEventListener('click', closeAnchorPop);
+  // 点遮罩关闭（点面板内部不关）
+  $('#anchorPop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'anchorPop') closeAnchorPop();
+  });
 
   // ---------- 窗口菜单 ----------
   $('#winBtn')?.addEventListener('click', (e) => {
@@ -662,7 +771,11 @@ async function init() {
   // 点击空白处关闭两个下拉
   document.addEventListener('click', () => { closeWinMenu(); closeUserMenu(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeWinMenu(); closeUserMenu(); }
+    if (e.key === 'Escape') {
+      // 弹窗优先级最高，其次两个下拉
+      if (isAnchorPopOpen()) { closeAnchorPop(); return; }
+      closeWinMenu(); closeUserMenu();
+    }
     // F11 全屏（与窗口菜单一致）
     if (e.key === 'F11') { e.preventDefault(); runWinAction('fullscreen'); }
   });

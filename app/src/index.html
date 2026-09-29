@@ -4,20 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>古代史及汉籍研究工具</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20text-anchor='middle'%20fill='%23fff'%20font-family='STZhongsong,SimSun,serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23101012'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20text-anchor='middle'%20fill='%23fff'%20font-family='STZhongsong,SimSun,serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <div id="app" class="app-shell">
-  <!-- 侧边导航 -->
-  <aside class="app-sidebar" id="sidebar">
-    <!-- 顶栏：收起侧栏 + 窗口菜单（V0.7 取代原品牌文字） -->
-    <div class="side-top">
-      <button class="st-iconbtn" id="collapseBtn" type="button" title="收起侧边栏" aria-label="收起侧边栏">
+  <!-- ============================================================
+       自绘标题栏（V0.8）：取代系统窗口边框
+       tauri.conf.json 设 decorations:false 去掉原生标题栏，
+       本栏即承担标题栏职责 —— 左侧「收起侧栏 + 窗口」，右侧三键
+       整条可拖动（data-tauri-drag-region），双击即最大化/还原
+       ============================================================ -->
+  <header class="app-titlebar" id="appTitlebar">
+    <!-- 左侧：收起侧栏 + 窗口菜单 -->
+    <div class="tb-left">
+      <button class="tb-iconbtn" id="collapseBtn" type="button" title="收起侧边栏" aria-label="收起侧边栏">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 9l-3 3 3 3"/></svg>
       </button>
       <div class="st-dropdown" id="winDropdown">
-        <button class="st-iconbtn st-winbtn" id="winBtn" type="button" title="窗口" aria-label="窗口" aria-haspopup="true" aria-expanded="false">
+        <button class="tb-iconbtn tb-winbtn" id="winBtn" type="button" title="窗口" aria-label="窗口" aria-haspopup="true" aria-expanded="false">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M7 6.5h.01M10 6.5h.01"/></svg>
           <span>窗口</span>
           <svg class="st-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -43,10 +48,38 @@
           </div>
         </div>
       </div>
-      <div class="st-spacer"></div>
-      <button class="st-iconbtn st-expand-only" id="expandBtn" type="button" title="展开侧边栏" aria-label="展开侧边栏" hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M13 9l3 3-3 3"/></svg>
+    </div>
+
+    <!-- 中间：标题文字（可拖动区域，双击切换最大化） -->
+    <div class="tb-title" data-tauri-drag-region>
+      <span class="tb-title-tx" data-tauri-drag-region>古代史及汉籍研究工具</span>
+    </div>
+
+    <!-- 右侧：最小化 / 最大化 / 关闭 -->
+    <div class="tb-right">
+      <button class="tb-win" id="tbMin" type="button" title="最小化" aria-label="最小化">
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.1"/></svg>
       </button>
+      <button class="tb-win" id="tbMax" type="button" title="最大化" aria-label="最大化">
+        <svg class="tb-ico-max" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
+        <svg class="tb-ico-restore" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" hidden><path d="M2.5 2.5V1.7A1.2 1.2 0 0 1 3.7.5h4.6A1.2 1.2 0 0 1 9.5 1.7v4.6a1.2 1.2 0 0 1-1.2 1.2h-.8" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="0.5" y="2.5" width="7" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
+      </button>
+      <button class="tb-win tb-close" id="tbClose" type="button" title="关闭" aria-label="关闭">
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0.7 0.7l8.6 8.6M9.3 0.7L0.7 9.3" stroke="currentColor" stroke-width="1.1"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body">
+  <!-- 侧边导航 -->
+  <aside class="app-sidebar" id="sidebar">
+    <!-- 品牌栏（V0.8 恢复）：图标 + 名称 + 桌面版副标题 -->
+    <div class="side-title">
+      <div class="st-ic">漢</div>
+      <div class="st-tx-wrap">
+        <span class="st-tx">古代史及汉籍研究工具</span>
+        <span class="st-sub">Windows 桌面版</span>
+      </div>
     </div>
 
     <div class="side-sec">
@@ -63,12 +96,15 @@
       <nav class="side-nav">
         <a href="#/catalog?tab=0" data-view="catalog" data-tab="0" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>细则查阅</span>
+          <span class="nav-dir" data-dir-open="0" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
         <a href="#/catalog?tab=1" data-view="catalog" data-tab="1" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>分类表查询</span>
+          <span class="nav-dir" data-dir-open="1" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
         <a href="#/catalog?tab=2" data-view="catalog" data-tab="2" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg><span>工作手册</span>
+          <span class="nav-dir" data-dir-open="2" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
       </nav>
     </div>
@@ -135,11 +171,6 @@
       </div>
     </div>
   </aside>
-
-  <!-- 侧栏收起后的展开按钮（浮动在左上角） -->
-  <button class="expand-pill" id="expandPill" type="button" title="展开侧边栏" aria-label="展开侧边栏">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M13 9l3 3-3 3"/></svg>
-  </button>
 
   <!-- 主内容区 -->
   <main class="app-main">
@@ -283,25 +314,49 @@
         <div class="av-card av-about">
           <div class="av-logo">
             <svg viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="图标">
-              <rect width="64" height="64" rx="14" fill="#2b3a67"/>
+              <rect width="64" height="64" rx="14" fill="#101012"/>
               <text x="32" y="45" font-size="34" text-anchor="middle" fill="#ffffff"
                     font-family="'STZhongsong','SimSun',serif">漢</text>
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.7.0（V5 路线图）</p>
+          <p class="av-ver">版本 0.8.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.7.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
       </div>
     </section>
   </main>
+  </div><!-- /.app-body -->
+</div>
+
+<!-- 编目规范「内容导览」浮层弹窗（V0.8：由侧栏内联展开改为弹出） -->
+<div id="anchorPop" class="anchor-pop" hidden>
+  <div class="anchor-pop-box" role="dialog" aria-modal="false" aria-label="内容导览">
+    <div class="anchor-pop-head">
+      <h3 id="anchorPopTitle">内容导览</h3>
+      <button class="anchor-pop-x" id="anchorPopClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="anchor-pop-body" id="anchorPopBody"></div>
+  </div>
+</div>
+
+<!-- 无边框窗口缩放热区（V0.8）：decorations:false 后需自绘八向拖拽 -->
+<div class="win-resize" id="winResize" aria-hidden="true">
+  <span class="wr-edge wr-n" data-dir="North"></span>
+  <span class="wr-edge wr-s" data-dir="South"></span>
+  <span class="wr-edge wr-w" data-dir="West"></span>
+  <span class="wr-edge wr-e" data-dir="East"></span>
+  <span class="wr-corner wr-nw" data-dir="NorthWest"></span>
+  <span class="wr-corner wr-ne" data-dir="NorthEast"></span>
+  <span class="wr-corner wr-sw" data-dir="SouthWest"></span>
+  <span class="wr-corner wr-se" data-dir="SouthEast"></span>
 </div>
 
 <!-- Toast -->

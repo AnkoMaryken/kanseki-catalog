@@ -74,13 +74,13 @@ const config = require('../../../tests/helpers/config.js');
     await page.locator('.nav-badge').count() === 0,
     'badge=' + await page.locator('.nav-badge').count());
 
-  // ---------- 2. 左上角品牌文字已移除 ----------
-  console.log('\n[2] 左上角改为工具按钮');
-  ok('品牌文字节点已移除', await page.locator('.side-title').count() === 0);
-  const bodyText = await page.locator('.app-sidebar').textContent();
-  ok('侧栏不再含品牌全名', !bodyText.includes('古代史及汉籍研究工具'));
-  ok('收起侧栏按钮存在', await page.locator('#collapseBtn').count() === 1);
-  ok('窗口按钮存在', await page.locator('#winBtn').count() === 1);
+  // ---------- 2. 品牌栏保留在侧栏，功能键移到自绘标题栏 ----------
+  console.log('\n[2] 品牌栏保留 + 标题栏功能键');
+  ok('品牌文字节点保留', await page.locator('.side-title').count() === 1);
+  const brandName = await page.locator('.side-title .st-tx').textContent().catch(() => '');
+  ok('侧栏含品牌全名', brandName.trim() === '古代史及汉籍研究工具', brandName);
+  ok('收起侧栏按钮存在（标题栏）', await page.locator('.app-titlebar #collapseBtn').count() === 1);
+  ok('窗口按钮存在（标题栏）', await page.locator('.app-titlebar #winBtn').count() === 1);
 
   // ---------- 3. 窗口菜单 ----------
   console.log('\n[3] 窗口菜单');
@@ -178,8 +178,8 @@ const config = require('../../../tests/helpers/config.js');
 
   await page.click('.nav-item[data-view="about"]');
   await page.waitForTimeout(400);
-  ok('关于页版本为 0.7.0',
-    (await page.textContent('.av-ver')).includes('0.7.0'),
+  ok('关于页版本为 0.8.0',
+    (await page.textContent('.av-ver')).includes('0.8.0'),
     await page.textContent('.av-ver'));
   ok('关于页 logo 为内联 SVG', await page.locator('.av-logo svg').count() === 1);
 
@@ -214,11 +214,11 @@ const config = require('../../../tests/helpers/config.js');
     return el.getBoundingClientRect().width;
   });
   ok('收起后侧栏宽度为 0', sbWidth < 2, 'width=' + sbWidth);
-  ok('浮动展开按钮出现', await page.locator('#expandPill').isVisible());
+  ok('标题栏收起按钮仍在', await page.locator('#collapseBtn').isVisible());
   // 主内容区应铺满
   const mainW = await page.evaluate(() => document.querySelector('.app-main').getBoundingClientRect().width);
   ok('主内容区铺满', mainW > 1300, 'mainWidth=' + mainW);
-  await page.click('#expandPill');
+  await page.click('#collapseBtn');
   await page.waitForTimeout(600);
   ok('可重新展开', await page.locator('.app-shell.sb-collapsed').count() === 0);
   const sbWidth2 = await page.evaluate(() => document.querySelector('.app-sidebar').getBoundingClientRect().width);

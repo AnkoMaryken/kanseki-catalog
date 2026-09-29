@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "古代史及汉籍研究工具",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "identifier": "cn.kanseki.catalog",
   "build": {
     "beforeDevCommand": "",
@@ -12,13 +12,18 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "古代史及汉籍研究工具",
         "width": 1280,
         "height": 800,
         "minWidth": 960,
         "minHeight": 600,
         "resizable": true,
-        "center": true
+        "center": true,
+        "decorations": false,
+        "transparent": false,
+        "shadow": true,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --no-sandbox"
       }
     ],
     "security": {

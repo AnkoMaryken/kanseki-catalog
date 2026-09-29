@@ -3,7 +3,7 @@
 生成桌面版应用图标（「漢」字标）。
 
 设计（与程序内图标、静态站 favicon 风格一致，但用主品牌「漢」而非账号品牌的「J」）：
-  · 藏青底 #2b3a67（与 src/index.html 内联 favicon、关于页 logo 同色）
+  · 黑底 #101012（V0.8 起由藏青改为黑，与侧栏底色同一色值）
   · 圆角方块（大图标圆角比例约 22%，小图标略收，避免糊边）
   · 白色衬线「漢」字居中（华文中宋 STZhongsong → 宋体 SimSun 兜底）
 
@@ -25,7 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ICON_DIR = os.path.join(HERE, '..', 'tauri', 'icons')
 ICON_DIR = os.path.normpath(ICON_DIR)
 
-BG = (43, 58, 103, 255)      # #2b3a67 藏青
+BG = (16, 16, 18, 255)       # #101012 黑（原藏青 #2b3a67，V0.8 改）
 FG = (255, 255, 255, 255)    # 白
 
 # 衬线字体候选（Windows 自带；用第一个存在的）

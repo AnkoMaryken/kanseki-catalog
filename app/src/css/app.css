@@ -2,14 +2,12 @@
    css/app.css — SPA 外壳样式（侧边栏 + 视图区）
    与静态站页面样式隔离（pages/*.html 各自独立）
 
-   V0.7 变更：
-   1. 侧栏顶部品牌区（「漢」+ 名称）改为「收起侧栏 + 窗口菜单」工具条
-      —— 品牌文字不再显示（窗口标题栏已有），左上角空间改作功能按钮
-   2. 新增「账号」与「个人中心」视图；侧栏底部新增用户区
-   3. 编目记录／同步设置／关于三个自绘视图统一为「应用视图」样式
-      （.app-view / .av-*），设计语言对齐静态站：黑白灰 + 衬线标题 +
-      统一圆角与阴影，明暗主题双向适配
-   4. 侧栏可收起（.app-shell.sb-collapsed），收起后左上角留浮动展开按钮
+   V0.8 变更：
+   1. 恢复侧栏品牌栏（「漢」+ 名称 + 桌面版）—— V0.7 曾误删
+   2. 新增自绘标题栏 .app-titlebar（Tauri decorations:false）：
+      左侧「收起侧栏 + 窗口」，中间可拖动标题，右侧最小化/最大化/关闭
+   3. 编目规范章节锚点由侧栏内联展开改为浮层弹窗（.anchor-pop）
+   4. 侧栏用户菜单改为向上弹出（原先向下会把「登录」按钮顶上去）
    ================================================ */
 :root {
   --sidebar-w: 232px;
@@ -47,14 +45,147 @@ html, body {
   font-size: 14px;
 }
 
+/* 外壳：纵向 = 自绘标题栏 + 内容区（侧栏 + 主区） */
 .app-shell {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
   background: var(--bg);
+}
+.app-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
   padding: 12px;
   gap: 12px;
 }
+
+/* ---------- 自绘标题栏（V0.8） ----------
+   tauri.conf.json 设 decorations:false 去掉原生标题栏，
+   本栏顶替其职责：左侧功能键（原系统图标/标题位置）、
+   中间标题（拖动 / 双击最大化）、右侧最小化·最大化·关闭。
+   data-tauri-drag-region="deep" —— Tauri 内置脚本按此属性
+   接管拖动；内部 button 属 clickable，自动豁免，不误触拖动。 */
+.app-titlebar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  height: 38px;
+  flex: 0 0 38px;
+  padding-left: 10px;
+  background: var(--bg);
+  color: var(--text);
+  user-select: none;
+  position: relative;
+  z-index: 40;
+}
+.tb-left { display: flex; align-items: center; gap: .1rem; flex-shrink: 0; }
+.tb-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.tb-title-tx {
+  font-family: var(--font-display);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--text-sec);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tb-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  height: 30px;
+  padding: 0 .5rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: none;
+  color: var(--text-sec);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.tb-iconbtn:hover { background: rgba(0,0,0,.06); color: var(--text); }
+.tb-iconbtn:focus-visible { outline: 2px solid rgba(0,0,0,.3); outline-offset: 1px; }
+.tb-iconbtn[aria-expanded="true"] {
+  background: rgba(0,0,0,.07);
+  color: var(--text);
+  border-color: rgba(0,0,0,.1);
+}
+.tb-winbtn span { white-space: nowrap; }
+.st-caret { opacity: .7; transition: transform .18s; flex-shrink: 0; }
+.tb-iconbtn[aria-expanded="true"] .st-caret { transform: rotate(180deg); }
+
+/* 侧栏导航项右侧「内容导览」触发按钮（V0.8） */
+.nav-dir {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: #8b8b93;
+  flex-shrink: 0;
+  opacity: .55;
+  transition: background .14s, color .14s, opacity .14s;
+}
+.nav-item:hover .nav-dir { opacity: 1; }
+.nav-dir:hover { background: rgba(255,255,255,.14); color: #f4f4f5; }
+.nav-item.active .nav-dir { color: #3f3f46; opacity: .7; }
+.nav-item.active .nav-dir:hover { background: rgba(22,22,24,.14); color: #161618; opacity: 1; }
+.nav-dir:focus-visible { outline: 2px solid rgba(255,255,255,.4); outline-offset: 1px; }
+
+/* 右侧窗口三键 */
+.tb-right { display: flex; align-items: center; flex-shrink: 0; align-self: flex-start; }
+.tb-win {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 38px;
+  border: none;
+  background: none;
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: background .13s, color .13s;
+}
+.tb-win:hover { background: rgba(0,0,0,.07); color: var(--text); }
+.tb-win:focus-visible { outline: 2px solid rgba(0,0,0,.3); outline-offset: -2px; }
+.tb-close:hover { background: #e81123; color: #fff; }
+.tb-win svg { display: block; }
+
+/* ---------- 无边框窗口缩放热区（V0.8） ----------
+   decorations:false 且 shadow:true 时，tao 只放行「顶边」缩放，
+   其余七向需自绘热区 + startResizeDragging 补回。 */
+.win-resize { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
+.win-resize .wr-edge,
+.win-resize .wr-corner { position: absolute; pointer-events: auto; }
+.wr-n { top: 0; left: 8px; right: 8px; height: 4px; cursor: ns-resize; }
+.wr-s { bottom: 0; left: 8px; right: 8px; height: 4px; cursor: ns-resize; }
+.wr-w { left: 0; top: 8px; bottom: 8px; width: 4px; cursor: ew-resize; }
+.wr-e { right: 0; top: 8px; bottom: 8px; width: 4px; cursor: ew-resize; }
+.wr-nw { top: 0; left: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+.wr-se { bottom: 0; right: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+.wr-ne { top: 0; right: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+.wr-sw { bottom: 0; left: 0; width: 10px; height: 10px; cursor: nesw-resize; }
+/* 最大化 / 全屏时禁用缩放热区 */
+.app-shell.is-maximized ~ .win-resize { display: none; }
+/* 浏览器调试环境无边框窗口概念，隐藏热区（注意：.win-resize 是
+   #app 的兄弟节点，故用 ~ 而非后代选择器） */
+.app-shell.no-tauri ~ .win-resize { display: none; }
 
 /* ---------- 侧边栏 (V0.6: catalog 文档站风格 — 深色圆角卡片) ---------- */
 .app-sidebar {
@@ -63,11 +194,11 @@ html, body {
   background: #101012;
   border: 1px solid rgba(255,255,255,.07);
   border-radius: 16px;
-  padding: 1rem;
+  padding: .85rem 1rem;
   color: #d7dae0;
   display: flex;
   flex-direction: column;
-  gap: .6rem;
+  gap: .5rem;
   overflow-y: auto;
   user-select: none;
   transition: width .22s ease, flex-basis .22s ease, padding .22s ease, opacity .16s ease;
@@ -87,43 +218,44 @@ html, body {
   pointer-events: none;
 }
 
-/* ---------- 侧栏顶部工具条（V0.7 取代品牌区） ---------- */
-.side-top {
+/* ---------- 侧栏品牌栏（V0.8 恢复） ---------- */
+.side-title {
   display: flex;
   align-items: center;
-  gap: .3rem;
-  padding: .1rem .1rem .5rem;
+  gap: .5rem;
+  padding: .15rem .35rem .6rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
   margin-bottom: .25rem;
+  flex-shrink: 0;
 }
-.st-spacer { flex: 1; }
-.st-iconbtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  height: 30px;
-  padding: 0 .5rem;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  background: none;
-  color: #a1a1aa;
-  font-family: inherit;
-  font-size: .78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
+.side-title .st-ic {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b3b40, #242428);
+  display: flex; align-items: center; justify-content: center;
+  color: #e4e4e7;
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700;
+  flex-shrink: 0;
 }
-.st-iconbtn:hover { background: rgba(255,255,255,.08); color: #f4f4f5; }
-.st-iconbtn:focus-visible { outline: 2px solid rgba(255,255,255,.35); outline-offset: 1px; }
-.st-iconbtn[aria-expanded="true"] {
-  background: rgba(255,255,255,.1);
-  color: #fafafa;
-  border-color: rgba(255,255,255,.14);
+.side-title .st-tx-wrap { min-width: 0; }
+.side-title .st-tx {
+  font-family: var(--font-display);
+  font-size: .92rem;
+  font-weight: 700;
+  color: #f4f4f5;
+  letter-spacing: .02em;
+  display: block;
+  white-space: nowrap;
 }
-.st-winbtn span { white-space: nowrap; }
-.st-caret { opacity: .7; transition: transform .18s; }
-.st-iconbtn[aria-expanded="true"] .st-caret { transform: rotate(180deg); }
+.side-title .st-sub {
+  font-size: .7rem;
+  color: #8b8b93;
+  font-weight: 400;
+  display: block;
+  margin-top: 1px;
+  white-space: nowrap;
+}
 
 /* 窗口下拉菜单 */
 .st-dropdown { position: relative; }
@@ -187,30 +319,6 @@ html, body {
 }
 .st-menu-item.on .st-check { visibility: visible; }
 
-/* 收起后左上角的浮动展开按钮 */
-.expand-pill {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 50;
-  width: 34px;
-  height: 34px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,.1);
-  background: #101012;
-  color: #d4d4d8;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0,0,0,.28);
-  transition: background .15s, color .15s;
-}
-.expand-pill:hover { background: #1b1b1f; color: #fafafa; }
-.app-shell.sb-collapsed .expand-pill { display: inline-flex; }
-/* 收起时若 JS 未清 hidden，也一并放开（[hidden] 优先级低于类选择器） */
-.app-shell:not(.sb-collapsed) .expand-pill { display: none; }
-
 /* 分组卡片 (catalog .side-sec) */
 .side-sec {
   background: rgba(255,255,255,.045);
@@ -266,93 +374,142 @@ html, body {
 .nav-item.active .nav-badge { background: rgba(22,22,24,.15); color: #52525b; }
 .nav-item.active .nav-badge.soon { background: rgba(209,67,67,.2); color: #b91c1c; }
 
-/* ---------- 编目规范侧栏（从 iframe 内 #sideAnchors 镜像） ---------- */
-/* 锚点区自适应：空间充足时最高 196px，空间紧张（Tauri 最小窗口 960x600）
-   时自动收缩，把空间让给上方导航项，避免导航被挤出视野 */
-#sideAnchors {
+/* ---------- 编目规范「内容导览」浮层弹窗（V0.8） ----------
+   V0.7 曾在侧栏内就地展开 #sideAnchors，会把下方导航挤出视野；
+   现改为浮层弹出：左侧贴侧栏、垂直居中，内容自滚动，不挤压布局。 */
+.anchor-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0,0,0,.28);
+  display: flex;
+  align-items: center;
+  /* 侧栏 12px 留白 + 232px 宽 + 12px 间距 → 弹窗贴侧栏右缘展开 */
+  padding-left: 268px;
+  animation: popFade .13s ease;
+}
+.anchor-pop[hidden] { display: none; }
+@keyframes popFade { from { opacity: 0; } to { opacity: 1; } }
+.anchor-pop-box {
+  width: 300px;
+  max-width: calc(100vw - 300px);
+  max-height: min(70vh, 560px);
   display: flex;
   flex-direction: column;
-  flex: 0 1 auto;
-  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
+  animation: popIn .16s cubic-bezier(.2,.8,.3,1);
 }
-/* 必须显式覆盖：上面 id 选择器优先级高于 .side-sec[hidden]，
-   否则非编目规范视图下 hidden 失效、锚点仍会显示 */
-#sideAnchors[hidden] { display: none; }
-.anchor-list {
+@keyframes popIn {
+  from { opacity: 0; transform: translateX(-8px) scale(.985); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+.anchor-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .62rem .7rem .55rem .85rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.anchor-pop-head h3 {
+  font-family: var(--font-display);
+  font-size: .86rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.anchor-pop-x {
+  width: 24px; height: 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .14s, color .14s;
+}
+.anchor-pop-x:hover { background: var(--divider); color: var(--text); }
+.anchor-pop-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: .5rem;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  flex: 0 1 auto;
-  min-height: 0;
-  max-height: 196px;
-  overflow-y: auto;
+  gap: 2px;
 }
-/* 分类导航同规则（与 anchor-list 一样的可收缩列表） */
-#sideAnchors .cfb-side { flex: 0 1 auto; min-height: 0; }
-.anchor-list::-webkit-scrollbar { width: 4px; }
-.anchor-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 4px; }
+.anchor-pop-body::-webkit-scrollbar { width: 6px; }
+.anchor-pop-body::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 4px; }
 
-.anchor-item {
+/* 弹窗内的条目：沿用侧栏锚点视觉，但改为浅色底 */
+.anchor-pop-body .anchor-item,
+.anchor-pop-body .cfb-side {
   display: block;
   width: 100%;
   text-align: left;
   border: none;
   background: none;
   font-family: inherit;
-  font-size: .76rem;
-  line-height: 1.4;
-  color: #8b8b93;
-  padding: .34rem .5rem;
-  border-radius: 7px;
+  font-size: .79rem;
+  line-height: 1.45;
+  color: var(--text-sec);
+  padding: .42rem .55rem;
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: all .15s;
+  transition: background .14s, color .14s;
 }
-.anchor-item:hover { background: rgba(255,255,255,.06); color: #d4d4d8; }
-.anchor-item.active { background: rgba(255,255,255,.09); color: #fafafa; font-weight: 600; }
-
-/* 分类表查询侧栏（catalog .cfb-side） */
-.cfb-side {
-  display: block;
-  width: 100%;
-  text-align: left;
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: .76rem;
-  color: #a1a1aa;
-  padding: .4rem .5rem;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all .15s;
-}
-.cfb-side:hover { background: rgba(255,255,255,.06); color: #e4e4e7; }
-.cfb-side.active {
-  background: linear-gradient(135deg, #e4e4e7, #c9c9cf);
-  color: #161618;
+.anchor-pop-body .anchor-item:hover,
+.anchor-pop-body .cfb-side:hover { background: var(--divider); color: var(--text); }
+.anchor-pop-body .anchor-item.active,
+.anchor-pop-body .cfb-side.active {
+  background: var(--accent);
+  color: var(--surface);
   font-weight: 600;
 }
-
-/* 工作手册信息卡（catalog .side-card） */
-.side-card { display: flex; flex-direction: column; gap: .35rem; }
-.side-card .cr {
+.anchor-pop-body .side-label {
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: .3rem .5rem .3rem;
+}
+/* 工作手册信息卡（复用 .side-card 结构，改为浅色） */
+.anchor-pop-body .side-card { display: flex; flex-direction: column; gap: .2rem; }
+.anchor-pop-body .side-card .cr {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: .5rem;
-  font-size: .74rem;
-  padding: .3rem .2rem;
-  border-bottom: 1px dashed rgba(255,255,255,.09);
+  font-size: .75rem;
+  padding: .34rem .4rem;
+  border-bottom: 1px dashed var(--border);
 }
-.side-card .cr:last-child { border-bottom: none; }
-.side-card .cr span { color: #8b8b93; }
-.side-card .cr b {
-  color: #e4e4e7;
+.anchor-pop-body .side-card .cr:last-child { border-bottom: none; }
+.anchor-pop-body .side-card .cr span { color: var(--text-muted); }
+.anchor-pop-body .side-card .cr b {
+  color: var(--text);
   font-weight: 600;
-  font-family: ui-monospace, "SF Mono", "Cascadia Mono", monospace;
-  font-size: .7rem;
+  font-family: var(--font-mono);
+  font-size: .71rem;
   word-break: break-all;
   text-align: right;
+}
+
+/* #sideAnchors 仅作镜像数据源，不再显示于侧栏（V0.8） */
+#sideAnchors { display: none !important; }
+
+.anchor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 /* 同步状态卡片 */
@@ -469,18 +626,29 @@ html, body {
 .su-caret { opacity: .7; flex-shrink: 0; transition: transform .18s; }
 .side-user[aria-expanded="true"] .su-caret { transform: rotate(180deg); }
 
+/* 用户菜单（V0.8）：向上弹出，避免把下方「登录」按钮顶上去 */
+.side-footer { position: relative; }
 .side-user-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  margin-top: .3rem;
   padding: .3rem;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255,255,255,.12);
   background: #1b1b1f;
-  animation: menuIn .14s ease;
+  box-shadow: 0 -10px 28px rgba(0,0,0,.42);
+  animation: menuUpIn .15s ease;
 }
 .side-user-menu[hidden] { display: none; }
+@keyframes menuUpIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .sum-head {
   font-size: .68rem;
   color: #7c7c85;
@@ -1022,52 +1190,94 @@ html, body {
 [data-theme="dark"] .av-log li.ok { color: #86efac; }
 [data-theme="dark"] .av-overlay { background: rgba(0,0,0,.62); }
 
+/* ---- V0.8 新增部件的暗色适配 ---- */
+/* 自绘标题栏：暗色下悬停高亮改用白色叠加 */
+[data-theme="dark"] .app-titlebar { background: var(--bg); }
+[data-theme="dark"] .tb-iconbtn:hover { background: rgba(255,255,255,.1); color: var(--text); }
+[data-theme="dark"] .tb-iconbtn[aria-expanded="true"] {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.16);
+}
+[data-theme="dark"] .tb-iconbtn:focus-visible { outline-color: rgba(255,255,255,.4); }
+[data-theme="dark"] .tb-win:hover { background: rgba(255,255,255,.1); color: var(--text); }
+[data-theme="dark"] .tb-win:focus-visible { outline-color: rgba(255,255,255,.4); }
+[data-theme="dark"] .tb-close:hover { background: #e81123; color: #fff; }
+[data-theme="dark"] .tb-title-tx { color: var(--text-sec); }
+
+/* 窗口下拉菜单：跟随页面主题（展开在标题栏，不能沿用侧栏深色） */
+[data-theme="dark"] .st-menu { background: #1b1b1f; border-color: rgba(255,255,255,.12); }
+[data-theme="light"] .st-menu,
+:root:not([data-theme="dark"]) .st-menu {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: 0 12px 32px rgba(0,0,0,.14);
+}
+:root:not([data-theme="dark"]) .st-menu-item { color: var(--text-sec); }
+:root:not([data-theme="dark"]) .st-menu-item:hover { background: var(--divider); color: var(--text); }
+:root:not([data-theme="dark"]) .st-menu-item kbd { color: var(--text-muted); background: var(--divider); }
+:root:not([data-theme="dark"]) .st-menu-label { color: var(--text-muted); }
+:root:not([data-theme="dark"]) .st-menu-sep { background: var(--border); }
+:root:not([data-theme="dark"]) .st-check { color: #16a34a; }
+
+/* 内容导览弹窗 */
+[data-theme="dark"] .anchor-pop { background: rgba(0,0,0,.55); }
+[data-theme="dark"] .anchor-pop-body::-webkit-scrollbar-thumb { background: #3f3f46; }
+[data-theme="dark"] .anchor-pop-body .anchor-item.active,
+[data-theme="dark"] .anchor-pop-body .cfb-side.active { color: #0a0a0a; }
+
 /* ---------- 矮窗口适配（Tauri 最小窗口 960x600） ---------- */
-/* 侧栏内容多时仍可滚动，但通过压缩间距让导航项尽量一屏放下 */
+/* 侧栏内容多时仍可滚动，但通过压缩间距让导航项尽量一屏放下。
+   V0.8 起标题栏占用 38px，且品牌栏恢复，需比 V0.7 更紧一档。 */
 @media (max-height: 680px) {
-  .app-sidebar { gap: .28rem; padding: .6rem; }
-  .side-top { padding: .04rem .04rem .22rem; margin-bottom: .05rem; }
-  .side-sec { padding: .28rem; }
-  .side-label { padding: 0 .3rem .12rem; font-size: .62rem; }
-  .side-nav { gap: .08rem; }
-  .nav-item { padding: .26rem .48rem; }
-  .anchor-list { max-height: 130px; }
-  .anchor-item, .cfb-side { padding: .22rem .42rem; }
-  .side-user { padding: .32rem .48rem; gap: .42rem; }
-  .su-avatar { width: 26px; height: 26px; }
-  .su-name { font-size: .74rem; }
-  .su-sub { font-size: .6rem; }
-  .side-btn { padding: .34rem .5rem; }
-  .side-status { padding: .3rem .42rem; }
-  .side-status .status-row { padding: .1rem 0; font-size: .64rem; }
+  .app-sidebar { gap: .3rem; padding: .55rem; }
+  .side-title { padding: .05rem .25rem .3rem; margin-bottom: 0; }
+  .side-title .st-ic { width: 23px; height: 23px; font-size: 12px; }
+  .side-title .st-tx { font-size: .82rem; }
+  .side-title .st-sub { font-size: .62rem; margin-top: 0; }
+  .side-sec { padding: .26rem; }
+  .side-label { padding: 0 .3rem .1rem; font-size: .6rem; }
+  .side-nav { gap: .06rem; }
+  .nav-item { padding: .24rem .46rem; font-size: .8rem; }
+  .anchor-item, .cfb-side { padding: .2rem .4rem; }
+  .side-user { padding: .3rem .45rem; gap: .4rem; }
+  .su-avatar { width: 24px; height: 24px; flex-basis: 24px; font-size: 12px; }
+  .su-name { font-size: .72rem; }
+  .su-sub { font-size: .58rem; }
+  .side-btn { padding: .3rem .5rem; font-size: .72rem; }
+  .side-footer { padding: .3rem 0 .1rem; gap: .3rem; }
+  .side-status { padding: .26rem .4rem; }
+  .side-status .status-row { padding: .08rem 0; font-size: .62rem; }
 }
 
 /* ---------- 窄窗口适配 ---------- */
 /* 主窗口最小宽度 960px，侧栏保持完整；此处仅压缩外壳留白 */
 @media (max-width: 1024px) {
-  .app-shell { padding: 8px; gap: 8px; }
+  .app-body { padding: 8px; gap: 8px; }
   .av-wrap { padding: 20px 16px 36px; }
+  .anchor-pop { padding-left: 256px; }
 }
 
 /* ---------- 极窄窗口（非 Tauri 主场景，作兜底） ---------- */
 @media (max-width: 768px) {
-  .app-shell { padding: 6px; gap: 6px; }
+  .app-body { padding: 6px; gap: 6px; }
   .app-sidebar { padding: .5rem; border-radius: 12px; }
   .side-label { display: none; }
   .side-sec { padding: .35rem; }
   .nav-item { justify-content: center; padding: .52rem .3rem; }
   .nav-item span { display: none; }
-  .st-winbtn span { display: none; }
+  .nav-dir { display: none; }
+  .tb-winbtn span { display: none; }
   .su-tx { display: none; }
   .side-user { justify-content: center; }
   .side-btn span { display: none; }
   .side-footer-btns { flex-direction: row; }
   .side-status .status-row { justify-content: center; }
+  .side-title > div:last-child { display: none; }
+  .anchor-pop { padding-left: 8px; }
+  .anchor-pop-box { max-width: calc(100vw - 16px); }
   .side-status .status-row span:last-child { display: none; }
-  /* 章节锚点：窄屏仅显示可滚动列表，隐藏长信息卡内容 */
-  .anchor-list { max-height: 180px; }
-  .anchor-item, .cfb-side { text-align: center; padding: .4rem .3rem; }
-  .side-card .cr span { display: none; }
-  .side-card .cr { justify-content: center; }
+  /* 内容导览弹窗：窄屏占满可用宽度 */
+  .anchor-pop-body .anchor-item,
+  .anchor-pop-body .cfb-side { padding: .44rem .5rem; }
   .av-grid { grid-template-columns: 1fr; }
 }

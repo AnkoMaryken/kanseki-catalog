@@ -89,56 +89,82 @@ const config = require('../../../tests/helpers/config.js');
     check('iframe 内切到「分类表查询」', activeTab === '1', 'tab=' + activeTab);
   }
 
-  // ---------- 4. APP 侧栏镜像锚点（分类导航） ----------
+  // ---------- 4. 内容导览弹窗（分类导航） ----------
+  // V0.8：锚点不再于侧栏内联展开，改为浮层弹窗
   await page.waitForTimeout(900);
-  const anchorVisible = await page.locator('#sideAnchors').isVisible().catch(() => false);
-  check('侧栏锚点卡片显示', anchorVisible === true);
+  const anchorSideHidden = await page.evaluate(() => {
+    const el = document.querySelector('#sideAnchors');
+    return el ? getComputedStyle(el).display === 'none' : true;
+  });
+  check('侧栏不再内联显示锚点卡片', anchorSideHidden === true);
 
-  const cats = await page.locator('#sideAnchors .cfb-side').allTextContents();
-  check('侧栏镜像分类导航', cats.some(t => /經部|经部/.test(t)) && cats.some(t => /全部類目|全部类目/.test(t)),
+  // 点「分类表查询」右侧 ▸ 弹出分类导航
+  await page.click('.nav-dir[data-dir-open="1"]');
+  await page.waitForTimeout(1600);
+  check('分类导航弹窗已打开', await page.locator('#anchorPop').isVisible());
+
+  const cats = await page.locator('#anchorPopBody .cfb-side').allTextContents();
+  check('弹窗内分类导航齐备', cats.some(t => /經部|经部/.test(t)) && cats.some(t => /全部類目|全部类目/.test(t)),
     cats.length ? cats.join('/') : '（空）');
 
-  const catActive = await page.locator('#sideAnchors .cfb-side.active').textContent().catch(() => null);
+  const catActive = await page.locator('#anchorPopBody .cfb-side.active').textContent().catch(() => null);
   check('分类导航高亮同步', /全部類目|全部类目/.test(catActive || ''), 'active=' + catActive);
 
-  // 点击侧栏「史部」→ iframe 内分类导航联动
-  const shiBtn = page.locator('#sideAnchors .cfb-side', { hasText: /史部/ }).first();
+  // 点击弹窗「史部」→ iframe 内分类导航联动
+  const shiBtn = page.locator('#anchorPopBody .cfb-side', { hasText: /史部/ }).first();
   if (await shiBtn.count()) {
     await shiBtn.click();
-    await page.waitForTimeout(900);
-    const nowActive = await page.locator('#sideAnchors .cfb-side.active').textContent().catch(() => null);
-    check('点侧栏「史部」→ 高亮同步', /史部/.test(nowActive || ''), 'active=' + nowActive);
+    await page.waitForTimeout(1000);
+    // 点击后弹窗自动收起，需重新打开读取高亮
+    await page.click('.nav-dir[data-dir-open="1"]');
+    await page.waitForTimeout(1000);
+    const nowActive = await page.locator('#anchorPopBody .cfb-side.active').textContent().catch(() => null);
+    check('点「史部」→ 高亮同步', /史部/.test(nowActive || ''), 'active=' + nowActive);
     const rows = fCat ? await fCat.locator('.ctbl tbody tr').count() : 0;
     check('分类表有数据行', rows > 0, 'rows=' + rows);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
   }
 
-  // ---------- 5. 切到细则查阅 → 章节锚点 ----------
+  // ---------- 5. 切到细则查阅 → 章节锚点弹窗 ----------
   await page.click('.nav-item[data-view="catalog"][data-tab="0"]');
   await page.waitForTimeout(1800);
-  const anchors = await page.locator('#sideAnchors .anchor-item').allTextContents();
-  check('侧栏镜像章节导航', anchors.length > 5, 'anchor 数 ' + anchors.length);
-  const anchorLabel = await page.locator('#sideAnchors .side-label').textContent().catch(() => '');
-  check('章节导航标签含版本', /章節導航|章节导航/.test(anchorLabel), 'label=' + anchorLabel);
+  await page.click('.nav-dir[data-dir-open="0"]');
+  await page.waitForTimeout(1200);
+  check('章节导航弹窗已打开', await page.locator('#anchorPop').isVisible());
+  const anchors = await page.locator('#anchorPopBody .anchor-item').allTextContents();
+  check('弹窗内章节导航齐备', anchors.length > 5, 'anchor 数 ' + anchors.length);
+  const anchorLabel = await page.textContent('#anchorPopTitle').catch(() => '');
+  check('弹窗标题为章节导航', /章節導航|章节导航/.test(anchorLabel), 'title=' + anchorLabel);
 
-  // 点第一个章节锚点
+  // 点章节锚点 → iframe 内滚动
   if (anchors.length) {
     const beforeTop = fCat ? await fCat.locator('#db').evaluate(el => el.scrollTop).catch(() => 0) : 0;
-    await page.locator('#sideAnchors .anchor-item').nth(2).click();
-    await page.waitForTimeout(1200);
+    await page.locator('#anchorPopBody .anchor-item').nth(2).click();
+    await page.waitForTimeout(1400);
     const afterTop = fCat ? await fCat.locator('#db').evaluate(el => el.scrollTop).catch(() => 0) : 0;
     check('点章节锚点 → iframe 内滚动', afterTop !== beforeTop || afterTop > 0,
       beforeTop + ' -> ' + afterTop);
-    const act = await page.locator('#sideAnchors .anchor-item.active').count();
+    // 重新打开看高亮是否回同步
+    await page.click('.nav-dir[data-dir-open="0"]');
+    await page.waitForTimeout(1200);
+    const act = await page.locator('#anchorPopBody .anchor-item.active').count();
     check('章节锚点高亮存在', act >= 1, 'active ' + act);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
   }
 
-  // ---------- 6. 切到工作手册 → 信息卡 ----------
-  await page.click('.nav-item[data-view="catalog"][data-tab="2"]');
+  // ---------- 6. 切到工作手册 → 信息卡弹窗 ----------
+  await page.click('.nav-dir[data-dir-open="2"]');
   await page.waitForTimeout(1800);
-  const cardRows = await page.locator('#sideAnchors .side-card .cr').count();
-  check('侧栏镜像工作手册信息卡', cardRows === 4, 'cr 行数 ' + cardRows);
-  const cardLabel = await page.locator('#sideAnchors .side-label').textContent().catch(() => '');
-  check('手册卡标签正确', /工作手冊|工作手册/.test(cardLabel), 'label=' + cardLabel);
+  check('工作手册弹窗已打开', await page.locator('#anchorPop').isVisible());
+  const cardRows = await page.locator('#anchorPopBody .side-card .cr').count();
+  check('弹窗内工作手册信息卡 4 行', cardRows === 4, 'cr 行数 ' + cardRows);
+  const cardLabel = await page.textContent('#anchorPopTitle').catch(() => '');
+  check('弹窗标题为工作手册', /工作手冊|工作手册/.test(cardLabel), 'title=' + cardLabel);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  check('Esc 可关弹窗', await page.locator('#anchorPop').isHidden());
 
   // ---------- 7. 其他 iframe 视图 ----------
   const viewCases = [
@@ -156,8 +182,8 @@ const config = require('../../../tests/helpers/config.js');
       const hv = await fr.locator('.app-header').isVisible().catch(() => null);
       check(name + ' 页 header 已隐藏', hv === false, 'isVisible=' + hv);
     }
-    const anchorHidden = await page.locator('#sideAnchors').isHidden().catch(() => false);
-    check(name + ' 视图下锚点卡片收起', anchorHidden === true);
+    const anchorPopHidden = await page.locator('#anchorPop').isHidden().catch(() => false);
+    check(name + ' 视图下导览弹窗关闭', anchorPopHidden === true);
   }
 
   // ---------- 8. 非 iframe 视图回归 ----------
