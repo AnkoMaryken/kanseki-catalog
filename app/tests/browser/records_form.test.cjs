@@ -22,15 +22,15 @@ const config = require('../../../tests/helpers/config.js');
   await page.waitForTimeout(800);
 
   // 1. 空状态
-  check('空状态标题', (await page.locator('.records-placeholder h3').textContent()) === '編目功能開發中，敬請期待');
+  check('空状态标题', (await page.locator('.av-empty h3').textContent()) === '編目功能開發中，敬請期待');
   check('新增按钮禁用', await page.locator('#addRecordBtn').isDisabled());
 
   // 2. 打开表单
   await page.click('#previewFormBtn');
   await page.waitForTimeout(300);
   check('表单弹层可见', await page.locator('#recordFormOverlay').isVisible());
-  check('必填 8 字段', await page.locator('#requiredFields .form-field').count() === 8);
-  check('选填 5 字段', await page.locator('#optionalFields .form-field').count() === 5);
+  check('必填 8 字段', await page.locator('#requiredFields .av-field').count() === 8);
+  check('选填 5 字段', await page.locator('#optionalFields .av-field').count() === 5);
   check('提交按钮禁用', await page.locator('#recordFormSubmit').isDisabled());
 
   // 3. 必填字段与模板表头对应
@@ -40,7 +40,7 @@ const config = require('../../../tests/helpers/config.js');
   check('必填含卷數', reqLabels.some(l => l.includes('卷數')));
 
   // 4. 实时校验：必填字段输入后错误消失
-  const titleErr = page.locator('.form-field[data-field="title"] .field-error');
+  const titleErr = page.locator('.av-field[data-field="title"] .field-error');
   await page.fill('#rec-title', '日本国志');
   await page.waitForTimeout(200);
   check('title 错误隐藏', await titleErr.isHidden());
@@ -54,7 +54,7 @@ const config = require('../../../tests/helpers/config.js');
   check('Esc 关闭', await page.locator('#recordFormOverlay').isHidden());
 
   // 7. 字段数 = 13（+seq 自动编号 = 模板 14 列）
-  check('字段总数 13', await page.locator('#recordFormOverlay .form-field').count() === 13);
+  check('字段总数 13', await page.locator('#recordFormOverlay .av-field').count() === 13);
 
   check('0 JS 错误', errors.length === 0, errors.join('; '));
 

@@ -40,7 +40,8 @@ const config = require('../../../tests/helpers/config.js');
   check('sync 视图激活', await page.locator('#view-sync.active').count() === 1);
   check('邮箱输入框', await page.locator('#syncUser').count() === 1);
   check('密码输入框掩码', await page.locator('#syncPass').getAttribute('type') === 'password');
-  check('三个按钮', await page.locator('.sync-actions .btn').count() === 3);
+  check('三个按钮', await page.locator('#view-sync .av-actions .av-btn').count() === 3,
+    '实际 ' + await page.locator('#view-sync .av-actions .av-btn').count());
 
   // 2. 空凭据拦截
   await page.click('#syncTestBtn');

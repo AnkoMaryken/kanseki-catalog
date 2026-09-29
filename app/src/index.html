@@ -4,25 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>古代史及汉籍研究工具</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='6'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='22'%20font-size='17'%20text-anchor='middle'%20fill='%23fff'%20font-family='serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232b3a67'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20text-anchor='middle'%20fill='%23fff'%20font-family='STZhongsong,SimSun,serif'%3E%E6%BC%A2%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <div id="app" class="app-shell">
   <!-- 侧边导航 -->
   <aside class="app-sidebar" id="sidebar">
-    <div class="side-title">
-      <div class="st-ic">漢</div>
-      <div><span class="st-tx">古代史及汉籍研究工具</span><span class="st-sub">Windows 桌面版</span></div>
+    <!-- 顶栏：收起侧栏 + 窗口菜单（V0.7 取代原品牌文字） -->
+    <div class="side-top">
+      <button class="st-iconbtn" id="collapseBtn" type="button" title="收起侧边栏" aria-label="收起侧边栏">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 9l-3 3 3 3"/></svg>
+      </button>
+      <div class="st-dropdown" id="winDropdown">
+        <button class="st-iconbtn st-winbtn" id="winBtn" type="button" title="窗口" aria-label="窗口" aria-haspopup="true" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M7 6.5h.01M10 6.5h.01"/></svg>
+          <span>窗口</span>
+          <svg class="st-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="st-menu" id="winMenu" role="menu" hidden>
+          <div class="st-menu-group">
+            <button class="st-menu-item" data-win="min" type="button" role="menuitem"><span>最小化</span><kbd>—</kbd></button>
+            <button class="st-menu-item" data-win="max" type="button" role="menuitem"><span id="winMaxLabel">最大化</span><kbd>□</kbd></button>
+            <button class="st-menu-item" data-win="close" type="button" role="menuitem"><span>关闭窗口</span><kbd>×</kbd></button>
+          </div>
+          <div class="st-menu-sep"></div>
+          <div class="st-menu-group">
+            <button class="st-menu-item" data-win="ontop" type="button" role="menuitem"><span>窗口置顶</span><span class="st-check" id="winTopCheck">✓</span></button>
+            <button class="st-menu-item" data-win="fullscreen" type="button" role="menuitem"><span>全屏</span><kbd>F11</kbd></button>
+            <button class="st-menu-item" data-win="center" type="button" role="menuitem"><span>窗口居中</span></button>
+          </div>
+          <div class="st-menu-sep"></div>
+          <div class="st-menu-label">窗口尺寸</div>
+          <div class="st-menu-group">
+            <button class="st-menu-item" data-size="1280x800" type="button" role="menuitem"><span>标准</span><kbd>1280×800</kbd></button>
+            <button class="st-menu-item" data-size="1600x1000" type="button" role="menuitem"><span>宽广</span><kbd>1600×1000</kbd></button>
+            <button class="st-menu-item" data-size="1100x720" type="button" role="menuitem"><span>紧凑</span><kbd>1100×720</kbd></button>
+          </div>
+        </div>
+      </div>
+      <div class="st-spacer"></div>
+      <button class="st-iconbtn st-expand-only" id="expandBtn" type="button" title="展开侧边栏" aria-label="展开侧边栏" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M13 9l3 3-3 3"/></svg>
+      </button>
     </div>
+
     <div class="side-sec">
       <div class="side-label">纪年查询</div>
       <nav class="side-nav">
         <a href="#/query" data-view="query" class="nav-item active">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>纪年查询</span>
-        </a>
-        <a href="#/jump" data-view="jump" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>快速跳转</span>
         </a>
       </nav>
     </div>
@@ -53,17 +84,23 @@
         <a href="#/changelog" data-view="changelog" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg><span>更新日志</span>
         </a>
-        <a href="#/records" data-view="records" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span><span class="nav-badge soon">待上线</span>
-        </a>
       </nav>
     </div>
 
     <div class="side-sec">
       <div class="side-label">应用</div>
       <nav class="side-nav">
+        <a href="#/jump" data-view="jump" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>快速跳转</span>
+        </a>
+        <a href="#/records" data-view="records" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span>
+        </a>
         <a href="#/sync" data-view="sync" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>同步设置</span>
+        </a>
+        <a href="#/login" data-view="login" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg><span>账号</span>
         </a>
         <a href="#/about" data-view="about" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>关于</span>
@@ -77,10 +114,32 @@
       </div>
     </div>
     <div class="side-footer">
-      <button class="side-btn sb-ghost" id="themeToggleBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>切换主题</button>
-      <button class="side-btn sb-ghost" id="openWebBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>打开网页版</button>
+      <!-- 用户区（V0.7：未登录 → 登录；已登录 → 头像+昵称，可展开菜单） -->
+      <button class="side-user" id="sideUserBtn" type="button" aria-haspopup="true" aria-expanded="false">
+        <span class="su-avatar" id="sideUserAvatar">?</span>
+        <span class="su-tx">
+          <span class="su-name" id="sideUserName">登录</span>
+          <span class="su-sub" id="sideUserSub">登录后可同步编目记录</span>
+        </span>
+        <svg class="su-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="side-user-menu" id="sideUserMenu" hidden>
+        <p class="sum-head" id="sumHead">未登录</p>
+        <a class="sum-item" href="#/login" data-usermenu="login">登录 / 注册</a>
+        <a class="sum-item" href="#/account" data-usermenu="profile" hidden>个人中心</a>
+        <button class="sum-item sum-danger" id="sideLogoutBtn" type="button" hidden>退出登录</button>
+      </div>
+      <div class="side-footer-btns">
+        <button class="side-btn sb-ghost" id="themeToggleBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>切换主题</button>
+        <button class="side-btn sb-ghost" id="openWebBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>打开网页版</button>
+      </div>
     </div>
   </aside>
+
+  <!-- 侧栏收起后的展开按钮（浮动在左上角） -->
+  <button class="expand-pill" id="expandPill" type="button" title="展开侧边栏" aria-label="展开侧边栏">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M13 9l3 3-3 3"/></svg>
+  </button>
 
   <!-- 主内容区 -->
   <main class="app-main">
@@ -109,104 +168,136 @@
       <iframe id="changelogFrame" data-src="pages/changelog.html" title="更新日志" class="page-frame" loading="lazy"></iframe>
     </section>
 
-    <!-- 编目记录视图（占位框架） -->
-    <section id="view-records" class="view">
-      <div class="view-header records-header">
-        <div>
-          <h2>汉籍编目记录</h2>
-          <p class="view-sub">按「全球汉籍合璧工程」编目表格模板管理馆藏汉籍</p>
-        </div>
-        <button class="btn btn-primary" id="addRecordBtn" type="button" disabled title="编目功能开发中，即将上线">＋ 新增编目</button>
-      </div>
+    <!-- 账号视图（登录/注册/个人中心，复用静态站账号页） -->
+    <section id="view-login" class="view has-frame">
+      <iframe id="loginFrame" data-src="pages/login.html" title="账号" class="page-frame" loading="lazy"></iframe>
+    </section>
 
-      <!-- 列表空状态 -->
-      <div class="records-placeholder" id="recordsEmpty">
-        <div class="placeholder-icon">📚</div>
-        <h3>編目功能開發中，敬請期待</h3>
-        <p>编目记录模块正在开发中，后期将支持：</p>
-        <ul class="placeholder-list">
-          <li>按模板 14 字段录入编目信息（類目/書名/卷數/索書號/著者/版本/函册/版式等）</li>
-          <li>多端同步（Windows / 手机 / 平板），离线可用</li>
-          <li>搜索、筛选、导出 Excel 编目表</li>
-        </ul>
-        <button class="btn btn-primary" id="previewFormBtn" type="button">预览录入表单</button>
-        <p class="placeholder-note">此功能即將上線，當前為預覽</p>
+    <section id="view-account" class="view has-frame">
+      <iframe id="accountFrame" data-src="pages/profile.html" title="个人中心" class="page-frame" loading="lazy"></iframe>
+    </section>
+
+    <!-- 编目记录视图（占位框架） -->
+    <section id="view-records" class="view app-view">
+      <div class="av-wrap">
+        <header class="av-head">
+          <div class="av-head-tx">
+            <h2>汉籍编目记录</h2>
+            <p>按「全球汉籍合璧工程」编目表格模板管理馆藏汉籍</p>
+          </div>
+          <button class="av-btn av-btn-primary" id="addRecordBtn" type="button" disabled title="编目功能开发中，即将上线">＋ 新增编目</button>
+        </header>
+
+        <!-- 列表空状态 -->
+        <div class="av-card av-empty" id="recordsEmpty">
+          <div class="av-empty-ic">漢</div>
+          <h3>編目功能開發中，敬請期待</h3>
+          <p class="av-empty-sub">编目记录模块正在开发中，后期将支持：</p>
+          <ul class="av-list">
+            <li>按模板 14 字段录入编目信息（類目／書名／卷數／索書號／著者／版本／函册／版式等）</li>
+            <li>多端同步（Windows／手机／平板），离线可用</li>
+            <li>搜索、筛选、导出 Excel 编目表</li>
+          </ul>
+          <button class="av-btn av-btn-primary" id="previewFormBtn" type="button">预览录入表单</button>
+          <p class="av-note">此功能即将上线，当前为预览</p>
+        </div>
       </div>
     </section>
 
     <!-- 编目录入表单弹层（占位预览，不落库） -->
-    <div id="recordFormOverlay" class="modal-overlay" hidden>
-      <div class="modal record-form-modal">
-        <div class="modal-header">
+    <div id="recordFormOverlay" class="av-overlay" hidden>
+      <div class="av-modal">
+        <div class="av-modal-head">
           <h3>新增編目記錄（預覽）</h3>
-          <button class="modal-close" id="recordFormClose" type="button" aria-label="关闭">×</button>
+          <button class="av-modal-x" id="recordFormClose" type="button" aria-label="关闭">×</button>
         </div>
-        <div class="modal-body">
-          <p class="form-note">字段布局与校验按「【27】編目表格模板.xlsx」預置，此功能即將上線，當前為預覽，提交不會保存。</p>
-          <div class="form-section">
+        <div class="av-modal-body">
+          <p class="av-warn">字段布局与校验按「【27】編目表格模板.xlsx」預置，此功能即將上線，當前為預覽，提交不會保存。</p>
+          <div class="av-fieldset">
             <h4>必填項</h4>
-            <div id="requiredFields" class="form-grid"></div>
+            <div id="requiredFields" class="av-grid"></div>
           </div>
-          <div class="form-section">
+          <div class="av-fieldset">
             <h4>選填項</h4>
-            <div id="optionalFields" class="form-grid"></div>
+            <div id="optionalFields" class="av-grid"></div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn" id="recordFormCancel" type="button">取消</button>
-          <button class="btn btn-primary" id="recordFormSubmit" type="button" disabled title="即将上线">提交（待上線）</button>
+        <div class="av-modal-foot">
+          <button class="av-btn" id="recordFormCancel" type="button">取消</button>
+          <button class="av-btn av-btn-primary" id="recordFormSubmit" type="button" disabled title="即将上线">提交（待上線）</button>
         </div>
       </div>
     </div>
 
     <!-- 同步设置视图 -->
-    <section id="view-sync" class="view">
-      <div class="view-header">
-        <h2>同步设置</h2>
-        <p class="view-sub">通过坚果云 WebDAV 备份偏好与数据（零成本）</p>
-      </div>
-      <div class="sync-panel">
-        <div class="form-group">
-          <label for="syncUser">坚果云邮箱</label>
-          <input type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
+    <section id="view-sync" class="view app-view">
+      <div class="av-wrap">
+        <header class="av-head">
+          <div class="av-head-tx">
+            <h2>同步设置</h2>
+            <p>通过坚果云 WebDAV 备份偏好与数据（零成本）</p>
+          </div>
+        </header>
+
+        <div class="av-card av-formcard">
+          <div class="av-field">
+            <label for="syncUser">坚果云邮箱</label>
+            <input type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
+          </div>
+          <div class="av-field">
+            <label for="syncPass">应用密码 <span class="av-hint">在坚果云「安全选项 → 应用密码」中生成</span></label>
+            <input type="password" id="syncPass" placeholder="应用密码（非登录密码）" autocomplete="current-password">
+          </div>
+          <div class="av-actions">
+            <button class="av-btn av-btn-primary" id="syncTestBtn" type="button">连接测试</button>
+            <button class="av-btn" id="syncSaveBtn" type="button">保存凭据</button>
+            <button class="av-btn" id="syncNowBtn" type="button">立即同步</button>
+          </div>
+          <div id="syncStatus" class="av-alert" hidden></div>
         </div>
-        <div class="form-group">
-          <label for="syncPass">应用密码
-            <span class="hint">在坚果云「安全选项 → 应用密码」中生成</span>
-          </label>
-          <input type="password" id="syncPass" placeholder="应用密码（非登录密码）" autocomplete="current-password">
+
+        <div class="av-card">
+          <h3 class="av-card-title">同步状态</h3>
+          <div class="av-kv"><span>上次同步</span><b id="syncLastTime">—</b></div>
+          <div class="av-kv"><span>待同步变更</span><b id="syncPending">0</b></div>
+          <div class="av-kv"><span>同步状态</span><b id="syncState">未配置</b></div>
         </div>
-        <div class="sync-actions">
-          <button class="btn btn-primary" id="syncTestBtn" type="button">连接测试</button>
-          <button class="btn" id="syncSaveBtn" type="button">保存凭据</button>
-          <button class="btn" id="syncNowBtn" type="button">立即同步</button>
-        </div>
-        <div id="syncStatus" class="sync-status" hidden></div>
-        <div class="sync-info">
-          <div class="info-row"><span>上次同步</span><span id="syncLastTime">—</span></div>
-          <div class="info-row"><span>待同步变更</span><span id="syncPending">0</span></div>
-          <div class="info-row"><span>同步状态</span><span id="syncState">未配置</span></div>
-        </div>
-        <div class="sync-log">
-          <h4>最近日志</h4>
-          <ul id="syncLog"></ul>
+
+        <div class="av-card">
+          <h3 class="av-card-title">最近日志</h3>
+          <ul class="av-log" id="syncLog"></ul>
         </div>
       </div>
     </section>
 
     <!-- 关于视图 -->
-    <section id="view-about" class="view">
-      <div class="view-header">
-        <h2>关于</h2>
-      </div>
-      <div class="about-panel">
-        <div class="about-logo">漢</div>
-        <h3>古代史及汉籍研究工具</h3>
-        <p class="about-ver">版本 0.6.4（V5 路线图）</p>
-        <p>将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
-        <div class="about-links">
-          <button class="btn" id="openGuideBtn" type="button">使用介绍</button>
-          <button class="btn" id="openChangelogBtn" type="button">更新日志</button>
+    <section id="view-about" class="view app-view">
+      <div class="av-wrap">
+        <header class="av-head">
+          <div class="av-head-tx">
+            <h2>关于</h2>
+            <p>古代史及汉籍研究工具 · Windows 桌面版</p>
+          </div>
+        </header>
+
+        <div class="av-card av-about">
+          <div class="av-logo">
+            <svg viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="图标">
+              <rect width="64" height="64" rx="14" fill="#2b3a67"/>
+              <text x="32" y="45" font-size="34" text-anchor="middle" fill="#ffffff"
+                    font-family="'STZhongsong','SimSun',serif">漢</text>
+            </svg>
+          </div>
+          <h3>古代史及汉籍研究工具</h3>
+          <p class="av-ver">版本 0.7.0（V5 路线图）</p>
+          <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
+          <div class="av-actions av-actions-center">
+            <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
+            <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
+          </div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.7.0</b></div>
+          <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
+          <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
       </div>
     </section>

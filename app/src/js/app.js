@@ -1,15 +1,25 @@
 // ================================================
 // js/app.js — SPA 外壳逻辑（hash 路由 + 视图切换）
 // ================================================
-// 视图（V0.6：把静态站顶部导航全部并入左侧栏）：
+// 视图（V0.7）：
 //   #/query       纪年查询（iframe pages/index.html）
-//   #/jump        快速跳转（iframe pages/embed.html）
 //   #/catalog     编目规范（iframe pages/catalog.html，tab 由 ?tab=N 指定）
 //   #/guide       使用介绍（iframe pages/guide.html）
 //   #/changelog   更新日志（iframe pages/changelog.html）
-//   #/records     编目记录（占位，待上线）
+//   #/jump        快速跳转（iframe pages/embed.html）           —— 归入「应用」组
+//   #/records     编目记录（占位，待上线）                        —— 归入「应用」组
 //   #/sync        同步设置（坚果云 WebDAV）
+//   #/login       账号（iframe pages/login.html；登录/注册）
+//   #/account     个人中心（iframe pages/profile.html；需登录）
 //   #/about       关于
+//
+// V0.7 新增：
+//   · 侧栏顶部工具条：收起侧栏 + 「窗口」菜单（最小化/最大化/关闭/
+//     置顶/全屏/居中/尺寸预设）；品牌文字不再占用左上角
+//   · 侧栏底部用户区：未登录显示「登录」，已登录显示头像+昵称，
+//     菜单提供「个人中心 / 退出登录」；状态读取自 localStorage
+//     （与网页版共用 kanseki_user / kanseki_profile，账号体系一致）
+//   · 编目记录／同步设置／关于三视图改用 .app-view/.av-* 统一风格
 //
 // iframe 内页面由构建脚本注入嵌入样式（build.mjs），隐藏其自带 header 与
 // 编目规范侧栏；编目规范的整体侧栏改由本文件从 iframe 内「镜像」到 APP 侧栏。
@@ -98,9 +108,262 @@ let store = null;
 let engine = null;
 let provider = null;
 
+// ---------- 用户状态（V0.7） ----------
+// 与网页版共用同一套 localStorage 键，账号体系保持一致：
+//   kanseki_user    = { email, name, id }        登录态
+//   kanseki_profile = { name, avatar, ... }      个人资料（头像等）
+// 外壳不引用 user-state.js——该模块依赖网页版页面结构（.user-dropdown），
+// 桌面版侧栏结构不同，故此处只复用其数据格式，自行渲染。
+const USER_KEY = 'kanseki_user';
+const PROFILE_KEY = 'kanseki_profile';
+
+function readLS(key) {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; }
+}
+
+function getUser() {
+  const u = readLS(USER_KEY);
+  return (u && u.email) ? u : null;
+}
+
+function getUserName() {
+  const p = readLS(PROFILE_KEY) || {};
+  if (p.name) return p.name;
+  const u = getUser();
+  if (u && u.name) return u.name;
+  if (u && u.email) return u.email.split('@')[0];
+  return '';
+}
+
+// 头像渲染：优先自定义图片，其次自定义颜色+字符，最后按邮箱哈希取色
+function userAvatarHTML(size) {
+  const u = getUser();
+  const p = readLS(PROFILE_KEY) || {};
+  const av = p.avatar || null;
+  const name = getUserName();
+  const ch = (av && av.type === 'color' && av.char) ? av.char : ((name && name.trim()) ? name.trim()[0] : '?');
+  const base = `width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;`;
+  if (av && av.type === 'img' && av.data) {
+    return `<img src="${escAttr(av.data)}" alt="" style="${base}">`;
+  }
+  let bg = '#52525b';
+  if (av && av.type === 'color' && av.bg) {
+    bg = av.bg;
+  } else {
+    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#0ea5e9', '#f43f5e'];
+    let idx = 0;
+    const em = (u && u.email) || name || '?';
+    for (let i = 0; i < em.length; i++) idx = (idx + em.charCodeAt(i)) % colors.length;
+    bg = colors[idx];
+  }
+  return `<span style="width:${size}px;height:${size}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:${escAttr(bg)};color:${escAttr((av && av.fg) || '#fff')};font-size:${Math.round(size * 0.46)}px;font-weight:600;line-height:1;">${escHtml(ch)}</span>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escAttr(s) { return escHtml(s); }
+
+// 刷新侧栏底部用户区（登录态变化后调用）
+function renderUserBox() {
+  const btn = $('#sideUserBtn');
+  const av = $('#sideUserAvatar');
+  const nm = $('#sideUserName');
+  const sub = $('#sideUserSub');
+  const menu = $('#sideUserMenu');
+  const head = $('#sumHead');
+  const profileItem = menu?.querySelector('[data-usermenu="profile"]');
+  const logoutBtn = $('#sideLogoutBtn');
+  const loginItem = menu?.querySelector('[data-usermenu="login"]');
+  if (!btn || !av || !nm || !sub) return;
+
+  const u = getUser();
+  if (u) {
+    const name = getUserName();
+    av.innerHTML = userAvatarHTML(28);
+    av.style.background = 'none';
+    nm.textContent = name || u.email;
+    sub.textContent = u.email || '已登录';
+    btn.title = '账号：' + (u.email || name);
+    if (head) head.textContent = u.email || name;
+    profileItem?.removeAttribute('hidden');
+    logoutBtn?.removeAttribute('hidden');
+    loginItem?.setAttribute('hidden', '');
+  } else {
+    av.innerHTML = '';
+    av.style.background = '';
+    av.textContent = '?';
+    nm.textContent = '登录';
+    sub.textContent = '登录后可同步编目记录';
+    btn.title = '登录 / 注册';
+    if (head) head.textContent = '未登录';
+    profileItem?.setAttribute('hidden', '');
+    logoutBtn?.setAttribute('hidden', '');
+    loginItem?.removeAttribute('hidden');
+  }
+}
+
+function logoutUser() {
+  try { localStorage.removeItem(USER_KEY); } catch (_) { /* 忽略 */ }
+  // 保留 kanseki_profile（头像等资料），仅清登录态——与网页版 user-state.js 行为一致
+  renderUserBox();
+  closeUserMenu();
+  showToast('已退出登录', 'ok');
+}
+
+// 用户菜单开合
+function toggleUserMenu(force) {
+  const btn = $('#sideUserBtn');
+  const menu = $('#sideUserMenu');
+  if (!btn || !menu) return;
+  const next = (typeof force === 'boolean') ? force : menu.hidden;
+  menu.hidden = !next;
+  btn.setAttribute('aria-expanded', String(next));
+}
+function closeUserMenu() { toggleUserMenu(false); }
+
+// ---------- 侧栏收起 / 展开（V0.7） ----------
+const COLLAPSE_KEY = 'kanseki_app_sidebar_collapsed';
+
+function applyCollapse(collapsed) {
+  const shell = $('#app');
+  if (!shell) return;
+  shell.classList.toggle('sb-collapsed', !!collapsed);
+  const btn = $('#collapseBtn');
+  if (btn) btn.setAttribute('aria-expanded', String(!collapsed));
+  // 浮动展开按钮：收起态显示，展开态隐藏（需同步 hidden，否则 CSS 覆盖不掉）
+  const pill = $('#expandPill');
+  if (pill) {
+    if (collapsed) pill.removeAttribute('hidden');
+    else pill.setAttribute('hidden', '');
+  }
+  // 收起后侧栏不可交互，需把焦点移出，避免 Tab 进入隐藏区域
+  if (collapsed) {
+    document.querySelectorAll('.app-sidebar a, .app-sidebar button').forEach(el => el.setAttribute('tabindex', '-1'));
+  } else {
+    document.querySelectorAll('.app-sidebar a, .app-sidebar button').forEach(el => el.removeAttribute('tabindex'));
+  }
+}
+
+function toggleSidebar() {
+  const shell = $('#app');
+  if (!shell) return;
+  const next = !shell.classList.contains('sb-collapsed');
+  try { localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0'); } catch (_) { /* 忽略 */ }
+  applyCollapse(next);
+}
+
+// ---------- 窗口控制（V0.7） ----------
+// Tauri v2 无构建工具方式调用窗口 API：走 __TAURI_INTERNALS__.invoke('plugin:window|...')
+// 权限见 tauri/capabilities/default.json（需显式列出 allow-* 项）
+const winState = { alwaysOnTop: false, maximized: false, fullscreen: false };
+
+async function winInvoke(cmd, args) {
+  if (!isTauri) throw new Error('非 Tauri 环境');
+  return window.__TAURI_INTERNALS__.invoke('plugin:window|' + cmd, args);
+}
+
+// 取当前窗口 label（Tauri v2 要求多数窗口命令带 label）
+function currentWindowLabel() {
+  try {
+    return window.__TAURI_INTERNALS__.metadata?.currentWindow?.label
+      || window.__TAURI_INTERNALS__.metadata?.currentWebview?.label
+      || 'main';
+  } catch (_) { return 'main'; }
+}
+
+async function runWinAction(action, payload) {
+  if (!isTauri) {
+    showToast('窗口操作仅在桌面版可用（当前为浏览器调试）', 'err');
+    return;
+  }
+  const label = currentWindowLabel();
+  const call = (cmd, args) => winInvoke(cmd, Object.assign({ label }, args || {}));
+  try {
+    switch (action) {
+      case 'min': await call('minimize'); break;
+      case 'max':
+        await call('toggleMaximize');
+        winState.maximized = !winState.maximized;
+        syncMaxLabel();
+        break;
+      case 'close': await call('close'); break;
+      case 'center': await call('center'); showToast('窗口已居中'); break;
+      case 'fullscreen':
+        winState.fullscreen = !winState.fullscreen;
+        await call('setFullscreen', { value: winState.fullscreen });
+        showToast(winState.fullscreen ? '已进入全屏（再点一次退出）' : '已退出全屏');
+        break;
+      case 'ontop':
+        winState.alwaysOnTop = !winState.alwaysOnTop;
+        await call('setAlwaysOnTop', { alwaysOnTop: winState.alwaysOnTop });
+        syncTopCheck();
+        showToast(winState.alwaysOnTop ? '窗口已置顶' : '已取消置顶');
+        break;
+      case 'size': {
+        // 逻辑尺寸 -> 物理像素（Tauri 的 setSize 用物理像素，需乘缩放比）
+        const dpr = window.devicePixelRatio || 1;
+        const [w, h] = String(payload || '').split('x').map(Number);
+        if (!w || !h) break;
+        await call('setSize', { width: Math.round(w * dpr), height: Math.round(h * dpr) });
+        await call('center');
+        showToast(`窗口尺寸已设为 ${w}×${h}`);
+        break;
+      }
+      default: break;
+    }
+  } catch (e) {
+    showToast('窗口操作失败：' + (e && e.message ? e.message : e), 'err');
+  }
+}
+
+function syncMaxLabel() {
+  const el = $('#winMaxLabel');
+  if (el) el.textContent = winState.maximized ? '还原' : '最大化';
+}
+function syncTopCheck() {
+  const item = document.querySelector('.st-menu-item[data-win="ontop"]');
+  if (item) item.classList.toggle('on', winState.alwaysOnTop);
+}
+
+// 启动时回读窗口真实状态（避免菜单勾选与窗口实际不符）
+async function initWinState() {
+  if (!isTauri) return;
+  const label = currentWindowLabel();
+  const call = (cmd, args) => winInvoke(cmd, Object.assign({ label }, args || {}));
+  try { winState.maximized = !!(await call('isMaximized')); } catch (_) { /* 忽略 */ }
+  try { winState.fullscreen = !!(await call('isFullscreen')); } catch (_) { /* 忽略 */ }
+  try { winState.alwaysOnTop = !!(await call('isAlwaysOnTop')); } catch (_) { /* 忽略 */ }
+  syncMaxLabel();
+  syncTopCheck();
+}
+
+// 窗口菜单开合
+function toggleWinMenu(force) {
+  const btn = $('#winBtn');
+  const menu = $('#winMenu');
+  if (!btn || !menu) return;
+  const next = (typeof force === 'boolean') ? force : menu.hidden;
+  menu.hidden = !next;
+  btn.setAttribute('aria-expanded', String(next));
+}
+function closeWinMenu() { toggleWinMenu(false); }
+
+// 关于页的版本 / 环境 / 窗口尺寸信息
+const APP_VERSION = '0.7.0';
+function refreshAboutInfo() {
+  const envEl = $('#aboutEnv');
+  const sizeEl = $('#aboutWinSize');
+  if (envEl) envEl.textContent = isTauri ? 'Windows 桌面版（Tauri）' : '浏览器调试';
+  if (sizeEl) {
+    sizeEl.textContent = window.innerWidth + '×' + window.innerHeight +
+      (isTauri ? '' : '（浏览器视口）');
+  }
+}
+
 // ---------- 视图切换 ----------
-// 8 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['query', 'jump', 'catalog', 'guide', 'changelog', 'records', 'sync', 'about'];
+// 10 个视图；iframe 视图按需懒加载（data-src -> src）
+const VIEWS = ['query', 'jump', 'catalog', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
@@ -109,6 +372,8 @@ const FRAMES = {
   catalog: 'catalogFrame',
   guide: 'guideFrame',
   changelog: 'changelogFrame',
+  login: 'loginFrame',
+  account: 'accountFrame',
 };
 
 // 懒加载：首次进入某视图时才真正请求 iframe（pages/*.html 体积较大）
@@ -161,6 +426,22 @@ function navigate() {
 
   // 视图进入钩子
   if (target === 'sync') initSyncView();
+  if (target === 'about') refreshAboutInfo();
+  // 账号页由 iframe 承载，登录成功后需回读 localStorage 刷新侧栏用户区
+  if (target === 'login' || target === 'account') {
+    whenFrameReady(frame, () => {
+      const doc = frameDoc(frame);
+      // 登录页在成功后会 location.href 跳转，此处监听其 localStorage 变化；
+      // 跨 iframe 的 storage 事件在同源下可用（浏览器与 WebView2 均支持）
+      if (doc && !doc.__kansekiUserHooked) {
+        doc.__kansekiUserHooked = true;
+        doc.addEventListener('submit', () => {
+          setTimeout(() => { renderUserBox(); }, 400);
+        }, true);
+      }
+      applyThemeToFrame(frame);
+    });
+  }
   if (target === 'catalog') {
     // 等 iframe 就绪后再镜像侧栏；已就绪则直接同步
     whenFrameReady(frame, () => {
@@ -301,6 +582,12 @@ function currentTheme() {
   return localStorage.getItem('theme') || 'light';
 }
 
+// 外壳自身也挂 data-theme —— 这样编目记录/同步设置/关于三视图的
+// CSS 变量能跟随明暗切换（V0.7 新增；此前外壳恒为亮色）
+function applyThemeToShell() {
+  document.documentElement.setAttribute('data-theme', currentTheme());
+}
+
 function applyThemeToFrame(frame) {
   const doc = frameDoc(frame);
   if (doc && doc.documentElement) {
@@ -309,6 +596,7 @@ function applyThemeToFrame(frame) {
 }
 
 function applyThemeToAll() {
+  applyThemeToShell();
   Object.values(FRAMES).forEach(id => applyThemeToFrame(document.getElementById(id)));
 }
 
@@ -326,6 +614,61 @@ async function init() {
       e.preventDefault();
       location.hash = el.getAttribute('href');
     });
+  });
+
+  // ---------- 侧栏收起 / 展开 ----------
+  applyCollapse(localStorage.getItem(COLLAPSE_KEY) === '1');
+  $('#collapseBtn')?.addEventListener('click', toggleSidebar);
+  $('#expandBtn')?.addEventListener('click', toggleSidebar);
+  $('#expandPill')?.addEventListener('click', toggleSidebar);
+
+  // ---------- 窗口菜单 ----------
+  $('#winBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = $('#winMenu').hidden;
+    closeUserMenu();
+    toggleWinMenu(willOpen);
+  });
+  $('#winMenu')?.addEventListener('click', (e) => {
+    const item = e.target.closest('.st-menu-item');
+    if (!item) return;
+    closeWinMenu();
+    if (item.dataset.win) runWinAction(item.dataset.win);
+    else if (item.dataset.size) runWinAction('size', item.dataset.size);
+  });
+  syncMaxLabel();
+  syncTopCheck();
+  initWinState();
+
+  // ---------- 侧栏用户区 ----------
+  renderUserBox();
+  $('#sideUserBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = $('#sideUserMenu').hidden;
+    closeWinMenu();
+    toggleUserMenu(willOpen);
+  });
+  $('#sideUserMenu')?.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-usermenu]');
+    if (a) {
+      // 站内视图跳转：交由 hash 路由处理，并收起菜单
+      closeUserMenu();
+      if (a.dataset.usermenu === 'login') location.hash = '#/login';
+      if (a.dataset.usermenu === 'profile') location.hash = '#/account';
+    }
+  });
+  $('#sideLogoutBtn')?.addEventListener('click', logoutUser);
+
+  // 点击空白处关闭两个下拉
+  document.addEventListener('click', () => { closeWinMenu(); closeUserMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeWinMenu(); closeUserMenu(); }
+    // F11 全屏（与窗口菜单一致）
+    if (e.key === 'F11') { e.preventDefault(); runWinAction('fullscreen'); }
+  });
+  // 跨窗口/跨 iframe 的登录态变化（同一浏览器内其它标签页登录后同步）
+  window.addEventListener('storage', (e) => {
+    if (e.key === USER_KEY || e.key === PROFILE_KEY) renderUserBox();
   });
 
   // 关于页按钮
@@ -352,6 +695,11 @@ async function init() {
   $('#syncTestBtn')?.addEventListener('click', testConnection);
   $('#syncSaveBtn')?.addEventListener('click', saveCredentials);
   $('#syncNowBtn')?.addEventListener('click', () => engine && engine.sync('manual'));
+
+  refreshAboutInfo();
+  window.addEventListener('resize', refreshAboutInfo);
+  // 外壳自身主题（三视图 CSS 变量依赖 documentElement 的 data-theme）
+  applyThemeToShell();
 
   // 初始化存储与同步引擎
   try {
@@ -395,7 +743,7 @@ async function testConnection() {
   }
   const statusEl = $('#syncStatus');
   statusEl.hidden = false;
-  statusEl.className = 'sync-status';
+  statusEl.className = 'av-alert';
   statusEl.textContent = '连接测试中…';
 
   provider.setCredentials(user, pass);
@@ -406,15 +754,15 @@ async function testConnection() {
         username: user,
         password: pass
       });
-      statusEl.className = 'sync-status ' + (r.ok ? 'ok' : 'err');
+      statusEl.className = 'av-alert ' + (r.ok ? 'ok' : 'err');
       statusEl.textContent = r.ok ? '✓ 连接正常' : '✗ ' + r.message;
     } catch (e) {
-      statusEl.className = 'sync-status err';
+      statusEl.className = 'av-alert err';
       statusEl.textContent = '✗ 连接失败：' + (e && e.message);
     }
   } else {
     const r = await provider.check();
-    statusEl.className = 'sync-status ' + (r.ok ? 'ok' : 'err');
+    statusEl.className = 'av-alert ' + (r.ok ? 'ok' : 'err');
     statusEl.textContent = r.ok ? '✓ 连接正常' : '✗ ' + r.message;
   }
 }

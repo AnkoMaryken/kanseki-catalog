@@ -36,7 +36,7 @@ export function initRecordsView() {
     const tag = isTextarea ? 'textarea' : 'input';
     const extra = isTextarea ? ' rows="3"' : ' type="text"';
     return `
-      <div class="form-field" data-field="${f}">
+      <div class="av-field" data-field="${f}">
         <label for="rec-${f}">${toDisplay(def.label)}${def.required ? ' <span class="req-star">*</span>' : ''}</label>
         <${tag} id="rec-${f}" ${extra} placeholder="${toDisplay(def.hint)}" ${def.required ? 'required' : ''}></${tag}>
         <div class="field-error" hidden></div>
@@ -66,7 +66,7 @@ export function initRecordsView() {
 
   // 实时校验（输入时提示必填）
   overlay.addEventListener('input', (e) => {
-    const fieldEl = e.target.closest('.form-field');
+    const fieldEl = e.target.closest('.av-field');
     if (!fieldEl) return;
     const f = fieldEl.dataset.field;
     const def = FIELD_DEFS[f];
@@ -92,7 +92,7 @@ export function initRecordsView() {
     if (!res.valid) {
       // 显示所有必填错误
       for (const f of Object.keys(res.errors)) {
-        const fieldEl = document.querySelector(`.form-field[data-field="${f}"]`);
+        const fieldEl = document.querySelector(`.av-field[data-field="${f}"]`);
         const errEl = fieldEl?.querySelector('.field-error');
         if (errEl) {
           errEl.textContent = res.errors[f];

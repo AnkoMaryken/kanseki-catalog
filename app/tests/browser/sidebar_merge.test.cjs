@@ -32,15 +32,15 @@ const config = require('../../../tests/helpers/config.js');
 
   // ---------- 1. 侧栏结构 ----------
   const navCount = await page.locator('.nav-item').count();
-  check('侧栏导航项 10 个', navCount === 10, '实际 ' + navCount);
-  check('视图 8 个', await page.locator('.view').count() === 8);
+  check('侧栏导航项 11 个', navCount === 11, '实际 ' + navCount);
+  check('视图 10 个', await page.locator('.view').count() === 10);
 
   const labels = await page.locator('.nav-item span:not(.nav-badge)').allTextContents();
   // 注：APP 内 catalog 副本为繁体页面，故目录相关三项匹配简繁任一
   const need = [
     ['纪年查询'], ['快速跳转'],
     ['细则查阅', '細則查閱'], ['分类表查询', '分類表查詢'], ['工作手册', '工作手冊'],
-    ['使用介绍'], ['更新日志'], ['编目记录'], ['同步设置'], ['关于'],
+    ['使用介绍'], ['更新日志'], ['编目记录'], ['同步设置'], ['账号'], ['关于'],
   ];
   const missing = need.filter(alias => !alias.some(t => labels.includes(t)));
   check('侧栏含全部入口文字', missing.length === 0,
