@@ -1,7 +1,7 @@
 [package]
 name = "kanseki-app"
-version = "0.6.3"
-description = "日本汉籍编目工具 - Windows 桌面 APP"
+version = "0.6.4"
+description = "古代史及汉籍研究工具 - Windows 桌面 APP"
 authors = ["kanseki"]
 edition = "2021"
 

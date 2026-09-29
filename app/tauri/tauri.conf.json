@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "日本汉籍编目工具",
-  "version": "0.6.3",
+  "productName": "古代史及汉籍研究工具",
+  "version": "0.6.4",
   "identifier": "cn.kanseki.catalog",
   "build": {
     "beforeDevCommand": "",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "日本汉籍编目工具",
+        "title": "古代史及汉籍研究工具",
         "width": 1280,
         "height": 800,
         "minWidth": 960,
