@@ -238,11 +238,41 @@ const config = require('../../../tests/helpers/config.js');
 
   // ---------- 8. 账号视图路由 ----------
   console.log('\n[8] 账号视图');
+  // V0.8.2: 「账号」项目标随登录态变化 —— 未登录进登录页，已登录进个人中心。
+  // 此处为未登录态（第 4 节末尾已退出登录），应指向 login。
+  const accViewGuest = await page.getAttribute('#navAccount', 'data-view');
+  ok('未登录时「账号」指向 login', accViewGuest === 'login', String(accViewGuest));
   await page.click('.nav-item[data-view="login"]');
   await page.waitForTimeout(1500);
   ok('login 视图激活', await page.locator('#view-login.active').count() === 1);
   const loginFrame = page.frame({ url: /pages\/login\.html/ });
   ok('login iframe 已加载', !!loginFrame);
+
+  // 模拟登录后再看「账号」项：应改指 account（个人中心）
+  await page.evaluate(() => {
+    localStorage.setItem('kanseki_user', JSON.stringify({
+      email: 'nav@example.com', name: '導航測試', id: 'u-nav'
+    }));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForTimeout(900);
+  const accViewLogged = await page.evaluate(() => {
+    const a = document.getElementById('navAccount');
+    return { view: a && a.dataset.view, href: a && a.getAttribute('href') };
+  });
+  ok('已登录时「账号」指向 account', accViewLogged.view === 'account',
+    JSON.stringify(accViewLogged));
+  ok('已登录时「账号」href 为 #/account', accViewLogged.href === '#/account',
+    String(accViewLogged.href));
+
+  // 点击后应进入个人中心视图（而非又回到登录页）
+  await page.click('#navAccount');
+  await page.waitForTimeout(1800);
+  ok('点击「账号」进入个人中心视图', await page.locator('#view-account.active').count() === 1);
+  const accFrame = page.frame({ url: /pages\/profile\.html/ });
+  ok('profile iframe 已加载（未被登录门禁弹回）', !!accFrame);
+  // 清理：恢复未登录，避免影响后续断言
+  await page.evaluate(() => localStorage.removeItem('kanseki_user'));
 
   // ---------- 9. 无 JS 错误 ----------
   const realErrors = errors.filter(e => !/favicon|ERR_|net::/.test(e));

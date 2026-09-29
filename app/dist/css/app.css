@@ -116,6 +116,21 @@ html, body {
 .st-caret { opacity: .7; transition: transform .18s; flex-shrink: 0; }
 .tb-iconbtn[aria-expanded="true"] .st-caret { transform: rotate(180deg); }
 
+/* ---------- 一键简繁切换按钮（V0.8.2） ----------
+   位于标题栏「窗口」按钮右侧。
+   只显示「将要切到的字形」一个字（简/繁），因此用固定宽度保证
+   两字互换时按钮宽度不跳动；按钮内文字用衬线体，与站内字形风格一致。 */
+.tb-langbtn {
+  width: 30px;
+  padding: 0;
+  border-color: rgba(0,0,0,.09);
+  font-family: "STZhongsong", "Songti SC", "SimSun", var(--font-serif, serif);
+  font-size: .82rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.tb-langbtn #langToggleTx { display: block; }
+
 /* 侧栏导航项右侧「内容导览」触发按钮（V0.8） */
 .nav-dir {
   margin-left: auto;
@@ -154,6 +169,11 @@ html, body {
 .tb-win:focus-visible { outline: 2px solid rgba(0,0,0,.3); outline-offset: -2px; }
 .tb-close:hover { background: #e81123; color: #fff; }
 .tb-win svg { display: block; }
+/* ⚠️ 必须保留：HTML 的 hidden 属性是 display:none 的「低优先级」声明，
+   会被上面 .tb-win svg{display:block} 覆盖 —— 于是 #tbMax 内两个图标
+   （.tb-ico-max 与 .tb-ico-restore）同时显示、堆叠在一起（用户反馈的
+   「最大化按钮有两个图标叠在一起」）。此处用属性选择器补回高优先级兜底。 */
+.tb-win svg[hidden] { display: none; }
 
 /* ---------- 无边框窗口缩放热区（V0.8） ----------
    decorations:false 且 shadow:true 时，tao 只放行「顶边」缩放，

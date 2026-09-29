@@ -1,6 +1,6 @@
 {
   "name": "kanseki-app",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "private": true,
   "type": "module",
   "description": "古代史及汉籍研究工具 - Windows 桌面 APP（Tauri）共享前端（V5 路线图）",

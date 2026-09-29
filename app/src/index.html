@@ -48,6 +48,12 @@
           </div>
         </div>
       </div>
+      <!-- 一键简繁切换（V0.8.2）：紧邻「窗口」按钮，作用于内嵌页面的显示字形。
+           按钮显示「将要切换到的目标字形」——当前为繁体时显示「简」，
+           即点击后转为简体。字形偏好与页内下拉共用 localStorage，两边同步。 -->
+      <button class="tb-iconbtn tb-langbtn" id="langToggleBtn" type="button" title="切换为简体字" aria-label="简繁切换">
+        <span id="langToggleTx">简</span>
+      </button>
     </div>
 
     <!-- 中间：纯拖动区域（双击切换最大化）
@@ -71,6 +77,74 @@
       </button>
     </div>
   </header>
+
+  <!-- ============================================================
+       早期窗口控件接管（V0.8.2）
+       ------------------------------------------------------------
+       问题：标题栏按钮的监听由 js/app.js 绑定，而 app.js 是 ES 模块，
+       必须等模块图拉取完毕才执行。实测（app/scripts/diag_boot.cjs）
+       页面时间线：
+         +404ms   DOM 解析完成，三键已在页面上可见
+         +123ms→2775ms  下方内嵌的查询页 pages/index.html 独占主线程
+                        （其 conv_tables/pinyin_data/knowledge 等同步脚本）
+         +3007ms  模块图才被拉起 → 三键 click 监听**此刻才出现**
+       也就是说：**启动后的前 3 秒里点标题栏完全没反应**（用户会以为
+       界面坏了）。这不是测试脚本的时序问题，是真实的交互缺陷。
+
+       对策：在解析阶段就用一个**普通脚本**（非模块，立即执行）把三键
+       与简繁按钮的点击接住并暂存；app.js 就绪并绑定正式监听后调用
+       __kansekiEarlyClicks.takeAll() 取出待办，逐个补发一次点击。
+
+       细节：
+       · 同一控件只保留**最后一次**点击（用户连点最大化只应生效一次）
+       · app.js 补发前先 detach()，避免补发的点击又被暂存一遍
+       · 补发用 el.click()，走的正是正式监听，行为与真实点击一致
+       ============================================================ -->
+  <script>
+  (function () {
+    'use strict';
+    // 需要早期接管的控件：标题栏三键 + 一键简繁切换
+    // （侧栏等其它控件如需纳入，把 id 加进来即可）
+    var IDS = ['tbMin', 'tbMax', 'tbClose', 'langToggleBtn'];
+    var queued = [];        // 按点击先后记录控件 id（同 id 去重，保留最后一次）
+    var log = [];           // 诊断用：{ id, t }
+    var listeners = [];
+
+    function onEarlyClick(e) {
+      var el = e.currentTarget;
+      if (!el || !el.id) return;
+      var id = el.id;
+      var i = queued.indexOf(id);
+      if (i >= 0) queued.splice(i, 1);   // 移到末尾：以最后一次点击为准
+      queued.push(id);
+      log.push({ id: id, t: Math.round(performance.now()) });
+    }
+
+    for (var i = 0; i < IDS.length; i++) {
+      var el = document.getElementById(IDS[i]);
+      if (!el) continue;
+      el.addEventListener('click', onEarlyClick);
+      listeners.push([el, onEarlyClick]);
+    }
+
+    function detach() {
+      for (var j = 0; j < listeners.length; j++) {
+        try { listeners[j][0].removeEventListener('click', listeners[j][1]); } catch (_) { /* 忽略 */ }
+      }
+      listeners.length = 0;
+    }
+
+    window.__kansekiEarlyClicks = {
+      // 取出待办点击（按点击顺序），并清空
+      takeAll: function () { var r = queued.slice(); queued.length = 0; return r; },
+      // 解开早期监听：app.js 绑定正式监听后必须调用，否则点击会被双重处理
+      detach: detach,
+      // 诊断用
+      log: function () { return log.slice(); },
+      pending: function () { return queued.slice(); },
+    };
+  })();
+  </script>
 
   <div class="app-body">
   <!-- 侧边导航 -->
@@ -137,7 +211,10 @@
         <a href="#/sync" data-view="sync" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>同步设置</span>
         </a>
-        <a href="#/login" data-view="login" class="nav-item">
+        <!-- 账号（V0.8.2）：目标随登录态变化 —— 未登录进登录页，
+             已登录直接进个人中心（由 app.js refreshAccountNav() 改写
+             href/data-view，初始值按未登录态写）。 -->
+        <a href="#/login" data-view="login" id="navAccount" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg><span>账号</span>
         </a>
         <a href="#/about" data-view="about" class="nav-item">
@@ -322,13 +399,13 @@
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.8.1（V5 路线图）</p>
+          <p class="av-ver">版本 0.8.2（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.1</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.2</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

@@ -330,6 +330,21 @@ function showError(msg) {
 }
 function clearError() { errBox.style.color = ''; errBox.classList.remove('show'); }
 
+// V8.9: 是否被桌面版外壳以 iframe 承载
+// 判据：本页处在框架中，且父级是桌面外壳（其存在 window.KansekiShell 钩子）。
+// 网页版自身不会把登录页放进 iframe，故该判断不会误伤网页版。
+function notifyHostLoggedIn(user) {
+  try {
+    if (window.self === window.top) return false;        // 顶层页面：按原行为跳转
+    const host = window.parent;
+    if (!host || typeof host.kansekiOnLoggedIn !== 'function') return false;
+    host.kansekiOnLoggedIn(user);
+    return true;                                          // 已交外壳处理，勿再跳转
+  } catch (e) {
+    return false;   // 跨域等场景退回原行为
+  }
+}
+
 // 注册成功后跳回本页时给出明确提示（signup.html → login.html?registered=1）
 // 修复：原先 signup 传了 registered=1 但本页从不读取，用户跳转后毫无反馈，
 //       看起来就像「注册没成功」。
@@ -390,6 +405,10 @@ form.addEventListener('submit', async (e) => {
     };
     if (session && session.user && session.user.id) uObj.id = session.user.id;
     try { localStorage.setItem('kanseki_user', JSON.stringify(uObj)); } catch (err) {}
+    // V8.9: 桌面版内本页是 iframe，整页跳转会在此框架里塞进一份完整首页，
+    // 造成「登录成功后界面变成首页」的错乱。此时改为通知外壳（同源可直调），
+    // 由外壳切到个人中心；独立打开（网页版）时保持原行为：跳回首页。
+    if (notifyHostLoggedIn(uObj)) return;
     location.href = 'index.html';
   } catch (err) {
     showError(err.message || '登录失败，请稍后重试');

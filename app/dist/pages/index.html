@@ -2161,9 +2161,19 @@ function toSimplified(text) {
 // ========================================
 // 显示字形状态: 's' 简体 | 't' 繁体
 // 数据内嵌为简体, 显示/复制时按此状态转换
-// 默认繁体: init() 中通过 setDisplayLang('t') 初始化 (v1.1 起)
+// 默认繁体: init() 中通过 initDisplayLang() 初始化 (v1.1 起默认繁体)
+// V8.9: 记住用户上次选择 (见 LANG_KEY), 无记录时仍为繁体
 // ========================================
 let displayLang = 's';
+
+// V8.9: 字形偏好持久化键
+// 此前每次打开都是繁体, 用户切到简体一刷新就失效;
+// 现记住上次选择。桌面版标题栏的「简/繁」按钮也读写同一份状态,
+// 两条入口 (页内下拉 + 桌面标题栏) 始终一致。
+const LANG_KEY = 'kanseki_lang';
+
+// V8.9: 字形变化订阅者 (桌面外壳注册, 用于同步标题栏按钮文字)
+const langListeners = [];
 
 function toDisplay(text) {
   return displayLang === 't' ? toTraditional(text) : text;
@@ -2191,17 +2201,28 @@ function queryForDisplay(q) {
 }
 
 // 设置显示字形并刷新界面
-function setDisplayLang(lang) {
-  if (displayLang === lang) return;
-  displayLang = lang;
-  
+// force=true 时即使字形未变也完整重刷一遍
+// 用途: init() 里偏好为简体时也要初始化各区块 (否则首屏区块不会被渲染)
+function setDisplayLang(lang, force) {
   // 切换后收起用户菜单 (V5.1: 简繁并入登录下拉)
+  //
+  // ⚠️ 必须放在「同值早退」之前：用户点了「简/繁」按钮，无论字形是否真的
+  //    发生变化，菜单都应当收起。此前该逻辑在早退之后，V8.9 引入「记住上次
+  //    字形」后暴露为缺陷 —— 若当前已是简体且用户再点「简」（常见：刷新后
+  //    按习惯点一下确认），函数直接 return，菜单不收，一直悬在页面上挡住
+  //    后方按钮（实测会挡住「导出」按钮，导致点击被拦截）。
   const ud = document.querySelector('.user-dropdown');
   if (ud) {
     ud.classList.remove('open');
     const ub = ud.querySelector('.user-btn');
     if (ub) ub.setAttribute('aria-expanded', 'false');
   }
+
+  if (!force && displayLang === lang) return;
+  displayLang = lang;
+
+  // V8.9: 记住用户选择 (此前每次打开都被重置为繁体)
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* 隐私模式等场景忽略 */ }
   
   // 更新切换按钮高亮
   document.getElementById('langBtnS').classList.toggle('active', lang === 's');
@@ -2263,7 +2284,62 @@ function setDisplayLang(lang) {
   
   // 表格重渲染 (显示字形) — V8.2: 按视图模式渲染
   renderByViewMode();
+
+  // V8.9: 通知订阅者 (如桌面外壳的标题栏按钮, 需同步「将要切到的字形」)
+  for (let i = 0; i < langListeners.length; i++) {
+    try { langListeners[i](lang); } catch (e) { /* 订阅者异常不影响主流程 */ }
+  }
 }
+
+// V8.9: 读取上次选择的花样 (无记录 / 非法值 → 繁体, 与 v1.1 起的历史默认一致)
+function getSavedLang() {
+  try {
+    return localStorage.getItem(LANG_KEY) === 's' ? 's' : 't';
+  } catch (e) { return 't'; }
+}
+
+// V8.9: 初始化字形 —— 有记忆用记忆, 无记忆用繁体
+// 必须带 force 调用: displayLang 初值就是 's', 若记忆也是 's',
+// 不带 force 会被 setDisplayLang 的「同值直接 return」挡掉, 首屏各区块不会初始化。
+function initDisplayLang() {
+  setDisplayLang(getSavedLang(), true);
+}
+
+// ========================================
+// V8.9: 对外字形接口 (桌面版标题栏的一键「简/繁」按钮用)
+// -------------------------------------------------
+// 本文件全部逻辑包在 IIFE 内, displayLang/setDisplayLang 外部不可见,
+// 桌面外壳(app/src/js/app.js)无法直接调用, 故显式挂到 window。
+// 外壳点击按钮 → 本接口切换 → 同步 localStorage(LANG_KEY)
+// → 桌面外壳与其它已打开的页面经 storage 事件自动跟随。
+//
+// 注: 用 typeof window !== 'undefined' 守卫。tests/test_e2e.js 会把本文件
+// 的这一段代码抽到 Node 的 vm 沙箱里跑（无 DOM、无 window），
+// 若直接写 window.KansekiLang = ... 会让该测试整体抛
+// 「ReferenceError: window is not defined」。
+// ========================================
+if (typeof window !== 'undefined') window.KansekiLang = {
+  // 当前字形: 's' | 't'
+  get: function() { return displayLang; },
+  // 直接设定
+  set: function(lang) { setDisplayLang(lang === 's' ? 's' : 't'); },
+  // 一键对调 (桌面标题栏按钮用)
+  toggle: function() { setDisplayLang(displayLang === 't' ? 's' : 't'); return displayLang; },
+  // 键名, 便于外部统一读写
+  KEY: LANG_KEY,
+  // 订阅字形变化 (桌面外壳用: 页内下拉切了字形, 标题栏按钮文字要跟着变)
+  // 注: 同文档内的 localStorage 变更不会触发 storage 事件, 故由本层主动通知
+  onChange: function(fn) {
+    if (typeof fn !== 'function') return function() {};
+    langListeners.push(fn);
+    return function() {
+      var i = langListeners.indexOf(fn);
+      if (i >= 0) langListeners.splice(i, 1);
+    };
+  },
+  // 供测试/外壳判断接口已就绪 (脚本在 body 末尾, 早于 iframe load)
+  ready: true
+};
 
 // ========================================
 // 干支 & 生肖
@@ -6673,7 +6749,8 @@ function init() {
   initTheme();
   
   // 默认繁体显示 (v1.1 起): 初始化表头/筛选标签/placeholder/统计栏等全部 UI
-  setDisplayLang('t');
+  // V8.9: 改为读记忆 —— 用户上次切到简体则保持简体, 无记录时为繁体
+  initDisplayLang();
   
   // V8.2: 初始化视图模式 (桌面持久化; 移动端强制卡片不落盘)
   viewMode = getViewMode();
