@@ -352,6 +352,18 @@ body {
   .crop-modal { max-width: none; padding: 1rem 0.9rem 0.9rem; }
   .crop-controls { gap: 0.35rem; }
 }
+
+/* ===== API 管理（V9.2）===== */
+.api-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.4rem 0; }
+.api-row label { font-size: 0.82rem; color: var(--text-2, #525252); min-width: 106px; }
+.api-in { flex: 1 1 240px; min-width: 160px; padding: 0.42rem 0.6rem; border: 1px solid var(--border, #e5e5e5);
+          border-radius: 6px; font-family: inherit; font-size: 0.84rem; background: var(--surface, #fff); color: inherit; }
+.api-in:focus { outline: none; border-color: var(--text, #0a0a0a); }
+.api-msg { display: none; margin: 0.5rem 0 0; padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.8rem; }
+.api-msg.ok { display: block; background: #E2EFDA; color: #1e4620; }
+.api-msg.err { display: block; background: #F8D7DA; color: #7a1a22; }
+[data-theme="dark"] .api-msg.ok { background: #1e3320; color: #b7d7a8; }
+[data-theme="dark"] .api-msg.err { background: #3a1c20; color: #f0a9b1; }
 </style>
 </head>
 <body>
@@ -425,6 +437,41 @@ body {
   </div>
 </div>
 
+<!-- ============================================================
+     API 管理（V9.2）—— 网页版的 AI 配置入口
+     桌面版的对应入口在「设置」独立窗口（左下角个人中心 → 设置）。
+     两处共用 ai-config.js 与同一份 localStorage 配置。
+     ============================================================ -->
+<div class="card" id="apiCard">
+  <div class="card-title">API 管理</div>
+  <div class="card-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只保存在你本机浏览器中。</div>
+
+  <div class="api-row">
+    <label for="aiKey">DeepSeek API Key</label>
+    <input class="api-in" type="password" id="aiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
+    <button class="btn btn-sm" id="aiEye" type="button">显示</button>
+  </div>
+  <div class="api-row">
+    <label for="aiModel">调用模型</label>
+    <select class="api-in" id="aiModel"></select>
+  </div>
+  <div class="api-row">
+    <label for="aiEndpoint">API 地址</label>
+    <input class="api-in" type="text" id="aiEndpoint" spellcheck="false">
+  </div>
+  <div class="api-row">
+    <label for="aiEmail">反馈收件邮箱</label>
+    <input class="api-in" type="email" id="aiEmail" placeholder="用于「反馈错误结果」的邮件发送">
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary btn-sm" id="aiSave" type="button">保存</button>
+    <button class="btn btn-sm" id="aiTest" type="button">测试连接</button>
+    <button class="btn btn-sm" id="aiClear" type="button">清除 Key</button>
+  </div>
+  <div class="api-msg" id="aiMsg"></div>
+  <div class="card-sub" style="margin-top:.5rem">API Key 只保存在本机浏览器，不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。</div>
+</div>
+
 <!-- 头像裁剪弹窗 -->
 <div class="crop-overlay" id="cropOverlay" role="dialog" aria-modal="true" aria-label="裁剪头像">
   <div class="crop-modal">
@@ -447,6 +494,7 @@ body {
 
 <script src="supabase-config.js"></script>
 <script src="user-state.js"></script>
+<script src="ai-config.js"></script>
 <script>
 // 深浅主题 (与全站 localStorage 键一致)
 (function() {
@@ -758,6 +806,72 @@ body {
   document.getElementById('logoutBtn').addEventListener('click', () => { us.logout(); });
 
   renderPreview();
+})();
+
+/* ============================================================
+   API 管理（V9.2）—— 与桌面版「设置」窗口共用 ai-config.js 的同一份配置
+   ============================================================ */
+(function initApiCard() {
+  var AI = window.KansekiAI;
+  if (!AI) return;
+  var $ = function (id) { return document.getElementById(id); };
+  function msg(text, kind) {
+    var el = $('aiMsg');
+    if (!el) return;
+    el.className = 'api-msg' + (kind ? ' ' + kind : '');
+    el.textContent = text || '';
+  }
+  var sel = $('aiModel');
+  AI.MODELS.forEach(function (m) {
+    var o = document.createElement('option');
+    o.value = m.id;
+    o.textContent = m.label;
+    sel.appendChild(o);
+  });
+  var c = AI.getConfig();
+  $('aiKey').value = c.key;
+  $('aiEmail').value = c.email;
+  $('aiEndpoint').value = c.endpoint;
+  sel.value = c.model;
+
+  $('aiEye').addEventListener('click', function () {
+    var k = $('aiKey');
+    var show = k.type === 'password';
+    k.type = show ? 'text' : 'password';
+    this.textContent = show ? '隐藏' : '显示';
+  });
+  $('aiSave').addEventListener('click', function () {
+    AI.setConfig({
+      key: $('aiKey').value, model: $('aiModel').value,
+      endpoint: $('aiEndpoint').value, email: $('aiEmail').value
+    });
+    msg('已保存到本机（仅本机使用）。', 'ok');
+  });
+  $('aiClear').addEventListener('click', function () {
+    AI.clearKey();
+    $('aiKey').value = '';
+    msg('已清除本机保存的 API Key。', 'ok');
+  });
+  $('aiTest').addEventListener('click', function () {
+    AI.setConfig({
+      key: $('aiKey').value, model: $('aiModel').value, endpoint: $('aiEndpoint').value
+    });
+    var btn = this;
+    btn.disabled = true;
+    msg('正在测试连接…');
+    AI.test().then(function (r) {
+      btn.disabled = false;
+      msg((r.ok ? '✓ ' : '✗ ') + r.message, r.ok ? 'ok' : 'err');
+    }, function (e) {
+      btn.disabled = false;
+      msg('✗ ' + ((e && e.message) || e), 'err');
+    });
+  });
+  // 支持 #api 直达定位
+  if ((location.hash || '') === '#api') {
+    var card = $('apiCard');
+    if (card && card.scrollIntoView) card.scrollIntoView({ block: 'center' });
+  }
 })();
 </script>
 </body>

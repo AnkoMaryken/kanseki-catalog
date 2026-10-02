@@ -57,7 +57,7 @@ function copyFileIfExists(src, dest) {
 const PAGES_DIR = join(DIST, 'pages');
 
 // 静态站页面（iframe 承载）
-const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 'guide.html', 'changelog.html'];
+const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 'guide.html', 'changelog.html', 'settings.html'];
 // 账号体系页面（页内登录/注册链接指向，缺失会 404）
 const ACCOUNT_PAGES = ['login.html', 'signup.html', 'terms.html', 'privacy.html', 'profile.html'];
 // 页面依赖的脚本（根目录同名）
@@ -71,6 +71,7 @@ const SITE_SCRIPTS = [
   'catalog_data.js',    // 编目数据
   'kanseki_data.js',    // V9.0 古籍类目数据（9.6MB，仅 kanseki.html 使用）
   'kanseki_conv.js',    // V9.0 古籍类目专用 繁→简 表
+  'ai-config.js',       // V9.2 DeepSeek 配置与调用（kanseki.html / settings.html / profile.html 共用）
   'calc.js',            // 卷数计算
   'supabase-config.js', // 认证配置（账号页依赖）
 ];

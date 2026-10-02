@@ -639,7 +639,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.10.0';
+const APP_VERSION = '0.11.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -1179,6 +1179,38 @@ async function init() {
     }
   });
   $('#sideLogoutBtn')?.addEventListener('click', logoutUser);
+
+  // V9.2：「设置」→ 打开独立设置窗口（个人中心 / 同步设置 / API 管理）
+  $('#sideSettingsBtn')?.addEventListener('click', async () => {
+    closeUserMenu();
+    try {
+      await tauriInvoke('open_settings_window', {});
+    } catch (e) {
+      showToast('打开设置窗口失败：' + ((e && e.message) || e), 'err');
+    }
+  });
+
+  // V9.2：设置窗口保存同步凭据 / 请求同步后，经 storage 事件通知本窗口
+  window.addEventListener('storage', async (e) => {
+    if (e.key !== 'kanseki_sync_reload') return;
+    let wantSync = false;
+    try { wantSync = !!(JSON.parse(e.newValue || '{}').sync); } catch (_) { /* 忽略 */ }
+    try {
+      if (store) {
+        const u = await store.getMeta('webdav_username');
+        const p = await store.getMeta('webdav_password');
+        const user = (u && u.value) || '';
+        const pass = (p && p.value) || '';
+        if ($('#syncUser')) $('#syncUser').value = user;
+        if ($('#syncPass')) $('#syncPass').value = pass;
+        if (provider && user && pass) provider.setCredentials(user, pass);
+        if (wantSync && engine) engine.sync('manual');
+        showToast(wantSync ? '已按设置窗口的请求开始同步' : '同步凭据已更新', 'ok');
+      }
+    } catch (err) {
+      showToast('重新载入同步凭据失败：' + ((err && err.message) || err), 'err');
+    }
+  });
 
   // 点击空白处关闭两个下拉
   document.addEventListener('click', () => { closeWinMenu(); closeUserMenu(); });

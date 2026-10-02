@@ -171,6 +171,32 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v9.2 · 桌面版 0.11.0</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li><b>新增「设置」独立窗口</b>：左下角个人中心框点击后新增「设置」入口，弹出独立系统窗口，内含
+        <b>个人中心 / 同步设置 / API 管理</b> 三个分区。DeepSeek 的 API Key、调用模型、API 地址与反馈收件邮箱
+        都在「API 管理」中配置。</li>
+      <li><b>AI 复检改为「单条为主 + 长按整页」</b>：
+        <br>· <b>单击</b>工具条「AI 复检」＝复检表格中<b>选中的那一条</b>（点行即选中），结果显示在<b>搜索栏下方</b>，可<b>导出 Markdown</b>；回答只给「判定 / 分类 / 依据 / 出处」四行，力求简短省 token。
+        <br>· <b>长按</b>（约 0.65 秒）「AI 复检」＝打开弹窗，可做<b>整页复检</b>（当前页 / 当前结果抽样 / 全库抽样）或<b>提问</b>。
+        <br>· AI 面板中<b>不再显示 API 设置</b>（统一到设置窗口）。</li>
+      <li><b>复检推翻时会强提示</b>：若结论与本表类目完全不一致，该结论<b>加粗标红</b>，并提示「请截图此结果并联系软件开发者修改条目内容」，
+        同时提供<b>反馈错误结果</b>面板，可一键<b>邮件发送</b>（收件邮箱在设置中配置）或<b>复制报告</b>到剪贴板。</li>
+      <li><b>网页版同步具备该功能</b>：网页版同样可以单击/长按复检、导出 Markdown、反馈错误；
+        其 API 配置入口在「个人中心 → API 管理」（网页版没有独立系统窗口）。两处与桌面版共用同一份配置模块。</li>
+      <li><b>表头更名</b>：「合璧对应类目」→「合璧中是否有相同类目」；「合璧判定」→「是否一致」（表格与 CSV 导出一致，CSV 同时更正表头）。</li>
+      <li><b>更正上一版说明</b>：v9.1 的更新日志写「浏览器直连 DeepSeek 会被 CORS 拦截」，实测有误 ——
+        DeepSeek 接口会返回 CORS 响应头（预检 200、允许 POST 与 authorization 头），浏览器可直连，故网页版无需代理即可使用 AI 复检。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v9.1 · 桌面版 0.10.0</span>
       <span class="cl-date">2026-10-02</span>
       <span class="cl-tag t-new">新增</span>

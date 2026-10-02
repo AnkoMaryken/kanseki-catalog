@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-HK" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置 — 古代史及汉籍研究工具</title>
+<!-- 复用 APP 外壳的样式（dist/css/app.css），保证与主界面观感一致 -->
+<link rel="stylesheet" href="../css/app.css">
+<style>
+  /* 设置窗口布局：左栏 + 右内容 */
+  html,body{height:100%;margin:0}
+  body{display:flex;background:var(--c-bg,#fafafa);color:var(--c-text,#0a0a0a);
+       font-family:var(--c-font-body,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif)}
+  .set-rail{width:186px;flex:0 0 186px;border-right:1px solid var(--c-border,#e5e5e5);
+            padding:.9rem .6rem;display:flex;flex-direction:column;gap:.25rem;background:var(--c-bg-alt,#f5f5f5)}
+  .set-title{font-size:.82rem;color:var(--c-text-muted,#737373);padding:.2rem .5rem .6rem}
+  .set-tab{border:none;background:none;text-align:left;padding:.5rem .65rem;border-radius:8px;
+           font-size:.86rem;cursor:pointer;color:var(--c-text-secondary,#525252);font-family:inherit}
+  .set-tab:hover{background:var(--c-surface-hover,#f0f0f0)}
+  .set-tab.active{background:var(--c-surface,#fff);color:var(--c-text,#0a0a0a);font-weight:600;
+                  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .set-main{flex:1;min-width:0;overflow:auto;padding:1.1rem 1.3rem 2rem}
+  .set-pane{display:none}
+  .set-pane.active{display:block}
+  .set-pane iframe{width:100%;height:calc(100vh - 150px);border:1px solid var(--c-border,#e5e5e5);
+                   border-radius:10px;background:#fff}
+  .set-h{font-size:1.05rem;margin:0 0 .2rem}
+  .set-sub{font-size:.8rem;color:var(--c-text-muted,#737373);margin:0 0 1rem;line-height:1.7}
+  .set-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.35rem 0}
+  .set-row label{font-size:.82rem;color:var(--c-text-secondary,#525252);min-width:112px}
+  .set-in{flex:1 1 260px;min-width:180px;padding:.45rem .6rem;border:1px solid var(--c-border,#e5e5e5);
+          border-radius:6px;font-family:inherit;font-size:.85rem;background:var(--c-surface,#fff);color:inherit}
+  .set-in:focus{outline:none;border-color:var(--c-text,#0a0a0a)}
+  .set-btn{padding:.4rem .9rem;border:1px solid var(--c-border,#e5e5e5);border-radius:6px;background:var(--c-surface,#fff);
+           color:inherit;font-size:.83rem;cursor:pointer;font-family:inherit}
+  .set-btn:hover{background:var(--c-surface-hover,#f0f0f0)}
+  .set-btn.primary{background:#171717;color:#fafafa;border-color:#171717}
+  [data-theme="dark"] .set-btn.primary{background:#e5e5e5;color:#0a0a0a;border-color:#e5e5e5}
+  .set-note{font-size:.76rem;color:var(--c-text-muted,#737373);line-height:1.75;margin:.6rem 0 0}
+  .set-msg{font-size:.82rem;margin:.6rem 0 0;padding:.5rem .7rem;border-radius:6px;display:none}
+  .set-msg.ok{display:block;background:#E2EFDA;color:#1e4620}
+  .set-msg.err{display:block;background:#F8D7DA;color:#7a1a22}
+  [data-theme="dark"] .set-msg.ok{background:#1e3320;color:#b7d7a8}
+  [data-theme="dark"] .set-msg.err{background:#3a1c20;color:#f0a9b1}
+</style>
+</head>
+<body>
+
+<aside class="set-rail">
+  <div class="set-title">设置</div>
+  <button class="set-tab active" id="tab-profile" type="button" data-pane="profile">个人中心</button>
+  <button class="set-tab" id="tab-sync" type="button" data-pane="sync">同步设置</button>
+  <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
+</aside>
+
+<main class="set-main">
+
+  <!-- ---------- 个人中心 ---------- -->
+  <section class="set-pane active" id="pane-profile">
+    <h2 class="set-h">个人中心</h2>
+    <p class="set-sub">账号信息与登录状态（与主界面「账号」为同一页面）。</p>
+    <iframe id="profileFrame" data-src="profile.html" title="个人中心" loading="lazy"></iframe>
+  </section>
+
+  <!-- ---------- 同步设置 ---------- -->
+  <section class="set-pane" id="pane-sync">
+    <h2 class="set-h">同步设置</h2>
+    <p class="set-sub">通过坚果云 WebDAV 备份偏好与编目记录。凭据仅保存在本机。</p>
+
+    <div class="set-row">
+      <label for="syncUser">坚果云邮箱</label>
+      <input class="set-in" type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
+    </div>
+    <div class="set-row">
+      <label for="syncPass">应用密码</label>
+      <input class="set-in" type="password" id="syncPass" placeholder="在坚果云「安全选项 → 应用密码」中生成" autocomplete="current-password">
+    </div>
+    <div class="set-row" style="margin-top:.7rem">
+      <button class="set-btn" id="syncTest" type="button">连接测试</button>
+      <button class="set-btn primary" id="syncSave" type="button">保存凭据</button>
+      <button class="set-btn" id="syncNow" type="button">立即同步</button>
+      <button class="set-btn" id="syncClear" type="button">清除凭据</button>
+    </div>
+    <div class="set-msg" id="syncMsg"></div>
+    <p class="set-note">
+      「立即同步」会通知主窗口执行同步（同步引擎在主窗口运行，避免两个窗口同时读写）。
+      保存后主窗口会自动重新载入凭据。
+    </p>
+  </section>
+
+  <!-- ---------- API 管理 ---------- -->
+  <section class="set-pane" id="pane-api">
+    <h2 class="set-h">API 管理</h2>
+    <p class="set-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只存在本机。</p>
+
+    <div class="set-row">
+      <label for="aiKey">DeepSeek API Key</label>
+      <input class="set-in" type="password" id="aiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
+      <button class="set-btn" id="aiEye" type="button">显示</button>
+    </div>
+    <div class="set-row">
+      <label for="aiModel">调用模型</label>
+      <select class="set-in" id="aiModel"></select>
+    </div>
+    <div class="set-row">
+      <label for="aiEndpoint">API 地址</label>
+      <input class="set-in" type="text" id="aiEndpoint" spellcheck="false">
+    </div>
+    <div class="set-row">
+      <label for="aiEmail">反馈收件邮箱</label>
+      <input class="set-in" type="email" id="aiEmail" placeholder="用于「反馈错误结果」的邮件发送">
+    </div>
+    <div class="set-row" style="margin-top:.7rem">
+      <button class="set-btn primary" id="aiSave" type="button">保存</button>
+      <button class="set-btn" id="aiTest" type="button">测试连接</button>
+      <button class="set-btn" id="aiClear" type="button">清除 Key</button>
+    </div>
+    <div class="set-msg" id="aiMsg"></div>
+    <p class="set-note">
+      API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。<br>
+      网页版对应的入口在「个人中心 → API 管理」，与此处共用同一份配置。
+    </p>
+  </section>
+
+</main>
+
+<script src="ai-config.js"></script>
+<script type="module">
+/* 主题跟随主窗口（localStorage['theme']） */
+function applyTheme() {
+  var t = 'light';
+  try { t = localStorage.getItem('theme') || 'light'; } catch (e) { /* 忽略 */ }
+  document.documentElement.setAttribute('data-theme', t);
+}
+applyTheme();
+window.addEventListener('storage', function (e) {
+  if (!e.key || e.key === 'theme') applyTheme();
+});
+
+/* ---------- 左栏切换 ---------- */
+function showPane(name) {
+  ['profile', 'sync', 'api'].forEach(function (n) {
+    var tab = document.getElementById('tab-' + n);
+    var pane = document.getElementById('pane-' + n);
+    if (tab) tab.classList.toggle('active', n === name);
+    if (pane) pane.classList.toggle('active', n === name);
+  });
+  if (name === 'profile') {
+    var f = document.getElementById('profileFrame');
+    if (f && !f.getAttribute('src')) f.setAttribute('src', f.getAttribute('data-src'));
+  }
+}
+document.querySelectorAll('.set-tab').forEach(function (b) {
+  b.addEventListener('click', function () { showPane(b.getAttribute('data-pane')); });
+});
+// 支持 #api / #sync / #profile 直达
+showPane((location.hash || '').replace('#', '') || 'profile');
+
+/* ---------- 提示 ---------- */
+function msg(id, text, kind) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'set-msg' + (kind ? ' ' + kind : '');
+  el.textContent = text || '';
+}
+
+/* ---------- API 管理 ---------- */
+var AI = window.KansekiAI;
+(function initApi() {
+  if (!AI) { msg('aiMsg', 'ai-config.js 未加载', 'err'); return; }
+  var sel = document.getElementById('aiModel');
+  AI.MODELS.forEach(function (m) {
+    var o = document.createElement('option');
+    o.value = m.id; o.textContent = m.label;
+    sel.appendChild(o);
+  });
+  var c = AI.getConfig();
+  document.getElementById('aiKey').value = c.key;
+  document.getElementById('aiEmail').value = c.email;
+  document.getElementById('aiEndpoint').value = c.endpoint;
+  sel.value = c.model;
+
+  document.getElementById('aiEye').addEventListener('click', function () {
+    var k = document.getElementById('aiKey');
+    var show = k.type === 'password';
+    k.type = show ? 'text' : 'password';
+    this.textContent = show ? '隐藏' : '显示';
+  });
+  document.getElementById('aiSave').addEventListener('click', function () {
+    AI.setConfig({
+      key: document.getElementById('aiKey').value,
+      model: document.getElementById('aiModel').value,
+      endpoint: document.getElementById('aiEndpoint').value,
+      email: document.getElementById('aiEmail').value
+    });
+    msg('aiMsg', '已保存到本机（仅本机使用）。', 'ok');
+  });
+  document.getElementById('aiClear').addEventListener('click', function () {
+    AI.clearKey();
+    document.getElementById('aiKey').value = '';
+    msg('aiMsg', '已清除本机保存的 API Key。', 'ok');
+  });
+  document.getElementById('aiTest').addEventListener('click', function () {
+    // 先落盘再测，避免测的是屏幕上的临时值
+    AI.setConfig({
+      key: document.getElementById('aiKey').value,
+      model: document.getElementById('aiModel').value,
+      endpoint: document.getElementById('aiEndpoint').value
+    });
+    msg('aiMsg', '正在测试连接…');
+    this.disabled = true;
+    var btn = this;
+    AI.test().then(function (r) {
+      btn.disabled = false;
+      msg('aiMsg', (r.ok ? '✓ ' : '✗ ') + r.message, r.ok ? 'ok' : 'err');
+    }, function (e) {
+      btn.disabled = false;
+      msg('aiMsg', '✗ ' + (e && e.message || e), 'err');
+    });
+  });
+})();
+
+/* ---------- 同步设置 ---------- */
+(async function initSync() {
+  var store;
+  try {
+    var mod = await import('../js/core/sync/store-indexeddb.js');
+    store = await mod.openStore({});
+  } catch (e) {
+    msg('syncMsg', '存储初始化失败：' + (e && e.message || e), 'err');
+    return;
+  }
+  try {
+    var u = await store.getMeta('webdav_username');
+    var p = await store.getMeta('webdav_password');
+    if (u) document.getElementById('syncUser').value = u.value || '';
+    if (p) document.getElementById('syncPass').value = p.value || '';
+  } catch (e) { /* 首次无凭据 */ }
+
+  function notifyMain(sync) {
+    // 跨窗口通知主窗口（storage 事件只在「其它窗口」触发，正合此用）
+    var payload = JSON.stringify({ at: Date.now(), sync: !!sync });
+    try { localStorage.setItem('kanseki_sync_reload', payload); } catch (e) { /* 忽略 */ }
+  }
+  function needCreds() {
+    var u = document.getElementById('syncUser').value.trim();
+    var p = document.getElementById('syncPass').value;
+    if (!u || !p) { msg('syncMsg', '请先填写邮箱与应用密码', 'err'); return null; }
+    return { u: u, p: p };
+  }
+
+  document.getElementById('syncTest').addEventListener('click', async function () {
+    var c = needCreds(); if (!c) return;
+    msg('syncMsg', '连接测试中…');
+    this.disabled = true;
+    var btn = this;
+    try {
+      var r = await window.__TAURI_INTERNALS__.invoke('webdav_check', {
+        url: 'https://dav.jianguoyun.com/dav/kanseki-sync',
+        username: c.u, password: c.p
+      });
+      msg('syncMsg', (r.ok ? '✓ ' : '✗ ') + r.message, r.ok ? 'ok' : 'err');
+    } catch (e) {
+      msg('syncMsg', '✗ 连接失败：' + (e && e.message || e), 'err');
+    } finally { btn.disabled = false; }
+  });
+
+  document.getElementById('syncSave').addEventListener('click', async function () {
+    var c = needCreds(); if (!c) return;
+    try {
+      await store.setMeta('webdav_username', c.u);
+      await store.setMeta('webdav_password', c.p);
+      notifyMain(false);
+      msg('syncMsg', '凭据已保存（仅存本机），主窗口已收到通知。', 'ok');
+    } catch (e) {
+      msg('syncMsg', '保存失败：' + (e && e.message || e), 'err');
+    }
+  });
+
+  document.getElementById('syncNow').addEventListener('click', function () {
+    notifyMain(true);
+    msg('syncMsg', '已通知主窗口执行同步，请回到主窗口查看同步状态。', 'ok');
+  });
+
+  document.getElementById('syncClear').addEventListener('click', async function () {
+    try {
+      await store.setMeta('webdav_username', '');
+      await store.setMeta('webdav_password', '');
+      document.getElementById('syncUser').value = '';
+      document.getElementById('syncPass').value = '';
+      notifyMain(false);
+      msg('syncMsg', '已清除本机保存的同步凭据。', 'ok');
+    } catch (e) {
+      msg('syncMsg', '清除失败：' + (e && e.message || e), 'err');
+    }
+  });
+})();
+</script>
+</body>
+</html>

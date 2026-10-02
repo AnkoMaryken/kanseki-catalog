@@ -79,7 +79,7 @@ const config = require('../../../tests/helpers/config.js');
         langGroup: shown('.ks-lang'),
         themeBtn: shown('#themeToggleSide'),
         aiBtn: shown('#ksAiBtn'),
-        aiPanel: document.getElementById('ksAiPanel') ? !document.getElementById('ksAiPanel').hidden : null,
+        aiPanel: document.getElementById('ksAiOut') ? !document.getElementById('ksAiOut').hidden : null,
         total: (document.getElementById('ksTotal') || {}).textContent || ''
       };
     });
@@ -87,10 +87,23 @@ const config = require('../../../tests/helpers/config.js');
     check('APP 内页内简繁切换已隐藏', vis.langGroup === false, String(vis.langGroup));
     check('APP 内页内主题按钮已隐藏', vis.themeBtn === false, String(vis.themeBtn));
 
-    // ---------- 3. 非 Tauri 环境下 AI 入口隐藏 ----------
-    check('非 Tauri 环境隐藏「AI 复检」入口', vis.aiBtn === false, String(vis.aiBtn));
+    // ---------- 3. AI 入口（V9.2 起网页版/桌面版均可用）----------
+    // 注：V9.1 时曾因误判「浏览器直连 DeepSeek 会被 CORS 拦」而在网页版隐藏；
+    //     实测 DeepSeek 会返回 CORS 头，网页版可直连，故现在两版都显示入口。
+    check('「AI 复检」入口可见（两版均可用）', vis.aiBtn === true, String(vis.aiBtn));
+    check('AI 面板默认收起', vis.aiPanel === false, String(vis.aiPanel));
     check('主功能不受影响（数据已载入）', /177,107|=177107|177107/.test(vis.total.replace(/,/g, '')),
       vis.total.trim());
+
+    // ---------- 3b. 非 Tauri 环境下配置/调用走 fetch 通道 ----------
+    const aiLib = await frame.evaluate(() => ({
+      hasLib: !!(window.KansekiAI && window.KansekiAI.chat && window.KansekiAI.getConfig),
+      desktop: window.KansekiAI ? window.KansekiAI.isDesktop() : null,
+      hasPageApi: !!window.KansekiAIPage
+    }));
+    check('共享配置模块已加载', aiLib.hasLib === true);
+    check('普通浏览器下识别为非桌面（fetch 通道）', aiLib.desktop === false);
+    check('页面侧测试接口就绪', aiLib.hasPageApi === true);
   }
 
   // ---------- 4. 无 JS 错误 ----------

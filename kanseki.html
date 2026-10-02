@@ -180,33 +180,69 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 }
 
 /* ============================================================
-   AI 复检（V9.1）
-   ⚠️ .ks-ai / .ks-ai-set 用 display:flex，会压过浏览器对 [hidden] 自带的
-      display:none（项目文档记载过的同一陷阱），故必须显式补 [hidden] 规则。
+   AI 复检（V9.2）
+   ⚠️ 凡用 display:flex 的容器，必须显式补 [hidden]{display:none}——
+      否则会压过浏览器对 [hidden] 自带的 display:none（项目文档记载过的同一陷阱）。
    ============================================================ */
-.ks-ai{margin-top:1rem;display:flex;flex-direction:column}
-.ks-ai[hidden]{display:none !important}
-.ks-ai-head{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;border-bottom:1px solid var(--color-divider);flex-wrap:wrap}
-.ks-ai-title{font-weight:600;font-size:.95rem;color:var(--color-text)}
-.ks-ai-sub{font-size:.78rem;color:var(--color-text-muted)}
-.ks-ai-spacer{flex:1 1 auto}
-.ks-ai-set{display:flex;flex-direction:column;gap:.55rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--color-divider);background:var(--color-bg-alt)}
-.ks-ai-set[hidden]{display:none !important}
-.ks-ai-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.ks-ai-label{font-size:.8rem;color:var(--color-text-secondary);white-space:nowrap}
-.ks-ai-input{flex:1 1 260px;min-width:170px;padding:.42rem .6rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.82rem}
-.ks-ai-input:focus{outline:none;border-color:var(--color-primary)}
-.ks-ai-note{font-size:.75rem;color:var(--color-text-muted);line-height:1.75}
-.ks-ai-body{display:flex;flex-direction:column;gap:.7rem;padding:.9rem 1.1rem;max-height:46vh;overflow:auto}
-.ks-ai-body:empty{display:none}
-.ks-ai-hint{font-size:.82rem;color:var(--color-text-muted);line-height:1.8}
+/* 表格行选中态（AI 单条复检的目标） */
+.ks-tbl tbody tr{cursor:pointer}
+.ks-tbl tbody tr:hover{background:var(--color-surface-hover)}
+.ks-tbl tbody tr.sel{background:var(--color-highlight);box-shadow:inset 3px 0 0 var(--color-primary)}
+.ks-tbl tbody tr.sel td:first-child{font-weight:700}
+
+/* 结果区：紧贴搜索栏下方 */
+.ks-aio{display:flex;flex-direction:column;border-bottom:1px solid var(--color-divider);background:var(--color-bg-alt)}
+.ks-aio[hidden]{display:none !important}
+.ks-aio-head{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;padding:.6rem 1.1rem;border-bottom:1px solid var(--color-divider)}
+.ks-aio-title{font-weight:600;font-size:.88rem;color:var(--color-text)}
+.ks-aio-spacer{flex:1 1 auto}
+.ks-aio-body{padding:.7rem 1.1rem;font-size:.85rem;line-height:1.8;color:var(--color-text);white-space:pre-wrap;word-break:break-word;max-height:34vh;overflow:auto}
+.ks-aio-warn{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:0 1.1rem .7rem;padding:.55rem .75rem;border:1px solid #e0b400;border-radius:var(--radius-md);background:#FFF4CC;color:#6b4e00;font-size:.82rem;line-height:1.7}
+[data-theme="dark"] .ks-aio-warn{background:#3a2f10;color:#f0d998;border-color:#6b5518}
+.ks-aio-warn[hidden]{display:none !important}
+.ks-aio-fb{display:flex;flex-direction:column;gap:.5rem;margin:0 1.1rem .8rem;padding:.7rem;border:1px dashed var(--color-border);border-radius:var(--radius-md)}
+.ks-aio-fb[hidden]{display:none !important}
+/* 判定徽标 */
+.ks-vd{display:inline-block;padding:.12rem .5rem;border-radius:999px;font-size:.74rem;font-weight:600;border:1px solid transparent}
+.ks-vd-keep{background:#E2EFDA;color:#1e4620;border-color:#b7d7a8}
+.ks-vd-overturn{background:#F8D7DA;color:#7a1a22;border-color:#f0a9b1}
+.ks-vd-doubt{background:#FFF2CC;color:#6b4e00;border-color:#e0c675}
+[data-theme="dark"] .ks-vd-keep{background:#1e3320;color:#b7d7a8;border-color:#2f4f33}
+[data-theme="dark"] .ks-vd-overturn{background:#3a1c20;color:#f0a9b1;border-color:#5c2a31}
+[data-theme="dark"] .ks-vd-doubt{background:#3a2f10;color:#e0c675;border-color:#5c4a18}
+/* 推翻时的加粗标红（用户要求） */
+.ks-overturn{color:#c0392b;font-weight:700}
+[data-theme="dark"] .ks-overturn{color:#ff8a80}
+.ks-aio-body b,.ks-aio-body strong{font-weight:700}
+.ks-aio-body .ks-md-h{display:block;font-weight:700;margin:.45rem 0 .15rem}
+.ks-aio-body .ks-md-li{display:block;padding-left:.9rem}
+
+/* 弹窗（长按「AI 复检」打开） */
+.ks-aiov{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:1rem}
+.ks-aiov[hidden]{display:none !important}
+.ks-aimodal{width:min(760px,96vw);max-height:88vh;display:flex;flex-direction:column;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);animation:ksAiIn .18s var(--ease-spring)}
+@keyframes ksAiIn{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+.ks-aihead{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;padding:.7rem 1rem;border-bottom:1px solid var(--color-divider)}
+.ks-ait{font-weight:600;font-size:.95rem}
+.ks-ais{font-size:.76rem;color:var(--color-text-muted)}
+.ks-aisp{flex:1 1 auto}
+.ks-aitabs{display:flex;gap:.4rem;padding:.6rem 1rem 0}
+.ks-aitab{border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);border-radius:var(--radius-sm);padding:.32rem .8rem;font-size:.82rem;cursor:pointer;font-family:var(--font-body)}
+.ks-aitab.active{background:var(--color-primary);color:var(--color-bg);border-color:var(--color-primary);font-weight:600}
+.ks-aipane{display:flex;flex-direction:column;gap:.5rem;padding:.7rem 1rem}
+.ks-aipane[hidden]{display:none !important}
+.ks-airow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.ks-ailabel{font-size:.8rem;color:var(--color-text-secondary);white-space:nowrap}
+.ks-aibody{flex:1 1 auto;overflow:auto;padding:.6rem 1rem;display:flex;flex-direction:column;gap:.6rem;min-height:120px}
+.ks-aibody:empty{display:none}
+.ks-aifoot{display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-top:1px solid var(--color-divider);flex-wrap:wrap}
+.ks-aicfg{margin-right:auto;font-size:.75rem;color:var(--color-text-muted)}
 .ks-ai-msg{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.6rem .8rem;font-size:.83rem;line-height:1.75;white-space:pre-wrap;word-break:break-word}
 .ks-ai-msg.user{background:var(--color-bg-alt);color:var(--color-text-secondary)}
 .ks-ai-msg.ai{background:var(--color-surface);color:var(--color-text)}
 .ks-ai-msg.err{border-color:#d9a800;background:#FFF2CC;color:#5c4600}
 [data-theme="dark"] .ks-ai-msg.err{background:#3a2f10;color:#f0d998;border-color:#6b5518}
 .ks-ai-msg .ks-ai-meta{display:block;font-size:.72rem;color:var(--color-text-muted);margin-bottom:.3rem;font-weight:500}
-.ks-ai-ask{display:flex;flex-direction:column;gap:.5rem;padding:.85rem 1.1rem;border-top:1px solid var(--color-divider)}
 .ks-ai-textarea{width:100%;min-height:52px;resize:vertical;padding:.5rem .65rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.83rem;line-height:1.6}
 .ks-ai-textarea:focus{outline:none;border-color:var(--color-primary)}
 .ks-ai-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
@@ -216,8 +252,9 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .ks-btn[disabled]{opacity:.5;cursor:not-allowed}
 .ks-btn-tiny{padding:.28rem .62rem;font-size:.76rem}
 @media (max-width:768px){
-  .ks-ai-head,.ks-ai-set,.ks-ai-body,.ks-ai-ask{padding-left:.8rem;padding-right:.8rem}
-  .ks-ai-body{max-height:none}
+  .ks-aio-head,.ks-aio-body,.ks-aihead,.ks-aipane,.ks-aibody,.ks-aifoot{padding-left:.8rem;padding-right:.8rem}
+  .ks-aio-warn,.ks-aio-fb{margin-left:.8rem;margin-right:.8rem}
+  .ks-aio-body{max-height:none}
 }
 </style>
 </head>
@@ -288,13 +325,45 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
                aria-label="检索">
         <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
         <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
-        <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检">AI 复检</button>
+        <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
+                title="单击＝复检选中的那一条；长按＝整页复检 / 提问">AI 复检</button>
         <button class="ks-btn" id="ksExport" type="button" data-cn="导出 CSV">导出 CSV</button>
         <div class="ks-lang" role="group" aria-label="显示字形">
           <button type="button" id="langBtnS" title="显示简体字" data-cn="简">简</button>
           <button type="button" id="langBtnT" class="active" title="显示繁体字" data-cn="繁">繁</button>
         </div>
         <button class="btn-icon" id="themeToggleSide" type="button" title="切换主题">☀</button>
+      </div>
+
+      <!-- ============================================================
+           AI 单条复检结果区（V9.2）
+           点击表格某行选中 → 点「AI 复检」→ 结果展开于此（紧贴搜索栏下方）。
+           如需整页复检或提问：**长按**「AI 复检」按钮打开弹窗。
+           ============================================================ -->
+      <div class="ks-aio" id="ksAiOut" hidden>
+        <div class="ks-aio-head">
+          <span class="ks-aio-title" data-cn="AI 复检结果">AI 复检结果</span>
+          <span id="ksAiVerdict"></span>
+          <span class="ks-aio-spacer"></span>
+          <button class="ks-btn ks-btn-tiny" id="ksAiMd" type="button" data-cn="导出 Markdown">导出 Markdown</button>
+          <button class="ks-btn ks-btn-tiny" id="ksAiClose" type="button" data-cn="收起">收起</button>
+        </div>
+        <div class="ks-aio-body" id="ksAiOutBody"></div>
+        <div class="ks-aio-warn" id="ksAiWarn" hidden>
+          <b data-cn="复检结论与本表类目完全不一致。">复检结论与本表类目完全不一致。</b>
+          <span data-cn="请截图此结果并联系软件开发者修改条目内容。">请截图此结果并联系软件开发者修改条目内容。</span>
+          <button class="ks-btn ks-btn-tiny" id="ksAiReportBtn" type="button" data-cn="反馈错误结果">反馈错误结果</button>
+        </div>
+        <div class="ks-aio-fb" id="ksAiFb" hidden>
+          <textarea class="ks-ai-textarea" id="ksAiFbNote" rows="2"
+                    data-cn-ph="可补充说明（选填）" placeholder="可补充说明（选填）"></textarea>
+          <div class="ks-ai-actions">
+            <button class="ks-btn primary" id="ksAiFbMail" type="button" data-cn="邮件发送">邮件发送</button>
+            <button class="ks-btn" id="ksAiFbCopy" type="button" data-cn="复制报告">复制报告</button>
+            <button class="ks-btn" id="ksAiFbClose" type="button" data-cn="关闭">关闭</button>
+            <span class="ks-ai-cost" id="ksAiFbTip"></span>
+          </div>
+        </div>
       </div>
 
       <div class="ks-filters">
@@ -327,8 +396,8 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
               <th data-cn="书名">书名</th>
               <th data-cn="著者">著者</th>
               <th data-cn="分类路径">分类路径</th>
-              <th data-cn="合璧对应类目">合璧对应类目</th>
-              <th data-cn="合璧判定">合璧判定</th>
+              <th data-cn="合璧中是否有相同类目">合璧中是否有相同类目</th>
+              <th data-cn="是否一致">是否一致</th>
             </tr>
           </thead>
           <tbody id="ksBody"></tbody>
@@ -348,68 +417,67 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
     </section>
 
     <!-- ============================================================
-         AI 复检（V9.1）—— DeepSeek
-         · 仅桌面版可用：调用经 Rust 侧 ai_chat 命令转发。
-           浏览器/网页版直连 api.deepseek.com 会被 CORS 拦（该接口不返回
-           Access-Control-Allow-Origin），故网页版会自动隐藏本区块与入口按钮。
-         · 送审内容是「你当前筛选出的著录条目」，不含其它数据。
+         AI 弹窗（V9.2）—— 长按工具条上的「AI 复检」打开
+         · 「整页复检」：把当前筛选结果按范围取样交给 DeepSeek 复核
+         · 「提问」：针对当前筛选结果自由追问（同一会话携带历史）
+         · API 不在此处配置 —— 桌面版在「设置」独立窗口的「API 管理」，
+           网页版在「个人中心」的「API 管理」。两处共用 ai-config.js。
          ============================================================ -->
-    <section class="ks-card ks-ai" id="ksAiPanel" hidden aria-label="AI 复检">
-      <div class="ks-ai-head">
-        <span class="ks-ai-title" data-cn="AI 复检">AI 复检</span>
-        <span class="ks-ai-sub" id="ksAiSub"></span>
-        <span class="ks-ai-spacer"></span>
-        <button class="ks-btn ks-btn-tiny" id="ksAiSetBtn" type="button" data-cn="设置">设置</button>
-        <button class="ks-btn ks-btn-tiny" id="ksAiHide" type="button" data-cn="收起">收起</button>
-      </div>
-
-      <div class="ks-ai-set" id="ksAiSet" hidden>
-        <div class="ks-ai-row">
-          <label class="ks-ai-label" for="ksAiKey" data-cn="DeepSeek API Key">DeepSeek API Key</label>
-          <input type="password" id="ksAiKey" class="ks-ai-input" autocomplete="off" spellcheck="false" placeholder="sk-...">
-          <button class="ks-btn ks-btn-tiny" id="ksAiEye" type="button" data-cn="显示">显示</button>
-          <button class="ks-btn ks-btn-tiny" id="ksAiSave" type="button" data-cn="保存">保存</button>
-          <button class="ks-btn ks-btn-tiny" id="ksAiTest" type="button" data-cn="测试连接">测试连接</button>
-          <button class="ks-btn ks-btn-tiny" id="ksAiForget" type="button" data-cn="清除">清除</button>
+    <div class="ks-aiov" id="ksAiModal" hidden>
+      <div class="ks-aimodal" role="dialog" aria-modal="true" aria-label="AI 复检与提问">
+        <div class="ks-aihead">
+          <span class="ks-ait" data-cn="AI 复检与提问">AI 复检与提问</span>
+          <span class="ks-ais" id="ksAiSub"></span>
+          <span class="ks-aisp"></span>
+          <button class="ks-btn ks-btn-tiny" id="ksAiModalX" type="button" data-cn="关闭">关闭</button>
         </div>
-        <div class="ks-ai-row">
-          <label class="ks-ai-label" for="ksAiModel" data-cn="模型">模型</label>
-          <select id="ksAiModel" class="ks-sel">
-            <option value="deepseek-chat">deepseek-chat</option>
-            <option value="deepseek-reasoner">deepseek-reasoner</option>
-          </select>
-          <label class="ks-ai-label" for="ksAiScope" data-cn="送审范围">送审范围</label>
-          <select id="ksAiScope" class="ks-sel">
-            <option value="page" selected data-cn="当前页">当前页</option>
-            <option value="sample" data-cn="当前结果抽样 100 条">当前结果抽样 100 条</option>
-            <option value="all" data-cn="全库抽样 100 条">全库抽样 100 条</option>
-          </select>
+
+        <div class="ks-aitabs">
+          <button class="ks-aitab active" id="ksAiTabPage" type="button" data-cn="整页复检">整页复检</button>
+          <button class="ks-aitab" id="ksAiTabAsk" type="button" data-cn="提问">提问</button>
         </div>
-        <div class="ks-ai-note" data-cn="API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。送审内容为你当前筛选出的著录条目。">API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。送审内容为你当前筛选出的著录条目。</div>
-      </div>
 
-      <div class="ks-ai-body" id="ksAiBody"></div>
+        <div class="ks-aipane" id="ksAiPanePage">
+          <div class="ks-airow">
+            <label class="ks-ailabel" for="ksAiScope" data-cn="送审范围">送审范围</label>
+            <select id="ksAiScope" class="ks-sel">
+              <option value="page" selected data-cn="当前页">当前页</option>
+              <option value="sample" data-cn="当前结果抽样 100 条">当前结果抽样 100 条</option>
+              <option value="all" data-cn="全库抽样 100 条">全库抽样 100 条</option>
+            </select>
+            <button class="ks-btn primary" id="ksAiRecheck" type="button" data-cn="开始整页复检">开始整页复检</button>
+          </div>
+        </div>
 
-      <div class="ks-ai-ask">
-        <textarea id="ksAiInput" class="ks-ai-textarea" rows="2"
-                  data-cn-ph="可在此追问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"
-                  placeholder="可在此追问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"></textarea>
-        <div class="ks-ai-actions">
-          <button class="ks-btn primary" id="ksAiRecheck" type="button" data-cn="复检当前结果">复检当前结果</button>
-          <button class="ks-btn" id="ksAiAsk" type="button" data-cn="提问">提问</button>
-          <button class="ks-btn" id="ksAiReset" type="button" data-cn="清空对话">清空对话</button>
-          <span class="ks-ai-cost" id="ksAiCost"></span>
+        <div class="ks-aipane" id="ksAiPaneAsk" hidden>
+          <textarea id="ksAiInput" class="ks-ai-textarea" rows="2"
+                    data-cn-ph="针对当前筛选结果提问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"
+                    placeholder="针对当前筛选结果提问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"></textarea>
+          <div class="ks-ai-actions">
+            <button class="ks-btn primary" id="ksAiAsk" type="button" data-cn="发送">发送</button>
+            <button class="ks-btn" id="ksAiReset" type="button" data-cn="清空对话">清空对话</button>
+          </div>
+        </div>
+
+        <div class="ks-aibody" id="ksAiBody"></div>
+
+        <div class="ks-aifoot">
+          <span class="ks-aicfg" id="ksAiCfg"></span>
+          <button class="ks-btn ks-btn-tiny" id="ksAiOpenSet" type="button" data-cn="打开设置">打开设置</button>
         </div>
       </div>
-    </section>
+    </div>
 
   </div>
 </main>
 
-<!-- 数据与依赖：顺序固定 kanseki_data.js → kanseki_conv.js → conv_tables.js → user-state.js → mobile-nav.js -->
+<!-- 数据与依赖：顺序固定
+     kanseki_data.js → kanseki_conv.js → conv_tables.js → ai-config.js → user-state.js → mobile-nav.js
+     ai-config.js：DeepSeek 配置与调用（与桌面版「设置」窗口、网页版个人中心共用同一份配置） -->
 <script src="kanseki_data.js"></script>
 <script src="kanseki_conv.js"></script>
 <script src="conv_tables.js"></script>
+<script src="ai-config.js"></script>
 <script src="user-state.js"></script>
 <script src="mobile-nav.js"></script>
 <script>
@@ -428,7 +496,7 @@ document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
    ============================================================ */
-var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.1' };
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.2' };
 
 /* ============================================================
    繁简转换
@@ -713,7 +781,7 @@ function sortByScore(rows, scores){
 /* ============================================================
    状态与筛选
    ============================================================ */
-var state = { raw:'', terms:[], rows:[], level:0, hint:'', page:1, perPage:100, ms:0 };
+var state = { raw:'', terms:[], rows:[], level:0, hint:'', page:1, perPage:100, ms:0, sel:null };
 var LEVEL_TEXT = { 1:'精确匹配', 2:'模糊匹配', 3:'容错匹配（含错字）', 4:'单字降级' };
 var termCacheKey = null, termCacheTerms = null;
 
@@ -742,6 +810,7 @@ function runSearch(raw){
   var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
   state.raw = raw == null ? '' : String(raw);
   state.page = 1;
+  state.sel = null;          // 重新检索后清空行选中（V9.2）
 
   var terms = state.raw.trim() ? getTerms(state.raw) : [];
   state.terms = terms;
@@ -833,7 +902,8 @@ function render(){
   for (k = start; k < end; k++) {
     var i = rows[k], ci = catIdx[i], c = CATS[ci] || [];
     var note = c[6] || '', vd = c[5] || '';
-    html += '<tr>'
+    // data-i = 记录索引；data-seq = 显示用序号。点击行即「选中」，供 AI 单条复检使用。
+    html += '<tr data-i="' + i + '" data-seq="' + (i + 1) + '"' + (state.sel === i ? ' class="sel"' : '') + '>'
       + '<td class="ks-seq">' + (i + 1) + '</td>'
       + '<td>' + esc(fmtRec(c[0])) + '</td>'
       + '<td>' + esc(fmtRec(c[1])) + '</td>'
@@ -974,7 +1044,7 @@ function stamp(){
   return '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
 }
 function buildCSV(){
-  var heads = ['序號','部','類','屬','書名','著者','分類路徑','合璧對應類目','合璧判定','合璧備註'];
+  var heads = ['序號','部','類','屬','書名','著者','分類路徑','合璧中是否有相同類目','是否一致','合璧備註'];
   var out = [heads.map(function(h){ return '"' + glyph(h).replace(/"/g, '""') + '"'; }).join(',')];
   var rows = state.rows || [];
   for (var k = 0; k < rows.length; k++) {
@@ -1066,72 +1136,49 @@ if (typeof window !== 'undefined') window.KansekiLang = {
 };
 
 /* ============================================================
-   AI 复检（V9.1）—— DeepSeek
+   AI 复检（V9.2）
    ------------------------------------------------------------
-   · **仅桌面版**：经 Rust 侧 ai_chat / ai_check 命令转发。
-     浏览器/网页版直连 api.deepseek.com 会被 CORS 拦（该接口不返回
-     Access-Control-Allow-Origin），故非桌面环境下隐藏入口与面板。
-   · API Key 存 localStorage['kanseki_deepseek_key']（用户明确同意「明文存本机」）。
-     本模块只在本机读写；请求由 Rust 侧放入 Authorization 头，全程不打印 Key。
-   · 「复检当前结果」= 把当前筛选结果按范围取样 + 总计统计交给 DeepSeek 逐条复核；
-     之后可在同一会话中追问（历史消息一并携带）。
+   · 单击工具条「AI 复检」＝ 复检**表格中选中的那一条**，结果显示在搜索栏下方
+   · 长按（≥650ms）＝ 打开弹窗，做**整页复检**或**提问**
+   · API 不在此页配置：桌面版在「设置」独立窗口的「API 管理」，
+     网页版在「个人中心」的「API 管理」；两处与本页共用 ai-config.js
+     （配置写 localStorage，同源共享，桌面两个窗口也共享）
+   · 推翻判定（结论与本表类目完全不一致）→ 加粗标红 + 提示截图联系开发者，
+     并提供「反馈错误结果」面板（邮件 / 复制）
    ============================================================ */
-var AI_KEY_STORE = 'kanseki_deepseek_key';
-var AI_MODEL_STORE = 'kanseki_deepseek_model';
-var AI_SCOPE_STORE = 'kanseki_deepseek_scope';
-var AI_ENDPOINT = 'https://api.deepseek.com/chat/completions';
-var AI_MAX_ROWS = 100;
-var aiHistory = [];
+var AI_LONGPRESS_MS = 650;
 var aiBusy = false;
+var aiHistory = [];          // 弹窗内对话历史
+var aiCtx = {                // 单条复检上下文（导出 Markdown 与反馈都用它）
+  idx: null, verdict: '', answer: '', model: '', at: '', via: ''
+};
 
-function aiAvailable(){
-  return !!(window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function');
+function aiLib(){ return window.KansekiAI; }
+function aiHasKey(){ return !!(aiLib() && aiLib().getConfig().hasKey); }
+function aiCfgText(){
+  if (!aiLib()) return '';
+  var c = aiLib().getConfig();
+  if (!c.hasKey) return toDisplay('未配置 API');
+  return toDisplay('模型') + '：' + c.model;
 }
-function aiStore(key, val){
-  try {
-    if (val === undefined) return localStorage.getItem(key) || '';
-    if (val) localStorage.setItem(key, val); else localStorage.removeItem(key);
-  } catch (e) { /* 隐私模式等忽略 */ }
-  return '';
-}
-function aiGetKey(){ return aiStore(AI_KEY_STORE); }
+function aiGlyphWord(){ return displayLang === 't' ? '繁体中文' : '简体中文'; }
 
-function aiScopeLabel(){
-  var s = $('ksAiScope') ? $('ksAiScope').value : 'page';
-  if (s === 'sample') return '当前结果抽样';
-  if (s === 'all') return '全库抽样';
-  return '当前页';
-}
-
-/* 取送审条目（返回记录索引数组）。抽样用等距取样，结果稳定且覆盖均匀。 */
-function aiPick(scope){
-  var rows = state.rows || [];
-  function spreadFrom(list, want){
-    var out = [], n = list.length, i;
-    if (n <= 0) return out;
-    want = Math.min(want, n);
-    for (i = 0; i < want; i++) out.push(list[Math.floor(i * n / want)]);
-    return out;
-  }
-  if (scope === 'page') {
-    var per = state.perPage || 100, start = (state.page - 1) * per;
-    return rows.slice(start, start + per).slice(0, AI_MAX_ROWS);
-  }
-  if (scope === 'all') {
-    var want = Math.min(AI_MAX_ROWS, N), out = [], i;
-    for (i = 0; i < want; i++) out.push(Math.floor(i * N / want));
-    return out;
-  }
-  return spreadFrom(rows, AI_MAX_ROWS);
-}
-
+/* ---------- 送审文本 ---------- */
 function aiRowLine(i){
   var ci = catIdx[i], c = CATS[ci] || [];
   return (i + 1) + '. ' + (c[0] || '') + '／' + (c[1] || '') + (c[2] ? '／' + c[2] : '') +
     ' ｜《' + (books[i] || '') + '》 ｜' + (authors[i] || '（原著者空缺）') +
-    ' ｜合璧对应：' + (HEL[ci] || '（无对应）') + ' ｜判定：' + (c[5] || '');
+    ' ｜合璧中是否有相同类目：' + (HEL[ci] || '（无）') + ' ｜是否一致：' + (c[5] || '');
 }
-
+function aiItemText(i){
+  var ci = catIdx[i], c = CATS[ci] || [];
+  return '序列号：' + (i + 1) + '\n' +
+    '书名：《' + (books[i] || '') + '》\n' +
+    '著者：' + (authors[i] || '（原著者空缺）') + '\n' +
+    '《中国古籍总目》分类：' + (PATHS[ci] || '') + '\n' +
+    '本表给出的合璧类目：' + (HEL[ci] || '（无对应）') + '\n' +
+    '本表判定：' + (c[5] || '') + (c[6] ? '（备注：' + c[6] + '）' : '');
+}
 function aiSummary(idxs){
   var byVd = {}, byBu = {}, k, c, key;
   for (k = 0; k < idxs.length; k++) {
@@ -1148,27 +1195,253 @@ function aiSummary(idxs){
     fmtNum((state.rows || []).length) + ' 条，全库 ' + fmtNum(META.total || N) + ' 条。\n' +
     '判定分布：' + fmt(byVd) + '\n部别分布：' + fmt(byBu) + '\n';
 }
-
-function aiSystemPrompt(){
-  var glyph = displayLang === 't' ? '繁体中文' : '简体中文';
-  return [
-    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》两套分类体系。',
-    '用户会给你一批已著录的古籍条目。每条包含：序号、《中国古籍总目》的部／类／属、书名、著者，',
-    '以及本工具依据类目对照表给出的「合璧对应类目」与判定（完全相同／可对应／无对应）。',
-    '',
-    '请逐条复核这些对应是否合理，并按以下结构输出：',
-    '一、总体判断：对应关系是否可靠、有无系统性偏差；',
-    '二、可疑条目：序号 + 问题所在 + 建议的合璧类目（只列确有问题的，按严重程度排序）；',
-    '三、需要人工确认的边界情形。',
-    '',
-    '不要复述原文，不要罗列没有问题的条目，直接给结论。回答请使用' + glyph + '。'
-  ].join('\n');
+function aiPick(scope){
+  var rows = state.rows || [];
+  function spreadFrom(list, want){
+    var out = [], n = list.length, i;
+    if (n <= 0) return out;
+    want = Math.min(want, n);
+    for (i = 0; i < want; i++) out.push(list[Math.floor(i * n / want)]);
+    return out;
+  }
+  if (scope === 'page') {
+    var per = state.perPage || 100, start = (state.page - 1) * per;
+    return rows.slice(start, start + per).slice(0, 100);
+  }
+  if (scope === 'all') {
+    var want = Math.min(100, N), out = [], i;
+    for (i = 0; i < want; i++) out.push(Math.floor(i * N / want));
+    return out;
+  }
+  return spreadFrom(rows, 100);
+}
+function aiScopeLabel(){
+  var s = $('ksAiScope') ? $('ksAiScope').value : 'page';
+  if (s === 'sample') return toDisplay('当前结果抽样');
+  if (s === 'all') return toDisplay('全库抽样');
+  return toDisplay('当前页');
 }
 
-/* ---------- 界面 ---------- */
-function aiBody(){ return $('ksAiBody'); }
+/* ---------- 提示词 ---------- */
+/* 单条复检：刻意压缩输出，省 token（用户要求「答案短一些，其余不要多说」） */
+function aiItemMessages(i){
+  var sys = [
+    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
+    '复核下面这一条古籍的合璧归类。输出必须严格为以下四行，不要任何多余文字、不要复述原文：',
+    '【判定】维持 或 推翻 或 存疑',
+    '分类：该书在《全球汉籍合璧工程》中应归入的类目',
+    '依据：一句话说明为什么这样归',
+    '出处：判断所依据的数据来源（本条目在《中国古籍总目》中的部/类/属与著录信息）',
+    '判定规则：仅当合璧类目明显错误、应归入完全不同的类目时用「推翻」；基本合理用「维持」；信息不足或两可时用「存疑」。',
+    '回答使用' + aiGlyphWord() + '。'
+  ].join('\n');
+  return [
+    { role: 'system', content: sys },
+    { role: 'user', content: aiItemText(i) }
+  ];
+}
+/* 整页复检：也要求简短 */
+function aiPageMessages(idxs){
+  var sys = [
+    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》两套分类体系。',
+    '用户给出若干已著录古籍（含部／类／属、书名、著者、本表给出的合璧类目与判定）。',
+    '请复核这些对应是否合理，输出务必简短，只用以下三节，不要复述原文：',
+    '一、总体判断：一句话；',
+    '二、可疑条目：序号 + 问题 + 建议类目（只列确有问题的，最多 10 条）；',
+    '三、需人工确认的边界情形：最多 3 条。',
+    '回答使用' + aiGlyphWord() + '。'
+  ].join('\n');
+  var user = aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n');
+  return [{ role: 'system', content: sys }, { role: 'user', content: user }];
+}
+function aiAskMessages(q){
+  var sys = [
+    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
+    '回答务必简短直接，不要客套，不要重复用户的话。回答使用' + aiGlyphWord() + '。'
+  ].join('\n');
+  if (!aiHistory.length) {
+    var idxs = aiPick($('ksAiScope') ? $('ksAiScope').value : 'page');
+    aiHistory = [{ role: 'system', content: sys }];
+    if (idxs.length) {
+      aiHistory.push({ role: 'user', content: aiSummary(idxs) + '\n【当前结果】\n' + idxs.map(aiRowLine).join('\n') });
+      aiHistory.push({ role: 'assistant', content: '已了解这批条目，请提问。' });
+    }
+  }
+  aiHistory.push({ role: 'user', content: q });
+  return aiHistory;
+}
+
+/* ---------- 结果渲染（轻量 Markdown） ---------- */
+function aiEsc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function aiRenderMd(text, overturn){
+  var lines = String(text || '').split('\n'), out = [], i, ln;
+  for (i = 0; i < lines.length; i++) {
+    ln = aiEsc(lines[i]);
+    ln = ln.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    if (/^#{1,4}\s+/.test(lines[i])) { out.push('<span class="ks-md-h">' + ln.replace(/^#{1,4}\s+/, '') + '</span>'); continue; }
+    if (/^\s*[-*]\s+/.test(lines[i])) { out.push('<span class="ks-md-li">• ' + ln.replace(/^\s*[-*]\s+/, '') + '</span>'); continue; }
+    out.push(ln);
+  }
+  var html = out.join('\n');
+  return overturn ? '<span class="ks-overturn">' + html + '</span>' : html;
+}
+function aiParseVerdict(text){
+  var m = /【判定】\s*(维持|推翻|存疑)/.exec(String(text || ''));
+  if (m) return m[1];
+  if (/推翻/.test(text || '')) return '推翻';
+  if (/维持/.test(text || '')) return '维持';
+  return '存疑';
+}
+function aiVerdictBadge(v){
+  var cls = v === '推翻' ? 'ks-vd-overturn' : (v === '维持' ? 'ks-vd-keep' : 'ks-vd-doubt');
+  return '<span class="ks-vd ' + cls + '">' + esc(toDisplay(v)) + '</span>';
+}
+function aiStamp(){
+  var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
+/* ---------- 单条复检 ---------- */
+function aiResetOut(){
+  var o = $('ksAiOut'); if (o) o.hidden = true;
+  if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '';
+  if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
+  if ($('ksAiFb')) $('ksAiFb').hidden = true;
+}
+function aiHintOut(msg){
+  var o = $('ksAiOut');
+  if (!o) return;
+  o.hidden = false;
+  if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '<span style="color:var(--color-text-muted)">' + aiEsc(toDisplay(msg)) + '</span>';
+  if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
+  if ($('ksAiFb')) $('ksAiFb').hidden = true;
+}
+function aiRecheckItem(){
+  if (aiBusy) return;
+  if (state.sel === null || state.sel === undefined) {
+    aiHintOut('请先在表格中点击选中一条记录，再点「AI 复检」。（长按本按钮可整页复检或提问）');
+    return;
+  }
+  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：个人中心 → API 管理。'); return; }
+
+  var i = state.sel, ci = catIdx[i], c = CATS[ci] || [];
+  aiResetOut();
+  var o = $('ksAiOut'); o.hidden = false;
+  $('ksAiOutBody').innerHTML = '<span class="ks-ai-busy"></span>' + aiEsc(toDisplay('正在复检第 ' + (i + 1) + ' 条…'));
+  aiBusy = true;
+  var t0 = Date.now();
+
+  aiLib().chat(aiItemMessages(i), { maxTokens: 400, temperature: 0.2, timeoutSecs: 120 }).then(function (r) {
+    aiBusy = false;
+    var v = aiParseVerdict(r.content);
+    var overturn = (v === '推翻');
+    aiCtx = {
+      idx: i, verdict: v, answer: r.content,
+      model: r.model || '', at: aiStamp(), via: r.via || ''
+    };
+    $('ksAiVerdict').innerHTML = aiVerdictBadge(v);
+    $('ksAiOutBody').innerHTML = aiRenderMd(r.content, overturn);
+    $('ksAiWarn').hidden = !overturn;
+    if (overturn) {
+      $('ksAiFb').hidden = true;
+      $('ksAiFbTip') && ($('ksAiFbTip').textContent = '');
+    }
+  }, function (e) {
+    aiBusy = false;
+    $('ksAiOutBody').innerHTML = '<span style="color:#c0392b">' + aiEsc(String(e && e.message || e)) + '</span>';
+  });
+}
+
+/* ---------- 导出 Markdown ---------- */
+function aiReportMd(){
+  if (aiCtx.idx === null) return '';
+  var i = aiCtx.idx, ci = catIdx[i], c = CATS[ci] || [];
+  var T = toDisplay;            // 标签跟随当前字形
+  var D = fmtRec;              // 记录字段：繁体原样 / 简体经 k2s
+  var L = [];
+  L.push('# ' + T('古籍类目复检报告'));
+  L.push('');
+  L.push('- ' + T('序列号') + '：' + (i + 1));
+  L.push('- ' + T('书名') + '：《' + D(books[i] || '') + '》');
+  L.push('- ' + T('著者') + '：' + (authors[i] ? D(authors[i]) : T('（原著者空缺）')));
+  L.push('- ' + T('《中国古籍总目》分类') + '：' + D(PATHS[ci] || ''));
+  L.push('- ' + T('本表合璧类目') + '：' + (HEL[ci] ? D(HEL[ci]) : T('（无对应）')));
+  L.push('- ' + T('本表判定') + '：' + D(c[5] || ''));
+  L.push('- ' + T('复检结果') + '：**' + T(aiCtx.verdict) + '**');
+  L.push('- ' + T('模型') + '：' + (aiCtx.model || ''));
+  L.push('- ' + T('时间') + '：' + aiCtx.at);
+  L.push('- ' + T('通道') + '：' + (aiCtx.via === 'tauri' ? T('桌面版（Rust 桥）') : T('网页版（直连）')));
+  L.push('');
+  L.push('## ' + T('复检意见'));
+  L.push('');
+  L.push(aiCtx.answer);
+  L.push('');
+  return L.join('\n');
+}
+function aiDownloadMd(){
+  var md = aiReportMd();
+  if (!md) return;
+  var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '古籍类目复检_' + (aiCtx.idx + 1) + '_' + aiCtx.at.replace(/[-: ]/g, '') + '.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+}
+
+/* ---------- 反馈错误结果 ---------- */
+function aiFeedbackText(){
+  var note = $('ksAiFbNote') ? String($('ksAiFbNote').value || '').trim() : '';
+  var md = aiReportMd();
+  var head = '【古籍编目工具 · 类目错误反馈】\n' +
+    '复检结论与本表类目完全不一致，需修改条目内容。\n\n';
+  return head + md + (note ? '\n## 补充说明\n\n' + note + '\n' : '');
+}
+function aiFeedbackMail(){
+  var txt = aiFeedbackText();
+  if (!txt) return;
+  var to = (aiLib() && aiLib().getConfig().email) || '';
+  var subject = '【古籍类目复检】疑似类目错误 序号' + (aiCtx.idx + 1);
+  var url = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(txt);
+  if (!to) {
+    if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay('未填收件邮箱，已改为复制报告');
+    aiFeedbackCopy();
+    return;
+  }
+  if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay('已调用系统邮件客户端');
+  if (aiLib() && aiLib().openExternal) aiLib().openExternal(url);
+  else try { window.open(url, '_blank'); } catch (e) { /* 忽略 */ }
+}
+function aiFeedbackCopy(){
+  var txt = aiFeedbackText();
+  if (!txt) return;
+  function done(ok){
+    if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay(ok ? '报告已复制到剪贴板' : '复制失败，请手动选择文本');
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(false); });
+    return;
+  }
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  done(ok);
+}
+
+/* ---------- 弹窗（整页复检 / 提问） ---------- */
 function aiPush(kind, text, meta){
-  var body = aiBody();
+  var body = $('ksAiBody');
   if (!body) return null;
   var d = document.createElement('div');
   d.className = 'ks-ai-msg ' + kind;
@@ -1183,194 +1456,184 @@ function aiPush(kind, text, meta){
   body.scrollTop = body.scrollHeight;
   return d;
 }
-function aiStatusText(){
-  if (!aiAvailable()) return toDisplay('（仅桌面版可用）');
-  return aiGetKey() ? toDisplay('已配置 API Key') : toDisplay('未配置 API Key');
-}
-function aiSubUpdate(){ var el = $('ksAiSub'); if (el) el.textContent = aiStatusText(); }
 function aiSetBusy(on, label){
   aiBusy = !!on;
-  ['ksAiRecheck', 'ksAiAsk', 'ksAiTest', 'ksAiSave'].forEach(function(id){
+  ['ksAiRecheck', 'ksAiAsk'].forEach(function (id) {
     var el = $(id); if (el) el.disabled = !!on;
   });
-  var cost = $('ksAiCost');
-  if (cost) {
-    cost.textContent = '';
+  var sub = $('ksAiSub');
+  if (sub) {
+    sub.textContent = '';
     if (on) {
       var sp = document.createElement('span');
       sp.className = 'ks-ai-busy';
-      cost.appendChild(sp);
-      cost.appendChild(document.createTextNode(label || '正在请求 DeepSeek…'));
+      sub.appendChild(sp);
+      sub.appendChild(document.createTextNode(toDisplay(label || '正在请求…')));
+    } else {
+      sub.textContent = '';
     }
   }
-  var sub = $('ksAiSub');
-  if (sub) sub.textContent = on ? toDisplay(label || '正在请求…') : aiStatusText();
 }
-function aiToggleSet(show){
-  var box = $('ksAiSet');
-  if (!box) return;
-  box.hidden = (show === undefined) ? !box.hidden : !show;
+function aiTab(which){
+  var page = $('ksAiPanePage'), ask = $('ksAiPaneAsk');
+  var bp = $('ksAiTabPage'), ba = $('ksAiTabAsk');
+  if (!page || !ask) return;
+  var isAsk = (which === 'ask');
+  page.hidden = isAsk;
+  ask.hidden = !isAsk;
+  if (bp) bp.classList.toggle('active', !isAsk);
+  if (ba) ba.classList.toggle('active', isAsk);
 }
-function aiTogglePanel(show){
-  var p = $('ksAiPanel');
-  if (!p) return;
-  p.hidden = (show === undefined) ? !p.hidden : !show;
-  if (!p.hidden) {
-    aiSubUpdate();
-    var k = $('ksAiKey');
-    if (k) k.value = aiGetKey();
-    if (!aiGetKey()) aiToggleSet(true);
+function aiOpenModal(which){
+  var m = $('ksAiModal');
+  if (!m) return;
+  m.hidden = false;
+  aiTab(which || 'page');
+  if ($('ksAiCfg')) $('ksAiCfg').textContent = aiCfgText();
+  if (window.KansekiAI && !window.KansekiAI.getConfig().hasKey) {
+    aiPush('err', toDisplay('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：个人中心 → API 管理。'), toDisplay('提示'));
   }
+  var t = $('ksAiInput'); if (t) setTimeout(function () { t.focus(); }, 50);
 }
-
-/* ---------- 调用 ---------- */
-function aiCall(messages, onOk, onErr){
-  var args = { req: {
-    api_key: aiGetKey(),
-    endpoint: AI_ENDPOINT,
-    model: $('ksAiModel') ? $('ksAiModel').value : 'deepseek-chat',
-    messages: messages,
-    temperature: 0.2,
-    max_tokens: 3000,
-    timeout_secs: 180
-  } };
-  window.__TAURI_INTERNALS__.invoke('ai_chat', args).then(onOk, onErr);
+function aiCloseModal(){
+  var m = $('ksAiModal');
+  if (m) m.hidden = true;
 }
-function aiDropLastUser(){
-  if (aiHistory.length && aiHistory[aiHistory.length - 1].role === 'user') aiHistory.pop();
-}
-function aiRequest(label){
-  aiSetBusy(true, label);
-  var t0 = Date.now();
-  aiCall(aiHistory, function(r){
-    aiSetBusy(false);
-    if (!r || !r.ok) {
-      aiPush('err', (r && r.error) || 'DeepSeek 未返回内容', '错误');
-      aiDropLastUser();
-      return;
-    }
-    aiHistory.push({ role: 'assistant', content: r.content });
-    var dt = ((Date.now() - t0) / 1000).toFixed(1);
-    aiPush('ai', r.content, 'DeepSeek · ' + r.model + ' · ' + dt + 's · tokens ' + r.total_tokens);
-  }, function(err){
-    aiSetBusy(false);
-    aiPush('err', String((err && err.message) || err), '错误');
-    aiDropLastUser();
-  });
-}
-
-function aiRecheck(){
+function aiPageRecheck(){
   if (aiBusy) return;
-  if (!aiAvailable()) { aiPush('err', 'AI 复检仅在桌面版可用：需要经桌面程序转发请求（浏览器直连 DeepSeek 会被 CORS 拦截）。'); return; }
-  if (!aiGetKey()) { aiToggleSet(true); aiPush('err', '请先在「设置」中填写并保存 DeepSeek API Key。'); return; }
+  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请先到设置中填写。'), toDisplay('提示')); return; }
   var idxs = aiPick($('ksAiScope') ? $('ksAiScope').value : 'page');
-  if (!idxs.length) { aiPush('err', '当前结果为空，没有可送审的条目。'); return; }
-  var user = aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n');
-  aiHistory = [{ role: 'system', content: aiSystemPrompt() }, { role: 'user', content: user }];
-  aiBody().innerHTML = '';
-  aiPush('user', '复检当前结果：送审 ' + idxs.length + ' 条（' + aiScopeLabel() + '）', '我');
-  aiRequest('正在复检…');
+  if (!idxs.length) { aiPush('err', toDisplay('当前结果为空，没有可送审的条目。'), toDisplay('提示')); return; }
+  $('ksAiBody').innerHTML = '';
+  aiPush('user', toDisplay('整页复检：送审 ') + idxs.length + toDisplay(' 条（') + aiScopeLabel() + '）', toDisplay('我'));
+  aiSetBusy(true, '正在整页复检…');
+  var t0 = Date.now();
+  window.KansekiAI.chat(aiPageMessages(idxs), { maxTokens: 1600, temperature: 0.2, timeoutSecs: 180 })
+    .then(function (r) {
+      aiSetBusy(false);
+      aiPush('ai', r.content, 'DeepSeek · ' + r.model + ' · ' + ((Date.now() - t0) / 1000).toFixed(1) + 's · tokens ' + r.total_tokens);
+    }, function (e) {
+      aiSetBusy(false);
+      aiPush('err', String(e && e.message || e), toDisplay('错误'));
+    });
 }
-
 function aiAsk(){
   if (aiBusy) return;
-  var el = $('ksAiInput');
-  var q = el ? String(el.value || '').trim() : '';
+  var el = $('ksAiInput'), q = el ? String(el.value || '').trim() : '';
   if (!q) return;
-  if (!aiAvailable()) { aiPush('err', 'AI 对话仅在桌面版可用。'); return; }
-  if (!aiGetKey()) { aiToggleSet(true); aiPush('err', '请先配置 DeepSeek API Key。'); return; }
-  if (!aiHistory.length) aiHistory = [{ role: 'system', content: aiSystemPrompt() }];
-  aiHistory.push({ role: 'user', content: q });
-  aiPush('user', q, '我');
+  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请先到设置中填写。'), toDisplay('提示')); return; }
+  aiPush('user', q, toDisplay('我'));
   el.value = '';
-  aiRequest('正在回答…');
+  aiSetBusy(true, '正在回答…');
+  var t0 = Date.now();
+  window.KansekiAI.chat(aiAskMessages(q), { maxTokens: 1200, temperature: 0.2, timeoutSecs: 180 })
+    .then(function (r) {
+      aiSetBusy(false);
+      aiHistory.push({ role: 'assistant', content: r.content });
+      aiPush('ai', r.content, 'DeepSeek · ' + r.model + ' · ' + ((Date.now() - t0) / 1000).toFixed(1) + 's');
+    }, function (e) {
+      aiSetBusy(false);
+      if (aiHistory.length && aiHistory[aiHistory.length - 1].role === 'user') aiHistory.pop();
+      aiPush('err', String(e && e.message || e), toDisplay('错误'));
+    });
 }
 
-function aiTest(){
-  if (aiBusy) return;
-  if (!aiAvailable()) { aiPush('err', '测试连接仅在桌面版可用。'); return; }
-  var typed = $('ksAiKey') ? String($('ksAiKey').value || '').trim() : '';
-  var key = typed || aiGetKey();
-  if (!key) { aiPush('err', '请先填写 DeepSeek API Key。'); return; }
-  aiSetBusy(true, '正在测试连接…');
-  window.__TAURI_INTERNALS__.invoke('ai_check', { req: {
-    api_key: key,
-    endpoint: AI_ENDPOINT,
-    model: $('ksAiModel') ? $('ksAiModel').value : 'deepseek-chat'
-  } }).then(function(r){
-    aiSetBusy(false);
-    aiPush(r && r.ok ? 'ai' : 'err', (r && r.message) || '（无返回）', '连接测试');
-  }, function(e){
-    aiSetBusy(false);
-    aiPush('err', String((e && e.message) || e), '连接测试');
-  });
-}
-
+/* ---------- 初始化 ---------- */
 function aiInit(){
-  // 网页版：直连会被 CORS 拦，隐藏入口与面板，避免出现点了没反应的死功能
-  if (!aiAvailable()) {
-    var b = $('ksAiBtn'); if (b) b.hidden = true;
-    var p = $('ksAiPanel'); if (p) p.hidden = true;
-    return;
-  }
-  if ($('ksAiModel')) $('ksAiModel').value = aiStore(AI_MODEL_STORE) || 'deepseek-chat';
-  if ($('ksAiScope')) $('ksAiScope').value = aiStore(AI_SCOPE_STORE) || 'page';
-  if ($('ksAiKey')) $('ksAiKey').value = aiGetKey();
+  var btn = $('ksAiBtn');
+  if (!btn) return;
 
-  var B = function(id, fn){ var el = $(id); if (el) el.addEventListener('click', fn); };
-  B('ksAiBtn', function(){ aiTogglePanel(); });
-  B('ksAiHide', function(){ aiTogglePanel(false); });
-  B('ksAiSetBtn', function(){ aiToggleSet(); });
-  B('ksAiRecheck', aiRecheck);
+  // 单击 = 单条复检；长按 = 打开弹窗（整页复检 / 提问）
+  var lpTimer = null, lpFired = false;
+  function pressStart(){
+    lpFired = false;
+    if (lpTimer) clearTimeout(lpTimer);
+    lpTimer = setTimeout(function () {
+      lpTimer = null; lpFired = true;
+      aiOpenModal('page');
+    }, AI_LONGPRESS_MS);
+  }
+  function pressEnd(){ if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } }
+  btn.addEventListener('mousedown', pressStart);
+  btn.addEventListener('mouseup', pressEnd);
+  btn.addEventListener('mouseleave', pressEnd);
+  btn.addEventListener('touchstart', function (e) { pressStart(); }, { passive: true });
+  btn.addEventListener('touchend', pressEnd);
+  btn.addEventListener('touchcancel', pressEnd);
+  // 键盘可达：Enter/Space 走单击语义
+  btn.addEventListener('click', function () {
+    if (lpFired) { lpFired = false; return; }
+    aiRecheckItem();
+  });
+
+  // 行选中
+  var body = $('ksBody');
+  if (body) body.addEventListener('click', function (e) {
+    var tr = e.target && e.target.closest ? e.target.closest('tr') : null;
+    if (!tr) return;
+    var i = +(tr.getAttribute('data-i'));
+    if (isNaN(i)) return;
+    state.sel = (state.sel === i) ? null : i;
+    var sels = body.querySelectorAll('tr.sel');
+    for (var k = 0; k < sels.length; k++) sels[k].classList.remove('sel');
+    if (state.sel !== null) tr.classList.add('sel');
+    aiResetOut();
+  });
+
+  var B = function (id, fn) { var el = $(id); if (el) el.addEventListener('click', fn); };
+  B('ksAiClose', function () { aiResetOut(); });
+  B('ksAiMd', aiDownloadMd);
+  B('ksAiReportBtn', function () { var f = $('ksAiFb'); if (f) f.hidden = !f.hidden; });
+  B('ksAiFbMail', aiFeedbackMail);
+  B('ksAiFbCopy', aiFeedbackCopy);
+  B('ksAiFbClose', function () { var f = $('ksAiFb'); if (f) f.hidden = true; });
+  B('ksAiModalX', aiCloseModal);
+  B('ksAiTabPage', function () { aiTab('page'); });
+  B('ksAiTabAsk', function () { aiTab('ask'); });
+  B('ksAiRecheck', aiPageRecheck);
   B('ksAiAsk', aiAsk);
-  B('ksAiTest', aiTest);
-  B('ksAiReset', function(){ aiHistory = []; aiBody().innerHTML = ''; aiPush('ai', toDisplay('对话已清空。可随时点「复检当前结果」重新开始。'), toDisplay('提示')); });
-  B('ksAiEye', function(){
-    var k = $('ksAiKey'), e = $('ksAiEye');
-    if (!k) return;
-    var show = k.type === 'password';
-    k.type = show ? 'text' : 'password';
-    if (e) e.textContent = toDisplay(show ? '隐藏' : '显示');
+  B('ksAiReset', function () {
+    aiHistory = [];
+    if ($('ksAiBody')) $('ksAiBody').innerHTML = '';
+    aiPush('ai', toDisplay('对话已清空。'), toDisplay('提示'));
   });
-  B('ksAiSave', function(){
-    var k = $('ksAiKey');
-    var v = k ? String(k.value || '').trim() : '';
-    aiStore(AI_KEY_STORE, v);
-    if ($('ksAiModel')) aiStore(AI_MODEL_STORE, $('ksAiModel').value);
-    if ($('ksAiScope')) aiStore(AI_SCOPE_STORE, $('ksAiScope').value);
-    aiSubUpdate();
-    aiPush('ai', v ? toDisplay('已保存到本机（仅本机使用）。') : toDisplay('已清除本机保存的 API Key。'), toDisplay('设置'));
+  B('ksAiOpenSet', function () {
+    if (!aiLib()) return;
+    aiLib().openSettings().catch(function (e) {
+      aiPush('err', String(e && e.message || e), toDisplay('错误'));
+    });
   });
-  B('ksAiForget', function(){
-    aiStore(AI_KEY_STORE, '');
-    if ($('ksAiKey')) $('ksAiKey').value = '';
-    aiSubUpdate();
-    aiPush('ai', toDisplay('已清除本机保存的 API Key。'), toDisplay('设置'));
-  });
+  // 点遮罩关闭；Esc 关闭
+  var modal = $('ksAiModal');
+  if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) aiCloseModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') aiCloseModal(); });
+  // 追问快捷键：Ctrl/Cmd + Enter
   var ta = $('ksAiInput');
-  if (ta) ta.addEventListener('keydown', function(ev){
+  if (ta) ta.addEventListener('keydown', function (ev) {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); aiAsk(); }
   });
-  aiToggleSet(!aiGetKey());
+
+  aiResetOut();
 }
 
-/* 供自动化测试使用的只读/受控接口（不暴露 Key 本身） */
-window.KansekiAI = {
-  available: aiAvailable,
-  hasKey: function(){ return !!aiGetKey(); },
+/* 供自动化测试使用（页面侧；共享配置接口是 window.KansekiAI，来自 ai-config.js） */
+window.KansekiAIPage = {
+  hasKey: aiHasKey,
   pick: aiPick,
-  prompt: function(){ return aiSystemPrompt(); },
   scopeLabel: aiScopeLabel,
-  messagesForRecheck: function(scope){
-    var idxs = aiPick(scope || 'page');
-    if (!idxs.length) return [];
-    return [
-      { role: 'system', content: aiSystemPrompt() },
-      { role: 'user', content: aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n') }
-    ];
-  },
-  toggle: aiTogglePanel,
-  busy: function(){ return aiBusy; }
+  itemText: aiItemText,
+  itemMessages: aiItemMessages,
+  pageMessages: aiPageMessages,
+  parseVerdict: aiParseVerdict,
+  reportMd: function () { return aiReportMd(); },
+  feedbackText: aiFeedbackText,
+  openModal: aiOpenModal,
+  closeModal: aiCloseModal,
+  selectRow: function (i) { state.sel = i; render(); },
+  selected: function () { return state.sel; },
+  ctx: function () { return aiCtx; },
+  setCtx: function (c) { aiCtx = c; },
+  busy: function () { return aiBusy; }
 };
 
 /* ============================================================

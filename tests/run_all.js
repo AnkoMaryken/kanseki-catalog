@@ -19,8 +19,8 @@ const tests = [
   'test_admin_supabase_mode.js','test_theme_sync.js',
   // V8.2 移动端 + V8.3 功能
   'test_v82_mobile.js','test_v83_card_search.js',
-  // V8.9 字形 + V9.0 古籍类目查询 + V9.1 AI 复检 (此前漏收)
-  'test_v89_lang.js','test_v90_kanseki.js','test_v91_ai.js'
+  // V8.9 字形 + V9.0/V9.2 古籍类目查询与 AI 复检 (此前漏收)
+  'test_v89_lang.js','test_v90_kanseki.js','test_v92_ai.js'
 ];
 let fail = 0;
 for (const t of tests) {
