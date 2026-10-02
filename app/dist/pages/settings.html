@@ -4,8 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>设置 — 古代史及汉籍研究工具</title>
-<!-- 复用 APP 外壳的样式（dist/css/app.css），保证与主界面观感一致 -->
-<link rel="stylesheet" href="../css/app.css">
+<!--
+  本页刻意**不引用外部样式表**：桌面版里它位于 dist/pages/，而网页版把它放在仓库根，
+  两侧相对路径不同（`../css/app.css` 只在桌面侧成立），引用会导致网页侧 404。
+  页面只用下面这套 CSS 变量，且每个取值都带兜底，故自带即可，两处都能正常渲染。
+-->
+<style>
+  :root{
+    --c-bg:#fafafa; --c-bg-alt:#f5f5f5; --c-surface:#fff; --c-surface-hover:#f0f0f0;
+    --c-text:#0a0a0a; --c-text-secondary:#525252; --c-text-muted:#737373; --c-border:#e5e5e5;
+    --c-font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  [data-theme="dark"]{
+    --c-bg:#0a0a0a; --c-bg-alt:#141414; --c-surface:#171717; --c-surface-hover:#262626;
+    --c-text:#fafafa; --c-text-secondary:#d4d4d4; --c-text-muted:#a3a3a3;
+    --c-border:rgba(255,255,255,.12);
+  }
+</style>
 <style>
   /* 设置窗口布局：左栏 + 右内容 */
   html,body{height:100%;margin:0}
@@ -136,6 +151,14 @@ applyTheme();
 window.addEventListener('storage', function (e) {
   if (!e.key || e.key === 'theme') applyTheme();
 });
+
+/* 本页是**桌面版的「设置」独立窗口**。
+   网页版没有独立窗口，对应入口是「个人中心 → API 管理」；而且本页的「同步设置」
+   依赖 ../js/core/sync/*（只存在于桌面 dist），网页侧并不存在。
+   因此检测到非桌面环境时直接转到个人中心的 API 管理区。 */
+if (!(window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function')) {
+  location.replace('profile.html#api');
+}
 
 /* ---------- 左栏切换 ---------- */
 function showPane(name) {
