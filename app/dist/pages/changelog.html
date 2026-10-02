@@ -183,6 +183,28 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v9.3.1 · 桌面版 0.12.1</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>设置窗口精简</b>：移除「个人中心」分区，只保留<b>同步设置</b>与<b>API 管理</b>。
+        桌面版打开设置默认进「同步设置」，网页版默认进「API 管理」；旧的
+        <code>settings.html#profile</code> 链接会自动落到可用分区，不再出现空面板。</li>
+      <li><b>API 管理新增「Token 用量」可视化</b>：统计每次调用返回的 token 用量并图形化展示 ——
+        累计 tokens 与调用次数、<b>输入/输出占比堆叠条</b>、其中思维链用量、
+        <b>按模型分布条形图</b>、最近 10 次调用明细（时间/模型/tokens），并可一键<b>清零统计</b>。
+        统计只写本机、不上传；桌面版与网页版共用同一份统计。</li>
+      <li><b>古籍类目查询新增「检索历史」</b>：工具栏「历史」按钮记录最近 20 条检索词
+        （带条数徽标），点任一条即<b>回填搜索框并重新检索</b>；支持单条删除与一键清空。
+        记录时机为「按 Enter / 点检索 / 输入停顿约 1.2 秒」，因此不会把半截输入也记进去；
+        历史存在本机，刷新与重开都还在。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v9.3 · 桌面版 0.12.0</span>
       <span class="cl-date">2026-10-02</span>
       <span class="cl-tag t-new">新增</span>

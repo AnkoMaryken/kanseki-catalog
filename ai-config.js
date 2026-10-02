@@ -31,6 +31,8 @@
   var K_ENDPOINT = 'kanseki_deepseek_endpoint';
   var K_EMAIL = 'kanseki_feedback_email';
   var K_MAXTOK = 'kanseki_deepseek_maxtokens';
+  var K_USAGE = 'kanseki_token_usage';
+  var USAGE_RECENT_MAX = 50;
 
   var DEFAULT_ENDPOINT = 'https://api.deepseek.com/chat/completions';
   var DEFAULT_MODEL = 'deepseek-flash';
@@ -166,6 +168,7 @@
         }).then(function (r) {
           if (!r || !r.ok) throw new Error((r && r.error) || 'DeepSeek 未返回内容');
           r.via = 'tauri';
+          recordUsage(r);
           return r;
         }, function (e) {
           throw new Error(String((e && e.message) || e));
@@ -199,6 +202,7 @@
           catch (e) { throw new Error('解析响应失败：' + e.message); }
           var r = normalize(env, 'fetch');
           if (!r.ok) throw new Error(r.error);
+          recordUsage(r);
           return r;
         });
       }, function (e) {
@@ -261,6 +265,72 @@
     }, function (e) {
       return { ok: false, models: [], error: '无法连接：' + ((e && e.message) || e) };
     });
+  }
+
+  /* ---------------- Token 用量统计（V9.3.1） ----------------
+     每次调用成功后记录接口返回的 usage；只写本机 localStorage，不上传。
+     设置页的「Token 用量」可视化读这份数据。 */
+  function emptyUsage() {
+    return { calls: 0, prompt: 0, completion: 0, reasoning: 0, total: 0, byModel: {}, recent: [], firstAt: '', lastAt: '' };
+  }
+
+  function getUsage() {
+    try {
+      var o = JSON.parse(localStorage.getItem(K_USAGE) || 'null');
+      if (o && typeof o === 'object') {
+        var u = emptyUsage();
+        u.calls = o.calls || 0;
+        u.prompt = o.prompt || 0;
+        u.completion = o.completion || 0;
+        u.reasoning = o.reasoning || 0;
+        u.total = o.total || 0;
+        u.byModel = (o.byModel && typeof o.byModel === 'object') ? o.byModel : {};
+        u.recent = Array.isArray(o.recent) ? o.recent : [];
+        u.firstAt = o.firstAt || '';
+        u.lastAt = o.lastAt || '';
+        return u;
+      }
+    } catch (e) { /* 解析失败按空处理 */ }
+    return emptyUsage();
+  }
+
+  function stamp() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' +
+      p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+  }
+
+  function recordUsage(r) {
+    if (!r) return null;
+    var p = r.prompt_tokens || 0;
+    var c = r.completion_tokens || 0;
+    var rt = r.reasoning_tokens || 0;
+    var t = r.total_tokens || (p + c);
+    var u = getUsage();
+    var at = stamp();
+    u.calls += 1;
+    u.prompt += p;
+    u.completion += c;
+    u.reasoning += rt;
+    u.total += t;
+    var m = r.model || '（未知模型）';
+    if (!u.byModel[m]) u.byModel[m] = { calls: 0, total: 0 };
+    u.byModel[m].calls += 1;
+    u.byModel[m].total += t;
+    if (!u.firstAt) u.firstAt = at;
+    u.lastAt = at;
+    u.recent.unshift({ at: at, model: m, prompt: p, completion: c, reasoning: rt, total: t });
+    if (u.recent.length > USAGE_RECENT_MAX) u.recent.length = USAGE_RECENT_MAX;
+    try { localStorage.setItem(K_USAGE, JSON.stringify(u)); } catch (e) { /* 配额满等忽略 */ }
+    try { window.dispatchEvent(new CustomEvent('kanseki-usage', { detail: u })); } catch (e) { /* 忽略 */ }
+    return u;
+  }
+
+  function resetUsage() {
+    try { localStorage.removeItem(K_USAGE); } catch (e) { /* 忽略 */ }
+    var u = emptyUsage();
+    try { window.dispatchEvent(new CustomEvent('kanseki-usage', { detail: u })); } catch (e) { /* 忽略 */ }
+    return u;
   }
 
   /* ---------------- 联网查证 ----------------
@@ -340,7 +410,7 @@
     DEFAULT_ENDPOINT: DEFAULT_ENDPOINT,
     DEFAULT_MODEL: DEFAULT_MODEL,
     DEFAULT_MAX_TOKENS: DEFAULT_MAX_TOKENS,
-    KEYS: { KEY: K_KEY, MODEL: K_MODEL, ENDPOINT: K_ENDPOINT, EMAIL: K_EMAIL, MAXTOK: K_MAXTOK },
+    KEYS: { KEY: K_KEY, MODEL: K_MODEL, ENDPOINT: K_ENDPOINT, EMAIL: K_EMAIL, MAXTOK: K_MAXTOK, USAGE: K_USAGE },
     isDesktop: isDesktop,
     getConfig: getConfig,
     setConfig: setConfig,
@@ -350,6 +420,8 @@
     listModels: listModels,
     modelsEndpoint: modelsEndpoint,
     search: search,
+    getUsage: getUsage,
+    resetUsage: resetUsage,
     friendlyError: friendlyError,
     openExternal: openExternal,
     openSettings: openSettings,

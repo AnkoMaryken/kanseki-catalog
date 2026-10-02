@@ -97,6 +97,41 @@
   .set-msg.err{display:block;background:#F8D7DA;color:#7a1a22}
   [data-theme="dark"] .set-msg.ok{background:#1e3320;color:#b7d7a8}
   [data-theme="dark"] .set-msg.err{background:#3a1c20;color:#f0a9b1}
+
+  /* ---------- Token 用量可视化（V9.3.1）---------- */
+  .tk-total{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:.2rem 0 .8rem}
+  .tk-big{font-size:1.9rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+  .tk-biglabel{display:flex;flex-direction:column;line-height:1.5;font-size:.74rem;color:var(--c-text-muted)}
+  .tk-biglabel b{color:var(--c-text);font-size:.9rem}
+  .tk-total .set-btn{margin-left:auto}
+  .tk-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--c-bg-alt);
+          border:1px solid var(--c-border)}
+  .tk-seg{display:block;height:100%;transition:width .3s}
+  .tk-seg.tk-in{background:#5B8DEF}
+  .tk-seg.tk-out{background:#2F9E6E}
+  .tk-legend{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.75rem;color:var(--c-text-secondary);margin:.5rem 0 0}
+  .tk-legend b{color:var(--c-text);font-variant-numeric:tabular-nums}
+  i.tk-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:.32rem;vertical-align:1px}
+  .tk-dot.tk-in{background:#5B8DEF}
+  .tk-dot.tk-out{background:#2F9E6E}
+  .tk-dot.tk-reason{background:#C9A227}
+  .tk-models{margin:.9rem 0 0;display:flex;flex-direction:column;gap:.4rem}
+  .tk-mrow{display:flex;align-items:center;gap:.55rem;font-size:.76rem}
+  .tk-mname{min-width:148px;color:var(--c-text-secondary);word-break:break-all}
+  .tk-mbar{flex:1 1 auto;height:8px;border-radius:4px;background:var(--c-bg-alt);
+           overflow:hidden;border:1px solid var(--c-border);min-width:60px}
+  .tk-mbar i{display:block;height:100%;background:#8B5CF6}
+  .tk-mval{min-width:150px;text-align:right;color:var(--c-text-secondary);font-variant-numeric:tabular-nums}
+  .tk-recent-wrap{margin:1rem 0 0;border-top:1px solid var(--c-border);padding-top:.6rem}
+  .tk-recent-head{display:flex;justify-content:space-between;font-size:.74rem;
+                  color:var(--c-text-muted);margin-bottom:.25rem}
+  .tk-recent{list-style:none;margin:0;padding:0;max-height:180px;overflow:auto;font-size:.74rem}
+  .tk-recent li{display:flex;gap:.6rem;flex-wrap:wrap;align-items:baseline;padding:.28rem 0;
+                border-bottom:1px dashed var(--c-border);color:var(--c-text-muted)}
+  .tk-recent li b{color:var(--c-text);font-variant-numeric:tabular-nums}
+  .tk-empty{font-size:.76rem;color:var(--c-text-muted);padding:.35rem 0}
+  .set-h code,.set-note code{background:var(--c-bg-alt);border:1px solid var(--c-border);
+                             border-radius:4px;padding:.05rem .3rem;font-size:.9em}
 </style>
 </head>
 <body>
@@ -123,8 +158,7 @@
 
 <div class="set-body">
   <aside class="set-rail">
-    <button class="set-tab active" id="tab-profile" type="button" data-pane="profile">个人中心</button>
-    <button class="set-tab" id="tab-sync" type="button" data-pane="sync">同步设置</button>
+    <button class="set-tab active" id="tab-sync" type="button" data-pane="sync">同步设置</button>
     <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
     <div class="set-foot" id="setFoot" hidden>
       <span class="sf-name">古代史及汉籍研究工具</span>
@@ -134,15 +168,8 @@
 
   <main class="set-main">
 
-    <!-- ---------- 个人中心 ---------- -->
-    <section class="set-pane active" id="pane-profile">
-      <h2 class="set-h">个人中心</h2>
-      <p class="set-sub">账号信息与登录状态（与主界面「账号」为同一页面）。</p>
-      <iframe id="profileFrame" data-src="profile.html" title="个人中心" loading="lazy"></iframe>
-    </section>
-
     <!-- ---------- 同步设置 ---------- -->
-    <section class="set-pane" id="pane-sync">
+    <section class="set-pane active" id="pane-sync">
       <h2 class="set-h">同步设置</h2>
       <p class="set-sub">通过坚果云 WebDAV 备份偏好与编目记录。凭据仅保存在本机。</p>
 
@@ -204,6 +231,41 @@
         API Key 只保存在本机，不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。<br>
         桌面版与网页版共用同一份配置（存在浏览器/程序本机的 localStorage 中）。
       </p>
+
+      <!-- ---------- Token 用量可视化（V9.3.1） ---------- -->
+      <h2 class="set-h" style="margin-top:1.8rem">Token 用量</h2>
+      <p class="set-sub">统计每次 AI 调用返回的 token 用量，只记在本机，不上传。</p>
+
+      <div class="tk-total">
+        <span class="tk-big" id="tkTotal">0</span>
+        <span class="tk-biglabel">
+          <span>累计 tokens</span>
+          <span>共 <b id="tkCalls">0</b> 次调用</span>
+        </span>
+        <button class="set-btn" id="tkReset" type="button">清零统计</button>
+      </div>
+
+      <div class="tk-bar" id="tkBar" role="img" aria-label="输入与输出 token 占比">
+        <span class="tk-seg tk-in" id="tkSegIn"></span>
+        <span class="tk-seg tk-out" id="tkSegOut"></span>
+      </div>
+      <div class="tk-legend">
+        <span><i class="tk-dot tk-in"></i>输入 <b id="tkIn">0</b></span>
+        <span><i class="tk-dot tk-out"></i>输出 <b id="tkOut">0</b></span>
+        <span><i class="tk-dot tk-reason"></i>其中思维链 <b id="tkReason">0</b></span>
+      </div>
+
+      <div class="tk-models" id="tkModels"></div>
+
+      <div class="tk-recent-wrap">
+        <div class="tk-recent-head"><span>最近调用</span><span id="tkSpan"></span></div>
+        <ul class="tk-recent" id="tkRecent"></ul>
+      </div>
+
+      <p class="set-note">
+        统计口径：每次调用返回的 <code>usage</code> 字段（输入 / 输出 / 思维链）。
+        思考模式下思维链也计入输出预算，故「其中思维链」会占相当比例。
+      </p>
     </section>
 
   </main>
@@ -244,22 +306,21 @@ if (IS_TAURI) {
 }
 
 /* ---------- 左栏切换 ---------- */
+/* V9.3.1：移除「个人中心」分区，只保留 同步设置 / API 管理 */
 function showPane(name) {
-  ['profile', 'sync', 'api'].forEach(function (n) {
+  ['sync', 'api'].forEach(function (n) {
     var tab = document.getElementById('tab-' + n);
     var pane = document.getElementById('pane-' + n);
     if (tab && !tab.hidden) tab.classList.toggle('active', n === name);
     if (pane) pane.classList.toggle('active', n === name);
   });
-  if (name === 'profile') {
-    var f = document.getElementById('profileFrame');
-    if (f && !f.getAttribute('src')) f.setAttribute('src', f.getAttribute('data-src'));
-  }
 }
 document.querySelectorAll('.set-tab').forEach(function (b) {
   b.addEventListener('click', function () { showPane(b.getAttribute('data-pane')); });
 });
-var initial = (location.hash || '').replace('#', '') || 'profile';
+// 默认分区：桌面版进「同步设置」，网页版没有同步能力，进「API 管理」
+var initial = (location.hash || '').replace('#', '') || (IS_TAURI ? 'sync' : 'api');
+if (initial === 'profile') initial = IS_TAURI ? 'sync' : 'api';   // 兼容旧链接
 if (initial === 'sync' && !IS_TAURI) initial = 'api';
 showPane(initial);
 
@@ -365,6 +426,65 @@ function msg(id, text, kind) {
       msg('aiMsg', '✗ ' + (e && e.message || e), 'err');
     });
   });
+})();
+
+/* ---------- Token 用量可视化（V9.3.1） ---------- */
+(function initUsage() {
+  var AI = window.KansekiAI;
+  if (!AI || !AI.getUsage) return;
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function fmt(n) { return (Number(n) || 0).toLocaleString('en-US'); }
+
+  function render() {
+    var u = AI.getUsage();
+    document.getElementById('tkTotal').textContent = fmt(u.total);
+    document.getElementById('tkCalls').textContent = fmt(u.calls);
+    document.getElementById('tkIn').textContent = fmt(u.prompt);
+    document.getElementById('tkOut').textContent = fmt(u.completion);
+    document.getElementById('tkReason').textContent = fmt(u.reasoning);
+
+    var sum = u.prompt + u.completion;
+    var inPct = sum > 0 ? (u.prompt / sum * 100) : 50;
+    document.getElementById('tkSegIn').style.width = inPct.toFixed(1) + '%';
+    document.getElementById('tkSegOut').style.width = (100 - inPct).toFixed(1) + '%';
+
+    // 按模型分布
+    var box = document.getElementById('tkModels');
+    var bm = u.byModel || {};
+    var models = Object.keys(bm).sort(function (a, b) { return bm[b].total - bm[a].total; });
+    var max = models.length ? bm[models[0]].total : 1;
+    box.innerHTML = models.length ? models.map(function (m) {
+      var d = bm[m];
+      var pct = Math.max(2, Math.round(d.total / Math.max(1, max) * 100));
+      return '<div class="tk-mrow"><span class="tk-mname">' + esc(m) + '</span>' +
+        '<span class="tk-mbar"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="tk-mval">' + fmt(d.total) + ' tokens · ' + fmt(d.calls) + ' 次</span></div>';
+    }).join('') : '<div class="tk-empty">还没有调用记录。</div>';
+
+    // 最近调用
+    var list = document.getElementById('tkRecent');
+    var rec = (u.recent || []).slice(0, 10);
+    list.innerHTML = rec.length ? rec.map(function (x) {
+      return '<li><span>' + esc(x.at) + '</span><span>' + esc(x.model) + '</span>' +
+        '<b>' + fmt(x.total) + '</b><span>入 ' + fmt(x.prompt) + ' / 出 ' + fmt(x.completion) +
+        (x.reasoning ? ' / 思维链 ' + fmt(x.reasoning) : '') + '</span></li>';
+    }).join('') : '<li class="tk-empty">暂无记录</li>';
+    document.getElementById('tkSpan').textContent = u.firstAt ? (u.firstAt + ' 起') : '';
+  }
+
+  document.getElementById('tkReset').addEventListener('click', function () {
+    if (!window.confirm('确定清零本机的 token 统计吗？（不会影响 API Key 与其它设置）')) return;
+    AI.resetUsage();
+    render();
+  });
+  // 本页调用后立即刷新；另一窗口/页面调用则经 storage 事件刷新
+  window.addEventListener('kanseki-usage', render);
+  window.addEventListener('storage', function (e) {
+    if (e && e.key === (AI.KEYS && AI.KEYS.USAGE)) render();
+  });
+  render();
 })();
 
 /* ---------- 同步设置（仅桌面版）---------- */

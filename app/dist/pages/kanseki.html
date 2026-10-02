@@ -200,6 +200,32 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .ks-aio-warn{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:0 1.1rem .7rem;padding:.55rem .75rem;border:1px solid #e0b400;border-radius:var(--radius-md);background:#FFF4CC;color:#6b4e00;font-size:.82rem;line-height:1.7}
 [data-theme="dark"] .ks-aio-warn{background:#3a2f10;color:#f0d998;border-color:#6b5518}
 .ks-aio-warn[hidden]{display:none !important}
+/* 检索历史（V9.3.1） */
+.ks-hist-wrap{position:relative;display:inline-flex}
+.ks-hist-n{display:inline-block;margin-left:.3rem;padding:0 .3rem;border-radius:999px;
+  background:var(--color-bg-alt);border:1px solid var(--color-border);
+  font-size:.68rem;color:var(--color-text-muted);line-height:1.5}
+.ks-hist{position:absolute;top:calc(100% + 6px);left:0;z-index:70;width:min(340px,80vw);
+  background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);
+  box-shadow:var(--shadow-lg);padding:.4rem;animation:ksAiIn .14s ease}
+.ks-hist[hidden]{display:none !important}
+.ks-hist-head{display:flex;align-items:center;justify-content:space-between;
+  padding:.25rem .45rem .35rem;font-size:.74rem;color:var(--color-text-muted);
+  border-bottom:1px solid var(--color-divider)}
+.ks-hist-clear{border:none;background:none;color:var(--color-text-muted);cursor:pointer;
+  font-family:var(--font-body);font-size:.74rem;padding:.1rem .3rem;border-radius:4px}
+.ks-hist-clear:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.ks-hist-list{list-style:none;margin:0;padding:.15rem 0 0;max-height:260px;overflow:auto}
+.ks-hist-list li{display:flex;align-items:center;gap:.3rem}
+.ks-hist-item{flex:1 1 auto;text-align:left;border:none;background:none;cursor:pointer;
+  font-family:var(--font-body);font-size:.82rem;color:var(--color-text);
+  padding:.35rem .45rem;border-radius:var(--radius-sm);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.ks-hist-item:hover{background:var(--color-surface-hover)}
+.ks-hist-del{border:none;background:none;color:var(--color-text-muted);cursor:pointer;
+  font-size:.95rem;line-height:1;padding:.15rem .35rem;border-radius:4px}
+.ks-hist-del:hover{background:var(--color-surface-hover);color:#c0392b}
+.ks-hist-empty{font-size:.78rem;color:var(--color-text-muted);padding:.6rem .45rem}
 /* 联网查证状态行（V9.3） */
 .ks-aio-src{padding:.45rem 1.1rem;border-bottom:1px solid var(--color-divider);
   font-size:.75rem;color:var(--color-text-secondary);line-height:1.7;word-break:break-all}
@@ -352,6 +378,20 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
                placeholder="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
                aria-label="检索">
         <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
+        <!-- 检索历史（V9.3.1）：记录最近检索词，一键回填重查 -->
+        <div class="ks-hist-wrap">
+          <button class="ks-btn" id="ksHistBtn" type="button" aria-haspopup="true" aria-expanded="false"
+                  title="最近检索过的关键词">
+            <span data-cn="历史">历史</span><span class="ks-hist-n" id="ksHistN" hidden>0</span>
+          </button>
+          <div class="ks-hist" id="ksHistPanel" hidden role="menu" aria-label="检索历史">
+            <div class="ks-hist-head">
+              <span data-cn="最近检索">最近检索</span>
+              <button class="ks-hist-clear" id="ksHistClear" type="button" data-cn="清空">清空</button>
+            </div>
+            <ul class="ks-hist-list" id="ksHistList"></ul>
+          </div>
+        </div>
         <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
         <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
                 title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
@@ -524,7 +564,7 @@ document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
    ============================================================ */
-var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.3' };
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.3.1' };
 
 /* ============================================================
    繁简转换
@@ -1113,6 +1153,94 @@ function exportCSV(){
 /* ============================================================
    交互
    ============================================================ */
+/* ============================================================
+   检索历史（V9.3.1）
+   ------------------------------------------------------------
+   记录最近检索过的关键词（本机 localStorage，最多 20 条），可一键回填重查。
+   记录时机：按 Enter / 点「检索」/ 输入停顿 1.2 秒（即真正执行过的检索），
+   而不是每敲一个字就记一条。
+   ============================================================ */
+var HIST_KEY = 'kanseki_search_history';
+var HIST_MAX = 20;
+function histLoad(){
+  try {
+    var a = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(function(x){ return typeof x === 'string' && x.trim(); }) : [];
+  } catch(e){ return []; }
+}
+function histSave(a){
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(a.slice(0, HIST_MAX))); } catch(e){ /* 忽略 */ }
+  renderHist();
+}
+function histPush(q){
+  q = String(q == null ? '' : q).trim();
+  if (!q) return;
+  var a = histLoad().filter(function(x){ return x !== q; });   // 去重后置顶
+  a.unshift(q);
+  histSave(a);
+}
+function histRemoveAt(i){
+  var a = histLoad();
+  if (i < 0 || i >= a.length) return;
+  a.splice(i, 1);
+  histSave(a);
+}
+function histClear(){ histSave([]); }
+function histAttr(s){ return esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function histIsOpen(){ var p = $('ksHistPanel'); return !!p && !p.hidden; }
+function histPanel(open){
+  var p = $('ksHistPanel'), b = $('ksHistBtn');
+  if (!p) return;
+  p.hidden = !open;
+  if (b) b.setAttribute('aria-expanded', String(!!open));
+}
+function renderHist(){
+  var list = $('ksHistList');
+  if (!list) return;
+  var a = histLoad();
+  var n = $('ksHistN');
+  if (n) { n.hidden = !a.length; n.textContent = String(a.length); }
+  if (!a.length) {
+    list.innerHTML = '<li class="ks-hist-empty">' + esc(toDisplay('暂无检索历史')) + '</li>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < a.length; i++) {
+    html += '<li>'
+      + '<button class="ks-hist-item" type="button" data-i="' + i + '" title="' + histAttr(a[i]) + '">'
+      + esc(a[i]) + '</button>'
+      + '<button class="ks-hist-del" type="button" data-di="' + i + '" title="' + esc(toDisplay('删除')) + '" aria-label="' + esc(toDisplay('删除')) + '">×</button>'
+      + '</li>';
+  }
+  list.innerHTML = html;
+}
+function histInit(){
+  var btn = $('ksHistBtn'), panel = $('ksHistPanel'), list = $('ksHistList');
+  if (!btn || !panel || !list) return;
+  btn.addEventListener('click', function(e){ e.stopPropagation(); histPanel(!histIsOpen()); });
+  var clearBtn = $('ksHistClear');
+  if (clearBtn) clearBtn.addEventListener('click', function(e){ e.stopPropagation(); histClear(); });
+  list.addEventListener('click', function(e){
+    var t = e.target;
+    var del = t && t.closest ? t.closest('[data-di]') : null;
+    if (del) { e.stopPropagation(); histRemoveAt(+(del.getAttribute('data-di'))); return; }
+    var it = t && t.closest ? t.closest('[data-i]') : null;
+    if (!it) return;
+    var i = +(it.getAttribute('data-i'));
+    var q = histLoad()[i];
+    if (!q) return;
+    var input = $('ksSearch');
+    input.value = q;
+    runSearch(q);
+    histPush(q);          // 重新置顶
+    histPanel(false);
+  });
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  document.addEventListener('click', function(){ if (histIsOpen()) histPanel(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && histIsOpen()) histPanel(false); });
+  renderHist();
+}
+
 function clearAll(){
   $('ksSearch').value = '';
   // 注意：必须先置空 select.value，再重建选项 ——
@@ -1126,17 +1254,26 @@ function clearAll(){
   runSearch('');
 }
 function bindEvents(){
-  var input = $('ksSearch'), timer = null;
+  var input = $('ksSearch'), timer = null, histTimer = null;
+  // 检索稳定后再记历史：按 Enter / 点「检索」立即记；纯打字则停顿 1.2 秒后记，
+  // 避免把「周」「周易」这种半截输入都记进去
+  function settle(q){
+    if (histTimer) clearTimeout(histTimer);
+    histTimer = setTimeout(function(){ histPush(q); }, 1200);
+  }
+  function commit(){ if (timer) clearTimeout(timer); if (histTimer) clearTimeout(histTimer); }
   input.addEventListener('input', function(){
     if (timer) clearTimeout(timer);
-    timer = setTimeout(function(){ runSearch(input.value); }, 250);   // debounce 250ms
+    var v = input.value;
+    timer = setTimeout(function(){ runSearch(v); settle(v); }, 250);   // debounce 250ms
   });
   input.addEventListener('keydown', function(e){
-    if (e.key === 'Enter') { if (timer) clearTimeout(timer); runSearch(input.value); }
+    if (e.key === 'Enter') { commit(); runSearch(input.value); histPush(input.value); }
   });
-  $('ksGo').addEventListener('click', function(){ if (timer) clearTimeout(timer); runSearch(input.value); });
+  $('ksGo').addEventListener('click', function(){ commit(); runSearch(input.value); histPush(input.value); });
   $('ksClear').addEventListener('click', clearAll);
   $('ksExport').addEventListener('click', exportCSV);
+  histInit();
 
   $('ksBu').addEventListener('change', function(){ fBu = this.value; buildLeiOptions(); state.page = 1; runSearch(input.value); });
   $('ksLei').addEventListener('change', function(){ fLei = this.value; state.page = 1; runSearch(input.value); });
@@ -1868,7 +2005,17 @@ window.KansekiAIPage = {
   selected: function () { return state.sel; },
   ctx: function () { return aiCtx; },
   setCtx: function (c) { aiCtx = c; },
-  busy: function () { return aiBusy; }
+  busy: function () { return aiBusy; },
+  // 检索历史（V9.3.1）—— 供自动化测试驱动
+  hist: {
+    load: histLoad,
+    push: histPush,
+    clear: histClear,
+    removeAt: histRemoveAt,
+    open: histPanel,
+    isOpen: histIsOpen,
+    count: function () { return histLoad().length; }
+  }
 };
 
 /* ============================================================
