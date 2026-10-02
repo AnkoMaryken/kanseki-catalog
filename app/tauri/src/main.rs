@@ -7,6 +7,7 @@ mod ai;
 mod http;
 mod single_instance;
 mod system;
+mod websearch;
 
 fn main() {
     // 单实例保护（V0.8）：必须在 tauri::Builder 之前，
@@ -19,14 +20,21 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             http::webdav_request,
             http::webdav_check,
-            // V9.1：AI 复检（DeepSeek）—— 同理走 Rust 侧以规避 CORS
+            // V9.1：AI 复检（DeepSeek）
             ai::ai_chat,
             ai::ai_check,
+            // V9.3：模型列表（避免写死过时模型名）+ 联网查证
+            ai::ai_models,
+            websearch::web_search,
             // V9.2：设置窗口与外部链接
             system::open_settings_window,
             system::settings_window_visible,
             system::app_version,
             system::open_external,
+            // V9.3：导出保存与打开（右下角通知栏用）
+            system::save_export,
+            system::open_path,
+            system::reveal_path,
         ])
         .setup(|app| {
             // V9.2.1 修复「设置窗口只能打开一次」：

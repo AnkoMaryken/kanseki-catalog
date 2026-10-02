@@ -1057,6 +1057,57 @@ html, body {
 .toast.ok { background: var(--ok); }
 .toast.err { background: var(--danger); }
 
+/* ---------- 右下角导出通知栏（V9.3） ----------
+   比 toast 更"实"：带操作按钮、停留 20 秒、可手动关闭。
+   位置固定在主界面右下角，与 toast（底部居中、2.6s 自动消失）区分开：
+   toast 用于瞬时反馈，通知栏用于"需要你去操作"的导出结果。 */
+.notice-bar {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9998;
+  max-width: min(520px, calc(100vw - 40px));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 14px;
+  background: var(--surface, #fff);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--ok);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.16);
+  animation: nbIn .22s ease;
+}
+/* ⚠️ 必留：本元素用 display:flex，会压过 [hidden] 的低优先级 display:none */
+.notice-bar[hidden] { display: none !important; }
+.nb-icon { display: inline-flex; color: var(--ok); flex-shrink: 0; }
+.nb-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nb-title { font-size: 13px; font-weight: 600; }
+.nb-text { font-size: 11.5px; color: var(--text-sec); line-height: 1.5; word-break: break-all; white-space: pre-line; }
+.nb-actions { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.nb-btn {
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .13s;
+}
+.nb-btn:hover { background: rgba(127,127,127,.14); }
+.nb-btn.primary { background: #171717; color: #fafafa; border-color: #171717; }
+[data-theme="dark"] .nb-btn.primary { background: #e5e5e5; color: #0a0a0a; border-color: #e5e5e5; }
+.nb-x { padding: 5px 9px; line-height: 1; font-size: 15px; color: var(--text-sec); }
+@keyframes nbIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (max-width: 720px) {
+  .notice-bar { left: 12px; right: 12px; max-width: none; flex-wrap: wrap; }
+  .nb-actions { width: 100%; justify-content: flex-end; }
+}
+
 @keyframes toastIn {
   from { opacity: 0; transform: translateX(-50%) translateY(8px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }

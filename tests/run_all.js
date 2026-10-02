@@ -20,7 +20,7 @@ const tests = [
   // V8.2 移动端 + V8.3 功能
   'test_v82_mobile.js','test_v83_card_search.js',
   // V8.9 字形 + V9.0/V9.2 古籍类目查询与 AI 复检 (此前漏收)
-  'test_v89_lang.js','test_v90_kanseki.js','test_v92_ai.js'
+  'test_v89_lang.js','test_v90_kanseki.js','test_v93_ai.js','test_v93_panel.js'
 ];
 let fail = 0;
 for (const t of tests) {

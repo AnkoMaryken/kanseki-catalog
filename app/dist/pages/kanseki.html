@@ -200,6 +200,19 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 .ks-aio-warn{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:0 1.1rem .7rem;padding:.55rem .75rem;border:1px solid #e0b400;border-radius:var(--radius-md);background:#FFF4CC;color:#6b4e00;font-size:.82rem;line-height:1.7}
 [data-theme="dark"] .ks-aio-warn{background:#3a2f10;color:#f0d998;border-color:#6b5518}
 .ks-aio-warn[hidden]{display:none !important}
+/* 联网查证状态行（V9.3） */
+.ks-aio-src{padding:.45rem 1.1rem;border-bottom:1px solid var(--color-divider);
+  font-size:.75rem;color:var(--color-text-secondary);line-height:1.7;word-break:break-all}
+.ks-aio-src[hidden]{display:none !important}
+.ks-aio-src a{color:var(--color-primary);text-decoration:none;margin-right:.2rem}
+.ks-aio-src a:hover{text-decoration:underline}
+/* 网页版自带轻提示（V9.3）：不在 APP 外壳里时，导出后用右下角小条提示 */
+.ks-ltoast{position:fixed;right:20px;bottom:20px;z-index:900;max-width:min(420px,80vw);
+  background:#1f2329;color:#fff;padding:.6rem .9rem;border-radius:8px;font-size:.82rem;
+  line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;pointer-events:none}
+.ks-ltoast.show{opacity:1;transform:none}
+.ks-ltoast.err{background:#7a1a22}
 .ks-aio-fb{display:flex;flex-direction:column;gap:.5rem;margin:0 1.1rem .8rem;padding:.7rem;border:1px dashed var(--color-border);border-radius:var(--radius-md)}
 .ks-aio-fb[hidden]{display:none !important}
 /* 判定徽标 */
@@ -341,7 +354,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
         <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
         <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
         <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
-                title="单击＝复检选中的那一条；长按＝整页复检 / 提问">AI 复检</button>
+                title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
         <button class="ks-btn" id="ksExport" type="button" data-cn="导出 CSV">导出 CSV</button>
         <div class="ks-lang" role="group" aria-label="显示字形">
           <button type="button" id="langBtnS" title="显示简体字" data-cn="简">简</button>
@@ -363,10 +376,10 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
           <button class="ks-btn ks-btn-tiny" id="ksAiMd" type="button" data-cn="导出 Markdown">导出 Markdown</button>
           <button class="ks-btn ks-btn-tiny" id="ksAiClose" type="button" data-cn="收起">收起</button>
         </div>
+        <div class="ks-aio-src" id="ksAiSrc" hidden></div>
         <div class="ks-aio-body" id="ksAiOutBody"></div>
         <div class="ks-aio-warn" id="ksAiWarn" hidden>
-          <b data-cn="复检结论与本表类目完全不一致。">复检结论与本表类目完全不一致。</b>
-          <span data-cn="请截图此结果并联系软件开发者修改条目内容。">请截图此结果并联系软件开发者修改条目内容。</span>
+          <span id="ksAiWarnTx" data-cn="复检结论与本表分类不一致。请截图此结果并联系软件开发者修改条目内容。">复检结论与本表分类不一致。请截图此结果并联系软件开发者修改条目内容。</span>
           <button class="ks-btn ks-btn-tiny" id="ksAiReportBtn" type="button" data-cn="反馈错误结果">反馈错误结果</button>
         </div>
         <div class="ks-aio-fb" id="ksAiFb" hidden>
@@ -511,7 +524,7 @@ document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
    ============================================================ */
-var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.2.1' };
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.3' };
 
 /* ============================================================
    繁简转换
@@ -1069,17 +1082,32 @@ function buildCSV(){
   }
   return '\uFEFF' + out.join('\r\n') + '\r\n';
 }
+/* 导出 CSV（V9.3）：
+   桌面版由 Rust 写到系统下载目录并回传**绝对路径**，再交给 APP 外壳在主界面
+   右下角弹通知栏（可「打开文件 / 打开所在文件夹」）—— 不再是「不知道下哪了」。
+   网页版没有外壳，退回浏览器下载 + 页内右下角轻提示。 */
 function exportCSV(){
   var csv = buildCSV();
+  var name = '古籍类目查询_' + stamp() + '.csv';
+  if (window.KansekiAI && window.KansekiAI.saveExport) {
+    window.KansekiAI.saveExport(name, csv).then(function (r) {
+      if (!r.ok) { aiLocalToast('导出失败：' + (r.error || ''), true); return; }
+      if (!window.KansekiAI.notifyExport({ name: r.name, path: r.path, kind: 'CSV', size: csv.length })) {
+        aiLocalToast('已导出 CSV：' + r.name + '（请查看浏览器下载）', false);
+      }
+    });
+    return;
+  }
   var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = '古籍类目查询_' + stamp() + '.csv';
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  aiLocalToast('已导出 CSV：' + name + '（请查看浏览器下载）', false);
 }
 
 /* ============================================================
@@ -1151,21 +1179,29 @@ if (typeof window !== 'undefined') window.KansekiLang = {
 };
 
 /* ============================================================
-   AI 复检（V9.2）
+   AI 复检（V9.3）
    ------------------------------------------------------------
-   · 单击工具条「AI 复检」＝ 复检**表格中选中的那一条**，结果显示在搜索栏下方
-   · 长按（≥650ms）＝ 打开弹窗，做**整页复检**或**提问**
-   · API 不在此页配置：桌面版在「设置」独立窗口的「API 管理」，
-     网页版在「个人中心」的「API 管理」；两处与本页共用 ai-config.js
-     （配置写 localStorage，同源共享，桌面两个窗口也共享）
-   · 推翻判定（结论与本表类目完全不一致）→ 加粗标红 + 提示截图联系开发者，
-     并提供「反馈错误结果」面板（邮件 / 复制）
+   交互：
+     · 单击工具条「AI 复检」
+         – 表格里**选中了某行** → 复检该条
+         – 否则 → **复检搜索框里的内容**（书不在本表里也能查）
+     · 长按（≥650ms）→ 弹窗：整页复检 / 提问
+   输出契约：
+     · 第一行必须是 【一致性】一致 | 可能不一致 | 不一致
+     · 不再限制篇幅；要求独立判断、不得默认本表正确
+     · 不一致 / 可能不一致 一律**标红**
+   联网查证：
+     · 桌面版由 Rust 检索 Bing（无跨域限制），把真实网页标题/摘要/链接
+       作为「网络查证资料」注入提示词，要求模型据此交叉核对
+     · 网页版受浏览器跨域限制无法检索，会在结果区明确说明
    ============================================================ */
 var AI_LONGPRESS_MS = 650;
 var aiBusy = false;
-var aiHistory = [];          // 弹窗内对话历史
-var aiCtx = {                // 单条复检上下文（导出 Markdown 与反馈都用它）
-  idx: null, verdict: '', answer: '', model: '', at: '', via: ''
+var aiHistory = [];
+var aiCtx = {
+  mode: '', idx: null, query: '', consistency: '',
+  answer: '', model: '', at: '', via: '',
+  searchHits: [], searchErr: '', fromReasoning: false
 };
 
 function aiLib(){ return window.KansekiAI; }
@@ -1177,6 +1213,10 @@ function aiCfgText(){
   return toDisplay('模型') + '：' + c.model;
 }
 function aiGlyphWord(){ return displayLang === 't' ? '繁体中文' : '简体中文'; }
+function aiStamp(){
+  var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
 
 /* ---------- 送审文本 ---------- */
 function aiRowLine(i){
@@ -1190,7 +1230,7 @@ function aiItemText(i){
   return '序列号：' + (i + 1) + '\n' +
     '书名：《' + (books[i] || '') + '》\n' +
     '著者：' + (authors[i] || '（原著者空缺）') + '\n' +
-    '《中国古籍总目》分类：' + (PATHS[ci] || '') + '\n' +
+    '《中国古籍总目》分类（部/类/属）：' + (PATHS[ci] || '') + '\n' +
     '本表给出的合璧类目：' + (HEL[ci] || '（无对应）') + '\n' +
     '本表判定：' + (c[5] || '') + (c[6] ? '（备注：' + c[6] + '）' : '');
 }
@@ -1237,42 +1277,137 @@ function aiScopeLabel(){
   return toDisplay('当前页');
 }
 
+/* ---------- 网络查证资料 ---------- */
+function aiSearchBlock(hits, err){
+  var L = [];
+  if (hits && hits.length) {
+    L.push('【网络查证资料】（由本程序联网检索所得，可能与主题无关或不可靠，请自行甄别采信）');
+    for (var i = 0; i < hits.length; i++) {
+      L.push((i + 1) + '. ' + hits[i].title);
+      if (hits[i].snippet) L.push('   摘要：' + hits[i].snippet);
+      if (hits[i].url) L.push('   来源：' + hits[i].url);
+    }
+  } else {
+    L.push('【网络查证资料】未能取得（' + (err || '未检索到结果') + '）。');
+    L.push('注意：本次没有网络资料可参考，请仅凭你自身的知识判断，并在回答中说明这一限制。');
+  }
+  return L.join('\n');
+}
+function aiSearchQueriesForRow(i){
+  var ci = catIdx[i], c = CATS[ci] || [];
+  var b = books[i] || '', a = authors[i] || '';
+  var qs = [];
+  if (b) qs.push('《' + b + '》' + (a ? ' ' + a : ''));
+  if (b) qs.push(b + ' 古籍 分类 四部');
+  return qs.slice(0, 2);
+}
+function aiSearchQueriesForText(t){
+  var q = String(t || '').replace(/^[书著类合判]:/, '').trim();
+  if (!q) return [];
+  return [q + ' 古籍', q + ' 中国古籍总目 分类'].slice(0, 2);
+}
+/* 依次执行若干检索词，合并去重，最多 max 条 */
+function aiRunSearches(queries, max){
+  var lib = aiLib();
+  if (!lib || !lib.search) return Promise.resolve({ hits: [], err: '检索不可用' });
+  max = max || 5;
+  var all = [], seen = {}, errors = [];
+  var chain = Promise.resolve();
+  queries.forEach(function (q) {
+    chain = chain.then(function () {
+      if (all.length >= max) return null;
+      return lib.search(q, Math.max(3, max - all.length)).then(function (r) {
+        if (r && r.ok && r.hits) {
+          r.hits.forEach(function (h) {
+            if (all.length < max && h && h.url && !seen[h.url]) { seen[h.url] = 1; all.push(h); }
+          });
+        } else if (r && r.error) {
+          errors.push(r.error);
+        }
+        return null;
+      });
+    });
+  });
+  return chain.then(function () {
+    return { hits: all, err: all.length ? '' : (errors[0] || '未检索到结果') };
+  });
+}
+
 /* ---------- 提示词 ---------- */
-/* 单条复检：刻意压缩输出，省 token（用户要求「答案短一些，其余不要多说」） */
-function aiItemMessages(i){
-  var sys = [
-    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
-    '复核下面这一条古籍的合璧归类。输出必须严格为以下四行，不要任何多余文字、不要复述原文：',
-    '【判定】维持 或 推翻 或 存疑',
-    '分类：该书在《全球汉籍合璧工程》中应归入的类目',
-    '依据：一句话说明为什么这样归',
-    '出处：判断所依据的数据来源（本条目在《中国古籍总目》中的部/类/属与著录信息）',
-    '判定规则：仅当合璧类目明显错误、应归入完全不同的类目时用「推翻」；基本合理用「维持」；信息不足或两可时用「存疑」。',
+function aiHeaderCommon(){
+  return [
+    '你是中国古籍编目与版本目录学专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
+    '',
+    '【最重要的前提】不要把用户提供的「本表分类」当作正确无误 —— 它是人工整理的，可能存在错漏。',
+    '请**独立判断**，并以你自身的知识 + 用户提供的网络查证资料为依据，再与本表核对。',
+    '',
+    '【输出格式】第一行必须且只能是下列三者之一（不要加任何其它字符）：',
+    '【一致性】一致',
+    '【一致性】可能不一致',
+    '【一致性】不一致',
+    '含义：一致＝你的判断与本表相同；可能不一致＝有疑点、证据不足、或本表虽可接受但并非最佳；不一致＝本表分类明显有误。',
+    '',
+    '第一行之后可自由作答，篇幅不限，但应包含：',
+    '一、你的判断：该书在《全球汉籍合璧工程》中应归的类目；在《中国古籍总目》中应归的部/类/属。',
+    '二、依据：书名、著者、内容性质、成书年代、版本、历代书目著录等。',
+    '三、网络资料的使用：明确指出哪些结论有网络资料支持、哪些仅凭你自身知识；若网络资料与你的判断冲突，要点明。',
+    '四、若与本表不一致，请给出具体修改建议（应改成什么）。',
+    '',
     '回答使用' + aiGlyphWord() + '。'
   ].join('\n');
+}
+function aiItemMessages(i, search){
+  var L = [];
+  L.push('【待复核条目】');
+  L.push(aiItemText(i));
+  L.push('');
+  L.push(aiSearchBlock(search && search.hits, search && search.err));
   return [
-    { role: 'system', content: sys },
-    { role: 'user', content: aiItemText(i) }
+    { role: 'system', content: aiHeaderCommon() },
+    { role: 'user', content: L.join('\n') }
   ];
 }
-/* 整页复检：也要求简短 */
+/* 搜索框内容复检：这本书可能根本不在本表里 */
+function aiQueryMessages(q, candidates, search){
+  var L = [];
+  L.push('【用户要查的书】');
+  L.push(String(q || '').trim());
+  L.push('');
+  L.push('【本表中书名相近的记录】（用于核对；若为空说明本表没有收录）');
+  if (candidates && candidates.length) {
+    for (var i = 0; i < candidates.length; i++) L.push(aiRowLine(candidates[i]));
+  } else {
+    L.push('（本表中未找到书名相近的记录 —— 请按你的知识判断该书应归何类，并说明本表未收录）');
+  }
+  L.push('');
+  L.push(aiSearchBlock(search && search.hits, search && search.err));
+  L.push('');
+  L.push('请判断这本书的正确归类，并按格式先给出与本表的一致性判定。若本表未收录该书，一致性请判为「不一致」，并在回答中说明本表缺少该条。');
+  return [
+    { role: 'system', content: aiHeaderCommon() },
+    { role: 'user', content: L.join('\n') }
+  ];
+}
+/* 整页复检 */
 function aiPageMessages(idxs){
-  var sys = [
-    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》两套分类体系。',
-    '用户给出若干已著录古籍（含部／类／属、书名、著者、本表给出的合璧类目与判定）。',
-    '请复核这些对应是否合理，输出务必简短，只用以下三节，不要复述原文：',
-    '一、总体判断：一句话；',
-    '二、可疑条目：序号 + 问题 + 建议类目（只列确有问题的，最多 10 条）；',
-    '三、需人工确认的边界情形：最多 3 条。',
-    '回答使用' + aiGlyphWord() + '。'
-  ].join('\n');
-  var user = aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n');
-  return [{ role: 'system', content: sys }, { role: 'user', content: user }];
+  return [
+    {
+      role: 'system',
+      content: [
+        '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
+        '用户给出若干已著录古籍（含部／类／属、书名、著者、本表给出的合璧类目与判定）。',
+        '**不要默认本表分类正确**，请独立核对。',
+        '输出：先一句总体判断，然后列出可疑条目（序号 + 问题 + 建议类目），再列需人工确认的边界情形。篇幅不限。',
+        '回答使用' + aiGlyphWord() + '。'
+      ].join('\n')
+    },
+    { role: 'user', content: aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n') }
+  ];
 }
 function aiAskMessages(q){
   var sys = [
     '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》分类体系。',
-    '回答务必简短直接，不要客套，不要重复用户的话。回答使用' + aiGlyphWord() + '。'
+    '**不要默认用户提供的分类正确**；有疑问就直说。回答用' + aiGlyphWord() + '，详略自定。'
   ].join('\n');
   if (!aiHistory.length) {
     var idxs = aiPick($('ksAiScope') ? $('ksAiScope').value : 'page');
@@ -1286,9 +1421,19 @@ function aiAskMessages(q){
   return aiHistory;
 }
 
-/* ---------- 结果渲染（轻量 Markdown） ---------- */
+/* ---------- 判定解析与渲染 ---------- */
 function aiEsc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-function aiRenderMd(text, overturn){
+function aiParseConsistency(text){
+  var t = String(text || '');
+  var m = /【\s*一致性\s*】\s*(可能不一致|不一致|一致)/.exec(t);
+  if (m) return m[1];
+  var head = t.slice(0, 200);
+  if (/可能不一致/.test(head)) return '可能不一致';
+  if (/不一致/.test(head)) return '不一致';
+  if (/一致/.test(head)) return '一致';
+  return '不一致';   // 解析不出时按最需提醒的一档处理
+}
+function aiRenderMd(text, red){
   var lines = String(text || '').split('\n'), out = [], i, ln;
   for (i = 0; i < lines.length; i++) {
     ln = aiEsc(lines[i]);
@@ -1298,29 +1443,20 @@ function aiRenderMd(text, overturn){
     out.push(ln);
   }
   var html = out.join('\n');
-  return overturn ? '<span class="ks-overturn">' + html + '</span>' : html;
+  return red ? '<span class="ks-overturn">' + html + '</span>' : html;
 }
-function aiParseVerdict(text){
-  var m = /【判定】\s*(维持|推翻|存疑)/.exec(String(text || ''));
-  if (m) return m[1];
-  if (/推翻/.test(text || '')) return '推翻';
-  if (/维持/.test(text || '')) return '维持';
-  return '存疑';
-}
-function aiVerdictBadge(v){
-  var cls = v === '推翻' ? 'ks-vd-overturn' : (v === '维持' ? 'ks-vd-keep' : 'ks-vd-doubt');
+function aiConsistencyBadge(v){
+  var cls = v === '一致' ? 'ks-vd-keep' : 'ks-vd-overturn';
   return '<span class="ks-vd ' + cls + '">' + esc(toDisplay(v)) + '</span>';
 }
-function aiStamp(){
-  var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
-  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
-}
+function aiIsRed(v){ return v !== '一致'; }
 
-/* ---------- 单条复检 ---------- */
+/* ---------- 结果区 ---------- */
 function aiResetOut(){
   var o = $('ksAiOut'); if (o) o.hidden = true;
   if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '';
   if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiSrc')) { $('ksAiSrc').innerHTML = ''; $('ksAiSrc').hidden = true; }
   if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
   if ($('ksAiFb')) $('ksAiFb').hidden = true;
 }
@@ -1329,65 +1465,133 @@ function aiHintOut(msg){
   if (!o) return;
   o.hidden = false;
   if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiSrc')) $('ksAiSrc').hidden = true;
   if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '<span style="color:var(--color-text-muted)">' + aiEsc(toDisplay(msg)) + '</span>';
   if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
   if ($('ksAiFb')) $('ksAiFb').hidden = true;
 }
-function aiRecheckItem(){
-  if (aiBusy) return;
-  if (state.sel === null || state.sel === undefined) {
-    aiHintOut('请先在表格中点击选中一条记录，再点「AI 复检」。（长按本按钮可整页复检或提问）');
-    return;
+function aiBusyOut(msg){
+  var o = $('ksAiOut'); if (!o) return;
+  o.hidden = false;
+  if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiSrc')) $('ksAiSrc').hidden = true;
+  if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '<span class="ks-ai-busy"></span>' + aiEsc(toDisplay(msg || '正在请求…'));
+  if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
+  if ($('ksAiFb')) $('ksAiFb').hidden = true;
+}
+function aiShowSearch(srcEl, search){
+  if (!srcEl) return;
+  srcEl.hidden = false;
+  if (search && search.hits && search.hits.length) {
+    var links = search.hits.slice(0, 3).map(function (h, i) {
+      return '<a href="' + aiEsc(h.url) + '" target="_blank" rel="noopener">[' + (i + 1) + ']</a>';
+    }).join(' ');
+    srcEl.innerHTML = esc(toDisplay('已联网查证')) + '：' + search.hits.length + ' ' + esc(toDisplay('条网络资料')) + ' ' + links;
+  } else {
+    srcEl.innerHTML = '<span style="color:var(--color-text-muted)">' +
+      esc(toDisplay('未能联网查证：' + ((search && search.err) || '未检索到结果'))) + '</span>';
   }
-  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：个人中心 → API 管理。'); return; }
+}
+function aiFinish(result, search, ctxBase){
+  var v = aiParseConsistency(result.content);
+  var red = aiIsRed(v);
+  aiCtx = {
+    mode: ctxBase.mode, idx: ctxBase.idx === undefined ? null : ctxBase.idx,
+    query: ctxBase.query || '',
+    consistency: v, answer: result.content,
+    model: result.model || '', at: aiStamp(), via: result.via || '',
+    searchHits: (search && search.hits) || [], searchErr: (search && search.err) || '',
+    fromReasoning: !!result.from_reasoning
+  };
+  var o = $('ksAiOut'); if (o) o.hidden = false;
+  if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = aiConsistencyBadge(v);
+  aiShowSearch($('ksAiSrc'), search);
+  if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = aiRenderMd(result.content, red);
+  if ($('ksAiWarn')) $('ksAiWarn').hidden = !red;
+  if ($('ksAiFb')) $('ksAiFb').hidden = true;
+  if (red && $('ksAiWarnTx')) {
+    $('ksAiWarnTx').innerHTML = v === '不一致'
+      ? esc(toDisplay('复检结论与本表分类不一致。请截图此结果并联系软件开发者修改条目内容。'))
+      : esc(toDisplay('复检结论与本表分类可能不一致，请人工复核后再决定是否修改条目。'));
+  }
+}
 
-  var i = state.sel, ci = catIdx[i], c = CATS[ci] || [];
-  aiResetOut();
-  var o = $('ksAiOut'); o.hidden = false;
-  $('ksAiOutBody').innerHTML = '<span class="ks-ai-busy"></span>' + aiEsc(toDisplay('正在复检第 ' + (i + 1) + ' 条…'));
+/* ---------- 复检入口：选中行优先，否则复检搜索框内容 ---------- */
+function aiRecheck(){
+  if (aiBusy) return;
+  if (state.sel !== null && state.sel !== undefined) return aiRecheckRow(state.sel);
+  var q = ($('ksSearch') ? String($('ksSearch').value || '') : '').trim();
+  if (q) return aiRecheckQuery(q);
+  aiHintOut('请先在搜索框输入书名，或在表格中点击选中一条记录，再点「AI 复检」。（长按本按钮可整页复检或提问）');
+}
+function aiRecheckRow(i){
+  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'); return; }
   aiBusy = true;
-  var t0 = Date.now();
-
-  aiLib().chat(aiItemMessages(i), { maxTokens: 400, temperature: 0.2, timeoutSecs: 120 }).then(function (r) {
+  aiBusyOut('正在联网查证并复检第 ' + (i + 1) + ' 条…');
+  aiRunSearches(aiSearchQueriesForRow(i), 5).then(function (search) {
+    if (!search.hits.length) aiBusyOut('未取得网络资料，改为凭模型知识复检第 ' + (i + 1) + ' 条…');
+    return aiLib().chat(aiItemMessages(i, search), { temperature: 0.2 }).then(function (r) {
+      aiBusy = false;
+      if (r.from_reasoning) r.content = r.content;
+      aiFinish(r, search, { mode: 'row', idx: i });
+    });
+  }).catch(function (e) {
     aiBusy = false;
-    var v = aiParseVerdict(r.content);
-    var overturn = (v === '推翻');
-    aiCtx = {
-      idx: i, verdict: v, answer: r.content,
-      model: r.model || '', at: aiStamp(), via: r.via || ''
-    };
-    $('ksAiVerdict').innerHTML = aiVerdictBadge(v);
-    $('ksAiOutBody').innerHTML = aiRenderMd(r.content, overturn);
-    $('ksAiWarn').hidden = !overturn;
-    if (overturn) {
-      $('ksAiFb').hidden = true;
-      $('ksAiFbTip') && ($('ksAiFbTip').textContent = '');
-    }
-  }, function (e) {
+    if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '<span style="color:#c0392b">' + aiEsc(String(e && e.message || e)) + '</span>';
+  });
+}
+function aiRecheckQuery(q){
+  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'); return; }
+  // 本表中的候选（用当前检索结果的前几条）
+  var cands = (state.rows || []).slice(0, 5);
+  aiBusy = true;
+  aiBusyOut('正在联网查证并复检「' + q + '」…');
+  aiRunSearches(aiSearchQueriesForText(q), 5).then(function (search) {
+    if (!search.hits.length) aiBusyOut('未取得网络资料，改为凭模型知识复检「' + q + '」…');
+    return aiLib().chat(aiQueryMessages(q, cands, search), { temperature: 0.2 }).then(function (r) {
+      aiBusy = false;
+      aiFinish(r, search, { mode: 'query', query: q });
+    });
+  }).catch(function (e) {
     aiBusy = false;
-    $('ksAiOutBody').innerHTML = '<span style="color:#c0392b">' + aiEsc(String(e && e.message || e)) + '</span>';
+    if ($('ksAiOutBody')) $('ksAiOutBody').innerHTML = '<span style="color:#c0392b">' + aiEsc(String(e && e.message || e)) + '</span>';
   });
 }
 
 /* ---------- 导出 Markdown ---------- */
 function aiReportMd(){
-  if (aiCtx.idx === null) return '';
-  var i = aiCtx.idx, ci = catIdx[i], c = CATS[ci] || [];
-  var T = toDisplay;            // 标签跟随当前字形
-  var D = fmtRec;              // 记录字段：繁体原样 / 简体经 k2s
+  if (!aiCtx.answer) return '';
+  var T = toDisplay, D = fmtRec;
   var L = [];
   L.push('# ' + T('古籍类目复检报告'));
   L.push('');
-  L.push('- ' + T('序列号') + '：' + (i + 1));
-  L.push('- ' + T('书名') + '：《' + D(books[i] || '') + '》');
-  L.push('- ' + T('著者') + '：' + (authors[i] ? D(authors[i]) : T('（原著者空缺）')));
-  L.push('- ' + T('《中国古籍总目》分类') + '：' + D(PATHS[ci] || ''));
-  L.push('- ' + T('本表合璧类目') + '：' + (HEL[ci] ? D(HEL[ci]) : T('（无对应）')));
-  L.push('- ' + T('本表判定') + '：' + D(c[5] || ''));
-  L.push('- ' + T('复检结果') + '：**' + T(aiCtx.verdict) + '**');
+  if (aiCtx.mode === 'row' && aiCtx.idx !== null) {
+    var i = aiCtx.idx, ci = catIdx[i], c = CATS[ci] || [];
+    L.push('- ' + T('复检对象') + '：' + T('本表第') + ' ' + (i + 1) + ' ' + T('条'));
+    L.push('- ' + T('书名') + '：《' + D(books[i] || '') + '》');
+    L.push('- ' + T('著者') + '：' + (authors[i] ? D(authors[i]) : T('（原著者空缺）')));
+    L.push('- ' + T('《中国古籍总目》分类') + '：' + D(PATHS[ci] || ''));
+    L.push('- ' + T('本表合璧类目') + '：' + (HEL[ci] ? D(HEL[ci]) : T('（无对应）')));
+    L.push('- ' + T('本表判定') + '：' + D(c[5] || ''));
+  } else {
+    L.push('- ' + T('复检对象') + '：' + T('搜索框内容') + '「' + (aiCtx.query || '') + '」');
+  }
+  L.push('- ' + T('一致性判定') + '：**' + T(aiCtx.consistency) + '**');
   L.push('- ' + T('模型') + '：' + (aiCtx.model || ''));
   L.push('- ' + T('时间') + '：' + aiCtx.at);
   L.push('- ' + T('通道') + '：' + (aiCtx.via === 'tauri' ? T('桌面版（Rust 桥）') : T('网页版（直连）')));
+  L.push('- ' + T('网络查证') + '：' + (aiCtx.searchHits.length
+    ? aiCtx.searchHits.length + ' ' + T('条资料')
+    : T('未能取得') + '（' + (aiCtx.searchErr || '') + '）'));
+  if (aiCtx.searchHits.length) {
+    L.push('');
+    L.push('## ' + T('网络查证资料来源'));
+    L.push('');
+    aiCtx.searchHits.forEach(function (h, k) {
+      L.push((k + 1) + '. [' + h.title + '](' + h.url + ')');
+      if (h.snippet) L.push('   ' + h.snippet);
+    });
+  }
   L.push('');
   L.push('## ' + T('复检意见'));
   L.push('');
@@ -1395,18 +1599,32 @@ function aiReportMd(){
   L.push('');
   return L.join('\n');
 }
-function aiDownloadMd(){
+function aiExportMd(){
   var md = aiReportMd();
   if (!md) return;
-  var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = '古籍类目复检_' + (aiCtx.idx + 1) + '_' + aiCtx.at.replace(/[-: ]/g, '') + '.md';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  var ts = aiCtx.at.replace(/[-: ]/g, '');
+  var name = '古籍类目复检_' + (aiCtx.mode === 'row' && aiCtx.idx !== null ? (aiCtx.idx + 1) : '搜索') + '_' + ts + '.md';
+  aiLib().saveExport(name, md).then(function (r) {
+    if (!r.ok) { aiLocalToast('导出失败：' + (r.error || ''), true); return; }
+    if (!aiLib().notifyExport({ name: r.name, path: r.path, kind: 'Markdown', size: md.length })) {
+      aiLocalToast('已导出 Markdown：' + r.name + '（请查看浏览器下载）', false);
+    }
+  });
+}
+
+/* 网页版（不在外壳 iframe 内）自带的轻提示 */
+function aiLocalToast(msg, isErr){
+  var el = document.getElementById('ksLocalToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ksLocalToast';
+    el.className = 'ks-ltoast';
+    document.body.appendChild(el);
+  }
+  el.textContent = toDisplay(msg);
+  el.className = 'ks-ltoast' + (isErr ? ' err' : '') + ' show';
+  clearTimeout(el._t);
+  el._t = setTimeout(function () { el.className = 'ks-ltoast' + (isErr ? ' err' : ''); }, 5000);
 }
 
 /* ---------- 反馈错误结果 ---------- */
@@ -1414,29 +1632,30 @@ function aiFeedbackText(){
   var note = $('ksAiFbNote') ? String($('ksAiFbNote').value || '').trim() : '';
   var md = aiReportMd();
   var head = '【古籍编目工具 · 类目错误反馈】\n' +
-    '复检结论与本表类目完全不一致，需修改条目内容。\n\n';
+    '复检结论与本表分类' + aiCtx.consistency + '，需核对条目内容。\n\n';
   return head + md + (note ? '\n## 补充说明\n\n' + note + '\n' : '');
 }
 function aiFeedbackMail(){
   var txt = aiFeedbackText();
   if (!txt) return;
   var to = (aiLib() && aiLib().getConfig().email) || '';
-  var subject = '【古籍类目复检】疑似类目错误 序号' + (aiCtx.idx + 1);
+  var subject = '【古籍类目复检】' + aiCtx.consistency + ' 第' + (aiCtx.idx === null ? '（搜索）' : (aiCtx.idx + 1)) + '条';
   var url = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(txt);
   if (!to) {
-    if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay('未填收件邮箱，已改为复制报告');
-    aiFeedbackCopy();
+    // 无收件邮箱 → 回落为复制；把「为什么没发邮件」一并带上（否则提示会被复制结果覆盖）
+    aiFeedbackCopy('未填收件邮箱，已改为复制报告');
     return;
   }
   if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay('已调用系统邮件客户端');
   if (aiLib() && aiLib().openExternal) aiLib().openExternal(url);
   else try { window.open(url, '_blank'); } catch (e) { /* 忽略 */ }
 }
-function aiFeedbackCopy(){
+function aiFeedbackCopy(prefix){
   var txt = aiFeedbackText();
   if (!txt) return;
   function done(ok){
-    if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay(ok ? '报告已复制到剪贴板' : '复制失败，请手动选择文本');
+    var base = ok ? '报告已复制到剪贴板' : '复制失败，请手动选择文本';
+    if ($('ksAiFbTip')) $('ksAiFbTip').textContent = toDisplay(prefix ? (prefix + '；' + base) : base);
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(false); });
@@ -1484,8 +1703,6 @@ function aiSetBusy(on, label){
       sp.className = 'ks-ai-busy';
       sub.appendChild(sp);
       sub.appendChild(document.createTextNode(toDisplay(label || '正在请求…')));
-    } else {
-      sub.textContent = '';
     }
   }
 }
@@ -1505,8 +1722,8 @@ function aiOpenModal(which){
   m.hidden = false;
   aiTab(which || 'page');
   if ($('ksAiCfg')) $('ksAiCfg').textContent = aiCfgText();
-  if (window.KansekiAI && !window.KansekiAI.getConfig().hasKey) {
-    aiPush('err', toDisplay('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：个人中心 → API 管理。'), toDisplay('提示'));
+  if (!aiHasKey()) {
+    aiPush('err', toDisplay('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'), toDisplay('提示'));
   }
   var t = $('ksAiInput'); if (t) setTimeout(function () { t.focus(); }, 50);
 }
@@ -1523,7 +1740,7 @@ function aiPageRecheck(){
   aiPush('user', toDisplay('整页复检：送审 ') + idxs.length + toDisplay(' 条（') + aiScopeLabel() + '）', toDisplay('我'));
   aiSetBusy(true, '正在整页复检…');
   var t0 = Date.now();
-  window.KansekiAI.chat(aiPageMessages(idxs), { maxTokens: 1600, temperature: 0.2, timeoutSecs: 180 })
+  aiLib().chat(aiPageMessages(idxs), { temperature: 0.2 })
     .then(function (r) {
       aiSetBusy(false);
       aiPush('ai', r.content, 'DeepSeek · ' + r.model + ' · ' + ((Date.now() - t0) / 1000).toFixed(1) + 's · tokens ' + r.total_tokens);
@@ -1541,7 +1758,7 @@ function aiAsk(){
   el.value = '';
   aiSetBusy(true, '正在回答…');
   var t0 = Date.now();
-  window.KansekiAI.chat(aiAskMessages(q), { maxTokens: 1200, temperature: 0.2, timeoutSecs: 180 })
+  aiLib().chat(aiAskMessages(q), { temperature: 0.2 })
     .then(function (r) {
       aiSetBusy(false);
       aiHistory.push({ role: 'assistant', content: r.content });
@@ -1558,7 +1775,6 @@ function aiInit(){
   var btn = $('ksAiBtn');
   if (!btn) return;
 
-  // 单击 = 单条复检；长按 = 打开弹窗（整页复检 / 提问）
   var lpTimer = null, lpFired = false;
   function pressStart(){
     lpFired = false;
@@ -1572,16 +1788,14 @@ function aiInit(){
   btn.addEventListener('mousedown', pressStart);
   btn.addEventListener('mouseup', pressEnd);
   btn.addEventListener('mouseleave', pressEnd);
-  btn.addEventListener('touchstart', function (e) { pressStart(); }, { passive: true });
+  btn.addEventListener('touchstart', function () { pressStart(); }, { passive: true });
   btn.addEventListener('touchend', pressEnd);
   btn.addEventListener('touchcancel', pressEnd);
-  // 键盘可达：Enter/Space 走单击语义
   btn.addEventListener('click', function () {
     if (lpFired) { lpFired = false; return; }
-    aiRecheckItem();
+    aiRecheck();
   });
 
-  // 行选中
   var body = $('ksBody');
   if (body) body.addEventListener('click', function (e) {
     var tr = e.target && e.target.closest ? e.target.closest('tr') : null;
@@ -1597,7 +1811,7 @@ function aiInit(){
 
   var B = function (id, fn) { var el = $(id); if (el) el.addEventListener('click', fn); };
   B('ksAiClose', function () { aiResetOut(); });
-  B('ksAiMd', aiDownloadMd);
+  B('ksAiMd', aiExportMd);
   B('ksAiReportBtn', function () { var f = $('ksAiFb'); if (f) f.hidden = !f.hidden; });
   B('ksAiFbMail', aiFeedbackMail);
   B('ksAiFbCopy', aiFeedbackCopy);
@@ -1618,11 +1832,9 @@ function aiInit(){
       aiPush('err', String(e && e.message || e), toDisplay('错误'));
     });
   });
-  // 点遮罩关闭；Esc 关闭
   var modal = $('ksAiModal');
   if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) aiCloseModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') aiCloseModal(); });
-  // 追问快捷键：Ctrl/Cmd + Enter
   var ta = $('ksAiInput');
   if (ta) ta.addEventListener('keydown', function (ev) {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); aiAsk(); }
@@ -1634,16 +1846,24 @@ function aiInit(){
 /* 供自动化测试使用（页面侧；共享配置接口是 window.KansekiAI，来自 ai-config.js） */
 window.KansekiAIPage = {
   hasKey: aiHasKey,
+  // 繁→简 归一化（k2s 原本在 IIFE 内，仅供测试把繁体输出归一后再断言）
+  k2s: function (s) { return k2s(String(s == null ? '' : s)); },
   pick: aiPick,
   scopeLabel: aiScopeLabel,
   itemText: aiItemText,
   itemMessages: aiItemMessages,
+  queryMessages: aiQueryMessages,
   pageMessages: aiPageMessages,
-  parseVerdict: aiParseVerdict,
+  parseConsistency: aiParseConsistency,
+  isRed: aiIsRed,
   reportMd: function () { return aiReportMd(); },
   feedbackText: aiFeedbackText,
+  searchQueriesForRow: aiSearchQueriesForRow,
+  searchQueriesForText: aiSearchQueriesForText,
+  runSearches: aiRunSearches,
   openModal: aiOpenModal,
   closeModal: aiCloseModal,
+  recheck: aiRecheck,
   selectRow: function (i) { state.sel = i; render(); },
   selected: function () { return state.sel; },
   ctx: function () { return aiCtx; },

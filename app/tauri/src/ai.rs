@@ -1,21 +1,39 @@
 // ================================================
-// src/ai.rs — AI 复检桥（DeepSeek，无 CORS）
+// src/ai.rs — AI 复检桥（DeepSeek）
 // ================================================
-// 背景（V9.1）：在「古籍类目查询」页增加 AI 复检，需要调用 DeepSeek 的
-//   /chat/completions 接口。浏览器/WebView 直连会被 CORS 拦住（该接口不返回
-//   Access-Control-Allow-Origin），故与 WebDAV 一样走 Rust 侧转发。
+// 背景：在「古籍类目查询」页增加 AI 复检，需要调用 DeepSeek。
+//   桌面版经这里转发（reqwest）；网页版由浏览器直连（实测 DeepSeek 会返回
+//   CORS 头，可直连，见 V9.2 更新日志的更正）。
 //
-//   ai_chat(req)  -> { ok, content, error, model, prompt_tokens, completion_tokens, total_tokens }
-//   ai_check(api_key, endpoint, model) -> { ok, message, model }   仅用于「测试连接」
+//   ai_chat(req)   -> { ok, content, error, model, finish_reason, ... , total_tokens }
+//   ai_check(req)  -> { ok, message, model }       仅用于「测试连接」
+//   ai_models(req) -> { ok, models: [..], error }  拉取账号可用的模型列表
 //
-// 安全：API Key 只作为一次请求的 Authorization 头使用，**不落盘、不打印、不缓存**；
-//       持久化由前端负责（用户明确同意「存在本机、明文保存」）。
+// ---- V9.3 修复「deepseek 返回了空内容」----
+// 官方文档（api-docs.deepseek.com/zh-cn/guides/thinking_mode）明确：
+//   · 思考模式下**思维链与正文共享同一份 max_tokens 预算**
+//     （Responses API 里叫 max_output_tokens，注明「包含可见的输出 token 与思维链 token」）。
+//     此前单条复检只给 400 tokens，推理模型把预算全烧在思维链上 → content 为空，
+//     前端就报「DeepSeek 返回了空内容」。
+//   · 旧模型名 deepseek-chat / deepseek-reasoner 已不在现行价格表内；
+//     现行是 deepseek-flash / deepseek-v4-pro。写死的旧名字是空内容的另一诱因。
+// 对策：
+//   ① 默认模型改为 deepseek-flash（现行）；
+//   ② max_tokens 不再由前端压到极小值；
+//   ③ content 为空时回落到 reasoning_content 并明确标注，而不是直接报错；
+//   ④ finish_reason == "length" 时给出「预算被思维链吃光」的可执行提示；
+//   ⑤ 新增 ai_models，让设置页列出账号**真实可用**的模型，避免再写死。
+//
+// 安全：API Key 只作为单次请求的 Authorization 头，不落盘、不打印、不缓存。
 // ================================================
 use serde::{Deserialize, Serialize};
 
 const DEFAULT_ENDPOINT: &str = "https://api.deepseek.com/chat/completions";
-const DEFAULT_MODEL: &str = "deepseek-chat";
-const DEFAULT_TIMEOUT_SECS: u64 = 120;
+/// 现行模型（旧名 deepseek-chat / deepseek-reasoner 已不在官方价格表内）
+const DEFAULT_MODEL: &str = "deepseek-flash";
+const DEFAULT_TIMEOUT_SECS: u64 = 180;
+/// 思考模式下思维链与正文共享预算，默认给足（官方输出上限 384K，这里取保守值）
+const DEFAULT_MAX_TOKENS: u32 = 8000;
 
 #[derive(Deserialize)]
 pub struct ChatMessage {
@@ -45,9 +63,13 @@ pub struct AiChatResult {
     content: String,
     error: String,
     model: String,
+    finish_reason: String,
     prompt_tokens: u32,
     completion_tokens: u32,
+    reasoning_tokens: u32,
     total_tokens: u32,
+    /// 仅在「正文为空、已回落为思维链」时为 true，前端据此提示
+    from_reasoning: bool,
 }
 
 #[derive(Serialize)]
@@ -55,6 +77,13 @@ pub struct AiCheckResult {
     ok: bool,
     message: String,
     model: String,
+}
+
+#[derive(Serialize)]
+pub struct AiModelsResult {
+    ok: bool,
+    models: Vec<String>,
+    error: String,
 }
 
 // ⚠️ 用结构体而不是多个平铺参数：Tauri v2 对**顶层命令参数名**会做 snake_case → camelCase
@@ -97,6 +126,26 @@ fn friendly_error(status: u16, body: &str) -> String {
     }
 }
 
+fn resolve_endpoint(e: &Option<String>) -> String {
+    e.clone()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| DEFAULT_ENDPOINT.to_string())
+}
+
+/// 由 chat 端点推出 /models 端点：
+/// https://api.deepseek.com/chat/completions -> https://api.deepseek.com/models
+fn models_endpoint(chat: &str) -> String {
+    let t = chat.trim_end_matches('/');
+    if let Some(i) = t.rfind("/chat/completions") {
+        format!("{}/models", &t[..i])
+    } else if let Some(i) = t.rfind('/') {
+        // 自定义端点：退到上一级再拼 /models
+        format!("{}/models", &t[..i])
+    } else {
+        format!("{}/models", t)
+    }
+}
+
 async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
     if req.api_key.trim().is_empty() {
         return Err("尚未填写 DeepSeek API Key".into());
@@ -105,11 +154,7 @@ async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
         return Err("没有要发送的内容".into());
     }
 
-    let endpoint = req
-        .endpoint
-        .clone()
-        .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| DEFAULT_ENDPOINT.to_string());
+    let endpoint = resolve_endpoint(&req.endpoint);
     let model = req
         .model
         .clone()
@@ -118,7 +163,8 @@ async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
     let timeout = req
         .timeout_secs
         .unwrap_or(DEFAULT_TIMEOUT_SECS)
-        .clamp(10, 600);
+        .clamp(10, 900);
+    let max_tokens = req.max_tokens.unwrap_or(DEFAULT_MAX_TOKENS).clamp(64, 65536);
 
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(timeout))
@@ -134,12 +180,11 @@ async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
         "model": model.clone(),
         "messages": msgs,
         "stream": false,
+        "max_tokens": max_tokens,
     });
+    // 思考模式不支持 temperature（传了也不报错、只是不生效），仍保留以便非思考模型使用
     if let Some(t) = req.temperature {
         payload["temperature"] = serde_json::json!(t);
-    }
-    if let Some(mt) = req.max_tokens {
-        payload["max_tokens"] = serde_json::json!(mt);
     }
 
     let resp = client
@@ -169,14 +214,21 @@ async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
     let v: serde_json::Value =
         serde_json::from_str(&body).map_err(|e| format!("解析响应失败：{}", e))?;
 
-    let content = v
-        .get("choices")
-        .and_then(|c| c.get(0))
-        .and_then(|c| c.get("message"))
-        .and_then(|m| m.get("content"))
-        .and_then(|s| s.as_str())
+    let choice = v.get("choices").and_then(|c| c.get(0));
+    let msg = choice.and_then(|c| c.get("message"));
+    let s = |k: &str| -> String {
+        msg.and_then(|m| m.get(k))
+            .and_then(|x| x.as_str())
+            .unwrap_or("")
+            .trim()
+            .to_string()
+    };
+    let content_raw = s("content");
+    let reasoning = s("reasoning_content");
+    let finish_reason = choice
+        .and_then(|c| c.get("finish_reason"))
+        .and_then(|x| x.as_str())
         .unwrap_or("")
-        .trim()
         .to_string();
 
     let usage = v.get("usage");
@@ -186,24 +238,54 @@ async fn call_deepseek(req: &AiChatRequest) -> Result<AiChatResult, String> {
             .and_then(|x| x.as_u64())
             .unwrap_or(0) as u32
     };
+    let reasoning_tokens = usage
+        .and_then(|u| u.get("completion_tokens_details"))
+        .and_then(|d| d.get("reasoning_tokens"))
+        .and_then(|x| x.as_u64())
+        .unwrap_or(0) as u32;
+
     let model_returned = v
         .get("model")
         .and_then(|m| m.as_str())
         .unwrap_or(&model)
         .to_string();
 
+    // ---- 空内容的三条出路 ----
+    let (content, error, from_reasoning) = if !content_raw.is_empty() {
+        (content_raw, String::new(), false)
+    } else if !reasoning.is_empty() {
+        (
+            format!(
+                "（模型本次只输出了思维链、未给出最终回答，以下为思维链内容；如需完整回答请重试或调高「最大输出 tokens」）\n\n{}",
+                reasoning
+            ),
+            String::new(),
+            true,
+        )
+    } else if finish_reason == "length" {
+        (
+            String::new(),
+            format!(
+                "输出被截断：{} tokens 预算被思维链耗尽，最终回答为空。请在设置中调高「最大输出 tokens」（当前 {}），或改用非思考模型。",
+                max_tokens, max_tokens
+            ),
+            false,
+        )
+    } else {
+        (String::new(), "DeepSeek 返回了空内容".to_string(), false)
+    };
+
     Ok(AiChatResult {
         ok: !content.is_empty(),
-        error: if content.is_empty() {
-            "DeepSeek 返回了空内容".to_string()
-        } else {
-            String::new()
-        },
         content,
+        error,
         model: model_returned,
+        finish_reason,
         prompt_tokens: num("prompt_tokens"),
         completion_tokens: num("completion_tokens"),
+        reasoning_tokens,
         total_tokens: num("total_tokens"),
+        from_reasoning,
     })
 }
 
@@ -226,13 +308,18 @@ pub async fn ai_check(req: AiCheckRequest) -> Result<AiCheckResult, String> {
             content: "ping".into(),
         }],
         temperature: Some(0.0),
-        max_tokens: Some(8),
-        timeout_secs: Some(30),
+        // 思考模式下 8 tokens 会被思维链吃光 → 给足，避免「测试连接」假失败
+        max_tokens: Some(512),
+        timeout_secs: Some(60),
     };
     match call_deepseek(&chat).await {
         Ok(r) => Ok(AiCheckResult {
             ok: true,
-            message: format!("连接正常（模型 {}）", r.model),
+            message: format!(
+                "连接正常（模型 {}{}）",
+                r.model,
+                if r.finish_reason.is_empty() { String::new() } else { format!("，finish={}", r.finish_reason) }
+            ),
             model: r.model,
         }),
         Err(e) => Ok(AiCheckResult {
@@ -241,4 +328,53 @@ pub async fn ai_check(req: AiCheckRequest) -> Result<AiCheckResult, String> {
             model: model.unwrap_or_default(),
         }),
     }
+}
+
+/// 拉取账号可用模型列表（GET /models），供设置页动态展示，避免写死过时模型名
+#[tauri::command]
+pub async fn ai_models(req: AiCheckRequest) -> Result<AiModelsResult, String> {
+    if req.api_key.trim().is_empty() {
+        return Ok(AiModelsResult {
+            ok: false,
+            models: vec![],
+            error: "尚未填写 DeepSeek API Key".into(),
+        });
+    }
+    let url = models_endpoint(&resolve_endpoint(&req.endpoint));
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| format!("创建 HTTP 客户端失败：{}", e))?;
+
+    let resp = client
+        .get(&url)
+        .header("Authorization", format!("Bearer {}", req.api_key.trim()))
+        .send()
+        .await
+        .map_err(|e| format!("无法连接 DeepSeek：{}", e))?;
+    let status = resp.status().as_u16();
+    let body = resp.text().await.unwrap_or_default();
+    if !(200..300).contains(&status) {
+        return Ok(AiModelsResult {
+            ok: false,
+            models: vec![],
+            error: friendly_error(status, &body),
+        });
+    }
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap_or(serde_json::Value::Null);
+    let mut models: Vec<String> = v
+        .get("data")
+        .and_then(|d| d.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|m| m.get("id").and_then(|i| i.as_str()).map(|s| s.to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+    models.sort();
+    Ok(AiModelsResult {
+        ok: !models.is_empty(),
+        models,
+        error: String::new(),
+    })
 }

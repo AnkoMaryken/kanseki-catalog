@@ -639,7 +639,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.11.1';
+const APP_VERSION = '0.12.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -1271,9 +1271,57 @@ async function init() {
     syncLangBtn();
   });
 
-  // 侧边栏「打开网页版」→ GitHub Pages 线上站
+  // 侧边栏「打开网页版」→ GitHub 项目页（V9.3 按用户要求改指向仓库页，
+  // 而不是直接开线上站；项目页里能看到源码、更新日志与线上站入口）
   $('#openWebBtn')?.addEventListener('click', () => {
-    window.open('https://ankomaryken.github.io/kanseki-catalog/', '_blank');
+    const url = 'https://github.com/AnkoMaryken/kanseki-catalog';
+    if (isTauri) {
+      tauriInvoke('open_external', { url }).catch(() => { try { window.open(url, '_blank'); } catch (_) { } });
+    } else {
+      window.open(url, '_blank');
+    }
+  });
+
+  // ---------- V9.3：右下角导出通知栏 ----------
+  // 内嵌页面（古籍类目查询）导出后通过 postMessage 通知外壳，由外壳显示可操作的
+  // 右下角横条 —— 用户能直接「打开文件 / 打开所在文件夹」，不再不知道文件下哪了。
+  let noticeTimer = null;
+  let lastExportPath = '';
+  function hideNotice() {
+    const bar = $('#noticeBar');
+    if (bar) bar.hidden = true;
+    clearTimeout(noticeTimer);
+  }
+  function showNotice(info) {
+    const bar = $('#noticeBar');
+    if (!bar) return;
+    lastExportPath = info.path || '';
+    $('#nbTitle').textContent = (info.kind ? info.kind + ' 导出完成' : '导出完成');
+    const where = lastExportPath || '（浏览器默认下载目录）';
+    $('#nbText').textContent = info.name ? (info.name + '\n' + where) : where;
+    // 无路径（网页版）时无法用系统程序打开，隐藏这两个按钮，避免点了没反应
+    const canOpen = !!lastExportPath && isTauri;
+    if ($('#nbOpen')) $('#nbOpen').hidden = !canOpen;
+    if ($('#nbReveal')) $('#nbReveal').hidden = !canOpen;
+    bar.hidden = false;
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(hideNotice, 20000);
+  }
+  window.addEventListener('message', (e) => {
+    const d = e && e.data;
+    if (!d || d.type !== 'kanseki-export') return;
+    showNotice(d);
+  });
+  $('#nbClose')?.addEventListener('click', hideNotice);
+  $('#nbOpen')?.addEventListener('click', async () => {
+    if (!lastExportPath) return;
+    const ok = await tauriInvoke('open_path', { path: lastExportPath }).then(() => true).catch(() => false);
+    if (!ok) showToast('打开文件失败，可能已被移动或删除', 'err');
+  });
+  $('#nbReveal')?.addEventListener('click', async () => {
+    if (!lastExportPath) return;
+    const ok = await tauriInvoke('reveal_path', { path: lastExportPath }).then(() => true).catch(() => false);
+    if (!ok) showToast('打开文件夹失败', 'err');
   });
 
   // 编目占位视图初始化（表单弹层 + 校验）

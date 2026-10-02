@@ -411,13 +411,13 @@
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.11.1（V5 路线图）</p>
+          <p class="av-ver">版本 0.12.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.11.1</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.12.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
@@ -452,6 +452,27 @@
 
 <!-- Toast -->
 <div id="toast" class="toast" hidden></div>
+
+<!-- ============================================================
+     V9.3：右下角导出通知栏
+     内嵌的「古籍类目查询」页导出 CSV / Markdown 后经 postMessage 通知这里；
+     桌面版会带上文件绝对路径，故可直接「打开文件 / 打开所在文件夹」，
+     解决「导出后不知道文件下到哪去了」的问题。
+     ============================================================ -->
+<div id="noticeBar" class="notice-bar" hidden role="status" aria-live="polite">
+  <span class="nb-icon" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+  </span>
+  <span class="nb-body">
+    <span class="nb-title" id="nbTitle">导出完成</span>
+    <span class="nb-text" id="nbText"></span>
+  </span>
+  <span class="nb-actions">
+    <button class="nb-btn primary" id="nbOpen" type="button">打开文件</button>
+    <button class="nb-btn" id="nbReveal" type="button">打开所在文件夹</button>
+    <button class="nb-btn nb-x" id="nbClose" type="button" aria-label="关闭通知">×</button>
+  </span>
+</div>
 
 <script type="module" src="js/app.js"></script>
 </body>

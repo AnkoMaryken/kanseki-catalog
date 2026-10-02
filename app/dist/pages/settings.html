@@ -180,6 +180,11 @@
       <div class="set-row">
         <label for="aiModel">调用模型</label>
         <select class="set-in" id="aiModel"></select>
+        <button class="set-btn" id="aiReloadModels" type="button">刷新列表</button>
+      </div>
+      <div class="set-row">
+        <label for="aiMaxTok">最大输出 tokens</label>
+        <input class="set-in" type="number" id="aiMaxTok" min="256" max="65536" step="256">
       </div>
       <div class="set-row">
         <label for="aiEndpoint">API 地址</label>
@@ -271,16 +276,55 @@ function msg(id, text, kind) {
   var AI = window.KansekiAI;
   if (!AI) { msg('aiMsg', 'ai-config.js 未加载', 'err'); return; }
   var sel = document.getElementById('aiModel');
-  AI.MODELS.forEach(function (m) {
-    var o = document.createElement('option');
-    o.value = m.id; o.textContent = m.label;
-    sel.appendChild(o);
-  });
+
+  /* 先把内置候选填进去，再用接口返回的真实列表覆盖 —— 这样即使没联网/没填 Key，
+     下拉也不会是空的，而填了 Key 之后列出的就是账号**确实可用**的模型。 */
+  function fillModels(list, keepValue) {
+    var want = keepValue || sel.value || AI.getConfig().model;
+    sel.innerHTML = '';
+    var seen = {};
+    (list || []).forEach(function (m) {
+      var id = typeof m === 'string' ? m : m.id;
+      var label = typeof m === 'string' ? m : m.label;
+      if (!id || seen[id]) return;
+      seen[id] = 1;
+      var o = document.createElement('option');
+      o.value = id; o.textContent = label;
+      sel.appendChild(o);
+    });
+    if (want && !seen[want]) {
+      var o2 = document.createElement('option');
+      o2.value = want; o2.textContent = want + '（当前设置，接口未返回）';
+      sel.appendChild(o2);
+    }
+    if (want) sel.value = want;
+  }
+  fillModels(AI.MODELS, '');
+
   var c = AI.getConfig();
   document.getElementById('aiKey').value = c.key;
   document.getElementById('aiEmail').value = c.email;
   document.getElementById('aiEndpoint').value = c.endpoint;
-  sel.value = c.model;
+  document.getElementById('aiMaxTok').value = c.maxTokens;
+  fillModels(AI.MODELS, c.model);
+
+  function reloadModels(showMsg) {
+    if (showMsg) msg('aiMsg', '正在向 DeepSeek 拉取可用模型…');
+    AI.setConfig({ key: document.getElementById('aiKey').value, endpoint: document.getElementById('aiEndpoint').value });
+    AI.listModels().then(function (r) {
+      if (r.ok && r.models.length) {
+        fillModels(r.models, sel.value);
+        if (showMsg) msg('aiMsg', '已获取 ' + r.models.length + ' 个可用模型。', 'ok');
+      } else if (showMsg) {
+        msg('aiMsg', '未能获取模型列表：' + (r.error || '接口未返回'), 'err');
+      }
+    }, function (e) {
+      if (showMsg) msg('aiMsg', '未能获取模型列表：' + ((e && e.message) || e), 'err');
+    });
+  }
+  document.getElementById('aiReloadModels').addEventListener('click', function () { reloadModels(true); });
+  // 已填 Key 时自动拉一次（静默，失败不打扰）
+  if (c.hasKey) reloadModels(false);
 
   document.getElementById('aiEye').addEventListener('click', function () {
     var k = document.getElementById('aiKey');
@@ -293,7 +337,8 @@ function msg(id, text, kind) {
       key: document.getElementById('aiKey').value,
       model: document.getElementById('aiModel').value,
       endpoint: document.getElementById('aiEndpoint').value,
-      email: document.getElementById('aiEmail').value
+      email: document.getElementById('aiEmail').value,
+      maxTokens: document.getElementById('aiMaxTok').value
     });
     msg('aiMsg', '已保存到本机（仅本机使用）。', 'ok');
   });
@@ -306,7 +351,8 @@ function msg(id, text, kind) {
     AI.setConfig({
       key: document.getElementById('aiKey').value,
       model: document.getElementById('aiModel').value,
-      endpoint: document.getElementById('aiEndpoint').value
+      endpoint: document.getElementById('aiEndpoint').value,
+      maxTokens: document.getElementById('aiMaxTok').value
     });
     msg('aiMsg', '正在测试连接…');
     var btn = this;
