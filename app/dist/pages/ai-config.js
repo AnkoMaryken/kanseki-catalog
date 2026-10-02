@@ -222,13 +222,14 @@
     return Promise.resolve();
   }
 
-  /* 打开「设置」：桌面版弹独立设置窗口；网页版没有独立窗口，跳个人中心的 API 管理区。 */
+  /* 打开「设置」：桌面版弹独立设置窗口；网页版没有独立窗口，
+     跳到 settings.html 的 API 管理分区（该页在网页侧会自动隐藏「同步设置」）。 */
   function openSettings() {
     if (isDesktop()) {
       return window.__TAURI_INTERNALS__.invoke('open_settings_window', {})
         .catch(function (e) { throw new Error(String((e && e.message) || e)); });
     }
-    location.href = 'profile.html#api';
+    location.href = 'settings.html#api';
     return Promise.resolve();
   }
 })();

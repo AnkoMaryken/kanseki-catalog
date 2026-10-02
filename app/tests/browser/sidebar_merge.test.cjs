@@ -31,8 +31,9 @@ const config = require('../../../tests/helpers/config.js');
   await page.waitForTimeout(900);
 
   // ---------- 1. 侧栏结构 ----------
+  // V9.2.1：侧栏移除了「同步设置 / 账号 / 关于」三项跳转（统一以设置窗口为准），12 → 9
   const navCount = await page.locator('.nav-item').count();
-  check('侧栏导航项 12 个', navCount === 12, '实际 ' + navCount);
+  check('侧栏导航项 9 个', navCount === 9, '实际 ' + navCount);
   check('视图 11 个', await page.locator('.view').count() === 11);
 
   const labels = await page.locator('.nav-item span:not(.nav-badge)').allTextContents();
@@ -41,11 +42,16 @@ const config = require('../../../tests/helpers/config.js');
     ['纪年查询'], ['快速跳转'],
     ['细则查阅', '細則查閱'], ['分类表查询', '分類表查詢'], ['工作手册', '工作手冊'],
     ['古籍类目查询', '古籍類目查詢'],
-    ['使用介绍'], ['更新日志'], ['编目记录'], ['同步设置'], ['账号'], ['关于'],
+    ['使用介绍'], ['更新日志'], ['编目记录'],
   ];
   const missing = need.filter(alias => !alias.some(t => labels.includes(t)));
   check('侧栏含全部入口文字', missing.length === 0,
     missing.length ? '缺 ' + missing.map(a => a[0]).join('、') : '共 ' + labels.length + ' 项');
+
+  // V9.2.1：这三项已移交设置窗口，侧栏不应再有它们的跳转
+  const gone = ['同步设置', '账号', '关于'].filter(t => labels.includes(t));
+  check('侧栏已移除「同步设置/账号/关于」跳转', gone.length === 0, gone.join('、') || '已全部移除');
+  check('侧栏仍保留同步状态指示', await page.locator('#syncStatusDot').count() === 1);
 
   check('侧栏分组数 ≥5', await page.locator('.app-sidebar .side-sec').count() >= 5,
     '实际 ' + await page.locator('.app-sidebar .side-sec').count());
@@ -208,12 +214,13 @@ const config = require('../../../tests/helpers/config.js');
   await page.click('.nav-item[data-view="records"]');
   await page.waitForTimeout(400);
   check('编目记录视图激活', await page.locator('#view-records.active').count() === 1);
-  await page.click('.nav-item[data-view="sync"]');
-  await page.waitForTimeout(400);
-  check('同步设置视图激活', await page.locator('#view-sync.active').count() === 1);
-  await page.click('.nav-item[data-view="about"]');
-  await page.waitForTimeout(400);
-  check('关于视图激活', await page.locator('#view-about.active').count() === 1);
+  // V9.2.1：sync/about 侧栏入口已移除，改用 hash 直达（视图本身仍保留）
+  await page.evaluate(() => { location.hash = '#/sync'; });
+  await page.waitForTimeout(500);
+  check('同步设置视图激活（hash 直达）', await page.locator('#view-sync.active').count() === 1);
+  await page.evaluate(() => { location.hash = '#/about'; });
+  await page.waitForTimeout(500);
+  check('关于视图激活（hash 直达）', await page.locator('#view-about.active').count() === 1);
 
   // 关于页按钮改为 APP 内跳转
   await page.click('#openChangelogBtn');

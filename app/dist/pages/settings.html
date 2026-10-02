@@ -5,15 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>设置 — 古代史及汉籍研究工具</title>
 <!--
-  本页刻意**不引用外部样式表**：桌面版里它位于 dist/pages/，而网页版把它放在仓库根，
-  两侧相对路径不同（`../css/app.css` 只在桌面侧成立），引用会导致网页侧 404。
-  页面只用下面这套 CSS 变量，且每个取值都带兜底，故自带即可，两处都能正常渲染。
+  本页在两处使用：
+    ① 桌面版：作为**独立设置窗口**（tauri.conf.json 的 settings 窗口，decorations:false，
+       标题栏由本页自绘，风格对齐主界面）；由侧栏「设置」打开。
+    ② 网页版：作为普通页面，从「古籍类目查询 → 长按 AI 复检 → 打开设置」进入；
+       此时隐藏自绘标题栏与「同步设置」（同步依赖只存在于桌面 dist 的模块）。
+
+  刻意**不引用外部样式表**：两侧相对路径不同（`../css/app.css` 只在桌面侧成立），
+  引用会导致网页侧 404。页面只用下面这套 CSS 变量，且每个取值都带兜底。
 -->
 <style>
   :root{
     --c-bg:#fafafa; --c-bg-alt:#f5f5f5; --c-surface:#fff; --c-surface-hover:#f0f0f0;
     --c-text:#0a0a0a; --c-text-secondary:#525252; --c-text-muted:#737373; --c-border:#e5e5e5;
     --c-font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+    --c-font-serif:'STZhongsong','Songti SC','SimSun',serif;
   }
   [data-theme="dark"]{
     --c-bg:#0a0a0a; --c-bg-alt:#141414; --c-surface:#171717; --c-surface-hover:#262626;
@@ -22,36 +28,70 @@
   }
 </style>
 <style>
-  /* 设置窗口布局：左栏 + 右内容 */
   html,body{height:100%;margin:0}
-  body{display:flex;background:var(--c-bg,#fafafa);color:var(--c-text,#0a0a0a);
-       font-family:var(--c-font-body,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif)}
-  .set-rail{width:186px;flex:0 0 186px;border-right:1px solid var(--c-border,#e5e5e5);
-            padding:.9rem .6rem;display:flex;flex-direction:column;gap:.25rem;background:var(--c-bg-alt,#f5f5f5)}
-  .set-title{font-size:.82rem;color:var(--c-text-muted,#737373);padding:.2rem .5rem .6rem}
+  body{display:flex;flex-direction:column;background:var(--c-bg);color:var(--c-text);
+       font-family:var(--c-font-body);overflow:hidden}
+
+  /* ---------- 自绘标题栏（与主界面同款）----------
+     decorations:false 去掉 Windows 原生标题栏，本栏承担其职责：
+     左侧标识、中间拖动区（双击最大化）、右侧最小化·最大化·关闭。
+     data-tauri-drag-region 由 Tauri 内置脚本接管拖动，内部 button 自动豁免。 */
+  .set-titlebar{display:flex;align-items:center;gap:.5rem;height:38px;flex:0 0 38px;
+                padding-left:12px;background:var(--c-bg);color:var(--c-text);
+                user-select:none;position:relative;z-index:40}
+  .set-titlebar[hidden]{display:none !important}
+  .stb-logo{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+            border-radius:5px;background:#101012;color:#fff;font-family:var(--c-font-serif);
+            font-size:12px;line-height:1;flex-shrink:0}
+  .stb-title{flex:1 1 auto;min-width:0;height:100%;display:flex;align-items:center;gap:.5rem;
+             font-size:.78rem;color:var(--c-text-muted);padding-left:.15rem}
+  .stb-title b{color:var(--c-text);font-weight:600}
+  .stb-right{display:flex;align-items:center;flex-shrink:0;align-self:flex-start}
+  .stb-win{display:inline-flex;align-items:center;justify-content:center;width:44px;height:38px;
+           border:none;background:none;color:var(--c-text-secondary);cursor:pointer;
+           transition:background .13s,color .13s}
+  .stb-win:hover{background:rgba(127,127,127,.18);color:var(--c-text)}
+  .stb-win:focus-visible{outline:2px solid rgba(127,127,127,.5);outline-offset:-2px}
+  .stb-close:hover{background:#e81123;color:#fff}
+  .stb-win svg{display:block}
+  /* ⚠️ HTML 的 hidden 是低优先级声明，会被上面的 display:block 覆盖（主界面踩过的坑） */
+  .stb-win svg[hidden]{display:none}
+
+  /* ---------- 主体：左栏 + 右内容 ---------- */
+  .set-body{flex:1 1 auto;display:flex;min-height:0}
+  .set-rail{width:186px;flex:0 0 186px;border-right:1px solid var(--c-border);
+            padding:.9rem .6rem .7rem;display:flex;flex-direction:column;gap:.25rem;
+            background:var(--c-bg-alt);overflow:auto}
   .set-tab{border:none;background:none;text-align:left;padding:.5rem .65rem;border-radius:8px;
-           font-size:.86rem;cursor:pointer;color:var(--c-text-secondary,#525252);font-family:inherit}
-  .set-tab:hover{background:var(--c-surface-hover,#f0f0f0)}
-  .set-tab.active{background:var(--c-surface,#fff);color:var(--c-text,#0a0a0a);font-weight:600;
+           font-size:.86rem;cursor:pointer;color:var(--c-text-secondary);font-family:inherit}
+  .set-tab:hover{background:var(--c-surface-hover)}
+  .set-tab.active{background:var(--c-surface);color:var(--c-text);font-weight:600;
                   box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .set-tab[hidden]{display:none !important}
+  .set-foot{margin-top:auto;padding:.7rem .65rem 0;font-size:.72rem;color:var(--c-text-muted);
+            line-height:1.7;border-top:1px solid var(--c-border)}
+  .set-foot .sf-name{display:block;color:var(--c-text-secondary)}
+  .set-foot[hidden]{display:none !important}
+
   .set-main{flex:1;min-width:0;overflow:auto;padding:1.1rem 1.3rem 2rem}
   .set-pane{display:none}
   .set-pane.active{display:block}
-  .set-pane iframe{width:100%;height:calc(100vh - 150px);border:1px solid var(--c-border,#e5e5e5);
+  .set-pane[hidden]{display:none !important}
+  .set-pane iframe{width:100%;height:calc(100vh - 190px);border:1px solid var(--c-border);
                    border-radius:10px;background:#fff}
   .set-h{font-size:1.05rem;margin:0 0 .2rem}
-  .set-sub{font-size:.8rem;color:var(--c-text-muted,#737373);margin:0 0 1rem;line-height:1.7}
+  .set-sub{font-size:.8rem;color:var(--c-text-muted);margin:0 0 1rem;line-height:1.7}
   .set-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.35rem 0}
-  .set-row label{font-size:.82rem;color:var(--c-text-secondary,#525252);min-width:112px}
-  .set-in{flex:1 1 260px;min-width:180px;padding:.45rem .6rem;border:1px solid var(--c-border,#e5e5e5);
-          border-radius:6px;font-family:inherit;font-size:.85rem;background:var(--c-surface,#fff);color:inherit}
-  .set-in:focus{outline:none;border-color:var(--c-text,#0a0a0a)}
-  .set-btn{padding:.4rem .9rem;border:1px solid var(--c-border,#e5e5e5);border-radius:6px;background:var(--c-surface,#fff);
+  .set-row label{font-size:.82rem;color:var(--c-text-secondary);min-width:112px}
+  .set-in{flex:1 1 260px;min-width:180px;padding:.45rem .6rem;border:1px solid var(--c-border);
+          border-radius:6px;font-family:inherit;font-size:.85rem;background:var(--c-surface);color:inherit}
+  .set-in:focus{outline:none;border-color:var(--c-text)}
+  .set-btn{padding:.4rem .9rem;border:1px solid var(--c-border);border-radius:6px;background:var(--c-surface);
            color:inherit;font-size:.83rem;cursor:pointer;font-family:inherit}
-  .set-btn:hover{background:var(--c-surface-hover,#f0f0f0)}
+  .set-btn:hover{background:var(--c-surface-hover)}
   .set-btn.primary{background:#171717;color:#fafafa;border-color:#171717}
   [data-theme="dark"] .set-btn.primary{background:#e5e5e5;color:#0a0a0a;border-color:#e5e5e5}
-  .set-note{font-size:.76rem;color:var(--c-text-muted,#737373);line-height:1.75;margin:.6rem 0 0}
+  .set-note{font-size:.76rem;color:var(--c-text-muted);line-height:1.75;margin:.6rem 0 0}
   .set-msg{font-size:.82rem;margin:.6rem 0 0;padding:.5rem .7rem;border-radius:6px;display:none}
   .set-msg.ok{display:block;background:#E2EFDA;color:#1e4620}
   .set-msg.err{display:block;background:#F8D7DA;color:#7a1a22}
@@ -61,87 +101,112 @@
 </head>
 <body>
 
-<aside class="set-rail">
-  <div class="set-title">设置</div>
-  <button class="set-tab active" id="tab-profile" type="button" data-pane="profile">个人中心</button>
-  <button class="set-tab" id="tab-sync" type="button" data-pane="sync">同步设置</button>
-  <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
-</aside>
+<!-- ================= 自绘标题栏 ================= -->
+<header class="set-titlebar" id="setTitlebar" hidden>
+  <span class="stb-logo" aria-hidden="true">漢</span>
+  <div class="stb-title" data-tauri-drag-region>
+    <b>设置</b><span>古代史及汉籍研究工具</span>
+  </div>
+  <div class="stb-right">
+    <button class="stb-win" id="stbMin" type="button" title="最小化" aria-label="最小化">
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.1"/></svg>
+    </button>
+    <button class="stb-win" id="stbMax" type="button" title="最大化" aria-label="最大化">
+      <svg class="stb-ico-max" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
+      <svg class="stb-ico-restore" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" hidden><path d="M2.5 2.5V1.7A1.2 1.2 0 0 1 3.7.5h4.6A1.2 1.2 0 0 1 9.5 1.7v4.6a1.2 1.2 0 0 1-1.2 1.2h-.8" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="0.5" y="2.5" width="7" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
+    </button>
+    <button class="stb-win stb-close" id="stbClose" type="button" title="关闭" aria-label="关闭">
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0.6 0.6l8.8 8.8M9.4 0.6L0.6 9.4" stroke="currentColor" stroke-width="1.1"/></svg>
+    </button>
+  </div>
+</header>
 
-<main class="set-main">
+<div class="set-body">
+  <aside class="set-rail">
+    <button class="set-tab active" id="tab-profile" type="button" data-pane="profile">个人中心</button>
+    <button class="set-tab" id="tab-sync" type="button" data-pane="sync">同步设置</button>
+    <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
+    <div class="set-foot" id="setFoot" hidden>
+      <span class="sf-name">古代史及汉籍研究工具</span>
+      <span>桌面版 <b id="setVer">—</b></span>
+    </div>
+  </aside>
 
-  <!-- ---------- 个人中心 ---------- -->
-  <section class="set-pane active" id="pane-profile">
-    <h2 class="set-h">个人中心</h2>
-    <p class="set-sub">账号信息与登录状态（与主界面「账号」为同一页面）。</p>
-    <iframe id="profileFrame" data-src="profile.html" title="个人中心" loading="lazy"></iframe>
-  </section>
+  <main class="set-main">
 
-  <!-- ---------- 同步设置 ---------- -->
-  <section class="set-pane" id="pane-sync">
-    <h2 class="set-h">同步设置</h2>
-    <p class="set-sub">通过坚果云 WebDAV 备份偏好与编目记录。凭据仅保存在本机。</p>
+    <!-- ---------- 个人中心 ---------- -->
+    <section class="set-pane active" id="pane-profile">
+      <h2 class="set-h">个人中心</h2>
+      <p class="set-sub">账号信息与登录状态（与主界面「账号」为同一页面）。</p>
+      <iframe id="profileFrame" data-src="profile.html" title="个人中心" loading="lazy"></iframe>
+    </section>
 
-    <div class="set-row">
-      <label for="syncUser">坚果云邮箱</label>
-      <input class="set-in" type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
-    </div>
-    <div class="set-row">
-      <label for="syncPass">应用密码</label>
-      <input class="set-in" type="password" id="syncPass" placeholder="在坚果云「安全选项 → 应用密码」中生成" autocomplete="current-password">
-    </div>
-    <div class="set-row" style="margin-top:.7rem">
-      <button class="set-btn" id="syncTest" type="button">连接测试</button>
-      <button class="set-btn primary" id="syncSave" type="button">保存凭据</button>
-      <button class="set-btn" id="syncNow" type="button">立即同步</button>
-      <button class="set-btn" id="syncClear" type="button">清除凭据</button>
-    </div>
-    <div class="set-msg" id="syncMsg"></div>
-    <p class="set-note">
-      「立即同步」会通知主窗口执行同步（同步引擎在主窗口运行，避免两个窗口同时读写）。
-      保存后主窗口会自动重新载入凭据。
-    </p>
-  </section>
+    <!-- ---------- 同步设置 ---------- -->
+    <section class="set-pane" id="pane-sync">
+      <h2 class="set-h">同步设置</h2>
+      <p class="set-sub">通过坚果云 WebDAV 备份偏好与编目记录。凭据仅保存在本机。</p>
 
-  <!-- ---------- API 管理 ---------- -->
-  <section class="set-pane" id="pane-api">
-    <h2 class="set-h">API 管理</h2>
-    <p class="set-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只存在本机。</p>
+      <div class="set-row">
+        <label for="syncUser">坚果云邮箱</label>
+        <input class="set-in" type="email" id="syncUser" placeholder="your@example.com" autocomplete="username">
+      </div>
+      <div class="set-row">
+        <label for="syncPass">应用密码</label>
+        <input class="set-in" type="password" id="syncPass" placeholder="在坚果云「安全选项 → 应用密码」中生成" autocomplete="current-password">
+      </div>
+      <div class="set-row" style="margin-top:.7rem">
+        <button class="set-btn" id="syncTest" type="button">连接测试</button>
+        <button class="set-btn primary" id="syncSave" type="button">保存凭据</button>
+        <button class="set-btn" id="syncNow" type="button">立即同步</button>
+        <button class="set-btn" id="syncClear" type="button">清除凭据</button>
+      </div>
+      <div class="set-msg" id="syncMsg"></div>
+      <p class="set-note">
+        「立即同步」会通知主窗口执行同步（同步引擎在主窗口运行，避免两个窗口同时读写）。
+        保存后主窗口会自动重新载入凭据。
+      </p>
+    </section>
 
-    <div class="set-row">
-      <label for="aiKey">DeepSeek API Key</label>
-      <input class="set-in" type="password" id="aiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
-      <button class="set-btn" id="aiEye" type="button">显示</button>
-    </div>
-    <div class="set-row">
-      <label for="aiModel">调用模型</label>
-      <select class="set-in" id="aiModel"></select>
-    </div>
-    <div class="set-row">
-      <label for="aiEndpoint">API 地址</label>
-      <input class="set-in" type="text" id="aiEndpoint" spellcheck="false">
-    </div>
-    <div class="set-row">
-      <label for="aiEmail">反馈收件邮箱</label>
-      <input class="set-in" type="email" id="aiEmail" placeholder="用于「反馈错误结果」的邮件发送">
-    </div>
-    <div class="set-row" style="margin-top:.7rem">
-      <button class="set-btn primary" id="aiSave" type="button">保存</button>
-      <button class="set-btn" id="aiTest" type="button">测试连接</button>
-      <button class="set-btn" id="aiClear" type="button">清除 Key</button>
-    </div>
-    <div class="set-msg" id="aiMsg"></div>
-    <p class="set-note">
-      API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。<br>
-      网页版对应的入口在「个人中心 → API 管理」，与此处共用同一份配置。
-    </p>
-  </section>
+    <!-- ---------- API 管理 ---------- -->
+    <section class="set-pane" id="pane-api">
+      <h2 class="set-h">API 管理</h2>
+      <p class="set-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只存在本机。</p>
 
-</main>
+      <div class="set-row">
+        <label for="aiKey">DeepSeek API Key</label>
+        <input class="set-in" type="password" id="aiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
+        <button class="set-btn" id="aiEye" type="button">显示</button>
+      </div>
+      <div class="set-row">
+        <label for="aiModel">调用模型</label>
+        <select class="set-in" id="aiModel"></select>
+      </div>
+      <div class="set-row">
+        <label for="aiEndpoint">API 地址</label>
+        <input class="set-in" type="text" id="aiEndpoint" spellcheck="false">
+      </div>
+      <div class="set-row">
+        <label for="aiEmail">反馈收件邮箱</label>
+        <input class="set-in" type="email" id="aiEmail" placeholder="用于「反馈错误结果」的邮件发送">
+      </div>
+      <div class="set-row" style="margin-top:.7rem">
+        <button class="set-btn primary" id="aiSave" type="button">保存</button>
+        <button class="set-btn" id="aiTest" type="button">测试连接</button>
+        <button class="set-btn" id="aiClear" type="button">清除 Key</button>
+      </div>
+      <div class="set-msg" id="aiMsg"></div>
+      <p class="set-note">
+        API Key 只保存在本机，不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。<br>
+        桌面版与网页版共用同一份配置（存在浏览器/程序本机的 localStorage 中）。
+      </p>
+    </section>
+
+  </main>
+</div>
 
 <script src="ai-config.js"></script>
-<script type="module">
-/* 主题跟随主窗口（localStorage['theme']） */
+<script>
+/* 主题跟随（localStorage['theme']，与主窗口/网页共用） */
 function applyTheme() {
   var t = 'light';
   try { t = localStorage.getItem('theme') || 'light'; } catch (e) { /* 忽略 */ }
@@ -152,12 +217,25 @@ window.addEventListener('storage', function (e) {
   if (!e.key || e.key === 'theme') applyTheme();
 });
 
-/* 本页是**桌面版的「设置」独立窗口**。
-   网页版没有独立窗口，对应入口是「个人中心 → API 管理」；而且本页的「同步设置」
-   依赖 ../js/core/sync/*（只存在于桌面 dist），网页侧并不存在。
-   因此检测到非桌面环境时直接转到个人中心的 API 管理区。 */
-if (!(window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function')) {
-  location.replace('profile.html#api');
+var IS_TAURI = !!(window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function');
+var WIN_LABEL = 'settings';
+function winCmd(cmd, args) {
+  return window.__TAURI_INTERNALS__.invoke('plugin:window|' + cmd, Object.assign({ label: WIN_LABEL }, args || {}));
+}
+
+/* ---------- 桌面版专属：自绘标题栏 + 版本信息；网页版隐藏 ---------- */
+if (IS_TAURI) {
+  document.getElementById('setTitlebar').hidden = false;
+  document.getElementById('setFoot').hidden = false;
+  window.__TAURI_INTERNALS__.invoke('app_version', {}).then(function (v) {
+    document.getElementById('setVer').textContent = v;
+  }).catch(function () { });
+} else {
+  // 网页版没有独立窗口，也没有 dist 里的同步模块 —— 隐去「同步设置」
+  var st = document.getElementById('tab-sync');
+  var sp = document.getElementById('pane-sync');
+  if (st) st.hidden = true;
+  if (sp) sp.hidden = true;
 }
 
 /* ---------- 左栏切换 ---------- */
@@ -165,7 +243,7 @@ function showPane(name) {
   ['profile', 'sync', 'api'].forEach(function (n) {
     var tab = document.getElementById('tab-' + n);
     var pane = document.getElementById('pane-' + n);
-    if (tab) tab.classList.toggle('active', n === name);
+    if (tab && !tab.hidden) tab.classList.toggle('active', n === name);
     if (pane) pane.classList.toggle('active', n === name);
   });
   if (name === 'profile') {
@@ -176,8 +254,9 @@ function showPane(name) {
 document.querySelectorAll('.set-tab').forEach(function (b) {
   b.addEventListener('click', function () { showPane(b.getAttribute('data-pane')); });
 });
-// 支持 #api / #sync / #profile 直达
-showPane((location.hash || '').replace('#', '') || 'profile');
+var initial = (location.hash || '').replace('#', '') || 'profile';
+if (initial === 'sync' && !IS_TAURI) initial = 'api';
+showPane(initial);
 
 /* ---------- 提示 ---------- */
 function msg(id, text, kind) {
@@ -188,8 +267,8 @@ function msg(id, text, kind) {
 }
 
 /* ---------- API 管理 ---------- */
-var AI = window.KansekiAI;
 (function initApi() {
+  var AI = window.KansekiAI;
   if (!AI) { msg('aiMsg', 'ai-config.js 未加载', 'err'); return; }
   var sel = document.getElementById('aiModel');
   AI.MODELS.forEach(function (m) {
@@ -224,15 +303,14 @@ var AI = window.KansekiAI;
     msg('aiMsg', '已清除本机保存的 API Key。', 'ok');
   });
   document.getElementById('aiTest').addEventListener('click', function () {
-    // 先落盘再测，避免测的是屏幕上的临时值
     AI.setConfig({
       key: document.getElementById('aiKey').value,
       model: document.getElementById('aiModel').value,
       endpoint: document.getElementById('aiEndpoint').value
     });
     msg('aiMsg', '正在测试连接…');
-    this.disabled = true;
     var btn = this;
+    btn.disabled = true;
     AI.test().then(function (r) {
       btn.disabled = false;
       msg('aiMsg', (r.ok ? '✓ ' : '✗ ') + r.message, r.ok ? 'ok' : 'err');
@@ -243,8 +321,8 @@ var AI = window.KansekiAI;
   });
 })();
 
-/* ---------- 同步设置 ---------- */
-(async function initSync() {
+/* ---------- 同步设置（仅桌面版）---------- */
+if (IS_TAURI) (async function initSync() {
   var store;
   try {
     var mod = await import('../js/core/sync/store-indexeddb.js');
@@ -261,7 +339,6 @@ var AI = window.KansekiAI;
   } catch (e) { /* 首次无凭据 */ }
 
   function notifyMain(sync) {
-    // 跨窗口通知主窗口（storage 事件只在「其它窗口」触发，正合此用）
     var payload = JSON.stringify({ at: Date.now(), sync: !!sync });
     try { localStorage.setItem('kanseki_sync_reload', payload); } catch (e) { /* 忽略 */ }
   }
@@ -275,8 +352,8 @@ var AI = window.KansekiAI;
   document.getElementById('syncTest').addEventListener('click', async function () {
     var c = needCreds(); if (!c) return;
     msg('syncMsg', '连接测试中…');
-    this.disabled = true;
     var btn = this;
+    btn.disabled = true;
     try {
       var r = await window.__TAURI_INTERNALS__.invoke('webdav_check', {
         url: 'https://dav.jianguoyun.com/dav/kanseki-sync',
@@ -317,6 +394,34 @@ var AI = window.KansekiAI;
       msg('syncMsg', '清除失败：' + (e && e.message || e), 'err');
     }
   });
+})();
+
+/* ---------- 窗口三键（自绘标题栏）---------- */
+(function initWinControls() {
+  if (!IS_TAURI) return;
+  function swapMaxIcon(maxed) {
+    var a = document.querySelector('#stbMax .stb-ico-max');
+    var b = document.querySelector('#stbMax .stb-ico-restore');
+    if (a) a.hidden = !!maxed;
+    if (b) b.hidden = !maxed;
+    var btn = document.getElementById('stbMax');
+    if (btn) btn.title = maxed ? '还原' : '最大化';
+  }
+  document.getElementById('stbMin').addEventListener('click', function () {
+    winCmd('minimize').catch(function () { });
+  });
+  document.getElementById('stbMax').addEventListener('click', function () {
+    winCmd('toggle_maximize')
+      .then(function () { return winCmd('is_maximized'); })
+      .then(swapMaxIcon)
+      .catch(function () { });
+  });
+  document.getElementById('stbClose').addEventListener('click', function () {
+    // 主进程拦截了关闭请求 → 实际是「隐藏」，窗口对象存活，可再次从侧栏打开
+    winCmd('close').catch(function () { });
+  });
+  // 与主窗口一致：同步一次最大化状态
+  winCmd('is_maximized').then(swapMaxIcon).catch(function () { });
 })();
 </script>
 </body>

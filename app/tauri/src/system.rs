@@ -15,15 +15,48 @@
 // ================================================
 use tauri::Manager;
 
-/// 显示并聚焦「设置」窗口（已在 tauri.conf.json 声明，启动时隐藏）
+/// 显示并聚焦「设置」窗口
+///
+/// 该窗口在 tauri.conf.json 中声明（启动时隐藏），正常情况下**始终存在**：
+/// main.rs 的 setup 已拦截关闭请求改为隐藏，故可反复打开。
+/// 这里的重建分支只是兜底 —— 万一窗口仍被销毁（例如极端情况下的 WebView 崩溃），
+/// 也能按同样参数重建，而不是把「设置窗口未创建」抛给用户。
 #[tauri::command]
 pub async fn open_settings_window(app: tauri::AppHandle) -> Result<(), String> {
-    let win = app
-        .get_webview_window("settings")
-        .ok_or_else(|| "设置窗口未创建（请检查 tauri.conf.json 的 windows 声明）".to_string())?;
-    win.show().map_err(|e| format!("显示设置窗口失败：{}", e))?;
+    if let Some(win) = app.get_webview_window("settings") {
+        win.show().map_err(|e| format!("显示设置窗口失败：{}", e))?;
+        win.set_focus().map_err(|e| format!("聚焦设置窗口失败：{}", e))?;
+        return Ok(());
+    }
+
+    // ---- 兜底重建（参数须与 tauri.conf.json 的 settings 窗口保持一致）----
+    let win = tauri::WebviewWindowBuilder::new(
+        &app,
+        "settings",
+        tauri::WebviewUrl::App("pages/settings.html".into()),
+    )
+    .title("设置 — 古代史及汉籍研究工具")
+    .inner_size(920.0, 680.0)
+    .min_inner_size(720.0, 520.0)
+    .resizable(true)
+    .center()
+    // 与主窗口一致：自绘标题栏
+    .decorations(false)
+    .additional_browser_args(
+        "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --no-sandbox",
+    )
+    .build()
+    .map_err(|e| format!("创建设置窗口失败：{}", e))?;
+
     win.set_focus().map_err(|e| format!("聚焦设置窗口失败：{}", e))?;
     Ok(())
+}
+
+/// 返回程序版本号（唯一来源：tauri.conf.json / Cargo.toml）
+/// 设置窗口的版本信息直接问 Rust 要，避免在页面里再复制一份版本字符串（易失同步）。
+#[tauri::command]
+pub fn app_version(app: tauri::AppHandle) -> String {
+    app.package_info().version.to_string()
 }
 
 /// 设置窗口当前是否可见（供自动化探针取证 —— CDP 侧无法可靠判断原生窗口可见性）
