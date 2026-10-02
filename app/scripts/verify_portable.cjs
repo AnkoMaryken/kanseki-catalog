@@ -32,8 +32,16 @@ function ok(name, cond, detail) {
   else { fail++; failures.push(name); console.log('  \u2717 ' + name + '  ' + (detail || '')); }
 }
 
+// ⚠️ V9.0 修复：本脚本会把 exe **改名**为「古代史及汉籍研究工具.exe」在临时目录启动，
+//    但原先只 taskkill 原名 kanseki-app.exe → 改名副本不会被回收，它会持续占用
+//    单实例互斥量（Local\cn.kanseki.catalog.singleinstance），导致**下一次任何启动
+//    在 1 秒内以退出码 0 静默退出、CDP 永远连不上**（表现为「CDP 未就绪」）。
+//    故两个进程名都要清。同名副本在临时目录里，taskkill /IM 按映像名即可命中。
+const APP_IMAGE_NAMES = ['kanseki-app.exe', '古代史及汉籍研究工具.exe'];
 function killApp() {
-  try { execFileSync('taskkill', ['/F', '/IM', 'kanseki-app.exe'], { stdio: 'ignore' }); } catch (e) { /* 未运行 */ }
+  for (const name of APP_IMAGE_NAMES) {
+    try { execFileSync('taskkill', ['/F', '/IM', name], { stdio: 'ignore' }); } catch (e) { /* 未运行 */ }
+  }
 }
 function waitCdp(timeoutMs) {
   const deadline = Date.now() + timeoutMs;

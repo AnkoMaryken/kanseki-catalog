@@ -57,7 +57,7 @@ function copyFileIfExists(src, dest) {
 const PAGES_DIR = join(DIST, 'pages');
 
 // 静态站页面（iframe 承载）
-const SITE_PAGES = ['index.html', 'catalog.html', 'embed.html', 'guide.html', 'changelog.html'];
+const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 'guide.html', 'changelog.html'];
 // 账号体系页面（页内登录/注册链接指向，缺失会 404）
 const ACCOUNT_PAGES = ['login.html', 'signup.html', 'terms.html', 'privacy.html', 'profile.html'];
 // 页面依赖的脚本（根目录同名）
@@ -69,6 +69,8 @@ const SITE_SCRIPTS = [
   'pinyin_data.js',     // 拼音数据
   'knowledge.js',       // 知识数据
   'catalog_data.js',    // 编目数据
+  'kanseki_data.js',    // V9.0 古籍类目数据（9.6MB，仅 kanseki.html 使用）
+  'kanseki_conv.js',    // V9.0 古籍类目专用 繁→简 表
   'calc.js',            // 卷数计算
   'supabase-config.js', // 认证配置（账号页依赖）
 ];
@@ -107,6 +109,13 @@ const EMBED_CSS_MARK = '/* kanseki-app-embed */';
 const EMBED_RULES = {
   'index.html': { hideHeaderNav: true, hideBrand: true },
   'catalog.html': { hideHeaderAll: true, hideDocsAside: true, gridTwoCol: true },
+  'kanseki.html': {
+    hideHeaderAll: true,
+    // V9.1：按用户要求，APP 内不显示页内的「导出 CSV / 简繁 / 切换主题」——
+    // 简繁与主题在外壳中已有入口（标题栏「繁」按钮、侧栏「切换主题」），页内重复。
+    // 网页版不受影响（此段只在 dist 注入）。
+    hideSelectors: ['#ksExport', '.ks-lang', '#themeToggleSide'],
+  },
   'embed.html': { hideHeaderAll: true, fixedOffset: true },
   'guide.html': { hideHeaderAll: true },
   'changelog.html': { hideHeaderAll: true },
@@ -152,6 +161,16 @@ function embedStyleFor(rule) {
   // 移动端：APP 侧栏已承担导航，隐藏页内汉堡按钮与抽屉
   css.push('.m-hamburger{display:none !important}');
   css.push('.drawer,.drawer-overlay{display:none !important}');
+  // 通用：按选择器隐藏页内控件（V9.1）
+  // 用途：某些页内控件在 APP 中与外壳功能重复，或按用户要求不应出现在软件里。
+  // 例：kanseki.html 的「导出 CSV」「简/繁」「切换主题」——APP 标题栏已有一键简繁、
+  //     侧栏已有「切换主题」，页内这三枚属重复入口。
+  // ⚠️ 只在 dist 阶段注入：仓库根的网页版源文件保持原样，网页版的这些功能不受影响。
+  if (Array.isArray(rule.hideSelectors)) {
+    for (const sel of rule.hideSelectors) {
+      if (typeof sel === 'string' && sel.trim()) css.push(`${sel.trim()}{display:none !important}`);
+    }
+  }
   if (!css.length) return '';
   return `<style id="kanseki-app-embed">${EMBED_CSS_MARK}\n${css.join('\n')}\n</style>`;
 }

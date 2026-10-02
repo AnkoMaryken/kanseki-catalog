@@ -99,7 +99,10 @@ const URL = 'http://localhost:8765/index.html';
   await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
   await page.waitForTimeout(400);
   const tagChina = await page.locator('.qf-chip-dyn').first().textContent();
-  check('繁体筛选 chip', tagChina.includes('西週'), tagChina);
+  // V9.0 修正基线：此前断言繁体 chip 为「西週」，那是简繁映射表把「周」误转「週」的
+  // **缺陷表现**（西周/周朝/周边政权 均应保留「周」，「週」仅用于「週末/一週」）。
+  // 映射表已修正，故此处预期改为正确的「西周」。
+  check('繁体筛选 chip', tagChina.includes('西周'), tagChina);
 
   // 9. 简体切回后 chip 恢复 (先清空第8步的选中)
   await page.evaluate(() => {

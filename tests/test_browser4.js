@@ -48,7 +48,9 @@ const URL = 'http://localhost:8765/index.html';
   check('搜索结果年号繁体"貞觀"', eraCellT.includes('貞觀'), eraCellT);
 
   // ===== 4. 快捷筛选 chips 繁体 =====
-  // v5.1 起筛选改为浮窗: 打开快捷筛选浮窗选中"西周"朝代, 验证 chip 显示繁体"西週"
+  // v5.1 起筛选改为浮窗: 打开快捷筛选浮窗选中"西周"朝代, 验证 chip 显示繁体"西周"
+  // V9.0 修正基线：此前预期为「西週」，那是简繁映射表把「周」误转「週」的缺陷表现
+  //（西周/周朝 应保留「周」），映射表已修正，故预期改为正确的「西周」。
   await page.evaluate(() => {
     const w = document.getElementById('qfWrap');
     if (!w.classList.contains('open')) document.getElementById('qfBtn').click();
@@ -57,7 +59,7 @@ const URL = 'http://localhost:8765/index.html';
   await page.locator('.qf-dyn-item[data-label="西周"]').dispatchEvent('click');
   await page.waitForTimeout(400);
   const tagT = await page.locator('.qf-chip-dyn').first().textContent();
-  check('筛选 chip 繁体"西週"', tagT.includes('西週'), tagT);
+  check('筛选 chip 繁体"西周"', tagT.includes('西周'), tagT);
   // 清除筛选, 恢复初始状态
   await page.click('#qfClear');
   await page.waitForTimeout(300);

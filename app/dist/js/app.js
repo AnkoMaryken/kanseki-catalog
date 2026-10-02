@@ -639,7 +639,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.8.0';
+const APP_VERSION = '0.10.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -651,14 +651,15 @@ function refreshAboutInfo() {
 }
 
 // ---------- 视图切换 ----------
-// 10 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['query', 'jump', 'catalog', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+// 11 个视图；iframe 视图按需懒加载（data-src -> src）
+const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
   query: 'queryFrame',
   jump: 'jumpFrame',
   catalog: 'catalogFrame',
+  kanseki: 'kansekiFrame',
   guide: 'guideFrame',
   changelog: 'changelogFrame',
   login: 'loginFrame',
@@ -817,6 +818,15 @@ function activateCatalogTab(frame, idx) {
   if (btn && !btn.classList.contains('active')) btn.click();
 }
 
+// 取同源 iframe 内的侧栏镜像源（#sideAnchors）。
+// 容错（V9.0）：目标页没有该元素时返回 null —— 新增的「古籍类目查询」页无侧栏，
+// 若被传入（视图切换、观察器回调等），下游一律按「无可镜像内容」处理，不得抛错。
+function anchorSourceOf(frame) {
+  const doc = frameDoc(frame);
+  if (!doc) return null;
+  try { return doc.getElementById('sideAnchors') || null; } catch (_) { return null; }
+}
+
 // 结构签名：判断镜像是否需要整体重建（含标签文字，切换 tab 时会变）
 function anchorSignature(root) {
   if (!root) return '';
@@ -845,9 +855,7 @@ function bindAnchorForward(dst, frame) {
   dst.addEventListener('click', (e) => {
     const btn = e.target.closest('.anchor-item,.cfb-side');
     if (!btn) return;
-    const doc = frameDoc(frame);
-    if (!doc) return;
-    const src = doc.getElementById('sideAnchors');
+    const src = anchorSourceOf(frame);
     if (!src) return;
     const targets = Array.from(src.querySelectorAll('.anchor-item,.cfb-side'));
     const idx = Array.from(dst.querySelectorAll('.anchor-item,.cfb-side')).indexOf(btn);
@@ -883,8 +891,7 @@ function openAnchorPop(tabIdx) {
   const body = anchorPopBody();
   if (!pop || !body) return;
   const frame = document.getElementById(FRAMES.catalog);
-  const doc = frameDoc(frame);
-  const src = doc && doc.getElementById('sideAnchors');
+  const src = anchorSourceOf(frame);
   if (!src || !src.innerHTML.trim()) {
     showToast('当前页面暂无可导航内容');
     return;
@@ -912,8 +919,10 @@ function isAnchorPopOpen() {
 
 function syncCatalogSidebar(frame) {
   const doc = frameDoc(frame);
+  if (!doc) return;
   // 弹窗打开时同步内容；关闭时仍需读取源数据以便即时打开
-  const src = doc && doc.getElementById('sideAnchors');
+  // 容错：非编目规范页（如 V9.0 古籍类目查询）没有 #sideAnchors，静默返回
+  const src = anchorSourceOf(frame);
   const body = anchorPopBody();
   if (!src || !body) return;
 
@@ -994,11 +1003,11 @@ function frameLang(frame) {
 }
 
 // 支持简繁切换的视图
-// 目前仅纪年查询页实现了 KansekiLang 接口；登录/个人中心页是纯账号页面，
-// 未引入转换表，frameLang() 对其返回 null 而静默跳过。列在此处是防御性的：
-// 若将来这些页面也接入字形切换，无需再改本函数。
+// 纪年查询页与 V9.0 新增的古籍类目查询页都实现了 KansekiLang 接口；登录/个人中心页是
+// 纯账号页面，未引入转换表，frameLang() 对其返回 null 而静默跳过。列在此处是防御性的：
+// 页面尚未加载 / 未实现接口时都会安全跳过。
 function langCapableFrames() {
-  return ['query', 'login', 'account']
+  return ['query', 'kanseki', 'login', 'account']
     .map(v => document.getElementById(FRAMES[v]))
     .filter(Boolean);
 }

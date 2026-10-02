@@ -24,10 +24,26 @@ const { spawn, execFileSync, spawnSync } = require('child_process');
 const http = require('http');
 const config = require('../../tests/helpers/config.js');
 
+// ⚠️ V9.0 修复：原先取目录内**第一个** `-setup.exe`。NSIS 目录会累积历史版本安装包，
+//    字典序下 0.8.2 排在 0.9.0 前面 → 验证脚本实际验的是**旧版安装包**，结论对当前版本无效
+//    （本项目 V0.9.0 期间就发生过：12/12 通过，但装的是 v0.8.2）。
+//    现改为必须匹配 package.json 的版本号；也可用命令行参数显式指定。
+const VERSION = require(path.join(__dirname, '..', 'package.json')).version;
 const SETUP = process.argv[2] || (() => {
   const dir = path.join(__dirname, '..', 'tauri', 'target', 'release', 'bundle', 'nsis');
-  const f = fs.readdirSync(dir).find(x => x.endsWith('-setup.exe'));
-  return path.join(dir, f);
+  const all = fs.readdirSync(dir).filter(x => x.endsWith('-setup.exe'));
+  const hit = all.filter(x => x.includes(`_${VERSION}_`) || x.includes(`_v${VERSION}_`));
+  if (hit.length === 0) {
+    console.error(`[verify_installer] ✗ 未找到匹配当前版本 ${VERSION} 的安装包。\n` +
+      `  目录内现有：${all.join('、') || '（无）'}\n  请先执行：cd app/tauri && ../node_modules/.bin/tauri build`);
+    process.exit(1);
+  }
+  if (hit.length > 1) {
+    console.error(`[verify_installer] ✗ 有多个匹配 ${VERSION} 的安装包，无法确定：${hit.join('、')}`);
+    process.exit(1);
+  }
+  console.log(`[verify_installer] 使用安装包：${hit[0]}（已忽略 ${all.length - 1} 个其它版本）`);
+  return path.join(dir, hit[0]);
 })();
 const PORT = 9237;
 for (const k of ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']) delete process.env[k];

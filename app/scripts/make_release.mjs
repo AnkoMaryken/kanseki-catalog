@@ -40,9 +40,26 @@ function die(msg) { console.error('[release] ✗ ' + msg); process.exit(1); }
 if (!existsSync(EXE)) die(`未找到程序文件：${EXE}\n  请先执行：cd app/tauri && ../node_modules/.bin/tauri build --no-bundle`);
 if (!existsSync(NSIS_DIR)) die(`未找到安装包目录：${NSIS_DIR}\n  请先执行：cd app/tauri && ../node_modules/.bin/tauri build`);
 
-// 安装包文件名由 Tauri 生成（含中文与版本号），这里按前缀匹配，避免写死
-const setupName = readdirSync(NSIS_DIR).find(f => f.endsWith('-setup.exe'));
-if (!setupName) die(`安装包目录内没有 -setup.exe：${NSIS_DIR}`);
+// 安装包文件名由 Tauri 生成（含中文与版本号）。
+// ⚠️ V9.0 修复：原先只按 `-setup.exe` 后缀取**第一个**，而 NSIS 目录会累积历史版本的
+//    安装包（如同时存在 0.8.2 与 0.9.0）。目录列举顺序近似字典序，于是 0.8.2 被优先选中，
+//    结果把**旧版安装包**复制成 `…_0.9.0_x64-setup.exe` 发出去，普通人无从察觉。
+//    现改为必须与当前 package.json 的版本号匹配，并对多命中/零命中直接报错。
+const allSetup = readdirSync(NSIS_DIR).filter(f => f.endsWith('-setup.exe'));
+const versioned = allSetup.filter(f => f.includes(`_${VERSION}_`) || f.includes(`_v${VERSION}_`));
+if (versioned.length === 0) {
+  die(`安装包目录内没有与当前版本 ${VERSION} 匹配的 -setup.exe。\n` +
+    `  目录内现有：${allSetup.length ? allSetup.join('、') : '（无）'}\n` +
+    `  请先执行：cd app/tauri && ../node_modules/.bin/tauri build`);
+}
+if (versioned.length > 1) {
+  die(`安装包目录内有 ${versioned.length} 个匹配 ${VERSION} 的 -setup.exe，无法确定用哪个：\n  ${versioned.join('\n  ')}`);
+}
+const setupName = versioned[0];
+if (allSetup.length > versioned.length) {
+  log(`提示：安装包目录内另有 ${allSetup.length - versioned.length} 个旧版本安装包（已忽略）：` +
+    allSetup.filter(f => f !== setupName).join('、'));
+}
 const SETUP = join(NSIS_DIR, setupName);
 log(`安装包: ${setupName}（${(statSync(SETUP).size / 1024 / 1024).toFixed(2)} MB）`);
 

@@ -128,7 +128,7 @@ body{transition:background-color .3s ease,color .3s ease}
     </button>
     <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>古代史及汉籍研究工具</h1></a>
     <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="embed.html">快速跳转</a>
+      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="kanseki.html">古籍类目查询</a><a href="embed.html">快速跳转</a>
     </nav>
     <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
       <div class="nav-dropdown user-dropdown">
@@ -151,6 +151,7 @@ body{transition:background-color .3s ease,color .3s ease}
     <div class="drawer-nav-group">导航</div>
     <a href="index.html" class="drawer-link">纪年查询</a>
     <a href="catalog.html" class="drawer-link">编目规范</a>
+    <a href="kanseki.html" class="drawer-link">古籍类目查询</a>
     <a href="embed.html" class="drawer-link">快速跳转</a>
     <div class="drawer-nav-group">说明文档</div>
     <a href="guide.html" class="drawer-link">使用介绍</a>
@@ -166,6 +167,40 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v9.1 · 桌面版 0.10.0</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>新增「AI 复检」（桌面版）</b>：在「古籍类目查询」页可导入 DeepSeek API Key，一键把当前筛选结果（连同《中国古籍总目》与《全球汉籍合璧工程》两套分类体系）交给 AI 逐条复核，输出总体判断、可疑条目清单与建议类目；可在同一会话继续追问。送审范围可选「当前页／当前结果抽样 100 条／全库抽样 100 条」。</li>
+      <li>API Key <b>只保存在本机</b>（桌面程序本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek，设置页可一键清除。</li>
+      <li>桌面版侧栏「古籍类目查询」<b>移至「纪年查询」之下</b>，与其他查询入口相邻。</li>
+      <li>桌面版<b>隐藏页内的「导出 CSV / 简繁 / 切换主题」</b>三个按钮：简繁在程序标题栏已有一键切换、主题在侧栏已有「切换主题」，页内属重复入口。<b>网页版仍完整保留这三项功能</b>（网页版没有外壳替代入口）。</li>
+      <li>AI 复检依赖桌面程序转发请求（浏览器直连 DeepSeek 会被 CORS 拦截），故<b>网页版不显示该功能</b>。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v9.0 · 桌面版 0.9.0</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li>新增「古籍类目查询」页面：检索《中国古籍总目》全量 177,107 条著录</li>
+      <li>支持模糊/多词/字段限定检索，并对输错的字做容错匹配</li>
+      <li>结果同时显示中国古籍总目分类与全球汉籍合璧工程类目的对应与判定</li>
+      <li>结果支持繁简显示与 CSV 导出</li>
+      <li>桌面版新增「古籍类目查询」视图（V0.9.0）</li>
+      <li><b>修复「干支」在繁体模式下被误显示为「幹支」</b>（本站核心概念，全站 100 余处受影响，桌面版表头即为「幹支」）；<b>并修复「周」被误转「週」</b>（西周 → 西週、周烈王 → 週烈王、周边政权 → 週边政权）。两者均为简繁映射表的既有缺陷，本次逐语境审计后按专名修正惯例改正（「后 → 後」经审计确认无误，未改）。</li>
+      <li>补充「古籍类目查询」页所需简繁词条与字符（S2T 456 → 540，旧条目零丢失）。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

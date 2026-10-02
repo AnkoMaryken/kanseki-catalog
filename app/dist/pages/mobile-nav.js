@@ -1,7 +1,7 @@
 /* ============================================
  * mobile-nav.js — 移动端汉堡抽屉 UI 层 (V8.2)
- * 供 5 个带 .header-nav 的页面共用:
- *   index / guide / catalog / changelog / embed
+ * 供 6 个带 .header-nav 的页面共用:
+ *   index / guide / catalog / changelog / embed / kanseki  (V9.0 起为 6 个)
  * 桌面端 (.header-nav > a.nav-link) 结构原样保留,
  * 汉堡按钮/抽屉仅在 ≤768px 由 CSS 显示。
  * ============================================ */

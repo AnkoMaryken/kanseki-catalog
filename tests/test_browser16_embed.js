@@ -36,7 +36,7 @@ const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7
 
   // 5. 导航: 快速跳转 active
   let navLinks = await page.locator('.header-nav > a').allTextContents();
-  check('导航直链 3 项', navLinks.length === 3, JSON.stringify(navLinks));
+  check('导航直链 4 项', navLinks.length === 4, JSON.stringify(navLinks));
   let activeText = await page.locator('.header-nav a.active').textContent();
   check('快速跳转 active', activeText.includes('快速跳转'), activeText);
 

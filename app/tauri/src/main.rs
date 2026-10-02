@@ -3,6 +3,7 @@
 // ================================================
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod ai;
 mod http;
 mod single_instance;
 
@@ -17,6 +18,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             http::webdav_request,
             http::webdav_check,
+            // V9.1：AI 复检（DeepSeek）—— 同理走 Rust 侧以规避 CORS
+            ai::ai_chat,
+            ai::ai_check,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

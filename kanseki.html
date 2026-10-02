@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="zh-HK" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<title>古籍类目查询 — 古代史及汉籍研究工具</title>
+<style>
+/* ============================================================
+   V9.0 古籍类目查询
+   以下变量块 / 基础样式 / header / 移动端抽屉 均「原样复制」自
+   catalog.html（编目规范），以保证全站风格一致，勿改。
+   ============================================================ */
+:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
+[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa;--color-table-header:#0a0a0a;--color-table-header-text:#e5e5e5}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;transition:background-color .3s ease,color .3s ease}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+
+/* ===== Header (四页一致) ===== */
+.app-header{background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--color-text);padding:.8rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--color-border-light);animation:hdrIn .5s var(--ease-spring)}
+@keyframes hdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
+.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:var(--color-bg);font-weight:700}
+.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:var(--color-text);white-space:nowrap}
+.header-nav{display:flex;gap:.25rem;flex-shrink:0}
+.header-nav a{color:var(--color-text-muted);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
+.header-nav a:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.header-nav a.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
+.header-actions{margin-left:auto;display:flex;gap:.5rem}
+.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
+.btn-icon:hover{background:var(--color-surface-hover);color:var(--color-text)}
+
+/* ===== 导航下拉菜单 (说明文档) ===== */
+.nav-dropdown{position:relative;flex-shrink:0}
+.nav-dropdown-btn{display:inline-flex;align-items:center;gap:.1rem;color:var(--color-text-muted);font-size:.85rem;font-weight:500;font-family:var(--font-body);padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap;border:none;background:none;cursor:pointer}
+.nav-dropdown-btn:hover{color:var(--color-text);background:var(--color-surface-hover)}
+.nav-dropdown-btn.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
+.nav-dropdown-btn svg{transition:transform var(--transition-fast)}
+.nav-dropdown:hover .nav-dropdown-btn svg,.nav-dropdown:focus-within .nav-dropdown-btn svg{transform:rotate(180deg)}
+.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:132px;padding:.3rem;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease-spring),visibility .18s var(--ease-spring),transform .18s var(--ease-spring);z-index:210}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
+.nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
+/* 用户菜单（登录下拉，右对齐） */
+.user-dropdown{position:relative}
+.user-btn{display:inline-flex;align-items:center}
+.user-login-link{color:inherit;text-decoration:none}
+.user-menu{right:0;left:auto;min-width:120px}
+.nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
+
+/* ===== V8.2 移动端适配 ===== */
+.m-hamburger {
+  display: none; width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); cursor: pointer;
+  align-items: center; justify-content: center; color: var(--color-text);
+}
+.drawer-overlay {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.45); opacity: 0; visibility: hidden;
+  transition: opacity var(--transition-md), visibility var(--transition-md);
+}
+.drawer-overlay.open { opacity: 1; visibility: visible; }
+.drawer {
+  display: none; position: fixed; top: 0; right: 0; bottom: 0; z-index: 950;
+  width: min(78vw, 320px); background: var(--color-surface);
+  border-left: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
+  transform: translateX(105%); transition: transform var(--transition-md);
+  overflow-y: auto; padding: 1rem 0.9rem 2rem; flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-brand { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.4rem 1rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0.8rem; }
+.drawer-brand .brand-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
+.drawer-brand h2 { font-size: 0.92rem; font-weight: 600; margin: 0; }
+.drawer-nav { display: flex; flex-direction: column; gap: 0.1rem; }
+.drawer-nav-group { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.8rem 0.4rem 0.3rem; letter-spacing: 0.03em; }
+.drawer-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.6rem; border-radius: var(--radius-md); font-size: 0.92rem; color: var(--color-text); text-decoration: none; transition: all var(--transition-fast); }
+.drawer-link:hover { background: var(--color-surface-hover); }
+.drawer-link.active { background: var(--color-bg-alt); font-weight: 600; }
+.drawer-user { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--color-border); }
+@media (max-width: 768px) {
+  .m-hamburger { display: inline-flex; }
+  .drawer-overlay, .drawer { display: block; }
+  .header-inner .header-nav { display: none !important; }
+  .header-actions { display: none !important; }
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* ============================================================
+   页面专属（V9.0 新增；不引入新配色，仅用既有变量 + 判定三态色标）
+   ============================================================ */
+/* 补齐 catalog.html 中未定义、却被抽屉样式引用的 --transition-md（仅本页） */
+:root{--transition-md:200ms cubic-bezier(.16,1,.3,1)}
+/* 判定三态色标：完全相同=绿 / 可对应=黄 / 无对应=橙（与类目查找表一致） */
+:root{--ks-same-bg:#E2EFDA;--ks-same-fg:#375623;--ks-same-bd:#C6E0B4;--ks-ok-bg:#FFF2CC;--ks-ok-fg:#7F6000;--ks-ok-bd:#EFDFA8;--ks-none-bg:#FCE4D6;--ks-none-fg:#833C0C;--ks-none-bd:#F2C6AC}
+[data-theme="dark"]{--ks-same-bg:#1d2a1c;--ks-same-fg:#a9d18e;--ks-same-bd:#33472f;--ks-ok-bg:#2d2916;--ks-ok-fg:#e8d48b;--ks-ok-bd:#4a4326;--ks-none-bg:#2e2019;--ks-none-fg:#e5a978;--ks-none-bd:#4d362a}
+
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ksSpin{to{transform:rotate(360deg)}}
+
+.ks-main{max-width:1400px;margin:0 auto;padding:1.25rem 1.5rem 2.5rem;width:100%;flex:1;display:flex;flex-direction:column;gap:1rem;animation:pageIn .45s var(--ease-spring) .08s backwards}
+
+/* ---------- 加载态 ---------- */
+.ks-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;min-height:52vh;color:var(--color-text-secondary);font-size:.92rem;text-align:center}
+.ks-loading[hidden]{display:none}
+.ks-spinner{width:34px;height:34px;border:3px solid var(--color-border);border-top-color:var(--color-primary);border-radius:50%;animation:ksSpin .9s linear infinite}
+.ks-app[hidden]{display:none}
+
+/* ---------- 页头 ---------- */
+.ks-head h2{font-family:var(--font-display);font-size:1.18rem;font-weight:700;color:var(--color-text)}
+.ks-head p{font-size:.8rem;color:var(--color-text-muted);margin-top:.18rem}
+
+/* ---------- 卡片 / 工具栏 ---------- */
+.ks-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);overflow:hidden}
+.ks-toolbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.85rem 1.1rem;border-bottom:1px solid var(--color-divider)}
+.ks-search{flex:1 1 280px;min-width:190px;padding:.5rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-md);font-family:var(--font-body);font-size:.86rem;background:var(--color-bg-alt);color:var(--color-text);transition:all var(--transition-fast)}
+.ks-search:focus{outline:none;border-color:var(--color-primary);background:var(--color-surface)}
+.ks-btn{padding:.5rem .9rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.82rem;cursor:pointer;transition:all var(--transition-fast);white-space:nowrap}
+.ks-btn:hover{background:var(--color-surface-hover);border-color:var(--color-primary)}
+.ks-btn.primary{background:var(--color-primary);color:var(--color-bg);border-color:var(--color-primary);font-weight:600}
+.ks-btn.primary:hover{background:var(--color-primary-light);border-color:var(--color-primary-light)}
+.ks-lang{display:inline-flex;border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface)}
+.ks-lang button{padding:.5rem .85rem;border:none;background:transparent;color:var(--color-text-secondary);font-family:var(--font-body);font-size:.82rem;cursor:pointer;transition:all var(--transition-fast)}
+.ks-lang button+button{border-left:1px solid var(--color-border)}
+.ks-lang button:hover{background:var(--color-surface-hover);color:var(--color-text)}
+.ks-lang button.active{background:var(--color-primary);color:var(--color-bg);font-weight:600}
+
+/* ---------- 筛选器 ---------- */
+.ks-filters{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.7rem 1.1rem;border-bottom:1px solid var(--color-divider);background:var(--color-bg-alt)}
+.ks-flabel{font-size:.78rem;color:var(--color-text-muted);font-weight:600}
+.ks-sel{padding:.42rem .6rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.8rem;cursor:pointer;max-width:190px}
+.ks-sel:focus{outline:none;border-color:var(--color-primary)}
+
+/* ---------- 统计 / 提示 ---------- */
+.ks-stats{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.6rem 1.1rem;font-size:.82rem;color:var(--color-text-secondary);border-bottom:1px solid var(--color-divider)}
+.ks-badge{padding:.08rem .55rem;border-radius:999px;background:var(--color-bg-alt);border:1px solid var(--color-border);font-size:.74rem;color:var(--color-text-secondary)}
+.ks-badge[hidden]{display:none}
+.ks-time{margin-left:auto;font-size:.74rem;color:var(--color-text-muted);font-family:ui-monospace,'SF Mono','Cascadia Mono',monospace}
+.ks-hint{display:none;padding:.55rem 1.1rem;font-size:.8rem;color:var(--color-text-secondary);background:var(--color-bg-alt);border-bottom:1px solid var(--color-divider)}
+.ks-hint.show{display:block}
+
+/* ---------- 结果表 ---------- */
+.ks-tablewrap{overflow-x:auto}
+.ks-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+.ks-tbl th{background:var(--color-surface);color:var(--color-text-secondary);padding:.5rem .55rem;text-align:left;font-weight:600;font-size:.75rem;white-space:nowrap;border-bottom:1px solid var(--color-border);position:sticky;top:0;z-index:5}
+.ks-tbl td{padding:.42rem .55rem;border-bottom:1px solid var(--color-divider);vertical-align:top;line-height:1.6}
+.ks-tbl tbody tr:hover td{background:var(--color-surface-hover)}
+.ks-seq{font-family:ui-monospace,'SF Mono','Cascadia Mono',monospace;color:var(--color-text-muted);font-size:.78rem;text-align:right}
+/* 部/類/屬 与合璧列不折行（否则单字竖排） */
+.ks-tbl td:nth-child(2),.ks-tbl td:nth-child(3),.ks-tbl td:nth-child(4),.ks-tbl td:nth-child(8),.ks-tbl td:nth-child(9){white-space:nowrap}
+.c-book{min-width:210px}
+.c-author{white-space:nowrap}
+.c-path{white-space:nowrap;color:var(--color-text-secondary);font-size:.8rem}
+.ks-dash{color:var(--color-text-muted)}
+.vd{display:inline-block;padding:.08rem .5rem;border-radius:var(--radius-sm);font-size:.76rem;font-weight:600;border:1px solid transparent;white-space:nowrap}
+.vd-same{background:var(--ks-same-bg);color:var(--ks-same-fg);border-color:var(--ks-same-bd)}
+.vd-ok{background:var(--ks-ok-bg);color:var(--ks-ok-fg);border-color:var(--ks-ok-bd)}
+.vd-none{background:var(--ks-none-bg);color:var(--ks-none-fg);border-color:var(--ks-none-bd)}
+
+/* ---------- 空态 / 分页 / 提示 ---------- */
+.ks-empty{padding:2.6rem 1rem;text-align:center;color:var(--color-text-muted);font-size:.86rem}
+.ks-empty[hidden]{display:none}
+.ks-pager{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding:.7rem 1.1rem;font-size:.82rem;color:var(--color-text-secondary);border-top:1px solid var(--color-divider)}
+.ks-pgbtn{min-width:34px;padding:.35rem .55rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.8rem;cursor:pointer;transition:all var(--transition-fast)}
+.ks-pgbtn:hover:not(:disabled){background:var(--color-surface-hover);border-color:var(--color-primary)}
+.ks-pgbtn:disabled{opacity:.4;cursor:default}
+.ks-range{margin-left:auto;font-size:.76rem;color:var(--color-text-muted)}
+.ks-tips{padding:.6rem 1.1rem;border-top:1px solid var(--color-divider);font-size:.75rem;color:var(--color-text-muted);line-height:1.85}
+
+@media(max-width:820px){
+  .ks-main{padding:1rem .9rem 2rem}
+  .ks-toolbar,.ks-filters,.ks-stats,.ks-pager,.ks-tips,.ks-hint{padding-left:.8rem;padding-right:.8rem}
+  .ks-search{flex:1 1 100%}
+  .ks-sel{max-width:100%}
+  .c-book{min-width:160px}
+}
+
+/* ============================================================
+   AI 复检（V9.1）
+   ⚠️ .ks-ai / .ks-ai-set 用 display:flex，会压过浏览器对 [hidden] 自带的
+      display:none（项目文档记载过的同一陷阱），故必须显式补 [hidden] 规则。
+   ============================================================ */
+.ks-ai{margin-top:1rem;display:flex;flex-direction:column}
+.ks-ai[hidden]{display:none !important}
+.ks-ai-head{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;border-bottom:1px solid var(--color-divider);flex-wrap:wrap}
+.ks-ai-title{font-weight:600;font-size:.95rem;color:var(--color-text)}
+.ks-ai-sub{font-size:.78rem;color:var(--color-text-muted)}
+.ks-ai-spacer{flex:1 1 auto}
+.ks-ai-set{display:flex;flex-direction:column;gap:.55rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--color-divider);background:var(--color-bg-alt)}
+.ks-ai-set[hidden]{display:none !important}
+.ks-ai-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.ks-ai-label{font-size:.8rem;color:var(--color-text-secondary);white-space:nowrap}
+.ks-ai-input{flex:1 1 260px;min-width:170px;padding:.42rem .6rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.82rem}
+.ks-ai-input:focus{outline:none;border-color:var(--color-primary)}
+.ks-ai-note{font-size:.75rem;color:var(--color-text-muted);line-height:1.75}
+.ks-ai-body{display:flex;flex-direction:column;gap:.7rem;padding:.9rem 1.1rem;max-height:46vh;overflow:auto}
+.ks-ai-body:empty{display:none}
+.ks-ai-hint{font-size:.82rem;color:var(--color-text-muted);line-height:1.8}
+.ks-ai-msg{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.6rem .8rem;font-size:.83rem;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.ks-ai-msg.user{background:var(--color-bg-alt);color:var(--color-text-secondary)}
+.ks-ai-msg.ai{background:var(--color-surface);color:var(--color-text)}
+.ks-ai-msg.err{border-color:#d9a800;background:#FFF2CC;color:#5c4600}
+[data-theme="dark"] .ks-ai-msg.err{background:#3a2f10;color:#f0d998;border-color:#6b5518}
+.ks-ai-msg .ks-ai-meta{display:block;font-size:.72rem;color:var(--color-text-muted);margin-bottom:.3rem;font-weight:500}
+.ks-ai-ask{display:flex;flex-direction:column;gap:.5rem;padding:.85rem 1.1rem;border-top:1px solid var(--color-divider)}
+.ks-ai-textarea{width:100%;min-height:52px;resize:vertical;padding:.5rem .65rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font-family:var(--font-body);font-size:.83rem;line-height:1.6}
+.ks-ai-textarea:focus{outline:none;border-color:var(--color-primary)}
+.ks-ai-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.ks-ai-cost{margin-left:auto;font-size:.75rem;color:var(--color-text-muted)}
+.ks-ai-busy{display:inline-block;width:.72rem;height:.72rem;border-radius:50%;border:2px solid var(--color-border);border-top-color:var(--color-primary);animation:ksAiSpin .8s linear infinite;vertical-align:-1px;margin-right:.3rem}
+@keyframes ksAiSpin{to{transform:rotate(360deg)}}
+.ks-btn[disabled]{opacity:.5;cursor:not-allowed}
+.ks-btn-tiny{padding:.28rem .62rem;font-size:.76rem}
+@media (max-width:768px){
+  .ks-ai-head,.ks-ai-set,.ks-ai-body,.ks-ai-ask{padding-left:.8rem;padding-right:.8rem}
+  .ks-ai-body{max-height:none}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>古代史及汉籍研究工具</h1></a>
+    <nav class="header-nav">
+      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="kanseki.html" class="active">古籍类目查询</a><a href="embed.html">快速跳转</a>
+    </nav>
+    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
+      <div class="nav-dropdown user-dropdown">
+        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
+          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="nav-dropdown-menu user-menu" role="menu">
+          <a href="login.html" role="menuitem">登录</a>
+          <a href="signup.html" role="menuitem">注册</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
+<div class="drawer-overlay" id="mDrawerOverlay"></div>
+<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
+  <div class="drawer-brand"><div class="brand-icon" aria-hidden="true">汉</div><h2>古代史及汉籍研究工具</h2></div>
+  <nav class="drawer-nav">
+    <div class="drawer-nav-group">导航</div>
+    <a href="index.html" class="drawer-link">纪年查询</a>
+    <a href="catalog.html" class="drawer-link">编目规范</a>
+    <a href="kanseki.html" class="drawer-link active">古籍类目查询</a>
+    <a href="embed.html" class="drawer-link">快速跳转</a>
+    <div class="drawer-nav-group">说明文档</div>
+    <a href="guide.html" class="drawer-link">使用介绍</a>
+    <a href="changelog.html" class="drawer-link">更新日志</a>
+  </nav>
+  <div class="drawer-user">
+    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
+  </div>
+</aside>
+
+<main class="ks-main">
+
+  <!-- 加载态：数据 9.6MB，解析需数百毫秒 -->
+  <div class="ks-loading" id="ksLoading">
+    <div class="ks-spinner" aria-hidden="true"></div>
+    <p data-cn="正在载入古籍类目数据…">正在载入古籍类目数据…</p>
+  </div>
+
+  <div class="ks-app" id="ksApp" hidden>
+
+    <div class="ks-head">
+      <h2 data-cn="古籍类目查询">古籍类目查询</h2>
+      <p data-cn="检索《中国古籍总目》全量著录，并显示与全球汉籍合璧工程类目的对应与判定">检索《中国古籍总目》全量著录，并显示与全球汉籍合璧工程类目的对应与判定</p>
+    </div>
+
+    <section class="ks-card" aria-label="检索区">
+      <div class="ks-toolbar">
+        <input type="text" id="ksSearch" class="ks-search" autocomplete="off" spellcheck="false"
+               data-cn-ph="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
+               placeholder="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
+               aria-label="检索">
+        <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
+        <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
+        <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检">AI 复检</button>
+        <button class="ks-btn" id="ksExport" type="button" data-cn="导出 CSV">导出 CSV</button>
+        <div class="ks-lang" role="group" aria-label="显示字形">
+          <button type="button" id="langBtnS" title="显示简体字" data-cn="简">简</button>
+          <button type="button" id="langBtnT" class="active" title="显示繁体字" data-cn="繁">繁</button>
+        </div>
+        <button class="btn-icon" id="themeToggleSide" type="button" title="切换主题">☀</button>
+      </div>
+
+      <div class="ks-filters">
+        <span class="ks-flabel" data-cn="筛选">筛选</span><span class="ks-flabel" data-cn="部">部</span>
+        <select id="ksBu" class="ks-sel" aria-label="部"></select>
+        <span class="ks-flabel" data-cn="类">类</span>
+        <select id="ksLei" class="ks-sel" aria-label="类"></select>
+        <span class="ks-flabel" data-cn="判定">判定</span>
+        <select id="ksVerdict" class="ks-sel" aria-label="判定"></select>
+        <span class="ks-flabel" data-cn="每页">每页</span>
+        <select id="ksPerPage" class="ks-sel" aria-label="每页"></select>
+      </div>
+
+      <div class="ks-stats">
+        <span id="ksTotal" data-cn="正在载入…">正在载入…</span>
+        <span class="ks-badge" id="ksLevel" hidden></span>
+        <span class="ks-time" id="ksTime"></span>
+      </div>
+
+      <div class="ks-hint" id="ksHint"></div>
+
+      <div class="ks-tablewrap">
+        <table class="ks-tbl">
+          <thead>
+            <tr>
+              <th data-cn="序号">序号</th>
+              <th data-cn="部">部</th>
+              <th data-cn="类">类</th>
+              <th data-cn="属">属</th>
+              <th data-cn="书名">书名</th>
+              <th data-cn="著者">著者</th>
+              <th data-cn="分类路径">分类路径</th>
+              <th data-cn="合璧对应类目">合璧对应类目</th>
+              <th data-cn="合璧判定">合璧判定</th>
+            </tr>
+          </thead>
+          <tbody id="ksBody"></tbody>
+        </table>
+      </div>
+
+      <div class="ks-empty" id="ksEmpty" hidden></div>
+
+      <div class="ks-pager">
+        <button class="ks-pgbtn" id="ksPrev" type="button" aria-label="上一页">‹</button>
+        <span id="ksPageInfo"></span>
+        <button class="ks-pgbtn" id="ksNext" type="button" aria-label="下一页">›</button>
+        <span class="ks-range" id="ksRange"></span>
+      </div>
+
+      <div class="ks-tips" data-cn="提示：支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）">提示：支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）</div>
+    </section>
+
+    <!-- ============================================================
+         AI 复检（V9.1）—— DeepSeek
+         · 仅桌面版可用：调用经 Rust 侧 ai_chat 命令转发。
+           浏览器/网页版直连 api.deepseek.com 会被 CORS 拦（该接口不返回
+           Access-Control-Allow-Origin），故网页版会自动隐藏本区块与入口按钮。
+         · 送审内容是「你当前筛选出的著录条目」，不含其它数据。
+         ============================================================ -->
+    <section class="ks-card ks-ai" id="ksAiPanel" hidden aria-label="AI 复检">
+      <div class="ks-ai-head">
+        <span class="ks-ai-title" data-cn="AI 复检">AI 复检</span>
+        <span class="ks-ai-sub" id="ksAiSub"></span>
+        <span class="ks-ai-spacer"></span>
+        <button class="ks-btn ks-btn-tiny" id="ksAiSetBtn" type="button" data-cn="设置">设置</button>
+        <button class="ks-btn ks-btn-tiny" id="ksAiHide" type="button" data-cn="收起">收起</button>
+      </div>
+
+      <div class="ks-ai-set" id="ksAiSet" hidden>
+        <div class="ks-ai-row">
+          <label class="ks-ai-label" for="ksAiKey" data-cn="DeepSeek API Key">DeepSeek API Key</label>
+          <input type="password" id="ksAiKey" class="ks-ai-input" autocomplete="off" spellcheck="false" placeholder="sk-...">
+          <button class="ks-btn ks-btn-tiny" id="ksAiEye" type="button" data-cn="显示">显示</button>
+          <button class="ks-btn ks-btn-tiny" id="ksAiSave" type="button" data-cn="保存">保存</button>
+          <button class="ks-btn ks-btn-tiny" id="ksAiTest" type="button" data-cn="测试连接">测试连接</button>
+          <button class="ks-btn ks-btn-tiny" id="ksAiForget" type="button" data-cn="清除">清除</button>
+        </div>
+        <div class="ks-ai-row">
+          <label class="ks-ai-label" for="ksAiModel" data-cn="模型">模型</label>
+          <select id="ksAiModel" class="ks-sel">
+            <option value="deepseek-chat">deepseek-chat</option>
+            <option value="deepseek-reasoner">deepseek-reasoner</option>
+          </select>
+          <label class="ks-ai-label" for="ksAiScope" data-cn="送审范围">送审范围</label>
+          <select id="ksAiScope" class="ks-sel">
+            <option value="page" selected data-cn="当前页">当前页</option>
+            <option value="sample" data-cn="当前结果抽样 100 条">当前结果抽样 100 条</option>
+            <option value="all" data-cn="全库抽样 100 条">全库抽样 100 条</option>
+          </select>
+        </div>
+        <div class="ks-ai-note" data-cn="API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。送审内容为你当前筛选出的著录条目。">API Key 只保存在本机（桌面程序的本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。送审内容为你当前筛选出的著录条目。</div>
+      </div>
+
+      <div class="ks-ai-body" id="ksAiBody"></div>
+
+      <div class="ks-ai-ask">
+        <textarea id="ksAiInput" class="ks-ai-textarea" rows="2"
+                  data-cn-ph="可在此追问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"
+                  placeholder="可在此追问，例如：这些「无对应」的条目按内容应归入哪个合璧类目？"></textarea>
+        <div class="ks-ai-actions">
+          <button class="ks-btn primary" id="ksAiRecheck" type="button" data-cn="复检当前结果">复检当前结果</button>
+          <button class="ks-btn" id="ksAiAsk" type="button" data-cn="提问">提问</button>
+          <button class="ks-btn" id="ksAiReset" type="button" data-cn="清空对话">清空对话</button>
+          <span class="ks-ai-cost" id="ksAiCost"></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- 数据与依赖：顺序固定 kanseki_data.js → kanseki_conv.js → conv_tables.js → user-state.js → mobile-nav.js -->
+<script src="kanseki_data.js"></script>
+<script src="kanseki_conv.js"></script>
+<script src="conv_tables.js"></script>
+<script src="user-state.js"></script>
+<script src="mobile-nav.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   主题（复制自 catalog.html，一字不改）
+   ============================================================ */
+function initTheme(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);syncThemeIcons(t)}
+function syncThemeIcons(t){['themeToggle','themeToggleSide'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t==='dark'?'☾':'☀'})}
+function setTheme(){const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);syncThemeIcons(n)}
+initTheme();document.getElementById('themeToggle').addEventListener('click',setTheme);
+document.getElementById('themeToggleSide').addEventListener('click',setTheme);
+
+/* ============================================================
+   调试/测试探针（页面逻辑不依赖）
+   ============================================================ */
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.1' };
+
+/* ============================================================
+   繁简转换
+   ------------------------------------------------------------
+   · UI 文案以简体书写，lang==='t' 时走 conv_tables.js 的 S2T_MAP（同 index.html）
+   · 记录字段（書名/著者/分类）本身为繁体：lang==='t' 原样，lang==='s' 用 k2s()
+   ============================================================ */
+var LANG_KEY = 'kanseki_lang';
+var displayLang = 't';                 // 默认繁体（无 localStorage 记录时）
+var langListeners = [];
+
+function s2tMap(){ return (typeof S2T_MAP !== 'undefined' && S2T_MAP) ? S2T_MAP : {}; }
+var _s2tKeys = null;
+function s2tKeys(){
+  if (!_s2tKeys) _s2tKeys = Object.keys(s2tMap()).sort(function(a,b){ return b.length - a.length || a.localeCompare(b,'zh'); });
+  return _s2tKeys;
+}
+// 最长匹配优先（与 index.html convertText 同一套语义）
+function convertText(text, mapObj, keys){
+  if (!text || !mapObj) return text;
+  if (!keys || !keys.length) return text;
+  var result = '', i = 0, n = text.length;
+  while (i < n) {
+    var matched = false;
+    for (var k = 0; k < keys.length; k++) {
+      var key = keys[k];
+      if (text.startsWith(key, i)) { result += mapObj[key]; i += key.length; matched = true; break; }
+    }
+    if (!matched) { result += text[i]; i++; }
+  }
+  return result;
+}
+function toTraditional(text){ return convertText(text, s2tMap(), s2tKeys()); }
+
+// 繁→简：词组优先、长度降序，再逐字查表（规格 §1.2 给定算法；首个字符快筛不改变语义）
+var T2S = (typeof KANSEKI_T2S !== 'undefined' && KANSEKI_T2S) ? KANSEKI_T2S : {};
+var T2S_PHRASE = (typeof KANSEKI_T2S_PHRASE !== 'undefined' && KANSEKI_T2S_PHRASE) ? KANSEKI_T2S_PHRASE : {};
+var T2S_KEYS = Object.keys(T2S_PHRASE).sort(function(a,b){ return b.length - a.length; });
+var T2S_FIRST = T2S_KEYS.map(function(k){ return k.charCodeAt(0); });
+function k2s(s){
+  if (!s) return s;
+  var out = '', i = 0, n = s.length;
+  while (i < n) {
+    var cc = s.charCodeAt(i), hit = null;
+    for (var k = 0; k < T2S_KEYS.length; k++) {
+      if (cc === T2S_FIRST[k] && s.startsWith(T2S_KEYS[k], i)) { hit = T2S_KEYS[k]; break; }
+    }
+    if (hit) { out += T2S_PHRASE[hit]; i += hit.length; }
+    else { var c = s[i]; var m = T2S[c]; out += (m || c); i++; }
+  }
+  return out;
+}
+
+// UI 文案转换
+function toLang(text, lang){ return lang === 't' ? toTraditional(text) : text; }
+function toDisplay(text){ return toLang(text, displayLang); }
+// 记录字段字形（繁体原样 / 简体 k2s）
+function fmtRec(text){ return displayLang === 't' ? String(text == null ? '' : text) : k2s(String(text == null ? '' : text)); }
+
+function getSavedLang(){ try { return localStorage.getItem(LANG_KEY) === 's' ? 's' : 't'; } catch (e) { return 't'; } }
+
+/* ============================================================
+   工具
+   ============================================================ */
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtNum(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function $(id){ return document.getElementById(id); }
+
+/* ============================================================
+   数据（启动时构建一次，约 0.3–0.8s）
+   ============================================================ */
+var META = {}, CATS = [], PATHS = [], HEL = [], PATHS_S = [], HEL_S = [], VD_S = [];
+var N = 0;
+var catIdx = null, books = null, authors = null, keys = null, catCounts = null;
+var normBook = null, normAuthor = null;   // 字段限定检索用的惰性简体缓存
+
+function initData(){
+  META = window.KANSEKI_META || {};
+  CATS = window.KANSEKI_CATS || [];
+  PATHS = CATS.map(function(c){ return c[2] ? c[0] + '/' + c[1] + '/' + c[2] : c[0] + '/' + c[1]; });
+  // 合璧类目 = 合璧部/合璧类；无对应时用判定值（「無對應」）
+  // 注：V9.0 数据契约已统一字形 —— 合璧侧（合璧部/合璧类/判定/备注）与古籍侧一样为繁体，
+  //     因此繁模式「整条记录原样输出」、简模式「整条记录经 k2s()」，不再按列分向转换。
+  HEL = CATS.map(function(c){ return (c[3] && c[4]) ? (c[3] + '/' + c[4]) : (c[5] || ''); });
+  PATHS_S = PATHS.map(k2s);
+  HEL_S = HEL.map(k2s);
+  // 判定取值可能被输入为简体（无对应）或繁体（無對應）：两边都 k2s 归一后再比较，不硬编码任一字形
+  VD_S = CATS.map(function(c){ return k2s(c[5] || ''); });
+
+  var str = window.KANSEKI_ROWS || '';
+  var lines = str.split('\n');
+  var n = lines.length;
+  if (n && !lines[n - 1]) n--;          // 容错：忽略末尾空行
+  N = n;
+
+  catIdx = new Uint16Array(N);
+  books = new Array(N);
+  authors = new Array(N);
+  keys = new Array(N);
+  catCounts = new Uint32Array(CATS.length);
+
+  for (var i = 0; i < N; i++) {
+    var f = lines[i].split('\t');
+    var ci = (+f[0]) || 0;
+    catIdx[i] = ci;
+    books[i] = f[1] || '';
+    authors[i] = f[2] || '';
+    // 检索归一化键：书名 + 著者 + 分类路径 + 合璧类目（全部转简体，使简体输入也能命中繁体原文）
+    keys[i] = k2s(books[i] + ' ' + authors[i] + ' ' + PATHS[ci] + ' ' + HEL[ci]);
+    if (ci < catCounts.length) catCounts[ci]++;
+  }
+}
+
+function ensureNorm(kind){
+  if (kind === 'book' && !normBook) {
+    normBook = new Array(N);
+    for (var i = 0; i < N; i++) normBook[i] = k2s(books[i]);
+  }
+  if (kind === 'author' && !normAuthor) {
+    normAuthor = new Array(N);
+    for (var j = 0; j < N; j++) normAuthor[j] = k2s(authors[j]);
+  }
+}
+
+/* ============================================================
+   查询语法
+   ------------------------------------------------------------
+   空格分词 = AND；引号内整体不分词；字段限定 书:/著:/类:/合:/判:
+   ============================================================ */
+var FIELD_ALIAS = {
+  '书':'book','書':'book','名':'book','书名':'book','書名':'book',
+  '著':'author','人':'author','作者':'author','著者':'author',
+  '类':'cat','類':'cat','分类':'cat','分類':'cat',
+  '合':'he','合璧':'he',
+  '判':'verdict','判定':'verdict'
+};
+var CAT_FIELDS = { cat:1, he:1, verdict:1 };
+var L3_LIMIT = 5000;      // L3 累计扫描上限
+var L3_GATE = 200;        // 仅当 L1+L2 命中 < 200 才启用 L3
+
+function parseQuery(raw){
+  var tokens = [], cur = '', inQ = false, text = String(raw || '');
+  for (var i = 0; i < text.length; i++) {
+    var ch = text.charAt(i);
+    if (ch === '"') { inQ = !inQ; continue; }
+    if (!inQ && /\s/.test(ch)) { if (cur) { tokens.push(cur); cur = ''; } continue; }
+    cur += ch;
+  }
+  if (cur) tokens.push(cur);
+
+  var terms = [];
+  for (var t = 0; t < tokens.length; t++) {
+    var tok = tokens[t], field = 'all', q = tok;
+    var m = /^([^:：]{1,3})[:：]([\s\S]*)$/.exec(tok);
+    if (m && FIELD_ALIAS[m[1]]) { field = FIELD_ALIAS[m[1]]; q = m[2]; }
+    q = q.trim();
+    if (!q) continue;
+    var nq = k2s(q);                       // 查询词先归一为简体
+    var len = nq.length;
+    terms.push({
+      field: field,
+      raw: q,
+      q: nq,
+      len: len,
+      thr: len <= 2 ? 0 : (len <= 4 ? 1 : 2),   // 编辑距离阈值
+      lv: null, isCat: false, count12: 0, allowL3: false
+    });
+  }
+  return terms;
+}
+
+function textAtRow(term, i){
+  var ci = catIdx[i];
+  switch (term.field) {
+    case 'book': return normBook[i];
+    case 'author': return normAuthor[i];
+    case 'cat': return PATHS_S[ci];
+    case 'he': return HEL_S[ci];
+    case 'verdict': return VD_S[ci];
+    default: return keys[i];
+  }
+}
+function textAtCat(term, ci){
+  switch (term.field) {
+    case 'cat': return PATHS_S[ci];
+    case 'he': return HEL_S[ci];
+    case 'verdict': return VD_S[ci];
+    default: return keys[ci];
+  }
+}
+
+function isSubseq(q, t){
+  if (!q || !t || q.length > t.length) return false;
+  var j = 0;
+  for (var i = 0; i < t.length && j < q.length; i++) {
+    if (t.charCodeAt(i) === q.charCodeAt(j)) j++;
+  }
+  return j === q.length;
+}
+
+/* ---------- L3：有界编辑距离（滑窗） ---------- */
+var ED_A = new Int32Array(512), ED_B = new Int32Array(512);
+function boundedEdit(a, b, off, len, thr){
+  if (len <= 0 || len >= 512 || a.length > 64) return false;
+  var prev = ED_A, cur = ED_B, i, j;
+  for (j = 0; j <= len; j++) prev[j] = j;
+  for (i = 1; i <= a.length; i++) {
+    cur[0] = i;
+    var rowMin = i, ac = a.charCodeAt(i - 1);
+    for (j = 1; j <= len; j++) {
+      var cost = (ac === b.charCodeAt(off + j - 1)) ? 0 : 1;
+      var v = prev[j] + 1;
+      var v2 = cur[j - 1] + 1; if (v2 < v) v = v2;
+      var v3 = prev[j - 1] + cost; if (v3 < v) v = v3;
+      cur[j] = v;
+      if (v < rowMin) rowMin = v;
+    }
+    if (rowMin > thr) return false;          // 下界剪枝
+    var tmp = prev; prev = cur; cur = tmp;
+  }
+  return prev[len] <= thr;
+}
+function editHit(text, q, thr){
+  var m = q.length;
+  if (m < 3 || !text || text.length < m) return false;
+  var last = text.length - m;
+  for (var s = 0; s <= last; s++) {
+    if (boundedEdit(q, text, s, m, thr)) return true;
+  }
+  return false;
+}
+
+/* ---------- 第一阶段：L1 精确子串 / L2 子序列（渲染回调之外，全库扫描一次） ---------- */
+function matchBase(text, term){
+  if (!text) return 0;
+  if (text.indexOf(term.q) >= 0) return 1;
+  if (term.len >= 2 && isSubseq(term.q, text)) return 2;
+  return 0;
+}
+function computeTerm(term){
+  var i, l;
+  if (CAT_FIELDS[term.field]) {
+    // 分类/合璧/判定按「分类组合」聚合（349 条），行数用预算好的 catCounts 折算
+    term.isCat = true;
+    var lvC = new Uint8Array(CATS.length), countC = 0;
+    for (var ci = 0; ci < CATS.length; ci++) {
+      l = matchBase(textAtCat(term, ci), term);
+      if (l) { lvC[ci] = l; countC += catCounts[ci]; }
+    }
+    term.lv = lvC;
+    term.count12 = countC;
+  } else {
+    if (term.field === 'book') ensureNorm('book');
+    if (term.field === 'author') ensureNorm('author');
+    var lv = new Uint8Array(N), count = 0;
+    for (i = 0; i < N; i++) {
+      l = matchBase(textAtRow(term, i), term);
+      if (l) { lv[i] = l; count++; }
+    }
+    term.lv = lv;
+    term.count12 = count;
+  }
+  term.allowL3 = (term.len >= 3) && (term.count12 < L3_GATE);
+}
+
+/* ---------- 相关性：L 级别 + 命中位置 + 匹配长度；同级按 seq 升序 ---------- */
+var LEVEL_BONUS = [0, 3000, 2000, 1200, 400];
+function levelScore(lv, term, text){
+  var pos = text ? text.indexOf(term.q) : -1;
+  var posB = pos < 0 ? 0 : Math.max(0, 300 - pos);
+  return (LEVEL_BONUS[lv] || 0) + posB + Math.min(term.len, 30) * 6;
+}
+function sortByScore(rows, scores){
+  var idx = new Array(rows.length), k;
+  for (k = 0; k < idx.length; k++) idx[k] = k;
+  idx.sort(function(a, b){ return scores[b] - scores[a] || (rows[a] - rows[b]); });
+  var out = new Array(rows.length);
+  for (k = 0; k < idx.length; k++) out[k] = rows[idx[k]];
+  for (k = 0; k < out.length; k++) rows[k] = out[k];
+}
+
+/* ============================================================
+   状态与筛选
+   ============================================================ */
+var state = { raw:'', terms:[], rows:[], level:0, hint:'', page:1, perPage:100, ms:0 };
+var LEVEL_TEXT = { 1:'精确匹配', 2:'模糊匹配', 3:'容错匹配（含错字）', 4:'单字降级' };
+var termCacheKey = null, termCacheTerms = null;
+
+function getTerms(raw){
+  var key = String(raw || '').trim();
+  if (key === termCacheKey && termCacheTerms) return termCacheTerms;
+  var terms = parseQuery(raw);
+  for (var i = 0; i < terms.length; i++) computeTerm(terms[i]);
+  termCacheKey = key;
+  termCacheTerms = terms;
+  return terms;
+}
+function passFilter(i){
+  var ci = catIdx[i], c = CATS[ci];
+  if (fBu && c[0] !== fBu) return false;
+  if (fLei && c[1] !== fLei) return false;
+  if (fVerdict && c[5] !== fVerdict) return false;
+  return true;
+}
+var fBu = '', fLei = '', fVerdict = '';
+
+/* ============================================================
+   检索主流程（两阶段全部在渲染之外完成）
+   ============================================================ */
+function runSearch(raw){
+  var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  state.raw = raw == null ? '' : String(raw);
+  state.page = 1;
+
+  var terms = state.raw.trim() ? getTerms(state.raw) : [];
+  state.terms = terms;
+
+  var rows = [], level = 0, hint = '', i, t;
+
+  if (!terms.length) {
+    // 无查询词：全部记录（仅受筛选器限制），seq 升序
+    for (i = 0; i < N; i++) if (passFilter(i)) rows.push(i);
+  } else {
+    var scores = [], budget = 0;
+    for (i = 0; i < N; i++) {
+      if (!passFilter(i)) continue;
+      var ok = true, sc = 0, worst = 1, ci = catIdx[i];
+      for (t = 0; t < terms.length; t++) {
+        var term = terms[t];
+        var text = term.isCat ? textAtCat(term, ci) : textAtRow(term, i);
+        var lv = term.isCat ? term.lv[ci] : term.lv[i];
+        if (!lv && term.allowL3 && budget < L3_LIMIT) {
+          budget++;
+          if (editHit(text, term.q, term.thr)) lv = 3;
+        }
+        if (!lv) { ok = false; break; }
+        if (lv > worst) worst = lv;
+        sc += levelScore(lv, term, text);
+      }
+      if (!ok) continue;
+      rows.push(i);
+      scores.push(sc);
+      if (worst > level) level = worst;
+    }
+    if (rows.length) {
+      sortByScore(rows, scores);
+    } else {
+      /* ---------- L4 单字降级 ---------- */
+      var chars = [], seen = {}, best = 0;
+      for (t = 0; t < terms.length; t++) {
+        var qq = terms[t].q;
+        for (var c = 0; c < qq.length; c++) {
+          var ch = qq.charAt(c);
+          if (!seen[ch]) { seen[ch] = 1; chars.push(ch); }
+        }
+      }
+      var sc4 = [];
+      for (i = 0; i < N; i++) {
+        if (!passFilter(i)) continue;
+        var kk = keys[i], mm = 0;
+        for (var c2 = 0; c2 < chars.length; c2++) if (kk.indexOf(chars[c2]) >= 0) mm++;
+        if (mm > 0) { rows.push(i); sc4.push(mm * 10000); if (mm > best) best = mm; }
+      }
+      if (rows.length) {
+        sortByScore(rows, sc4);
+        level = 4;
+        hint = '未找到「' + state.raw.trim() + '」，已为你列出包含其中 ' + best + ' 个字的条目';
+      }
+    }
+  }
+
+  state.rows = rows;
+  state.level = level;
+  state.hint = hint;
+  state.ms = ((window.performance && performance.now) ? performance.now() : Date.now()) - t0;
+  KSDBG.lastMs = state.ms;
+  KSDBG.seq++;
+  render();
+}
+
+/* ============================================================
+   渲染（只渲染当前页 ≤200 行）
+   ============================================================ */
+// 判定三态色标：完全相同=绿 / 可對應=黄 / 無對應=橙
+// 用 k2s 归一后比较，兼容源数据任一字形（契约变更前后均可）
+function vdClass(v){
+  var s = k2s(v || '');
+  if (s === '完全相同') return 'vd-same';
+  if (s === '可对应') return 'vd-ok';
+  return 'vd-none';
+}
+function render(){
+  var rows = state.rows || [], total = rows.length;
+  var perPage = state.perPage || 100;
+  var pages = Math.max(1, Math.ceil(total / perPage));
+  if (state.page > pages) state.page = pages;
+  if (state.page < 1) state.page = 1;
+  var start = (state.page - 1) * perPage;
+  var end = Math.min(start + perPage, total);
+
+  var html = '', k;
+  for (k = start; k < end; k++) {
+    var i = rows[k], ci = catIdx[i], c = CATS[ci] || [];
+    var note = c[6] || '', vd = c[5] || '';
+    html += '<tr>'
+      + '<td class="ks-seq">' + (i + 1) + '</td>'
+      + '<td>' + esc(fmtRec(c[0])) + '</td>'
+      + '<td>' + esc(fmtRec(c[1])) + '</td>'
+      + '<td>' + (c[2] ? esc(fmtRec(c[2])) : '<span class="ks-dash">—</span>') + '</td>'
+      + '<td class="c-book">' + esc(fmtRec(books[i])) + '</td>'
+      + '<td class="c-author">' + esc(fmtRec(authors[i])) + '</td>'
+      + '<td class="c-path">' + esc(fmtRec(PATHS[ci])) + '</td>'
+      + '<td>' + esc(fmtRec(HEL[ci])) + '</td>'
+      + '<td><span class="vd ' + vdClass(vd) + '"' + (note ? ' title="' + esc(fmtRec(note)) + '"' : '') + '>' + esc(fmtRec(vd)) + '</span></td>'
+      + '</tr>';
+  }
+  $('ksBody').innerHTML = html;
+
+  // 统计
+  var all = META.total || N;
+  var totalText = toDisplay('共') + ' ' + fmtNum(total) + ' ' + toDisplay('条');
+  if (total !== N) totalText += '　·　' + toDisplay('全库') + ' ' + fmtNum(all) + ' ' + toDisplay('条');
+  $('ksTotal').textContent = totalText;
+
+  // 命中级别
+  var badge = $('ksLevel');
+  if (state.terms.length && state.level) {
+    badge.hidden = false;
+    badge.textContent = toDisplay(LEVEL_TEXT[state.level] || '');
+  } else {
+    badge.hidden = true;
+    badge.textContent = '';
+  }
+
+  // 降级提示
+  var hintEl = $('ksHint');
+  if (state.hint) { hintEl.textContent = toDisplay(state.hint); hintEl.classList.add('show'); }
+  else { hintEl.textContent = ''; hintEl.classList.remove('show'); }
+
+  // 空态
+  var emptyEl = $('ksEmpty');
+  if (!total) { emptyEl.hidden = false; emptyEl.textContent = toDisplay('未找到匹配的记录'); }
+  else { emptyEl.hidden = true; emptyEl.textContent = ''; }
+
+  // 分页
+  $('ksPageInfo').textContent = toDisplay('第') + ' ' + state.page + ' / ' + pages + ' ' + toDisplay('页');
+  $('ksRange').textContent = total ? (toDisplay('显示') + ' ' + (start + 1) + '-' + end + ' / ' + fmtNum(total)) : '';
+  $('ksPrev').disabled = state.page <= 1;
+  $('ksNext').disabled = state.page >= pages;
+  $('ksTime').textContent = state.ms ? (state.ms.toFixed(0) + ' ms') : '';
+}
+
+/* ============================================================
+   下拉选项（依赖当前字形）
+   ============================================================ */
+function allLabel(){ return esc(toDisplay('全部')); }
+function buildBuOptions(){
+  var sel = $('ksBu'), cur = sel.value, seen = {}, opts = ['<option value="">' + allLabel() + '</option>'];
+  for (var i = 0; i < CATS.length; i++) {
+    var bu = CATS[i][0];
+    if (!seen[bu]) { seen[bu] = 1; opts.push('<option value="' + esc(bu) + '">' + esc(fmtRec(bu)) + '</option>'); }
+  }
+  sel.innerHTML = opts.join('');
+  sel.value = (cur && seen[cur]) ? cur : '';
+  fBu = sel.value;
+}
+function buildLeiOptions(){
+  var sel = $('ksLei'), cur = sel.value, seen = {}, opts = ['<option value="">' + allLabel() + '</option>'];
+  for (var i = 0; i < CATS.length; i++) {
+    var c = CATS[i];
+    if (fBu && c[0] !== fBu) continue;
+    if (!seen[c[1]]) { seen[c[1]] = 1; opts.push('<option value="' + esc(c[1]) + '">' + esc(fmtRec(c[1])) + '</option>'); }
+  }
+  sel.innerHTML = opts.join('');
+  sel.value = (cur && seen[cur]) ? cur : '';
+  fLei = sel.value;
+}
+function buildVerdictOptions(){
+  var sel = $('ksVerdict'), cur = sel.value;
+  // 判定选项取自数据本身（不硬编码字形）：完全相同 / 可对应|可對應 / 无对应|無對應
+  var rank = { '完全相同': 0, '可对应': 1, '无对应': 2 };
+  var seen = {}, list = [];
+  for (var i = 0; i < CATS.length; i++) {
+    var v = CATS[i][5] || '';
+    if (v && !seen[v]) { seen[v] = 1; list.push(v); }
+  }
+  list.sort(function(a, b){
+    var ra = rank[k2s(a)], rb = rank[k2s(b)];
+    return (ra === undefined ? 9 : ra) - (rb === undefined ? 9 : rb);
+  });
+  var opts = ['<option value="">' + allLabel() + '</option>'];
+  for (var j = 0; j < list.length; j++) opts.push('<option value="' + esc(list[j]) + '">' + esc(fmtRec(list[j])) + '</option>');
+  sel.innerHTML = opts.join('');
+  sel.value = (cur && seen[cur]) ? cur : '';
+  fVerdict = sel.value;
+}
+function buildPerPageOptions(){
+  var sel = $('ksPerPage'), cur = sel.value;
+  var list = [50, 100, 200];
+  var opts = [];
+  for (var i = 0; i < list.length; i++) opts.push('<option value="' + list[i] + '">' + list[i] + '</option>');
+  sel.innerHTML = opts.join('');
+  sel.value = cur || String(state.perPage || 100);
+}
+
+/* ============================================================
+   字形：UI 文案 / 记录字段 / 下拉标签 全部跟随
+   ============================================================ */
+function applyLangAll(){
+  var lang = displayLang;
+  var nodes = document.querySelectorAll('[data-cn]');
+  for (var i = 0; i < nodes.length; i++) nodes[i].textContent = toLang(nodes[i].getAttribute('data-cn'), lang);
+  var phs = document.querySelectorAll('[data-cn-ph]');
+  for (var j = 0; j < phs.length; j++) phs[j].setAttribute('placeholder', toLang(phs[j].getAttribute('data-cn-ph'), lang));
+  document.documentElement.setAttribute('lang', lang === 't' ? 'zh-HK' : 'zh-CN');
+  buildBuOptions(); buildVerdictOptions(); buildPerPageOptions(); buildLeiOptions();
+}
+function setDisplayLang(lang, force, fromStorage){
+  var next = (lang === 's') ? 's' : 't';
+  if (!force && displayLang === next) return displayLang;
+  displayLang = next;
+  if (!fromStorage) { try { localStorage.setItem(LANG_KEY, next); } catch (e) { /* 隐私模式忽略 */ } }
+
+  var bs = $('langBtnS'), bt = $('langBtnT');
+  if (bs) bs.classList.toggle('active', next === 's');
+  if (bt) bt.classList.toggle('active', next === 't');
+
+  applyLangAll();
+  if (N) render();
+
+  for (var i = 0; i < langListeners.length; i++) {
+    try { langListeners[i](next); } catch (e) { /* 订阅者异常不影响主流程 */ }
+  }
+  return displayLang;
+}
+
+/* ============================================================
+   导出 CSV（当前筛选的全部结果，非仅本页）
+   ============================================================ */
+function glyph(text){ return displayLang === 't' ? String(text == null ? '' : text) : k2s(String(text == null ? '' : text)); }
+function stamp(){
+  var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
+  return '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
+}
+function buildCSV(){
+  var heads = ['序號','部','類','屬','書名','著者','分類路徑','合璧對應類目','合璧判定','合璧備註'];
+  var out = [heads.map(function(h){ return '"' + glyph(h).replace(/"/g, '""') + '"'; }).join(',')];
+  var rows = state.rows || [];
+  for (var k = 0; k < rows.length; k++) {
+    var i = rows[k], ci = catIdx[i], c = CATS[ci] || [];
+    var cells = [String(i + 1), c[0] || '', c[1] || '', c[2] || '', books[i], authors[i], PATHS[ci], HEL[ci], c[5] || '', c[6] || ''];
+    out.push(cells.map(function(v){ return '"' + glyph(v).replace(/"/g, '""') + '"'; }).join(','));
+  }
+  return '\uFEFF' + out.join('\r\n') + '\r\n';
+}
+function exportCSV(){
+  var csv = buildCSV();
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '古籍类目查询_' + stamp() + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+
+/* ============================================================
+   交互
+   ============================================================ */
+function clearAll(){
+  $('ksSearch').value = '';
+  // 注意：必须先置空 select.value，再重建选项 ——
+  // buildLeiOptions 会「尽量保留当前值」，若保留旧值则 類 筛选不会被清掉
+  $('ksBu').value = '';
+  $('ksLei').value = '';
+  $('ksVerdict').value = '';
+  fBu = ''; fLei = ''; fVerdict = '';
+  buildLeiOptions();
+  state.page = 1;
+  runSearch('');
+}
+function bindEvents(){
+  var input = $('ksSearch'), timer = null;
+  input.addEventListener('input', function(){
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function(){ runSearch(input.value); }, 250);   // debounce 250ms
+  });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { if (timer) clearTimeout(timer); runSearch(input.value); }
+  });
+  $('ksGo').addEventListener('click', function(){ if (timer) clearTimeout(timer); runSearch(input.value); });
+  $('ksClear').addEventListener('click', clearAll);
+  $('ksExport').addEventListener('click', exportCSV);
+
+  $('ksBu').addEventListener('change', function(){ fBu = this.value; buildLeiOptions(); state.page = 1; runSearch(input.value); });
+  $('ksLei').addEventListener('change', function(){ fLei = this.value; state.page = 1; runSearch(input.value); });
+  $('ksVerdict').addEventListener('change', function(){ fVerdict = this.value; state.page = 1; runSearch(input.value); });
+  $('ksPerPage').addEventListener('change', function(){ state.perPage = (+this.value) || 100; state.page = 1; render(); });
+
+  $('ksPrev').addEventListener('click', function(){ if (state.page > 1) { state.page--; render(); } });
+  $('ksNext').addEventListener('click', function(){
+    var pages = Math.max(1, Math.ceil(((state.rows || []).length) / state.perPage));
+    if (state.page < pages) { state.page++; render(); }
+  });
+
+  $('langBtnS').addEventListener('click', function(){ setDisplayLang('s'); });
+  $('langBtnT').addEventListener('click', function(){ setDisplayLang('t'); });
+
+  // 桌面外壳（标题栏「简/繁」）在同一 iframe 内直接调用 KansekiLang；
+  // 其它已打开页面经 storage 事件跟随
+  window.addEventListener('storage', function(e){
+    if (e && e.key === LANG_KEY) setDisplayLang(e.newValue === 's' ? 's' : 't', false, true);
+  });
+}
+
+/* ============================================================
+   对外字形接口（桌面版标题栏「简/繁」按钮依赖，与 index.html 一致）
+   ============================================================ */
+if (typeof window !== 'undefined') window.KansekiLang = {
+  get: function(){ return displayLang; },
+  set: function(lang){ setDisplayLang(lang === 's' ? 's' : 't'); },
+  toggle: function(){ setDisplayLang(displayLang === 't' ? 's' : 't'); return displayLang; },
+  KEY: LANG_KEY,
+  onChange: function(fn){
+    if (typeof fn !== 'function') return function(){};
+    langListeners.push(fn);
+    return function(){
+      var i = langListeners.indexOf(fn);
+      if (i >= 0) langListeners.splice(i, 1);
+    };
+  },
+  ready: true
+};
+
+/* ============================================================
+   AI 复检（V9.1）—— DeepSeek
+   ------------------------------------------------------------
+   · **仅桌面版**：经 Rust 侧 ai_chat / ai_check 命令转发。
+     浏览器/网页版直连 api.deepseek.com 会被 CORS 拦（该接口不返回
+     Access-Control-Allow-Origin），故非桌面环境下隐藏入口与面板。
+   · API Key 存 localStorage['kanseki_deepseek_key']（用户明确同意「明文存本机」）。
+     本模块只在本机读写；请求由 Rust 侧放入 Authorization 头，全程不打印 Key。
+   · 「复检当前结果」= 把当前筛选结果按范围取样 + 总计统计交给 DeepSeek 逐条复核；
+     之后可在同一会话中追问（历史消息一并携带）。
+   ============================================================ */
+var AI_KEY_STORE = 'kanseki_deepseek_key';
+var AI_MODEL_STORE = 'kanseki_deepseek_model';
+var AI_SCOPE_STORE = 'kanseki_deepseek_scope';
+var AI_ENDPOINT = 'https://api.deepseek.com/chat/completions';
+var AI_MAX_ROWS = 100;
+var aiHistory = [];
+var aiBusy = false;
+
+function aiAvailable(){
+  return !!(window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function');
+}
+function aiStore(key, val){
+  try {
+    if (val === undefined) return localStorage.getItem(key) || '';
+    if (val) localStorage.setItem(key, val); else localStorage.removeItem(key);
+  } catch (e) { /* 隐私模式等忽略 */ }
+  return '';
+}
+function aiGetKey(){ return aiStore(AI_KEY_STORE); }
+
+function aiScopeLabel(){
+  var s = $('ksAiScope') ? $('ksAiScope').value : 'page';
+  if (s === 'sample') return '当前结果抽样';
+  if (s === 'all') return '全库抽样';
+  return '当前页';
+}
+
+/* 取送审条目（返回记录索引数组）。抽样用等距取样，结果稳定且覆盖均匀。 */
+function aiPick(scope){
+  var rows = state.rows || [];
+  function spreadFrom(list, want){
+    var out = [], n = list.length, i;
+    if (n <= 0) return out;
+    want = Math.min(want, n);
+    for (i = 0; i < want; i++) out.push(list[Math.floor(i * n / want)]);
+    return out;
+  }
+  if (scope === 'page') {
+    var per = state.perPage || 100, start = (state.page - 1) * per;
+    return rows.slice(start, start + per).slice(0, AI_MAX_ROWS);
+  }
+  if (scope === 'all') {
+    var want = Math.min(AI_MAX_ROWS, N), out = [], i;
+    for (i = 0; i < want; i++) out.push(Math.floor(i * N / want));
+    return out;
+  }
+  return spreadFrom(rows, AI_MAX_ROWS);
+}
+
+function aiRowLine(i){
+  var ci = catIdx[i], c = CATS[ci] || [];
+  return (i + 1) + '. ' + (c[0] || '') + '／' + (c[1] || '') + (c[2] ? '／' + c[2] : '') +
+    ' ｜《' + (books[i] || '') + '》 ｜' + (authors[i] || '（原著者空缺）') +
+    ' ｜合璧对应：' + (HEL[ci] || '（无对应）') + ' ｜判定：' + (c[5] || '');
+}
+
+function aiSummary(idxs){
+  var byVd = {}, byBu = {}, k, c, key;
+  for (k = 0; k < idxs.length; k++) {
+    c = CATS[catIdx[idxs[k]]] || [];
+    key = c[5] || '（空）'; byVd[key] = (byVd[key] || 0) + 1;
+    key = c[0] || '（空）'; byBu[key] = (byBu[key] || 0) + 1;
+  }
+  function fmt(o){
+    var a = [];
+    for (var x in o) if (Object.prototype.hasOwnProperty.call(o, x)) a.push(x + ' ' + o[x]);
+    return a.join('、');
+  }
+  return '【总体统计】\n本次送审 ' + idxs.length + ' 条；当前筛选共 ' +
+    fmtNum((state.rows || []).length) + ' 条，全库 ' + fmtNum(META.total || N) + ' 条。\n' +
+    '判定分布：' + fmt(byVd) + '\n部别分布：' + fmt(byBu) + '\n';
+}
+
+function aiSystemPrompt(){
+  var glyph = displayLang === 't' ? '繁体中文' : '简体中文';
+  return [
+    '你是中国古籍编目专家，熟悉《中国古籍总目》与山东大学《全球汉籍合璧工程》两套分类体系。',
+    '用户会给你一批已著录的古籍条目。每条包含：序号、《中国古籍总目》的部／类／属、书名、著者，',
+    '以及本工具依据类目对照表给出的「合璧对应类目」与判定（完全相同／可对应／无对应）。',
+    '',
+    '请逐条复核这些对应是否合理，并按以下结构输出：',
+    '一、总体判断：对应关系是否可靠、有无系统性偏差；',
+    '二、可疑条目：序号 + 问题所在 + 建议的合璧类目（只列确有问题的，按严重程度排序）；',
+    '三、需要人工确认的边界情形。',
+    '',
+    '不要复述原文，不要罗列没有问题的条目，直接给结论。回答请使用' + glyph + '。'
+  ].join('\n');
+}
+
+/* ---------- 界面 ---------- */
+function aiBody(){ return $('ksAiBody'); }
+function aiPush(kind, text, meta){
+  var body = aiBody();
+  if (!body) return null;
+  var d = document.createElement('div');
+  d.className = 'ks-ai-msg ' + kind;
+  if (meta) {
+    var m = document.createElement('span');
+    m.className = 'ks-ai-meta';
+    m.textContent = meta;
+    d.appendChild(m);
+  }
+  d.appendChild(document.createTextNode(String(text)));
+  body.appendChild(d);
+  body.scrollTop = body.scrollHeight;
+  return d;
+}
+function aiStatusText(){
+  if (!aiAvailable()) return toDisplay('（仅桌面版可用）');
+  return aiGetKey() ? toDisplay('已配置 API Key') : toDisplay('未配置 API Key');
+}
+function aiSubUpdate(){ var el = $('ksAiSub'); if (el) el.textContent = aiStatusText(); }
+function aiSetBusy(on, label){
+  aiBusy = !!on;
+  ['ksAiRecheck', 'ksAiAsk', 'ksAiTest', 'ksAiSave'].forEach(function(id){
+    var el = $(id); if (el) el.disabled = !!on;
+  });
+  var cost = $('ksAiCost');
+  if (cost) {
+    cost.textContent = '';
+    if (on) {
+      var sp = document.createElement('span');
+      sp.className = 'ks-ai-busy';
+      cost.appendChild(sp);
+      cost.appendChild(document.createTextNode(label || '正在请求 DeepSeek…'));
+    }
+  }
+  var sub = $('ksAiSub');
+  if (sub) sub.textContent = on ? toDisplay(label || '正在请求…') : aiStatusText();
+}
+function aiToggleSet(show){
+  var box = $('ksAiSet');
+  if (!box) return;
+  box.hidden = (show === undefined) ? !box.hidden : !show;
+}
+function aiTogglePanel(show){
+  var p = $('ksAiPanel');
+  if (!p) return;
+  p.hidden = (show === undefined) ? !p.hidden : !show;
+  if (!p.hidden) {
+    aiSubUpdate();
+    var k = $('ksAiKey');
+    if (k) k.value = aiGetKey();
+    if (!aiGetKey()) aiToggleSet(true);
+  }
+}
+
+/* ---------- 调用 ---------- */
+function aiCall(messages, onOk, onErr){
+  var args = { req: {
+    api_key: aiGetKey(),
+    endpoint: AI_ENDPOINT,
+    model: $('ksAiModel') ? $('ksAiModel').value : 'deepseek-chat',
+    messages: messages,
+    temperature: 0.2,
+    max_tokens: 3000,
+    timeout_secs: 180
+  } };
+  window.__TAURI_INTERNALS__.invoke('ai_chat', args).then(onOk, onErr);
+}
+function aiDropLastUser(){
+  if (aiHistory.length && aiHistory[aiHistory.length - 1].role === 'user') aiHistory.pop();
+}
+function aiRequest(label){
+  aiSetBusy(true, label);
+  var t0 = Date.now();
+  aiCall(aiHistory, function(r){
+    aiSetBusy(false);
+    if (!r || !r.ok) {
+      aiPush('err', (r && r.error) || 'DeepSeek 未返回内容', '错误');
+      aiDropLastUser();
+      return;
+    }
+    aiHistory.push({ role: 'assistant', content: r.content });
+    var dt = ((Date.now() - t0) / 1000).toFixed(1);
+    aiPush('ai', r.content, 'DeepSeek · ' + r.model + ' · ' + dt + 's · tokens ' + r.total_tokens);
+  }, function(err){
+    aiSetBusy(false);
+    aiPush('err', String((err && err.message) || err), '错误');
+    aiDropLastUser();
+  });
+}
+
+function aiRecheck(){
+  if (aiBusy) return;
+  if (!aiAvailable()) { aiPush('err', 'AI 复检仅在桌面版可用：需要经桌面程序转发请求（浏览器直连 DeepSeek 会被 CORS 拦截）。'); return; }
+  if (!aiGetKey()) { aiToggleSet(true); aiPush('err', '请先在「设置」中填写并保存 DeepSeek API Key。'); return; }
+  var idxs = aiPick($('ksAiScope') ? $('ksAiScope').value : 'page');
+  if (!idxs.length) { aiPush('err', '当前结果为空，没有可送审的条目。'); return; }
+  var user = aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n');
+  aiHistory = [{ role: 'system', content: aiSystemPrompt() }, { role: 'user', content: user }];
+  aiBody().innerHTML = '';
+  aiPush('user', '复检当前结果：送审 ' + idxs.length + ' 条（' + aiScopeLabel() + '）', '我');
+  aiRequest('正在复检…');
+}
+
+function aiAsk(){
+  if (aiBusy) return;
+  var el = $('ksAiInput');
+  var q = el ? String(el.value || '').trim() : '';
+  if (!q) return;
+  if (!aiAvailable()) { aiPush('err', 'AI 对话仅在桌面版可用。'); return; }
+  if (!aiGetKey()) { aiToggleSet(true); aiPush('err', '请先配置 DeepSeek API Key。'); return; }
+  if (!aiHistory.length) aiHistory = [{ role: 'system', content: aiSystemPrompt() }];
+  aiHistory.push({ role: 'user', content: q });
+  aiPush('user', q, '我');
+  el.value = '';
+  aiRequest('正在回答…');
+}
+
+function aiTest(){
+  if (aiBusy) return;
+  if (!aiAvailable()) { aiPush('err', '测试连接仅在桌面版可用。'); return; }
+  var typed = $('ksAiKey') ? String($('ksAiKey').value || '').trim() : '';
+  var key = typed || aiGetKey();
+  if (!key) { aiPush('err', '请先填写 DeepSeek API Key。'); return; }
+  aiSetBusy(true, '正在测试连接…');
+  window.__TAURI_INTERNALS__.invoke('ai_check', { req: {
+    api_key: key,
+    endpoint: AI_ENDPOINT,
+    model: $('ksAiModel') ? $('ksAiModel').value : 'deepseek-chat'
+  } }).then(function(r){
+    aiSetBusy(false);
+    aiPush(r && r.ok ? 'ai' : 'err', (r && r.message) || '（无返回）', '连接测试');
+  }, function(e){
+    aiSetBusy(false);
+    aiPush('err', String((e && e.message) || e), '连接测试');
+  });
+}
+
+function aiInit(){
+  // 网页版：直连会被 CORS 拦，隐藏入口与面板，避免出现点了没反应的死功能
+  if (!aiAvailable()) {
+    var b = $('ksAiBtn'); if (b) b.hidden = true;
+    var p = $('ksAiPanel'); if (p) p.hidden = true;
+    return;
+  }
+  if ($('ksAiModel')) $('ksAiModel').value = aiStore(AI_MODEL_STORE) || 'deepseek-chat';
+  if ($('ksAiScope')) $('ksAiScope').value = aiStore(AI_SCOPE_STORE) || 'page';
+  if ($('ksAiKey')) $('ksAiKey').value = aiGetKey();
+
+  var B = function(id, fn){ var el = $(id); if (el) el.addEventListener('click', fn); };
+  B('ksAiBtn', function(){ aiTogglePanel(); });
+  B('ksAiHide', function(){ aiTogglePanel(false); });
+  B('ksAiSetBtn', function(){ aiToggleSet(); });
+  B('ksAiRecheck', aiRecheck);
+  B('ksAiAsk', aiAsk);
+  B('ksAiTest', aiTest);
+  B('ksAiReset', function(){ aiHistory = []; aiBody().innerHTML = ''; aiPush('ai', toDisplay('对话已清空。可随时点「复检当前结果」重新开始。'), toDisplay('提示')); });
+  B('ksAiEye', function(){
+    var k = $('ksAiKey'), e = $('ksAiEye');
+    if (!k) return;
+    var show = k.type === 'password';
+    k.type = show ? 'text' : 'password';
+    if (e) e.textContent = toDisplay(show ? '隐藏' : '显示');
+  });
+  B('ksAiSave', function(){
+    var k = $('ksAiKey');
+    var v = k ? String(k.value || '').trim() : '';
+    aiStore(AI_KEY_STORE, v);
+    if ($('ksAiModel')) aiStore(AI_MODEL_STORE, $('ksAiModel').value);
+    if ($('ksAiScope')) aiStore(AI_SCOPE_STORE, $('ksAiScope').value);
+    aiSubUpdate();
+    aiPush('ai', v ? toDisplay('已保存到本机（仅本机使用）。') : toDisplay('已清除本机保存的 API Key。'), toDisplay('设置'));
+  });
+  B('ksAiForget', function(){
+    aiStore(AI_KEY_STORE, '');
+    if ($('ksAiKey')) $('ksAiKey').value = '';
+    aiSubUpdate();
+    aiPush('ai', toDisplay('已清除本机保存的 API Key。'), toDisplay('设置'));
+  });
+  var ta = $('ksAiInput');
+  if (ta) ta.addEventListener('keydown', function(ev){
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); aiAsk(); }
+  });
+  aiToggleSet(!aiGetKey());
+}
+
+/* 供自动化测试使用的只读/受控接口（不暴露 Key 本身） */
+window.KansekiAI = {
+  available: aiAvailable,
+  hasKey: function(){ return !!aiGetKey(); },
+  pick: aiPick,
+  prompt: function(){ return aiSystemPrompt(); },
+  scopeLabel: aiScopeLabel,
+  messagesForRecheck: function(scope){
+    var idxs = aiPick(scope || 'page');
+    if (!idxs.length) return [];
+    return [
+      { role: 'system', content: aiSystemPrompt() },
+      { role: 'user', content: aiSummary(idxs) + '\n【待复核条目】\n' + idxs.map(aiRowLine).join('\n') }
+    ];
+  },
+  toggle: aiTogglePanel,
+  busy: function(){ return aiBusy; }
+};
+
+/* ============================================================
+   启动
+   ============================================================ */
+function boot(){
+  var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  try {
+    initData();
+    bindEvents();
+    var all = new Array(N);
+    for (var i = 0; i < N; i++) all[i] = i;
+    state.rows = all;
+    state.perPage = 100;
+    setDisplayLang(getSavedLang(), true);     // 应用字形（含下拉标签）并渲染首屏
+  } catch (err) {
+    $('ksLoading').innerHTML = '<p>数据载入失败：' + esc(String((err && err.message) || err)) + '</p>';
+    return;
+  }
+  $('ksLoading').hidden = true;
+  $('ksApp').hidden = false;
+  // AI 复检（V9.1）：非桌面环境会自动隐藏入口；失败不影响主功能
+  try { aiInit(); } catch (e) { /* 忽略：AI 面板异常不得阻断检索 */ }
+  KSDBG.bootMs = ((window.performance && performance.now) ? performance.now() : Date.now()) - t0;
+  KSDBG.ready = true;
+  window.KANSEKI_QUERY_READY = true;
+}
+// 先让浏览器画出加载态，再解析 9.6MB 数据（避免首屏空白）
+function deferBoot(fn){
+  var run = function(){ requestAnimationFrame(function(){ setTimeout(fn, 0); }); };
+  if (document.readyState === 'complete') run();
+  else window.addEventListener('load', run, { once: true });
+}
+deferBoot(boot);
+
+})();
+</script>
+</body>
+</html>

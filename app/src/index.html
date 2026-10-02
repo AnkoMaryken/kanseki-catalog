@@ -167,6 +167,16 @@
       </nav>
     </div>
 
+    <!-- 古籍类目查询（V9.1）：紧接「纪年查询」之下（用户要求） -->
+    <div class="side-sec">
+      <div class="side-label">古籍类目查询</div>
+      <nav class="side-nav">
+        <a href="#/kanseki" data-view="kanseki" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><circle cx="10.5" cy="11" r="2.6"/><path d="M12.4 12.9 14.6 15.1"/></svg><span>古籍类目查询</span>
+        </a>
+      </nav>
+    </div>
+
     <div class="side-sec">
       <div class="side-label">编目规范</div>
       <nav class="side-nav">
@@ -261,6 +271,12 @@
     <!-- 编目规范视图（懒加载 iframe；侧栏已合并其内容导览与章节导航） -->
     <section id="view-catalog" class="view has-frame">
       <iframe id="catalogFrame" data-src="pages/catalog.html" title="编目规范" class="page-frame" loading="lazy"></iframe>
+    </section>
+
+    <!-- 古籍类目查询视图（V9.0；懒加载写法与 catalogFrame 一致。
+         header 隐藏样式由构建期 build.mjs 的 EMBED_RULES 注入，源文件保持网页版原样） -->
+    <section id="view-kanseki" class="view has-frame">
+      <iframe id="kansekiFrame" data-src="pages/kanseki.html" title="古籍类目查询" class="page-frame" loading="lazy"></iframe>
     </section>
 
     <!-- 快速跳转视图 -->
@@ -399,13 +415,13 @@
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.8.2（V5 路线图）</p>
+          <p class="av-ver">版本 0.10.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.8.2</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.10.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

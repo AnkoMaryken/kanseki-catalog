@@ -1232,6 +1232,20 @@ html, body {
 [data-theme="dark"] .anchor-pop-body .anchor-item.active,
 [data-theme="dark"] .anchor-pop-body .cfb-side.active { color: #0a0a0a; }
 
+/* ---------- 中矮窗口适配（V9.0） ----------
+   侧栏新增第 12 项「古籍类目查询」后，默认窗口 1280x800 下内容由 736px 涨到 804px
+   （改动前 11 项正好占满 736/736，零余量），溢出 68px 会把吸底按钮挤出可视区。
+   此处只压缩间距（不动字号/配色），为 12 项腾出约 90px；>820px 高度外观不变。
+   顺序有意放在更紧的 680/640 档之前 —— 同优先级下后者覆盖前者。 */
+@media (max-height: 820px) {
+  .app-sidebar { gap: .36rem; padding: .7rem .9rem; }
+  .side-title { padding: .12rem .35rem .5rem; }
+  .side-sec { padding: .34rem; }
+  .side-label { padding: .06rem .3rem .3rem; }
+  .nav-item { padding: .36rem .58rem; }
+  .side-footer { padding: .3rem 0 .1rem; }
+}
+
 /* ---------- 矮窗口适配（Tauri 最小窗口 960x600） ---------- */
 /* 侧栏内容多时仍可滚动，但通过压缩间距让导航项尽量一屏放下。
    V0.8 起标题栏占用 38px，且品牌栏恢复，需比 V0.7 更紧一档。 */
@@ -1254,6 +1268,22 @@ html, body {
   .side-footer { padding: .3rem 0 .1rem; gap: .3rem; }
   .side-status { padding: .26rem .4rem; }
   .side-status .status-row { padding: .08rem 0; font-size: .62rem; }
+}
+
+/* ---------- 最小窗口高度适配（V9.0） ----------
+   侧栏新增第 12 项「古籍类目查询」后，960x600（Tauri 最小窗口）下原来的
+   max-height:680 档只剩 7px 纵向余量，放不下第 12 项（实测溢出 40px）。
+   此处针对 ≤640px 高度再紧一档（叠加在 820/680 档之上）；>820px 高度不受影响。 */
+@media (max-height: 640px) {
+  .app-sidebar { gap: .2rem; padding: .45rem .5rem; }
+  .side-title { padding: .02rem .2rem .18rem; }
+  .side-sec { padding: .15rem; }
+  .side-label { padding: 0 .3rem .04rem; }
+  .nav-item { padding: .18rem .44rem; }
+  .side-user { padding: .22rem .4rem; }
+  .side-btn { padding: .22rem .5rem; }
+  .side-footer { padding: .18rem 0 .04rem; gap: .22rem; }
+  .side-status { padding: .16rem .4rem; }
 }
 
 /* ---------- 窄窗口适配 ---------- */

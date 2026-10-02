@@ -32,14 +32,15 @@ const config = require('../../../tests/helpers/config.js');
 
   // ---------- 1. 侧栏结构 ----------
   const navCount = await page.locator('.nav-item').count();
-  check('侧栏导航项 11 个', navCount === 11, '实际 ' + navCount);
-  check('视图 10 个', await page.locator('.view').count() === 10);
+  check('侧栏导航项 12 个', navCount === 12, '实际 ' + navCount);
+  check('视图 11 个', await page.locator('.view').count() === 11);
 
   const labels = await page.locator('.nav-item span:not(.nav-badge)').allTextContents();
   // 注：APP 内 catalog 副本为繁体页面，故目录相关三项匹配简繁任一
   const need = [
     ['纪年查询'], ['快速跳转'],
     ['细则查阅', '細則查閱'], ['分类表查询', '分類表查詢'], ['工作手册', '工作手冊'],
+    ['古籍类目查询', '古籍類目查詢'],
     ['使用介绍'], ['更新日志'], ['编目记录'], ['同步设置'], ['账号'], ['关于'],
   ];
   const missing = need.filter(alias => !alias.some(t => labels.includes(t)));
@@ -186,6 +187,23 @@ const config = require('../../../tests/helpers/config.js');
     check(name + ' 视图下导览弹窗关闭', anchorPopHidden === true);
   }
 
+  // ---------- 7b. 古籍类目查询视图（V9.0） ----------
+  await page.click('.nav-item[data-view="kanseki"]');
+  await page.waitForTimeout(1800);
+  check('古籍类目查询视图激活', await page.locator('#view-kanseki.active').count() === 1);
+  const fKans = page.frames().find(f => /pages\/kanseki\.html/.test(f.url() || ''));
+  check('古籍类目查询 iframe 已加载', !!fKans, fKans ? '' : '未找到 frame');
+  const kansBox = await page.evaluate(() => {
+    const fr = document.getElementById('kansekiFrame');
+    const main = document.querySelector('.app-main');
+    if (!fr) return null;
+    const r = fr.getBoundingClientRect();
+    const mr = main.getBoundingClientRect();
+    return { w: Math.round(r.width), h: Math.round(r.height), mainH: Math.round(mr.height) };
+  });
+  check('古籍类目查询 iframe 撑满视图', !!kansBox && kansBox.h > 400 && Math.abs(kansBox.h - kansBox.mainH) <= 2,
+    kansBox ? kansBox.w + 'x' + kansBox.h + ' (main ' + kansBox.mainH + ')' : '未找到');
+
   // ---------- 8. 非 iframe 视图回归 ----------
   await page.click('.nav-item[data-view="records"]');
   await page.waitForTimeout(400);
@@ -224,6 +242,7 @@ const config = require('../../../tests/helpers/config.js');
   const sizeCases = [
     ['query', 'queryFrame', '.nav-item[data-view="query"]'],
     ['catalog', 'catalogFrame', '.nav-item[data-view="catalog"][data-tab="0"]'],
+    ['kanseki', 'kansekiFrame', '.nav-item[data-view="kanseki"]'],
     ['jump', 'jumpFrame', '.nav-item[data-view="jump"]'],
     ['guide', 'guideFrame', '.nav-item[data-view="guide"]'],
     ['changelog', 'changelogFrame', '.nav-item[data-view="changelog"]'],

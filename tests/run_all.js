@@ -1,10 +1,13 @@
 // 一键运行全部浏览器测试 (串行 — 浏览器测试必须串行, 并行会卡死)
+// V9.0 修复: NODE 路径曾硬编码为 versions/22.22.2 (该目录已不存在, 整套跑不起来),
+//            现改为 22.22.2-3; 并补收此前遗漏的 4 个套件 (含最新的 v8.9 / v9.0)。
 const { execSync } = require('child_process');
 const path = require('path');
-const NODE = 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2/node.exe';
+const NODE = process.env.KANSEKI_NODE || 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2-3/node.exe';
 process.env.NODE_PATH = 'C:/Users/华为/.workbuddy/binaries/node/workspace/node_modules';
 const tests = [
   // B 系列主功能
+  'test_browser.js','test_browser2.js',
   'test_browser3.js','test_browser4.js','test_browser5.js','test_browser6.js',
   'test_browser7.js','test_browser8.js','test_browser9.js','test_browser10.js',
   'test_browser11.js','test_browser12_history.js','test_browser13_calc.js',
@@ -15,7 +18,9 @@ const tests = [
   'test_user_state.js','test_admin_smoke.js','test_admin_hidden_entry.js',
   'test_admin_supabase_mode.js','test_theme_sync.js',
   // V8.2 移动端 + V8.3 功能
-  'test_v82_mobile.js','test_v83_card_search.js'
+  'test_v82_mobile.js','test_v83_card_search.js',
+  // V8.9 字形 + V9.0 古籍类目查询 + V9.1 AI 复检 (此前漏收)
+  'test_v89_lang.js','test_v90_kanseki.js','test_v91_ai.js'
 ];
 let fail = 0;
 for (const t of tests) {
