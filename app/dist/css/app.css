@@ -1463,18 +1463,146 @@ html, body {
 .kdb-status.busy { color: var(--text-sec); }
 .kdb-dim { color: var(--text-muted); font-weight: 400; }
 
+/* ---------- V9.4.1 版面：筛选可折叠，页面以结果为主 ----------
+   用户反馈：只把「结果/详情」两栏合并还不够 —— 筛选栏本身要能折叠，
+   整个页面应以**显示搜索结果**为主。故改为：
+     · 常驻一行主检索条（書名 + 检索 + 筛选开关 + 清空）
+     · 其余条件收进可折叠的高级筛选区，**默认收起**
+     · 结果区用 flex 占满剩余高度，成为页面主体 */
+.kdb-wrap {
+  max-width: 1180px;
+  display: flex;
+  flex-direction: column;
+  /* 关键：#view-kansekidb 本身是 flex 容器，这里 flex:1 才能撑满它，
+     从而把「视口高度 − 标题栏/表单/状态行」全部让给结果区（结果为主）。
+     仅用 min-height:100vh−N 会在 app 里少算一截，实测结果区只有 342px。 */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.kdb-head {
+  flex: 0 0 auto;
+  padding: 0 0 4px;
+  margin-bottom: 4px;
+}
+/* 标题与副标题同排，压缩页头高度（多出来的都留给结果区） */
+.kdb-head .av-head-tx { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.kdb-head h2 { font-size: 16px; line-height: 1.3; }
+.kdb-head p { margin: 0; font-size: 11.5px; line-height: 1.4; }
+.kdb-card { flex: 0 0 auto; }
+
+/* 常驻主检索行 */
+.kdb-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.kdb-main-input {
+  flex: 1 1 320px;
+  min-width: 180px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+.kdb-main-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .06);
+}
+[data-theme="dark"] .kdb-main-input { background: #1a1a1a; }
+[data-theme="dark"] .kdb-main-input:focus { box-shadow: 0 0 0 3px rgba(250, 250, 250, .1); }
+.kdb-toggle { display: inline-flex; align-items: center; gap: 5px; }
+.kdb-caret { font-size: 11px; color: var(--text-muted); transition: transform .16s; }
+.kdb-toggle[aria-expanded="true"] .kdb-caret { transform: rotate(180deg); }
+.kdb-fn {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+}
+.kdb-fn[hidden] { display: none !important; }
+
+/* 状态行与条件摘要同排一行 */
+.kdb-statusbar {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.kdb-status { flex: 0 1 auto; }
+.kdb-sumline {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-sec);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.kdb-sumline b { font-weight: 600; color: var(--text); }
+/* ⚠️ 必留：这是 flex 子项，[hidden] 的 display:none 优先级低会被压过 */
+.kdb-sumline[hidden] { display: none !important; }
+
+/* 可折叠的高级筛选区 */
+.kdb-adv { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--divider); }
+.kdb-adv[hidden] { display: none !important; }
+.kdb-select {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+[data-theme="dark"] .kdb-select { background: #1a1a1a; }
+
+/* ---------- 结果 / 详情：共用一块全宽区域并占满剩余高度 ---------- */
 .kdb-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 16px;
-  align-items: start;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 240px;
+  margin-top: 12px;
 }
+.kdb-panel { flex: 1 1 auto; min-width: 0; overflow: auto; }
+/* 只显示当前那一个面板 */
+.kdb-split.view-results .kdb-detail { display: none; }
+.kdb-split.view-detail .kdb-results { display: none; }
 .kdb-results, .kdb-detail {
-  max-height: calc(100vh - 460px);
-  min-height: 220px;
-  overflow: auto;
-  padding: 12px 14px;
+  padding: 12px 16px;
 }
+
+/* 详情顶部「返回结果」条 */
+.kdb-detail-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--divider);
+}
+.kdb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text-sec);
+  cursor: pointer;
+}
+.kdb-back:hover { background: var(--divider); color: var(--text); }
+.kdb-detail-pos { font-size: 12px; color: var(--text-muted); }
+
 .kdb-rows { display: flex; flex-direction: column; }
 .kdb-row {
   display: flex;
@@ -1486,15 +1614,15 @@ html, body {
   border: 0;
   border-bottom: 1px solid var(--divider);
   border-radius: var(--radius-sm);
-  padding: 9px 8px;
+  padding: 10px 10px;
   cursor: pointer;
   font-family: inherit;
 }
 .kdb-row:hover { background: var(--divider); }
 .kdb-row.active { background: var(--divider); box-shadow: inset 2px 0 0 var(--accent); }
-.kdb-row-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--text); }
-.kdb-row-author, .kdb-row-series { font-size: 12px; color: var(--text-sec); }
-.kdb-row-foot { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+.kdb-row-title { font-family: var(--font-display); font-size: 14.5px; font-weight: 600; color: var(--text); }
+.kdb-row-author, .kdb-row-series { font-size: 12.5px; color: var(--text-sec); }
+.kdb-row-foot { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
 .kdb-inst { color: var(--text-sec); font-weight: 600; }
 .kdb-badge {
   font-size: 10.5px;
@@ -1537,9 +1665,11 @@ html, body {
 
 @media (max-width: 1100px) {
   .kdb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .kdb-split { grid-template-columns: minmax(0, 1fr); }
-  .kdb-results, .kdb-detail { max-height: none; }
 }
 @media (max-width: 720px) {
   .kdb-grid { grid-template-columns: minmax(0, 1fr); }
+  /* 窄屏：结果区不再强行撑满视口，交给外层滚动，避免挤压 */
+  .kdb-wrap { min-height: 0; }
+  .kdb-split { min-height: 0; }
+  .kdb-panel { max-height: 70vh; }
 }

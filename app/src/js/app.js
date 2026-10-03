@@ -640,7 +640,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.13.0';
+const APP_VERSION = '0.13.1';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');

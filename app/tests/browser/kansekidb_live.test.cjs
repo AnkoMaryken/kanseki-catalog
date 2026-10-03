@@ -149,15 +149,24 @@ function waitForCdp(timeoutMs = 35000) {
     (await page.locator('#kdbKo').count()) === 1 && (await page.locator('#kdbFr').count()) === 1 &&
     (await page.locator('#kdbTimeout').count()) === 1);
 
-  // 样式表必须真的加载到：只有 CSS 里的 .kdb-* 规则才会把这两处设为 grid。
+  // 样式表必须真的加载到：只有 CSS 里的 .kdb-* 规则才会把这两处设为预期布局。
   // （曾有「JS/HTML 已构建但 app.css 未同步」导致面板挤成一行的实测事故，故设此断言。）
+  // V9.4.1：结果与详情改为**单栏全宽切换**，.kdb-split 由 grid 改为 block。
   const styles = await page.evaluate(() => {
     const g = getComputedStyle(document.querySelector('.kdb-grid')).display;
-    const s = getComputedStyle(document.querySelector('.kdb-split')).display;
-    return { grid: g, split: s };
+    const sp = document.querySelector('.kdb-split');
+    const s = getComputedStyle(sp).display;
+    const results = document.querySelector('#kdbResults');
+    return {
+      grid: g, split: s,
+      splitW: Math.round(sp.getBoundingClientRect().width),
+      resultsW: Math.round(results.getBoundingClientRect().width),
+    };
   });
-  ok('面板样式已生效（.kdb-grid / .kdb-split 为 grid）',
-    styles.grid === 'grid' && styles.split === 'grid', JSON.stringify(styles));
+  ok('检索栅格样式已生效（.kdb-grid 为 grid）', styles.grid === 'grid', JSON.stringify(styles));
+  ok('结果区为单栏（不再是左右并排的两栏 grid）', styles.split === 'flex', styles.split);
+  ok('结果面板占满可用宽度', styles.splitW > 0 && Math.abs(styles.splitW - styles.resultsW) <= 2,
+    styles.resultsW + ' / ' + styles.splitW);
 
   // ---------- 2. 空条件被拦下 ----------
   console.log('\n[2] 空条件检索的本地拦截');
@@ -168,6 +177,9 @@ function waitForCdp(timeoutMs = 35000) {
 
   // ---------- 3. 真实检索 ----------
   console.log('\n[3] 真实检索：著者 = 陶潛（联网，可能需 1–3 分钟）');
+  // 著者名在「高级筛选」里，默认收起 —— 先展开再填
+  await page.locator('#kdbToggle').click();
+  await page.waitForTimeout(300);
   await page.fill('#kdbAu', '陶潛');
   const t0 = Date.now();
   await page.locator('#kdbForm button[type="submit"]').click();
@@ -188,6 +200,20 @@ function waitForCdp(timeoutMs = 35000) {
   const firstTitle = rows ? (await page.locator('#kdbResults .kdb-row-title').first().innerText()).trim() : '';
   ok('首条题名非空', !!firstTitle, firstTitle);
 
+  // 诊断：检索刚结束时，表单字段与摘要到底是什么状态
+  const afterSearch = await page.evaluate(() => {
+    const T = window.__kdbTest__;
+    return {
+      auValue: (document.getElementById('kdbAu') || {}).value,
+      fields: T ? T.currentFields() : null,
+      summaryText: T ? T.summaryText() : null,
+      summaryDom: (document.getElementById('kdbSummary') || {}).innerText,
+      advOpen: T ? T.isAdvOpen() : null,
+      advHidden: document.getElementById('kdbAdv').hidden,
+    };
+  });
+  console.log('   [诊断] 检索后表单状态:', JSON.stringify(afterSearch));
+
   // ---------- 4. 详情 ----------
   console.log('\n[4] 点击记录读取详情');
   await page.locator('#kdbResults .kdb-row').first().click();
@@ -204,6 +230,104 @@ function waitForCdp(timeoutMs = 35000) {
   ok('详情操作按钮齐备',
     (await page.locator('#kdbCopy').count()) === 1 && (await page.locator('#kdbOpen').count()) === 1);
   console.log('   详情摘要:', detailText.slice(0, 160));
+
+  // ---------- 4b. V9.4.2 交互：筛选可折叠 + 结果为主 + 全宽切换 + 返回 ----------
+  console.log('\n[4b] 高级筛选折叠 / 结果占满 / 全宽切换 / 返回');
+  const collapse = await page.evaluate(() => {
+    const adv = document.querySelector('#kdbAdv');
+    const sum = document.querySelector('#kdbSummary');
+    const badge = document.querySelector('#kdbFilterCount');
+    const split = document.querySelector('#kdbSplit');
+    // 当前显示的是哪一个面板（此刻通常已在详情视图）
+    const visSel = split.classList.contains('view-detail') ? '#kdbDetail' : '#kdbResults';
+    const vis = document.querySelector(visSel);
+    return {
+      visSel,
+      advHidden: adv.hidden,
+      summaryShown: !!sum && !sum.hidden,
+      summaryText: sum ? sum.innerText.replace(/\s+/g, ' ').trim() : '',
+      badgeHidden: badge.hidden,
+      badge: badge.textContent,
+      visH: Math.round(vis.getBoundingClientRect().height),
+      splitH: Math.round(split.getBoundingClientRect().height),
+      winH: window.innerHeight
+    };
+  });
+  ok('检索后高级筛选自动收起', collapse.advHidden === true, JSON.stringify(collapse));
+  ok('收起时显示一行条件摘要', collapse.summaryShown === true && collapse.summaryText.length > 0,
+    collapse.summaryText.slice(0, 60));
+  ok('摘要里回显了检索条件', /陶潛/.test(collapse.summaryText), collapse.summaryText.slice(0, 50));
+  ok('筛选开关带条件计数徽标', collapse.badgeHidden === false && collapse.badge === '1', collapse.badge);
+  ok('面板占满结果区高度', collapse.visH >= collapse.splitH - 2,
+    collapse.visH + ' / ' + collapse.splitH);
+  // 核心诉求：页面以结果为主 —— 结果区应占视口一半以上
+  ok('结果区占据视口一半以上（页面以结果为主）', collapse.splitH >= collapse.winH * 0.5,
+    'splitH=' + collapse.splitH + ' winH=' + collapse.winH);
+  console.log('   摘要:', collapse.summaryText, '| 徽标:', collapse.badge,
+    '|', collapse.visSel, '高:', collapse.visH, 'px / 视口', collapse.winH, 'px');
+
+  // 「筛选 ↓」可展开/收起
+  await page.locator('#kdbToggle').click();
+  await page.waitForTimeout(300);
+  const advOpen = await page.evaluate(() => {
+    const T = window.__kdbTest__;
+    const adv = document.querySelector('#kdbAdv');
+    return {
+      open: !adv.hidden,
+      aria: document.querySelector('#kdbToggle').getAttribute('aria-expanded'),
+      summaryHidden: document.querySelector('#kdbSummary').hidden,
+      // 展开后条件可见：著者名输入框在视口内
+      auVisible: document.querySelector('#kdbAu').getBoundingClientRect().height > 0,
+      isOpenApi: T ? T.isAdvOpen() : null
+    };
+  });
+  ok('点「筛选 ↓」展开高级条件', advOpen.open === true && advOpen.isOpenApi === true, JSON.stringify(advOpen));
+  ok('展开后 aria-expanded 正确', advOpen.aria === 'true', advOpen.aria);
+  ok('展开后条件字段可见', advOpen.auVisible === true);
+  ok('展开时隐藏那一行摘要（避免重复）', advOpen.summaryHidden === true);
+  await page.locator('#kdbToggle').click();
+  await page.waitForTimeout(300);
+  ok('再次点击可收起', await page.evaluate(() => document.getElementById('kdbAdv').hidden === true));
+
+  const inDetail = await page.evaluate(() => ({
+    viewDetail: document.querySelector('#kdbSplit').classList.contains('view-detail'),
+    resultsHidden: getComputedStyle(document.querySelector('#kdbResults')).display === 'none',
+    detailVisible: getComputedStyle(document.querySelector('#kdbDetail')).display !== 'none',
+    back: !!document.querySelector('#kdbBack'),
+    detailW: Math.round(document.querySelector('#kdbDetail').getBoundingClientRect().width),
+    splitW: Math.round(document.querySelector('#kdbSplit').getBoundingClientRect().width)
+  }));
+  ok('点条目后切换到详情视图', inDetail.viewDetail && inDetail.resultsHidden && inDetail.detailVisible,
+    JSON.stringify(inDetail));
+  ok('详情面板同样占满全宽', Math.abs(inDetail.detailW - inDetail.splitW) <= 2,
+    inDetail.detailW + ' / ' + inDetail.splitW);
+  ok('详情顶部有「返回结果」按钮', inDetail.back === true);
+
+  await page.locator('#kdbBack').click();
+  await page.waitForTimeout(400);
+  const backState = await page.evaluate(() => ({
+    viewResults: document.querySelector('#kdbSplit').classList.contains('view-results'),
+    resultsVisible: getComputedStyle(document.querySelector('#kdbResults')).display !== 'none',
+    detailHidden: getComputedStyle(document.querySelector('#kdbDetail')).display === 'none',
+    activeRows: document.querySelectorAll('#kdbResults .kdb-row.active').length
+  }));
+  ok('点「返回结果」回到结果列表', backState.viewResults && backState.resultsVisible && backState.detailHidden,
+    JSON.stringify(backState));
+  ok('返回后原选中行保持高亮', backState.activeRows === 1, String(backState.activeRows));
+
+  // 展开筛选后条件仍在（未丢失已填内容）
+  await page.locator('#kdbToggle').click();
+  await page.waitForTimeout(300);
+  const expanded = await page.evaluate(() => ({
+    advShown: !document.querySelector('#kdbAdv').hidden,
+    summaryHidden: document.querySelector('#kdbSummary').hidden
+  }));
+  ok('展开筛选后条件字段仍在（未丢失已填内容）',
+    expanded.advShown === true && expanded.summaryHidden === true, JSON.stringify(expanded));
+  ok('已填的著者名仍在', (await page.inputValue('#kdbAu')).trim() === '陶潛', await page.inputValue('#kdbAu'));
+  // 复原成收起态，避免影响后续步骤
+  await page.locator('#kdbToggle').click();
+  await page.waitForTimeout(250);
 
   // ---------- 5. 安全：站外 URL 被拒 ----------
   console.log('\n[5] Rust 侧主机白名单');

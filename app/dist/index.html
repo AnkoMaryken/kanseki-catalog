@@ -287,59 +287,73 @@
       <iframe id="kansekiFrame" data-src="pages/kanseki.html" title="古籍类目查询" class="page-frame" loading="lazy"></iframe>
     </section>
 
-    <!-- 日本藏本检索视图（V9.4）——原站直连，结果与详情同屏 -->
+    <!-- 日本藏本检索视图（V9.4 / 布局 V9.4.1）——原站直连 -->
     <section id="view-kansekidb" class="view app-view">
       <div class="av-wrap kdb-wrap">
-        <header class="av-head">
+        <header class="av-head kdb-head">
           <div class="av-head-tx">
             <h2>日本所藏汉籍检索</h2>
-            <p>全國漢籍データベース（京都大学人文科学研究所 附属東アジア人文情報学研究センター）· 76 家机构 · 约 92.5 万条记录</p>
+            <p>全國漢籍データベース · 京都大学人文科学研究所 · 76 家机构 · 约 92.5 万条记录</p>
           </div>
         </header>
-
-        <form class="av-card" id="kdbForm">
-          <div class="kdb-grid">
-            <label class="kdb-field"><span>書名</span>
-              <input id="kdbTi" type="text" placeholder="如 論語 / 陶淵明集" autocomplete="off"></label>
-            <label class="kdb-field"><span>著者名</span>
-              <input id="kdbAu" type="text" placeholder="如 陶潛" autocomplete="off"></label>
-            <label class="kdb-field"><span>刊年</span>
-              <input id="kdbYr" type="text" placeholder="如 康煕 / 文政四年" autocomplete="off"></label>
-            <label class="kdb-field"><span>出版者</span>
-              <input id="kdbPb" type="text" placeholder="如 商務印書館" autocomplete="off"></label>
-            <label class="kdb-field"><span>子目</span>
-              <input id="kdbKo" type="text" placeholder="丛书内子目书名" autocomplete="off"></label>
-            <label class="kdb-field"><span>keyword</span>
-              <input id="kdbFr" type="text" placeholder="关键词（原站未说明取值）" autocomplete="off"></label>
-          </div>
-
-          <div class="kdb-orbox">
-            <div class="kdb-orhead">
-              <span>所藏机构（可多选：按住 Ctrl / ⌘ 点选；留空=全部）</span>
-              <button type="button" class="kdb-link" id="kdbOrClear">清除选择</button>
-            </div>
-            <select id="kdbOr" multiple size="5"></select>
-          </div>
-
-          <div class="av-actions kdb-actions">
-            <label class="kdb-timeout">超时
-              <select id="kdbTimeout">
-                <option value="60">60 秒</option>
-                <option value="120">120 秒</option>
-                <option value="200" selected>200 秒（推荐）</option>
-              </select>
-            </label>
+        <form class="av-card kdb-card" id="kdbForm">
+          <!-- 常驻主检索行：書名 + 检索 + 筛选开关 + 清空。
+               高级筛选（其余条件）默认收起，让结果区占满页面。 -->
+          <div class="kdb-main">
+            <input id="kdbTi" class="kdb-main-input" type="text" autocomplete="off"
+                   placeholder="書名（也支持著者、刊年等，展开右侧「筛选 ↓」）"
+                   aria-label="書名">
             <button type="submit" class="av-btn av-btn-primary">检索</button>
+            <button type="button" class="av-btn kdb-toggle" id="kdbToggle"
+                    aria-expanded="false" aria-controls="kdbAdv">
+              筛选<span class="kdb-caret" aria-hidden="true">↓</span><span class="kdb-fn" id="kdbFilterCount" hidden>0</span>
+            </button>
             <button type="button" class="av-btn" id="kdbReset">清空</button>
           </div>
-          <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一（陶潛=陶潜、搜神記=捜神記），但人名异称不归一（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</p>
+
+          <!-- 收起时的一行条件摘要：与状态行**同一行**显示，不额外占高度 -->
+          <div class="kdb-adv" id="kdbAdv" hidden>
+            <div class="kdb-grid">
+              <label class="kdb-field"><span>著者名</span>
+                <input id="kdbAu" type="text" placeholder="如 陶潛" autocomplete="off"></label>
+              <label class="kdb-field"><span>刊年</span>
+                <input id="kdbYr" type="text" placeholder="如 康煕 / 文政四年" autocomplete="off"></label>
+              <label class="kdb-field"><span>出版者</span>
+                <input id="kdbPb" type="text" placeholder="如 商務印書館" autocomplete="off"></label>
+              <label class="kdb-field"><span>子目</span>
+                <input id="kdbKo" type="text" placeholder="丛书内子目书名" autocomplete="off"></label>
+              <label class="kdb-field"><span>keyword</span>
+                <input id="kdbFr" type="text" placeholder="关键词（原站未说明取值）" autocomplete="off"></label>
+              <label class="kdb-field"><span>超时</span>
+                <select id="kdbTimeout" class="kdb-select">
+                  <option value="60">60 秒</option>
+                  <option value="120">120 秒</option>
+                  <option value="200" selected>200 秒（推荐）</option>
+                </select></label>
+            </div>
+
+            <div class="kdb-orbox">
+              <div class="kdb-orhead">
+                <span>所藏机构（按住 Ctrl / ⌘ 多选；留空=全部）</span>
+                <button type="button" class="kdb-link" id="kdbOrClear">清除选择</button>
+              </div>
+              <select id="kdbOr" multiple size="6"></select>
+            </div>
+
+            <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一（陶潛=陶潜、搜神記=捜神記），但人名异称不归一（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</p>
+          </div>
         </form>
 
-        <div class="kdb-status" id="kdbStatus"></div>
+        <!-- 状态行与「本次检索条件」合占同一行，省下一整行高度给结果区 -->
+        <div class="kdb-statusbar">
+          <div class="kdb-status" id="kdbStatus"></div>
+          <div class="kdb-sumline" id="kdbSummary" hidden></div>
+        </div>
 
-        <div class="kdb-split">
-          <div class="av-card kdb-results" id="kdbResults"></div>
-          <div class="av-card kdb-detail" id="kdbDetail"></div>
+        <!-- 结果 / 详情共用这一块**全宽**区域并占满剩余高度，二者切换显示 -->
+        <div class="kdb-split view-results" id="kdbSplit">
+          <div class="av-card kdb-panel kdb-results" id="kdbResults"></div>
+          <div class="av-card kdb-panel kdb-detail" id="kdbDetail"></div>
         </div>
       </div>
     </section>
@@ -486,7 +500,7 @@
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.13.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.13.1</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

@@ -89,6 +89,8 @@ const state = {
   lastUrl: '',
   truncated: false,
   busy: false,
+  searched: false,   // 是否已执行过一次检索（影响空结果的提示语）
+  lastQuery: null,   // 本次检索所用条件的快照 { f, ors }（供摘要回显）
   timer: null,
 };
 
@@ -112,6 +114,114 @@ function setStatus(html, kind) {
   el.innerHTML = html;
 }
 
+// ------------------------------------------------- V9.4.1 高级筛选可折叠 / 视图切换
+// 背景（用户反馈）：只把「结果 / 详情」两栏合并还不够 —— 筛选栏本身要能折叠，
+// 整个页面应以**显示搜索结果**为主。故改为：
+//   · 常驻一行主检索条（書名 + 检索 + 筛选开关 + 清空）；
+//   · 其余条件收进可折叠的高级筛选区，**默认收起**；检索成功后自动收起；
+//   · 收起时显示一行条件摘要，避免「不知道这批结果是怎么查出来的」；
+//   · 开关带条件计数徽标，收起状态也能一眼看出有几项筛选在生效；
+//   · 结果区用 flex 占满剩余高度，成为页面主体。
+
+/** 读取当前表单条件 */
+function currentFields() {
+  return {
+    ti: ($('#kdbTi') || {}).value || '',
+    au: ($('#kdbAu') || {}).value || '',
+    yr: ($('#kdbYr') || {}).value || '',
+    pb: ($('#kdbPb') || {}).value || '',
+    ko: ($('#kdbKo') || {}).value || '',
+    fr: ($('#kdbFr') || {}).value || '',
+  };
+}
+
+function selectedOrLabels() {
+  const s = $('#kdbOr');
+  return s ? Array.from(s.selectedOptions).map((o) => o.textContent.trim()) : [];
+}
+
+/** 高级筛选的条件（含机构）；書名是常驻主检索词，不计入 */
+function advFields() {
+  const f = currentFields();
+  return { au: f.au, yr: f.yr, pb: f.pb, ko: f.ko, fr: f.fr };
+}
+
+/** 生效中的高级筛选项数（用于徽标） */
+function advFilterCount() {
+  const f = advFields();
+  let n = Object.keys(f).filter((k) => f[k]).length;
+  if (selectedOrLabels().length) n += 1;
+  return n;
+}
+
+/** 一行条件摘要：优先回显**本次检索所用条件**的快照。
+    该站检索要跑 1–3 分钟，若期间改动表单，用当前值会让摘要与结果对不上。 */
+function summaryText(fieldsOverride, orsOverride) {
+  const q = state.lastQuery;
+  const f = fieldsOverride || (q ? q.f : currentFields());
+  const ors = orsOverride || (q ? q.ors : selectedOrLabels());
+  const parts = [];
+  const push = (label, v) => { if (v) parts.push('<b>' + label + '</b>' + esc(v)); };
+  push('書名', f.ti);
+  push('著者名', f.au);
+  push('刊年', f.yr);
+  push('出版者', f.pb);
+  push('子目', f.ko);
+  push('keyword', f.fr);
+  if (ors.length) {
+    const show = ors.slice(0, 3).join('、');
+    parts.push('<b>机构</b>' + esc(show) + (ors.length > 3 ? ' 等 ' + ors.length + ' 家' : ''));
+  }
+  return parts.join('　·　');
+}
+
+/** 刷新「收起时的一行摘要」与筛选条件计数徽标 */
+function refreshSummary() {
+  const n = advFilterCount();
+  const badge = $('#kdbFilterCount');
+  if (badge) { badge.hidden = n === 0; badge.textContent = String(n); }
+  const line = $('#kdbSummary');
+  if (!line) return;
+  // 只在「高级筛选收起」时显示摘要（展开时条件本身看得见，不必重复一行）
+  if (isAdvOpen()) { line.hidden = true; return; }
+  const txt = summaryText();
+  if (!txt) { line.hidden = true; return; }
+  line.innerHTML = txt;
+  line.hidden = false;
+}
+
+/** 展开/收起高级筛选区 */
+function setAdvOpen(open) {
+  const adv = $('#kdbAdv');
+  const btn = $('#kdbToggle');
+  if (!adv) return;
+  adv.hidden = !open;
+  if (btn) btn.setAttribute('aria-expanded', String(!!open));
+  refreshSummary();
+}
+
+function isAdvOpen() {
+  const adv = $('#kdbAdv');
+  return !!adv && !adv.hidden;
+}
+
+/** 兼容旧调用名（探针可能仍在用） */
+const setFormCollapsed = (collapsed) => setAdvOpen(!collapsed);
+const isFormCollapsed = () => !isAdvOpen();
+
+/** 在「结果」与「详情」之间切换（两者共用同一块全宽区域） */
+function showView(which) {
+  const sp = $('#kdbSplit');
+  if (!sp) return;
+  const detail = which === 'detail';
+  sp.classList.toggle('view-detail', detail);
+  sp.classList.toggle('view-results', !detail);
+  if (detail) {
+    const box = $('#kdbDetail');
+    if (box) box.scrollTop = 0;
+  }
+}
+
 function stopTimer() {
   if (state.timer) { clearInterval(state.timer); state.timer = null; }
 }
@@ -132,7 +242,10 @@ function renderResults() {
   const box = $('#kdbResults');
   if (!box) return;
   if (!state.entries.length) {
-    box.innerHTML = '<p class="kdb-empty">暂无结果</p>';
+    box.innerHTML = '<p class="kdb-empty">' +
+      (state.searched ? '没有命中记录。可放宽或调整条件后重试。'
+        : '填写上方条件后点击「检索」。结果会在这块全宽区域里列出。') +
+      '</p>';
     return;
   }
   const rows = state.entries.map((e, i) => {
@@ -153,12 +266,21 @@ function renderResults() {
   });
 }
 
-function renderDetail(rec, truncatedNote) {
+/** 详情顶部「← 返回结果」按钮（每次重绘都要重新绑定） */
+function wireDetailBar() {
+  const back = $('#kdbBack');
+  if (back) back.addEventListener('click', () => showView('results'));
+}
+
+function renderDetail(rec, truncatedNote, posText) {
   const box = $('#kdbDetail');
   if (!box) return;
-  if (!rec) { box.innerHTML = '<p class="kdb-empty">从左侧选择一条记录查看详情</p>'; return; }
+  if (!rec) { box.innerHTML = '<p class="kdb-empty">在上方结果里点一条记录即可查看详情</p>'; return; }
   if (rec.error === 'no-record') {
-    box.innerHTML = '<p class="kdb-empty">该记录在原站不存在（レコードがありません）</p>';
+    box.innerHTML = '<div class="kdb-detail-bar">' +
+      '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button></div>' +
+      '<p class="kdb-empty">该记录在原站不存在（レコードがありません）</p>';
+    wireDetailBar();
     return;
   }
 
@@ -178,6 +300,10 @@ function renderDetail(rec, truncatedNote) {
     : '';
 
   box.innerHTML =
+    '<div class="kdb-detail-bar">' +
+    '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button>' +
+    (posText ? '<span class="kdb-detail-pos">' + esc(posText) + '</span>' : '') +
+    '</div>' +
     (truncatedNote ? '<p class="kdb-warn">' + esc(truncatedNote) + '</p>' : '') +
     '<div class="kdb-detail-head"><h3>' + esc((rec.ti || []).join(' ; ') || '（无题名）') + '</h3>' +
     '<p class="kdb-dim">' + esc((rec.or || []).join(' ; ')) + '</p></div>' +
@@ -187,6 +313,8 @@ function renderDetail(rec, truncatedNote) {
     '<button type="button" class="av-btn" id="kdbCopy">复制字段</button>' +
     '<button type="button" class="av-btn" id="kdbOpen">在浏览器打开原记录页</button>' +
     '</div>';
+
+  wireDetailBar();
 
   const copyBtn = $('#kdbCopy');
   if (copyBtn) {
@@ -231,6 +359,8 @@ async function doSearch() {
 
   const url = buildSearchUrl(f, ors);
   const timeout = parseInt(($('#kdbTimeout') || {}).value || '200', 10);
+  // 记录本次条件快照：摘要回显用它，保证「摘要 = 产生这批结果的条件」
+  state.lastQuery = { f: Object.assign({}, f), ors: selectedOrLabels() };
   state.busy = true;
   state.selected = null;
   $('#kdbResults').innerHTML = '';
@@ -252,7 +382,11 @@ async function doSearch() {
     state.total = parsed.total;
     state.entries = parsed.entries;
     state.truncated = !!resp.truncated;
+    state.searched = true;
     renderResults();
+    // 检索完成后收起高级筛选，把竖向空间让给结果（页面以结果为主）
+    setAdvOpen(false);
+    showView('results');
 
     const bits = [];
     bits.push('命中 <b>' + state.total + '</b> 条');
@@ -283,13 +417,23 @@ async function openDetail(idx) {
   state.selected = idx;
   renderResults();
   renderDetail(null);
-  $('#kdbDetail').innerHTML = '<p class="kdb-empty">正在读取记录详情…</p>';
+  showView('detail');
+  const posText = '第 ' + (idx + 1) + ' / ' + state.entries.length + ' 条' +
+    (state.total > state.entries.length ? '（本页返回 ' + state.entries.length + ' / 共命中 ' + state.total + '）' : '');
+  $('#kdbDetail').innerHTML = '<div class="kdb-detail-bar">' +
+    '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button>' +
+    '<span class="kdb-detail-pos">' + esc(posText) + '</span></div>' +
+    '<p class="kdb-empty">正在读取记录详情…</p>';
+  wireDetailBar();
   try {
     const resp = await fetchKanseki(e.url, 60);
     const rec = parseRecordPage(resp.body, { path: e.recordPath, url: e.url });
-    renderDetail(rec, resp.truncated ? '该记录页内容被服务器截断，字段可能不全。' : '');
+    renderDetail(rec, resp.truncated ? '该记录页内容被服务器截断，字段可能不全。' : '', posText);
   } catch (err) {
-    $('#kdbDetail').innerHTML = '<p class="kdb-warn">' + esc(err.message) + '</p>';
+    $('#kdbDetail').innerHTML = '<div class="kdb-detail-bar">' +
+      '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button></div>' +
+      '<p class="kdb-warn">' + esc(err.message) + '</p>';
+    wireDetailBar();
   }
 }
 
@@ -303,9 +447,16 @@ function resetForm() {
   state.entries = [];
   state.total = 0;
   state.selected = null;
+  state.searched = false;
+  state.lastQuery = null;
   renderResults();
   renderDetail(null);
+  showView('results');
+  setAdvOpen(false);         // 清空后收起高级筛选，保持「结果为主」的版面
+  refreshSummary();
   setStatus('', '');
+  const ti = $('#kdbTi');
+  if (ti) ti.focus();
 }
 
 // ---------------------------------------------------------------- 初始化
@@ -328,10 +479,24 @@ export function initKansekiDbView() {
   $('#kdbOrClear') && $('#kdbOrClear').addEventListener('click', () => {
     const s = $('#kdbOr');
     if (s) Array.from(s.options).forEach((o) => { o.selected = false; });
+    refreshSummary();
   });
+  // 「筛选 ↓」开关：展开/收起高级筛选区
+  $('#kdbToggle') && $('#kdbToggle').addEventListener('click', () => {
+    setAdvOpen(!isAdvOpen());
+  });
+  // 高级条件的改动实时反映到计数徽标与摘要行
+  ['kdbAu', 'kdbYr', 'kdbPb', 'kdbKo', 'kdbFr'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', refreshSummary);
+  });
+  if (orSel) orSel.addEventListener('change', refreshSummary);
 
+  setAdvOpen(false);   // 默认收起：页面以结果为主
+  showView('results');
   renderResults();
   renderDetail(null);
+  refreshSummary();
 
   if (!isTauri) {
     setStatus('当前为浏览器环境：网页版无法直接访问该站点（不提供 CORS 头、且仅有 http 服务），' +
@@ -349,4 +514,10 @@ export function searchFromOutside({ ti, au } = {}) {
   doSearch();
 }
 
-export const __test__ = { buildSearchUrl, INSTITUTIONS };
+export const __test__ = {
+  buildSearchUrl, INSTITUTIONS,
+  setAdvOpen, isAdvOpen, setFormCollapsed, isFormCollapsed,
+  showView, summaryText, currentFields, advFilterCount, refreshSummary,
+};
+// 供自动化测试取用（浏览器/真机探针都能直接调，不必真的联网检索）
+if (typeof window !== 'undefined') window.__kdbTest__ = __test__;
