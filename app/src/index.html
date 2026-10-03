@@ -149,9 +149,10 @@
   <div class="app-body">
   <!-- 侧边导航 -->
   <aside class="app-sidebar" id="sidebar">
-    <!-- 品牌栏（V0.8 恢复）：图标 + 名称 + 桌面版副标题 -->
+    <!-- 品牌栏（V0.8 恢复）：图标 + 名称 + 桌面版副标题
+         V9.4.2：图标改为新版 logo（木刻印章风，黑底白线；网页版不改） -->
     <div class="side-title">
-      <div class="st-ic">漢</div>
+      <img class="st-ic" src="assets/logo.png" width="26" height="26" alt="" aria-hidden="true">
       <div class="st-tx-wrap">
         <span class="st-tx">古代史及汉籍研究工具</span>
         <span class="st-sub">Windows 桌面版</span>
@@ -486,21 +487,18 @@
         </header>
 
         <div class="av-card av-about">
+          <!-- V9.4.2：关于页 logo 与程序图标统一为新版 logo -->
           <div class="av-logo">
-            <svg viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="图标">
-              <rect width="64" height="64" rx="14" fill="#101012"/>
-              <text x="32" y="45" font-size="34" text-anchor="middle" fill="#ffffff"
-                    font-family="'STZhongsong','SimSun',serif">漢</text>
-            </svg>
+            <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.13.0（V5 路线图）</p>
+          <p class="av-ver">版本 0.13.2（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.13.1</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.13.2</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

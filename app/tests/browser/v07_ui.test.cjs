@@ -183,7 +183,8 @@ const config = require('../../../tests/helpers/config.js');
   ok('关于页版本与 package.json 一致（' + pkgVer + '）',
     (await page.textContent('.av-ver')).includes(pkgVer),
     await page.textContent('.av-ver'));
-  ok('关于页 logo 为内联 SVG', await page.locator('.av-logo svg').count() === 1);
+  // V9.4.2：关于页 logo 由内联 SVG 改为新版 logo 图片
+  ok('关于页 logo 为新版图片', await page.locator('.av-logo img').count() === 1);
 
   // ---------- 6. 明暗主题 ----------
   console.log('\n[6] 明暗主题');

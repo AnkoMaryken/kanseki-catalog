@@ -182,8 +182,7 @@ function refreshSummary() {
   if (badge) { badge.hidden = n === 0; badge.textContent = String(n); }
   const line = $('#kdbSummary');
   if (!line) return;
-  // 只在「高级筛选收起」时显示摘要（展开时条件本身看得见，不必重复一行）
-  if (isAdvOpen()) { line.hidden = true; return; }
+  // 摘要始终显示：筛选已改为**浮窗菜单**，开合不影响布局，不必再隐藏以免闪动
   const txt = summaryText();
   if (!txt) { line.hidden = true; return; }
   line.innerHTML = txt;
@@ -481,9 +480,21 @@ export function initKansekiDbView() {
     if (s) Array.from(s.options).forEach((o) => { o.selected = false; });
     refreshSummary();
   });
-  // 「筛选 ↓」开关：展开/收起高级筛选区
+  // 「筛选 ↓」开关：展开/收起高级筛选浮窗
   $('#kdbToggle') && $('#kdbToggle').addEventListener('click', () => {
     setAdvOpen(!isAdvOpen());
+  });
+  // 浮窗菜单：点面板外部 / 按 Esc 关闭（点面板内部不关）
+  document.addEventListener('click', (e) => {
+    if (!isAdvOpen()) return;
+    const adv = $('#kdbAdv');
+    const btn = $('#kdbToggle');
+    if (adv && adv.contains(e.target)) return;
+    if (btn && btn.contains(e.target)) return;
+    setAdvOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isAdvOpen()) setAdvOpen(false);
   });
   // 高级条件的改动实时反映到计数徽标与摘要行
   ['kdbAu', 'kdbYr', 'kdbPb', 'kdbKo', 'kdbFr'].forEach((id) => {

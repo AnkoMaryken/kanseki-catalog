@@ -266,28 +266,35 @@ function waitForCdp(timeoutMs = 35000) {
   console.log('   摘要:', collapse.summaryText, '| 徽标:', collapse.badge,
     '|', collapse.visSel, '高:', collapse.visH, 'px / 视口', collapse.winH, 'px');
 
-  // 「筛选 ↓」可展开/收起
+  // 「筛选 ↓」可展开/收起（V9.4.2：改为浮窗菜单，不推挤下方布局）
+  const splitTopBefore = await page.evaluate(() => Math.round(document.querySelector('#kdbSplit').getBoundingClientRect().top));
   await page.locator('#kdbToggle').click();
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(350);
   const advOpen = await page.evaluate(() => {
     const T = window.__kdbTest__;
     const adv = document.querySelector('#kdbAdv');
+    const cs = getComputedStyle(adv);
     return {
       open: !adv.hidden,
       aria: document.querySelector('#kdbToggle').getAttribute('aria-expanded'),
-      summaryHidden: document.querySelector('#kdbSummary').hidden,
-      // 展开后条件可见：著者名输入框在视口内
+      position: cs.position,
+      summaryStillShown: document.querySelector('#kdbSummary').hidden === false,
       auVisible: document.querySelector('#kdbAu').getBoundingClientRect().height > 0,
-      isOpenApi: T ? T.isAdvOpen() : null
+      isOpenApi: T ? T.isAdvOpen() : null,
+      splitTop: Math.round(document.querySelector('#kdbSplit').getBoundingClientRect().top)
     };
   });
   ok('点「筛选 ↓」展开高级条件', advOpen.open === true && advOpen.isOpenApi === true, JSON.stringify(advOpen));
   ok('展开后 aria-expanded 正确', advOpen.aria === 'true', advOpen.aria);
   ok('展开后条件字段可见', advOpen.auVisible === true);
-  ok('展开时隐藏那一行摘要（避免重复）', advOpen.summaryHidden === true);
-  await page.locator('#kdbToggle').click();
+  ok('筛选为浮窗菜单（absolute 浮层，非内联推开）', advOpen.position === 'absolute', advOpen.position);
+  ok('打开浮窗不推挤结果区', advOpen.splitTop === splitTopBefore,
+    splitTopBefore + ' -> ' + advOpen.splitTop);
+  ok('浮窗打开时条件摘要仍在（避免闪动）', advOpen.summaryStillShown === true);
+  // 点外部关闭
+  await page.mouse.click(60, 300);
   await page.waitForTimeout(300);
-  ok('再次点击可收起', await page.evaluate(() => document.getElementById('kdbAdv').hidden === true));
+  ok('点浮窗外部可收起', await page.evaluate(() => document.getElementById('kdbAdv').hidden === true));
 
   const inDetail = await page.evaluate(() => ({
     viewDetail: document.querySelector('#kdbSplit').classList.contains('view-detail'),
@@ -320,13 +327,11 @@ function waitForCdp(timeoutMs = 35000) {
   await page.waitForTimeout(300);
   const expanded = await page.evaluate(() => ({
     advShown: !document.querySelector('#kdbAdv').hidden,
-    summaryHidden: document.querySelector('#kdbSummary').hidden
+    auValue: (document.getElementById('kdbAu') || {}).value
   }));
-  ok('展开筛选后条件字段仍在（未丢失已填内容）',
-    expanded.advShown === true && expanded.summaryHidden === true, JSON.stringify(expanded));
-  ok('已填的著者名仍在', (await page.inputValue('#kdbAu')).trim() === '陶潛', await page.inputValue('#kdbAu'));
-  // 复原成收起态，避免影响后续步骤
-  await page.locator('#kdbToggle').click();
+  ok('展开筛选后条件字段仍在（未丢失已填内容）', expanded.advShown === true, JSON.stringify(expanded));
+  ok('已填的著者名仍在', (expanded.auValue || '').trim() === '陶潛', expanded.auValue);
+  await page.keyboard.press('Escape');
   await page.waitForTimeout(250);
 
   // ---------- 5. 安全：站外 URL 被拒 ----------

@@ -34,8 +34,14 @@ const config = require('../../../tests/helpers/config.js');
   // ---------- 1. 品牌栏恢复 ----------
   console.log('\n[1] 品牌栏恢复 + 标题栏承载功能键');
   ok('品牌栏 .side-title 存在', await page.locator('.side-title').count() === 1);
-  const brandIc = await page.locator('.side-title .st-ic').textContent().catch(() => '');
-  ok('品牌图标为「漢」', brandIc.trim() === '漢', 'st-ic=' + brandIc);
+  // V9.4.2：品牌图标改为新版 logo 图片（木刻印章风），不再是「漢」文本
+  const brandIc = await page.evaluate(() => {
+    const el = document.querySelector('.side-title .st-ic');
+    return el ? { tag: el.tagName, src: el.getAttribute('src') || '', loaded: el.naturalWidth > 0 } : null;
+  });
+  ok('品牌图标为 logo 图片且已加载',
+    !!brandIc && brandIc.tag === 'IMG' && /logo\.png$/.test(brandIc.src) && brandIc.loaded === true,
+    JSON.stringify(brandIc));
   const brandTx = await page.locator('.side-title .st-tx').textContent().catch(() => '');
   ok('品牌名称完整', brandTx.trim() === '古代史及汉籍研究工具', 'st-tx=' + brandTx);
   const brandSub = await page.locator('.side-title .st-sub').textContent().catch(() => '');
@@ -130,12 +136,16 @@ const config = require('../../../tests/helpers/config.js');
   ok('favicon 用黑色 #101012', /%23101012/i.test(favicon || ''), (favicon || '').slice(0, 80));
   ok('favicon 不再用藏青 #2b3a67', !/2b3a67/i.test(favicon || ''));
 
-  // 关于页 SVG logo
+  // 关于页 logo（V9.4.2 起为新版 logo 图片，不再是内联 SVG）
   await page.click('.nav-item[data-view="about"]');
   await page.waitForTimeout(500);
-  const logoFill = await page.getAttribute('#view-about .av-logo svg rect', 'fill');
-  ok('关于页 logo 底色为黑', (logoFill || '').toLowerCase() === '#101012', 'fill=' + logoFill);
-  ok('关于页 logo 不用藏青', !/2b3a67/i.test(logoFill || ''));
+  const aboutLogo = await page.evaluate(() => {
+    const el = document.querySelector('#view-about .av-logo img');
+    return el ? { src: el.getAttribute('src') || '', loaded: el.naturalWidth > 0, w: el.naturalWidth } : null;
+  });
+  ok('关于页 logo 为新版图片且已加载',
+    !!aboutLogo && /logo\.png$/.test(aboutLogo.src) && aboutLogo.loaded === true, JSON.stringify(aboutLogo));
+  ok('关于页不再使用旧的「漢」SVG', await page.locator('#view-about .av-logo svg').count() === 0);
 
   // 图标文件已重新生成（字节数应与藏青版不同）
   const fs = require('fs');

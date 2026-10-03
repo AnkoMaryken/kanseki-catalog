@@ -183,6 +183,32 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v9.4.2 · 桌面版 0.13.2</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-fix">修复</span>
+      <span class="cl-tag t-opt">调整</span>
+    </div>
+    <ul>
+      <li><b>修复「日本藏本检索」检索后整页变窄</b>：检索前约 988px、检索后骤降到 613px。
+        根因是外壳的 <code>.av-wrap</code> 带 <code>margin:0 auto</code>，而在弹性列容器里
+        「自动外边距」会让宽度退化为<b>收缩到内容宽度</b>，于是状态文字一变短、整页跟着变窄。
+        现显式给宽度 <code>100%</code>，<b>检索前后宽度恒定</b>（实测 1012px 不变）。</li>
+      <li><b>高级筛选改为浮窗菜单</b>：不再内联展开推挤下方内容，而是绝对定位浮在结果之上，
+        <b>开合完全不影响页面布局</b>（实测检索卡片高度与结果区位置均不变）；
+        点浮窗外部或按 <kbd>Esc</kbd> 关闭，点面板内部不关。</li>
+      <li><b>桌面版换用新 logo</b>（木刻印章风：方框 + 四角圆点 + 戴笠瑞兽 + 右上「汉」）：
+        程序图标（任务栏 / 安装包 / 开始菜单）与侧栏品牌、关于页 logo 一并更换。
+        <b>网页版 logo 保持不变</b>。</li>
+      <li><b>测试分两档，加快迭代</b>：新增
+        <code>node tests/run_quick.js</code>（网页，6 套件约 75 秒）与
+        <code>node app/tests/run_quick.cjs</code>（桌面，约 96 秒）供日常改动后快速验证；
+        全量 <code>run_all.js</code> 与真机探针、发布物校验改为<b>发布打包前</b>再跑。
+        此前改一行也要跑十几个来回的重复测试。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v9.4.1 · 桌面版 0.13.1</span>
       <span class="cl-date">2026-10-02</span>
       <span class="cl-tag t-opt">调整</span>

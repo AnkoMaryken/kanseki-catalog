@@ -207,8 +207,14 @@ function waitForCdp(timeoutMs = 30000) {
   ok('品牌栏存在', await page.locator('.side-title').isVisible());
   const brandTx = await page.locator('.side-title .st-tx').textContent();
   ok('品牌名完整', brandTx.trim() === '古代史及汉籍研究工具', brandTx);
-  const brandIc = await page.locator('.side-title .st-ic').textContent();
-  ok('品牌图标「漢」', brandIc.trim() === '漢', brandIc);
+  // V9.4.2：品牌图标改为新版 logo 图片
+  const brandIc = await page.evaluate(() => {
+    const el = document.querySelector('.side-title .st-ic');
+    return el ? { tag: el.tagName, src: el.getAttribute('src') || '', loaded: el.naturalWidth > 0 } : null;
+  });
+  ok('品牌图标为 logo 图片且已加载',
+    !!brandIc && brandIc.tag === 'IMG' && /logo\.png$/.test(brandIc.src) && brandIc.loaded === true,
+    JSON.stringify(brandIc));
 
   // ---------- 5. 侧栏底部用户菜单向上弹出 ----------
   console.log('\n[5] 用户菜单方向');

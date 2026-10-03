@@ -239,11 +239,9 @@ html, body {
 .side-title .st-ic {
   width: 26px; height: 26px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #3b3b40, #242428);
-  display: flex; align-items: center; justify-content: center;
-  color: #e4e4e7;
-  font-family: var(--font-display);
-  font-size: 14px; font-weight: 700;
+  object-fit: cover;
+  display: block;
+  background: #fff;
   flex-shrink: 0;
 }
 .side-title .st-tx-wrap { min-width: 0; }
@@ -940,6 +938,9 @@ html, body {
 .av-logo {
   margin-bottom: 16px;
   line-height: 0;
+}
+.av-logo img {
+  display: block;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow);
 }
@@ -1470,12 +1471,18 @@ html, body {
      · 其余条件收进可折叠的高级筛选区，**默认收起**
      · 结果区用 flex 占满剩余高度，成为页面主体 */
 .kdb-wrap {
+  /* ⚠️ 必须显式 width:100%。.av-wrap 带 margin:0 auto，而在 flex 列容器里
+     「auto 主轴外边距」会让子项宽度退化为**收缩到内容宽度**（fit-content）——
+     实测检索前 988px、检索后因状态文字变短骤降到 613px，整页宽度随内容跳变。
+     加上 width:100% 后宽度恒定，再由 max-width 收口、auto 外边距居中。 */
+  width: 100%;
   max-width: 1180px;
+  margin: 0 auto;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  /* 关键：#view-kansekidb 本身是 flex 容器，这里 flex:1 才能撑满它，
-     从而把「视口高度 − 标题栏/表单/状态行」全部让给结果区（结果为主）。
-     仅用 min-height:100vh−N 会在 app 里少算一截，实测结果区只有 342px。 */
+  /* 关键：#view-kansekidb 本身是 flex 容器，flex:1 才能撑满它，
+     把「视口高度 − 标题栏/表单/状态行」全部让给结果区（结果为主）。 */
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -1488,7 +1495,8 @@ html, body {
 .kdb-head .av-head-tx { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .kdb-head h2 { font-size: 16px; line-height: 1.3; }
 .kdb-head p { margin: 0; font-size: 11.5px; line-height: 1.4; }
-.kdb-card { flex: 0 0 auto; }
+/* 作为浮窗定位参照 */
+.kdb-card { flex: 0 0 auto; position: relative; }
 
 /* 常驻主检索行 */
 .kdb-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -1548,9 +1556,28 @@ html, body {
 /* ⚠️ 必留：这是 flex 子项，[hidden] 的 display:none 优先级低会被压过 */
 .kdb-sumline[hidden] { display: none !important; }
 
-/* 可折叠的高级筛选区 */
-.kdb-adv { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--divider); }
+/* 高级筛选：**浮窗菜单**（V9.4.2）
+   用户要求「从下方弹出改为浮窗菜单那样的（不是独立窗口）」——
+   故不再内联展开推挤下方内容，而是绝对定位浮在结果之上，开合**不影响页面布局**。 */
+.kdb-adv {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  width: min(720px, 100%);
+  padding: 16px 16px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 14px 38px rgba(16, 18, 24, .18);
+  animation: kdbPop .14s ease;
+}
 .kdb-adv[hidden] { display: none !important; }
+@keyframes kdbPop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+[data-theme="dark"] .kdb-adv { background: #1a1a1a; box-shadow: 0 14px 38px rgba(0, 0, 0, .5); }
 .kdb-select {
   width: 100%;
   padding: 8px 11px;
