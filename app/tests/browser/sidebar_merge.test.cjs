@@ -31,10 +31,11 @@ const config = require('../../../tests/helpers/config.js');
   await page.waitForTimeout(900);
 
   // ---------- 1. 侧栏结构 ----------
-  // V9.2.1：侧栏移除了「同步设置 / 账号 / 关于」三项跳转（统一以设置窗口为准），12 → 9
+  // V9.2.1：侧栏移除了「同步设置 / 账号 / 关于」三项跳转（统一以设置窗口为准）
+  // V9.4：新增「日本藏本检索」分组 → 9 → 10 项、11 → 12 视图
   const navCount = await page.locator('.nav-item').count();
-  check('侧栏导航项 9 个', navCount === 9, '实际 ' + navCount);
-  check('视图 11 个', await page.locator('.view').count() === 11);
+  check('侧栏导航项 10 个', navCount === 10, '实际 ' + navCount);
+  check('视图 12 个', await page.locator('.view').count() === 12);
 
   const labels = await page.locator('.nav-item span:not(.nav-badge)').allTextContents();
   // 注：APP 内 catalog 副本为繁体页面，故目录相关三项匹配简繁任一
@@ -42,6 +43,7 @@ const config = require('../../../tests/helpers/config.js');
     ['纪年查询'], ['快速跳转'],
     ['细则查阅', '細則查閱'], ['分类表查询', '分類表查詢'], ['工作手册', '工作手冊'],
     ['古籍类目查询', '古籍類目查詢'],
+    ['汉籍检索（日本）', '漢籍檢索（日本）'],
     ['使用介绍'], ['更新日志'], ['编目记录'],
   ];
   const missing = need.filter(alias => !alias.some(t => labels.includes(t)));

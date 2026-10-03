@@ -177,6 +177,18 @@
       </nav>
     </div>
 
+    <!-- 日本藏本检索（V9.4）：全國漢籍データベース（日本所藏中文古籍數據庫）。
+         该站不提供 CORS 头且仅有 http 服务，故只能由桌面版的 Rust 桥直连原站；
+         浏览器/网页版会在面板内明确说明不支持，不做静默失败。 -->
+    <div class="side-sec">
+      <div class="side-label">日本藏本检索</div>
+      <nav class="side-nav">
+        <a href="#/kansekidb" data-view="kansekidb" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><rect x="3" y="8" width="18" height="12" rx="1.5"/><path d="M9 20v-5h6v5"/></svg><span>汉籍检索（日本）</span>
+        </a>
+      </nav>
+    </div>
+
     <div class="side-sec">
       <div class="side-label">编目规范</div>
       <nav class="side-nav">
@@ -273,6 +285,63 @@
          header 隐藏样式由构建期 build.mjs 的 EMBED_RULES 注入，源文件保持网页版原样） -->
     <section id="view-kanseki" class="view has-frame">
       <iframe id="kansekiFrame" data-src="pages/kanseki.html" title="古籍类目查询" class="page-frame" loading="lazy"></iframe>
+    </section>
+
+    <!-- 日本藏本检索视图（V9.4）——原站直连，结果与详情同屏 -->
+    <section id="view-kansekidb" class="view app-view">
+      <div class="av-wrap kdb-wrap">
+        <header class="av-head">
+          <div class="av-head-tx">
+            <h2>日本所藏汉籍检索</h2>
+            <p>全國漢籍データベース（京都大学人文科学研究所 附属東アジア人文情報学研究センター）· 76 家机构 · 约 92.5 万条记录</p>
+          </div>
+        </header>
+
+        <form class="av-card" id="kdbForm">
+          <div class="kdb-grid">
+            <label class="kdb-field"><span>書名</span>
+              <input id="kdbTi" type="text" placeholder="如 論語 / 陶淵明集" autocomplete="off"></label>
+            <label class="kdb-field"><span>著者名</span>
+              <input id="kdbAu" type="text" placeholder="如 陶潛" autocomplete="off"></label>
+            <label class="kdb-field"><span>刊年</span>
+              <input id="kdbYr" type="text" placeholder="如 康煕 / 文政四年" autocomplete="off"></label>
+            <label class="kdb-field"><span>出版者</span>
+              <input id="kdbPb" type="text" placeholder="如 商務印書館" autocomplete="off"></label>
+            <label class="kdb-field"><span>子目</span>
+              <input id="kdbKo" type="text" placeholder="丛书内子目书名" autocomplete="off"></label>
+            <label class="kdb-field"><span>keyword</span>
+              <input id="kdbFr" type="text" placeholder="关键词（原站未说明取值）" autocomplete="off"></label>
+          </div>
+
+          <div class="kdb-orbox">
+            <div class="kdb-orhead">
+              <span>所藏机构（可多选：按住 Ctrl / ⌘ 点选；留空=全部）</span>
+              <button type="button" class="kdb-link" id="kdbOrClear">清除选择</button>
+            </div>
+            <select id="kdbOr" multiple size="5"></select>
+          </div>
+
+          <div class="av-actions kdb-actions">
+            <label class="kdb-timeout">超时
+              <select id="kdbTimeout">
+                <option value="60">60 秒</option>
+                <option value="120">120 秒</option>
+                <option value="200" selected>200 秒（推荐）</option>
+              </select>
+            </label>
+            <button type="submit" class="av-btn av-btn-primary">检索</button>
+            <button type="button" class="av-btn" id="kdbReset">清空</button>
+          </div>
+          <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一（陶潛=陶潜、搜神記=捜神記），但人名异称不归一（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</p>
+        </form>
+
+        <div class="kdb-status" id="kdbStatus"></div>
+
+        <div class="kdb-split">
+          <div class="av-card kdb-results" id="kdbResults"></div>
+          <div class="av-card kdb-detail" id="kdbDetail"></div>
+        </div>
+      </div>
     </section>
 
     <!-- 快速跳转视图 -->
@@ -411,13 +480,13 @@
             </svg>
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.12.1（V5 路线图）</p>
+          <p class="av-ver">版本 0.13.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并新增编目记录（开发中）与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.12.1</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.13.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

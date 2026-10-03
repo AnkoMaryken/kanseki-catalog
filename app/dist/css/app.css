@@ -1369,3 +1369,177 @@ html, body {
   .anchor-pop-body .cfb-side { padding: .44rem .5rem; }
   .av-grid { grid-template-columns: 1fr; }
 }
+
+/* ================================================
+   日本藏本检索（V9.4）—— 全國漢籍データベース 面板
+   -------------------------------------------------
+   仅用于 #view-kansekidb。全部取值走主题变量，故明/暗主题自动适配。
+   预留 [data-theme="dark"] 输入框底色覆盖（与 .av-field 同处理）。
+   ================================================ */
+.kdb-wrap { max-width: 1180px; }
+
+.kdb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+.kdb-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.kdb-field > span { font-size: 12.5px; font-weight: 600; color: var(--text-sec); }
+.kdb-field input {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+.kdb-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .06);
+}
+[data-theme="dark"] .kdb-field input { background: #1a1a1a; }
+[data-theme="dark"] .kdb-field input:focus { box-shadow: 0 0 0 3px rgba(250, 250, 250, .1); }
+
+.kdb-orbox { margin-top: 14px; }
+.kdb-orhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-sec);
+  margin-bottom: 6px;
+}
+.kdb-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.kdb-link:hover { color: var(--text); }
+#kdbOr {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--surface);
+}
+[data-theme="dark"] #kdbOr { background: #1a1a1a; }
+#kdbOr option { padding: 1px 4px; }
+
+.kdb-actions { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.kdb-timeout { font-size: 12.5px; color: var(--text-sec); display: flex; align-items: center; gap: 6px; }
+.kdb-timeout select {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--surface);
+}
+
+.kdb-status {
+  min-height: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-sec);
+  padding: 0 2px;
+}
+.kdb-status.ok { color: var(--ok); }
+.kdb-status.warn { color: var(--warn); }
+.kdb-status.err { color: var(--danger); }
+.kdb-status.busy { color: var(--text-sec); }
+.kdb-dim { color: var(--text-muted); font-weight: 400; }
+
+.kdb-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 16px;
+  align-items: start;
+}
+.kdb-results, .kdb-detail {
+  max-height: calc(100vh - 460px);
+  min-height: 220px;
+  overflow: auto;
+  padding: 12px 14px;
+}
+.kdb-rows { display: flex; flex-direction: column; }
+.kdb-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  padding: 9px 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kdb-row:hover { background: var(--divider); }
+.kdb-row.active { background: var(--divider); box-shadow: inset 2px 0 0 var(--accent); }
+.kdb-row-title { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--text); }
+.kdb-row-author, .kdb-row-series { font-size: 12px; color: var(--text-sec); }
+.kdb-row-foot { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+.kdb-inst { color: var(--text-sec); font-weight: 600; }
+.kdb-badge {
+  font-size: 10.5px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.kdb-badge.warn { color: var(--warn); border-color: var(--warn); }
+.kdb-empty { color: var(--text-muted); font-size: 13px; padding: 8px 2px; }
+.kdb-warn { color: var(--warn); font-size: 12.5px; line-height: 1.6; }
+
+.kdb-detail-head { padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+.kdb-detail-head h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); }
+.kdb-detail-head p { margin-top: 4px; font-size: 12.5px; }
+.kdb-kvs { display: flex; flex-direction: column; }
+.kdb-kv {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--divider);
+  font-size: 13px;
+  color: var(--text);
+}
+.kdb-kv b { font-weight: 600; font-size: 12.5px; color: var(--text-muted); }
+.kdb-detail-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.kdb-kids { margin-top: 12px; }
+.kdb-kids-head { font-size: 12.5px; font-weight: 600; color: var(--text-sec); margin-bottom: 6px; }
+.kdb-kids-list {
+  margin: 0;
+  padding-left: 20px;
+  max-height: 240px;
+  overflow: auto;
+  font-size: 12.5px;
+  color: var(--text-sec);
+}
+.kdb-kids-list li { padding: 2px 0; }
+
+@media (max-width: 1100px) {
+  .kdb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kdb-split { grid-template-columns: minmax(0, 1fr); }
+  .kdb-results, .kdb-detail { max-height: none; }
+}
+@media (max-width: 720px) {
+  .kdb-grid { grid-template-columns: minmax(0, 1fr); }
+}

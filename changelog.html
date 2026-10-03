@@ -171,6 +171,31 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v9.4 · 桌面版 0.13.0</span>
+      <span class="cl-date">2026-10-02</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>新增「日本藏本检索」</b>（侧栏独立分组）：应用内直连
+        <b>全國漢籍データベース</b>（京都大学人文科学研究所 附属東アジア人文情報学研究センター 运营，
+        日本 76 家机构、约 92.5 万条记录），支持按
+        <b>書名 / 著者名 / 刊年 / 出版者 / 子目 / keyword</b> 以及<b>所藏机构（可多选）</b>检索；
+        结果与详情同屏显示，可查看记录详情、四部分类、索书号、子目清单与卷头书影链接。</li>
+      <li><b>该功能仅桌面版可用</b>：原站不返回 CORS 头、只有 http 服务（从 https 页面请求属混合内容），
+        且为老旧 CGI（大结果集约 190 秒被服务器掐断）。故由 Rust 桥直连本机网络栈绕过前两点；
+        网页版不做此功能并在界面说明，不静默失败。</li>
+      <li><b>安全与稳健</b>：Rust 桥只允许访问
+        <code>kanji.zinbun.kyoto-u.ac.jp</code> 的 <code>/kanseki</code> 路径
+        （避免本命令被当作任意 URL 代理的 SSRF 出口）；
+        服务器中途掐断时<b>保留已读到的部分结果</b>并标记为「不完整」，
+        界面据此提示细化检索条件，不会把残页当完整结果展示。</li>
+      <li><b>检索小贴士</b>（已写入面板提示）：原站自动归一繁简与异体字（陶潛=陶潜、搜神記=捜神記），
+        但<b>人名异称不归一</b>（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v9.3.1 · 桌面版 0.12.1</span>
       <span class="cl-date">2026-10-02</span>
       <span class="cl-tag t-new">新增</span>

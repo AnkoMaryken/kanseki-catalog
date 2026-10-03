@@ -5,6 +5,7 @@
 
 mod ai;
 mod http;
+mod kanseki_db;
 mod single_instance;
 mod system;
 mod websearch;
@@ -26,6 +27,8 @@ fn main() {
             // V9.3：模型列表（避免写死过时模型名）+ 联网查证
             ai::ai_models,
             websearch::web_search,
+            // V9.4：全国漢籍データベース（日本所藏中文古籍）检索桥
+            kanseki_db::kanseki_fetch,
             // V9.2：设置窗口与外部链接
             system::open_settings_window,
             system::settings_window_visible,

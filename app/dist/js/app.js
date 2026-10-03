@@ -31,6 +31,7 @@ import { openStore } from './core/sync/store-indexeddb.js';
 import { SyncEngine } from './core/sync/sync-engine.js';
 import { WebDavProvider } from './core/sync/provider-webdav.js';
 import { initRecordsView } from './ui/records.js';
+import { initKansekiDbView } from './ui/kanseki-db.js';
 
 // ---------- 工具 ----------
 const $ = (sel) => document.querySelector(sel);
@@ -639,7 +640,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.12.1';
+const APP_VERSION = '0.13.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -652,7 +653,7 @@ function refreshAboutInfo() {
 
 // ---------- 视图切换 ----------
 // 11 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
@@ -717,6 +718,8 @@ function navigate() {
   // 视图进入钩子
   if (target === 'sync') initSyncView();
   if (target === 'about') refreshAboutInfo();
+  // V9.4：日本藏本检索面板（首次进入时初始化表单与机构列表）
+  if (target === 'kansekidb') initKansekiDbView();
   // 账号页由 iframe 承载，登录成功后需回读 localStorage 刷新侧栏用户区
   if (target === 'login' || target === 'account') {
     whenFrameReady(frame, () => {
