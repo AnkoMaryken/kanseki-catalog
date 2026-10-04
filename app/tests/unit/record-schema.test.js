@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {
   REQUIRED_FIELDS, OPTIONAL_FIELDS, ALL_FIELDS, FIELD_DEFS,
   createEmptyRecord, validateRecord, sortRecords, searchRecords,
-  makeNewRecord, markDeleted, touchUpdated
+  makeNewRecord, markDeleted, touchUpdated, genFallbackId
 } from '../../src/js/core/catalog-record-schema.js';
 
 test('字段模型：必填 8 项 + 选填 5 项 = 13 项（+seq 自动编号 = 模板 14 列）', () => {
@@ -99,6 +99,46 @@ test('markDeleted：墓碑（deletedAt 非空）', () => {
   assert.ok(tomb.deletedAt > 0);
   assert.ok(tomb.updatedAt >= tomb.deletedAt);
   assert.equal(tomb.deviceId, 'dev-B');
+});
+
+// ---------------------------------------------------------------- V9.5 回归
+// 真实缺陷：调用方惯例是 makeNewRecord(createEmptyRecord() 填好字段, deviceId)，
+// 而 createEmptyRecord() 带 id:null。若实现写成 { id: 新UUID, ...data }，
+// id 会被 null 覆盖，IndexedDB 直接抛
+// 「Evaluating the object store's key path yielded a value that is not a valid key」。
+test('makeNewRecord：createEmptyRecord 的 id:null 不得覆盖新 UUID', () => {
+  const data = createEmptyRecord();
+  data.title = '日本国志';
+  const rec = makeNewRecord(data, 'dev-A');
+  assert.equal(typeof rec.id, 'string');
+  assert.ok(rec.id.length >= 8, 'id 必须是非空标识，实际 ' + JSON.stringify(rec.id));
+  assert.notEqual(rec.id, 'null');
+  assert.notEqual(rec.id, 'undefined');
+  assert.equal(rec.title, '日本国志');
+});
+
+test('makeNewRecord：显式传入 id/seq 时予以保留', () => {
+  const rec = makeNewRecord({ id: 'fixed-id', seq: 7, title: 'A' }, 'dev-A');
+  assert.equal(rec.id, 'fixed-id');
+  assert.equal(rec.seq, 7);
+});
+
+test('touchUpdated：data 里的 id:null 不得清空既有 id', () => {
+  const rec = makeNewRecord({ title: 'A' }, 'dev-A');
+  const data = createEmptyRecord();   // id:null、createdAt:null
+  data.title = 'B';
+  const updated = touchUpdated(rec, data, 'dev-B');
+  assert.equal(updated.id, rec.id);
+  assert.equal(updated.createdAt, rec.createdAt);
+  assert.equal(updated.title, 'B');
+});
+
+test('genFallbackId：始终为非空字符串（可用作 keyPath）', () => {
+  for (let i = 0; i < 5; i++) {
+    const id = genFallbackId();
+    assert.equal(typeof id, 'string');
+    assert.ok(id.length > 4);
+  }
 });
 
 test('sortRecords：默认 updatedAt 降序，可切升序', () => {

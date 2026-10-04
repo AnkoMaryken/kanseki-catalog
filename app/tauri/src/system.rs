@@ -52,8 +52,56 @@ pub async fn open_settings_window(app: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-/// 返回程序版本号（唯一来源：tauri.conf.json / Cargo.toml）
-/// 设置窗口的版本信息直接问 Rust 要，避免在页面里再复制一份版本字符串（易失同步）。
+/// 显示（或首次创建）「纪年小窗」
+///
+/// 一个可缩得很小、且**可置顶**的独立窗口，用于随手查年份并复制。
+///
+/// 该窗口**刻意不在 tauri.conf.json 中声明**，而是首次调用时懒创建：
+/// ① 省下启动开销（不必开机就建第二个 webview）；
+/// ② 创建参数集中在这里，便于与主窗口保持一致的 WebView2 参数。
+///
+/// additionalBrowserArgs 必须与主窗口一字不差（否则该窗口的 localStorage/
+/// 剪贴板行为异常，这是本项目已知坑），故这里显式复制同一串参数。
+#[tauri::command]
+pub async fn open_mini_window(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(win) = app.get_webview_window("mini") {
+        win.show().map_err(|e| format!("显示纪年小窗失败：{}", e))?;
+        win.set_focus().map_err(|e| format!("聚焦纪年小窗失败：{}", e))?;
+        return Ok(());
+    }
+
+    let win = tauri::WebviewWindowBuilder::new(
+        &app,
+        "mini",
+        tauri::WebviewUrl::App("mini.html".into()),
+    )
+    .title("纪年小窗 — 古代史及汉籍研究工具")
+    .inner_size(460.0, 620.0)
+    .min_inner_size(340.0, 380.0)
+    .resizable(true)
+    .always_on_top(true)
+    .center()
+    .decorations(false)
+    .additional_browser_args(
+        "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --no-sandbox",
+    )
+    .build()
+    .map_err(|e| format!("创建纪年小窗失败：{}", e))?;
+
+    // 关闭即隐藏：窗口对象始终存活，可反复打开（与设置窗口同一策略）
+    let w = win.clone();
+    win.on_window_event(move |ev| {
+        if let tauri::WindowEvent::CloseRequested { api, .. } = ev {
+            api.prevent_close();
+            let _ = w.hide();
+        }
+    });
+
+    win.set_focus().map_err(|e| format!("聚焦纪年小窗失败：{}", e))?;
+    Ok(())
+}
+
+/// 返回程序版本号（唯一来源：tauri.conf.json / Cargo.toml）/// 设置窗口的版本信息直接问 Rust 要，避免在页面里再复制一份版本字符串（易失同步）。
 #[tauri::command]
 pub fn app_version(app: tauri::AppHandle) -> String {
     app.package_info().version.to_string()

@@ -26,7 +26,7 @@ const config = require('../../../tests/helpers/config.js');
   // 1. 外壳结构（V0.7：新增「账号」入口，导航 11 项 / 视图 10 个）
   check('侧边栏存在', await page.locator('.app-sidebar').count() === 1);
   check('导航项 11 个', await page.locator('.nav-item').count() === 11);
-  check('视图 10 个', await page.locator('.view').count() === 10);
+  check('视图 13 个', await page.locator('.view').count() === 13);
   check('侧栏可见导航项 11 个', await page.locator('.nav-item:visible').count() === 11);
   check('查询视图默认激活', await page.locator('#view-query.active').count() === 1);
   check('iframe 加载', await page.locator('#queryFrame').count() === 1);
@@ -46,14 +46,15 @@ const config = require('../../../tests/helpers/config.js');
   await page.click('a[data-view="records"]');
   await page.waitForTimeout(300);
   check('records 视图激活', await page.locator('#view-records.active').count() === 1);
-  check('新增按钮禁用', await page.locator('#addRecordBtn').isDisabled());
+  check('新增按钮可用（V9.5 编目记录正式启用）', !(await page.locator('#addRecordBtn').isDisabled()));
 
-  await page.click('a[data-view="sync"]');
+  // V9.2.1 起 sync / about 已无侧栏入口，改用 hash 直达（视图本身保留）
+  await page.evaluate(() => { location.hash = '#/sync'; });
   await page.waitForTimeout(300);
   check('sync 视图激活', await page.locator('#view-sync.active').count() === 1);
   check('sync 表单存在', await page.locator('#syncUser').count() === 1);
 
-  await page.click('a[data-view="about"]');
+  await page.evaluate(() => { location.hash = '#/about'; });
   await page.waitForTimeout(300);
   check('about 视图激活', await page.locator('#view-about.active').count() === 1);
 

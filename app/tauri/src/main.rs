@@ -6,6 +6,7 @@
 mod ai;
 mod http;
 mod kanseki_db;
+mod naj_db;
 mod single_instance;
 mod system;
 mod websearch;
@@ -29,8 +30,12 @@ fn main() {
             websearch::web_search,
             // V9.4：全国漢籍データベース（日本所藏中文古籍）检索桥
             kanseki_db::kanseki_fetch,
+            // V9.5：国立公文書館デジタルアーカイブ（日本国立公文书馆）检索桥
+            naj_db::naj_fetch,
             // V9.2：设置窗口与外部链接
             system::open_settings_window,
+            // V9.7：纪年小窗（可置顶）
+            system::open_mini_window,
             system::settings_window_visible,
             system::app_version,
             system::open_external,
@@ -56,6 +61,14 @@ fn main() {
                     }
                 });
             }
+            // 注：纪年小窗（label="mini"）**不在 tauri.conf.json 里声明**，
+            // 而是首次点「纪年小窗」时由 system::open_mini_window 懒创建：
+            // ① 省下启动开销（不必开机就建第二个 webview）；
+            // ② 该窗口自身「关闭即隐藏」的拦截在创建处挂（见 system.rs）。
+            // ⚠️ 排障备忘：若程序「启动即退出、退出码 101」，多半不是配置问题，
+            //    而是**残留的 msedgewebview2 子进程**锁住了用户数据目录
+            //    （表现为 Failed to create webview: HRESULT 0x8007139F）。
+            //    强杀应用后请一并清理：taskkill /F /IM msedgewebview2.exe
             Ok(())
         })
         .run(tauri::generate_context!())

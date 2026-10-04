@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纪年小窗</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<!-- ============================================================
+     app/src/mini.html — 「纪年小窗」（Tauri v2 独立小窗口页面）
+     ------------------------------------------------------------
+     窗口由 tauri.conf.json 声明：label="mini" url="mini.html"
+     460x620 / decorations:false / alwaysOnTop:true / visible:false，
+     由 Rust 命令 open_mini_window 打开（本文件不负责创建窗口）。
+
+     ⚠️ 本页样式**全部内联**在本文件里，刻意不引 css/app.css：
+        小窗只有 460px 宽，主界面样式是给 ≥1100px 写的，混用会互相干扰。
+     本页只复用 js/core/ 的纯逻辑（dataset / search / conv），零第三方依赖。
+     ============================================================ -->
+<style>
+/* ---------- 主题变量（与外壳共用 localStorage 'theme'） ---------- */
+:root{
+  --m-bg:#ffffff; --m-panel:#f7f7f8; --m-panel2:#f1f1f3;
+  --m-text:#1c1c1e; --m-text-sec:#5b5b60; --m-muted:#8a8a90;
+  --m-border:#e4e4e7; --m-accent:#b91c1c; --m-accent-soft:rgba(185,28,28,.08);
+  --m-row-hover:#f4f4f5; --m-shadow:0 1px 2px rgba(0,0,0,.05);
+  --m-font:"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans CJK SC",system-ui,sans-serif;
+  --m-serif:"STZhongsong","Songti SC","SimSun","Noto Serif CJK SC",serif;
+  --m-serif-cjk:"STZhongsong","Songti SC","SimSun","Noto Serif CJK SC","Segoe UI","Microsoft YaHei",serif;
+}
+[data-theme="dark"]{
+  --m-bg:#141416; --m-panel:#1c1c1f; --m-panel2:#232327;
+  --m-text:#f0f0f1; --m-text-sec:#b4b4ba; --m-muted:#8a8a90;
+  --m-border:#2e2e33; --m-accent:#f87171; --m-accent-soft:rgba(248,113,113,.12);
+  --m-row-hover:#232327; --m-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--m-bg); color:var(--m-text);
+  font-family:var(--m-font); font-size:13px; line-height:1.45;
+  overflow:hidden;
+  -webkit-user-select:none; user-select:none;
+}
+#miniApp{display:flex; flex-direction:column; height:100vh; width:100vw; overflow:hidden}
+
+/* ---------- 自绘标题栏（decorations:false → 整条可拖动） ---------- */
+.mini-titlebar{
+  display:flex; align-items:center; gap:2px;
+  height:34px; min-height:34px; padding:0 4px 0 10px;
+  background:var(--m-panel); border-bottom:1px solid var(--m-border);
+}
+.mini-title{flex:0 0 auto; font-size:12px; font-weight:600; color:var(--m-text-sec); letter-spacing:.06em}
+.mini-drag{flex:1 1 auto; height:100%; min-width:16px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--m-serif); font-size:12px; color:var(--m-muted); opacity:.55}
+.mini-titlebar .mini-wbtn{
+  width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center;
+  border:0; background:transparent; color:var(--m-text-sec);
+  border-radius:5px; cursor:pointer; padding:0; font-family:inherit;
+}
+.mini-titlebar .mini-wbtn:hover{background:var(--m-panel2); color:var(--m-text)}
+.mini-titlebar .mini-wbtn:focus-visible{outline:2px solid var(--m-accent); outline-offset:1px}
+.mini-titlebar .mini-wbtn[aria-pressed="true"]{background:var(--m-accent-soft); color:var(--m-accent)}
+#miniClose:hover{background:#e81123; color:#fff}
+
+/* ---------- 检索区 ---------- */
+.mini-search{padding:8px 10px; border-bottom:1px solid var(--m-border); background:var(--m-bg)}
+.mini-inputrow{display:flex; gap:6px}
+#miniInput{
+  flex:1 1 auto; min-width:0; height:30px; padding:0 9px;
+  border:1px solid var(--m-border); border-radius:6px;
+  background:var(--m-panel); color:var(--m-text);
+  font-family:inherit; font-size:13px; -webkit-user-select:text; user-select:text;
+}
+#miniInput:focus{outline:none; border-color:var(--m-accent); box-shadow:0 0 0 2px var(--m-accent-soft)}
+#miniBtn{
+  flex:0 0 auto; height:30px; padding:0 13px; border-radius:6px; cursor:pointer;
+  border:1px solid var(--m-accent); background:var(--m-accent); color:#fff;
+  font-family:inherit; font-size:13px; font-weight:600;
+}
+#miniBtn:hover{filter:brightness(1.08)}
+#miniBtn:focus-visible{outline:2px solid var(--m-accent); outline-offset:1px}
+.mini-shortcuts{display:flex; flex-wrap:wrap; gap:5px; margin-top:7px}
+.mini-chip{
+  height:22px; padding:0 9px; border-radius:11px; cursor:pointer;
+  border:1px solid var(--m-border); background:var(--m-panel); color:var(--m-text-sec);
+  font-family:inherit; font-size:12px; line-height:1;
+}
+.mini-chip:hover{border-color:var(--m-accent); color:var(--m-accent)}
+
+/* ---------- 结果区 ---------- */
+.mini-body{flex:1 1 auto; min-height:0; display:flex; flex-direction:column;
+  background:var(--m-panel); border-top:1px solid var(--m-border)}
+.mini-results-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  padding:5px 11px; border-bottom:1px solid var(--m-border);
+  background:var(--m-panel2); font-size:11.5px; color:var(--m-text-sec);
+}
+#miniHitCount{font-weight:600; color:var(--m-text)}
+#miniQueryEcho{color:var(--m-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mini-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; background:var(--m-bg)}
+/* 窄窗可读性：table-layout:fixed + 自动换行，任何列都不撑破 460px */
+#miniTable{width:100%; table-layout:fixed; border-collapse:collapse; font-size:12px}
+#miniTable thead th{
+  position:sticky; top:0; z-index:1;
+  padding:5px 4px; text-align:left; font-weight:600; font-size:11.5px;
+  color:var(--m-text-sec); background:var(--m-panel2);
+  border-bottom:1px solid var(--m-border); white-space:nowrap;
+}
+#miniTable tbody tr{border-bottom:1px solid var(--m-border); cursor:pointer}
+#miniTable tbody tr:hover{background:var(--m-row-hover)}
+#miniTable tbody tr:last-child{border-bottom:0}
+#miniTable td{padding:5px 4px; vertical-align:top; overflow-wrap:anywhere; word-break:break-word}
+.m-col-year{width:46px; color:var(--m-text-sec); font-variant-numeric:tabular-nums}
+.m-col-dyn{width:42px}
+.m-col-era{width:auto}
+.m-col-ruler{width:98px; color:var(--m-text-sec); font-size:11.5px}
+.m-col-gz{width:42px; text-align:center; color:var(--m-text-sec)}
+#miniTable thead th.m-col-gz{text-align:center}
+.m-dyn{color:var(--m-text-sec)}
+.m-era{display:block; font-family:var(--m-serif-cjk); font-size:12.5px; color:var(--m-text)}
+.m-era-jp{display:block; font-family:var(--m-serif-cjk); font-size:11.5px; color:var(--m-muted)}
+.m-dash{color:var(--m-muted)}
+.m-copy{
+  flex:0 0 auto; width:18px; height:18px; margin-left:4px; padding:0;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid transparent; border-radius:4px; background:transparent;
+  color:var(--m-muted); cursor:pointer;
+}
+.m-copy:hover{background:var(--m-accent-soft); border-color:var(--m-border); color:var(--m-accent)}
+.m-copy:focus-visible{outline:2px solid var(--m-accent); outline-offset:1px}
+button.m-copy{font-family:inherit}
+.mini-empty{padding:18px 14px; text-align:center; color:var(--m-muted); font-size:12.5px}
+
+/* ---------- 状态行 ---------- */
+.mini-status{
+  min-height:26px; padding:5px 11px; border-top:1px solid var(--m-border);
+  background:var(--m-panel2); color:var(--m-text-sec); font-size:11.5px;
+  display:flex; flex-direction:column; justify-content:center; gap:1px;
+}
+#miniStatus.err{color:#dc2626}
+[data-theme="dark"] #miniStatus.err{color:#fca5a5}
+#miniStatus.ok{color:#16a34a}
+[data-theme="dark"] #miniStatus.ok{color:#86efac}
+
+/* 浏览器调试：窗口控制不可用 → 隐藏窗口按钮（点击测试仍不得抛错） */
+html.mini-no-tauri #miniMin,html.mini-no-tauri #miniClose{display:none}
+</style>
+</head>
+<body>
+<div id="miniApp">
+
+  <!-- ========== 自绘标题栏：整条 data-tauri-drag-region ========== -->
+  <header class="mini-titlebar" id="miniTitlebar" data-tauri-drag-region>
+    <span class="mini-title" data-tauri-drag-region>纪年小窗</span>
+    <div class="mini-drag" data-tauri-drag-region id="miniDragArea">干支纪年 · 一键复制</div>
+    <button class="mini-wbtn" id="miniTop" type="button" aria-pressed="false"
+            title="置顶：让本窗始终保持在其他窗口之上" aria-label="窗口置顶">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4h6l-1 6 4 4H6l4-4L9 4z"/><path d="M12 14v6"/>
+      </svg>
+    </button>
+    <button class="mini-wbtn" id="miniMin" type="button" title="最小化" aria-label="最小化">
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.2"/></svg>
+    </button>
+    <button class="mini-wbtn" id="miniClose" type="button" title="关闭" aria-label="关闭">
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0.7 0.7l8.6 8.6M9.3 0.7L0.7 9.3" stroke="currentColor" stroke-width="1.2"/></svg>
+    </button>
+  </header>
+
+  <!-- ========== 检索区 ========== -->
+  <section class="mini-search">
+    <div class="mini-inputrow">
+      <input id="miniInput" type="search" autocomplete="off" spellcheck="false"
+             aria-label="检索年份、年号、干支、朝代或君主"
+             placeholder="年份 / 年号 / 干支 / 朝代 / 君主（公元前写「前841」）">
+      <button id="miniBtn" type="button">查询</button>
+    </div>
+    <div class="mini-shortcuts" id="miniShortcuts" role="group" aria-label="常用快捷检索">
+      <button class="mini-chip" type="button" data-mini-q="今年">今年</button>
+      <button class="mini-chip" type="button" data-mini-q="prev">上一年</button>
+      <button class="mini-chip" type="button" data-mini-q="next">下一年</button>
+      <button class="mini-chip" type="button" data-mini-q="万历">万历</button>
+      <button class="mini-chip" type="button" data-mini-q="康熙">康熙</button>
+      <button class="mini-chip" type="button" data-mini-q="前841">前841</button>
+    </div>
+  </section>
+
+  <!-- ========== 结果区（表格视图） ========== -->
+  <section class="mini-body" id="miniBody">
+    <div class="mini-results-head">
+      <span id="miniHitCount">命中 0 行</span>
+      <span id="miniQueryEcho"></span>
+    </div>
+    <div class="mini-scroll" id="miniScroll">
+      <table id="miniTable" aria-label="纪年对照结果">
+        <thead>
+          <tr>
+            <th class="m-col-year" scope="col">公元</th>
+            <th class="m-col-dyn" scope="col">朝代</th>
+            <th class="m-col-era" scope="col">年号</th>
+            <th class="m-col-ruler" scope="col">君主</th>
+            <th class="m-col-gz" scope="col">干支</th>
+          </tr>
+        </thead>
+        <tbody id="miniTbody"></tbody>
+      </table>
+      <div class="mini-empty mini-src" id="miniEmpty">正在加载纪年数据…</div>
+    </div>
+  </section>
+
+  <!-- ========== 状态行 ========== -->
+  <footer class="mini-status" id="miniStatus" role="status" aria-live="polite">正在准备…</footer>
+</div>
+
+<script type="module">
+import { buildFullDataset } from './js/core/dataset.js';
+import { setFullData, rowSearchHit } from './js/core/search.js';
+import { toDisplay, toSimplified, setLangState } from './js/core/conv.js';
+
+// ============================================================
+// 常量 / 观测点
+// ============================================================
+const WIN_LABEL = 'mini';
+const MAX_ROWS = 400;          // 命中很多时（如「明」600+ 行）只渲染前 400 行，保证小窗不卡
+const LANG_KEY = 'kanseki_lang';
+const THEME_KEY = 'theme';
+
+const $ = (id) => document.getElementById(id);
+const app = $('miniApp');
+const titlebar = $('miniTitlebar');
+const topBtn = $('miniTop');
+const minBtn = $('miniMin');
+const closeBtn = $('miniClose');
+const input = $('miniInput');
+const searchBtn = $('miniBtn');
+const shortcutBox = $('miniShortcuts');
+const hitCountEl = $('miniHitCount');
+const queryEchoEl = $('miniQueryEcho');
+const tbody = $('miniTbody');
+const table = $('miniTable');
+const emptyEl = $('miniEmpty');
+const scrollEl = $('miniScroll');
+const statusEl = $('miniStatus');
+
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
+export function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// 显示字形（简繁）：默认跟随外壳偏好，无记录时按外壳口径为繁体
+function currentLang() {
+  try { return localStorage.getItem(LANG_KEY) === 's' ? 's' : 't'; } catch (_) { return 't'; }
+}
+// 静态 UI 文案也走转换（toDisplay 只认当前 displayLang）
+function t2(text) { return toDisplay(String(text)); }
+
+// ============================================================
+// 主题（与外壳共用 localStorage 'theme'）+ 简繁（kanseki_lang）
+// ============================================================
+function currentTheme() {
+  try { return localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light'; } catch (_) { return 'light'; }
+}
+function applyTheme() {
+  const th = currentTheme();
+  document.documentElement.setAttribute('data-theme', th);
+  app.setAttribute('data-theme', th);
+}
+function applyLang() {
+  const lang = currentLang();
+  setLangState(lang);
+  document.documentElement.setAttribute('data-lang', lang);
+  app.setAttribute('data-lang', lang);
+  // 静态文案重绘
+  const titleEl = document.querySelector('.mini-title');
+  if (titleEl) titleEl.textContent = t2('纪年小窗');
+  input.placeholder = t2('年份 / 年号 / 干支 / 朝代 / 君主（公元前写「前841」）');
+  input.setAttribute('aria-label', t2('检索年份、年号、干支、朝代或君主'));
+  searchBtn.textContent = t2('查询');
+  for (const th of document.querySelectorAll('#miniTable thead th')) {
+    th.textContent = t2(th.getAttribute('data-cn') || th.textContent);
+  }
+  for (const chip of shortcutBox.querySelectorAll('.mini-chip')) {
+    if (chip.dataset.generated === '1') chip.textContent = t2(chip.dataset.label || chip.textContent);
+  }
+}
+// 表头原始文案留底（用于简繁反复切换）
+for (const th of document.querySelectorAll('#miniTable thead th')) th.setAttribute('data-cn', th.textContent);
+
+window.addEventListener('storage', (e) => {
+  if (!e || e.key === null) { applyTheme(); applyLang(); runSearch(input.value, { echo: false }); return; }
+  if (e.key === THEME_KEY) applyTheme();
+  if (e.key === LANG_KEY) { applyLang(); runSearch(input.value, { echo: false }); }
+});
+
+// ============================================================
+// 状态行
+// ============================================================
+function setStatus(html, kind) {
+  statusEl.className = 'mini-status' + (kind ? ' ' + kind : '');
+  const notice = isTauri ? '' : '<span class="m-dash">浏览器调试：窗口控制不可用</span>';
+  statusEl.innerHTML = html ? (notice ? notice + ' · ' + html : html) : notice;
+}
+function renderBrowserNotice() {
+  if (isTauri) return;
+  document.documentElement.classList.add('mini-no-tauri');
+  app.classList.add('browser-mode');
+  setStatus('');
+}
+
+// ============================================================
+// Tauri 窗口控制（浏览器下只提示，不抛错、不报错到 console）
+// ============================================================
+async function winInvoke(cmd, args) {
+  if (!isTauri) throw new Error('非 Tauri 环境');
+  return window.__TAURI_INTERNALS__.invoke('plugin:window|' + cmd, args);
+}
+// label 固定为 'mini'（本页只服务小窗）；Rust 侧命令名一律 snake_case
+async function callWin(cmd, value) {
+  if (!isTauri) return { ok: false, reason: 'no-tauri' };
+  const args = { label: WIN_LABEL };
+  if (value !== undefined) args.value = value;   // set_always_on_top 的参数名是 value
+  try {
+    const r = await winInvoke(cmd, args);
+    return { ok: true, value: r };
+  } catch (e) {
+    setStatus('窗口操作失败：' + escapeHtml((e && e.message) || String(e)), 'err');
+    return { ok: false, reason: 'error', error: e };
+  }
+}
+async function toggleAlwaysOnTop() {
+  if (!isTauri) { renderBrowserNotice(); return; }
+  const next = topBtn.getAttribute('aria-pressed') !== 'true';
+  const set = await callWin('set_always_on_top', next);
+  if (!set.ok) return;
+  const read = await callWin('is_always_on_top');
+  const actual = (read.ok && typeof read.value === 'boolean') ? read.value : next;
+  topBtn.setAttribute('aria-pressed', actual ? 'true' : 'false');
+  setStatus(t2('窗口置顶：') + (actual ? t2('已开启') : t2('已关闭')), 'ok');
+}
+// 初始化：读回置顶状态（失败也不影响检索功能）
+async function syncAlwaysOnTop() {
+  if (!isTauri) return;
+  const r = await callWin('is_always_on_top');
+  if (r.ok && typeof r.value === 'boolean') topBtn.setAttribute('aria-pressed', r.value ? 'true' : 'false');
+}
+
+topBtn.addEventListener('click', toggleAlwaysOnTop);
+minBtn.addEventListener('click', () => callWin('minimize'));
+closeBtn.addEventListener('click', () => callWin('close'));
+
+// ============================================================
+// 数据（2868 行，构建一次）
+// ============================================================
+let DATA = [];
+
+// 纯函数：某行的「主年号」纯文本；无中国年号退日本年号，都没有退 yearStr
+// （年号纯文本一律取 eraFullCandidates —— cnEra/jpEra 含 HTML 与复制按钮，不能整块塞进表格）
+export function copyTextForRow(row) {
+  const cn = row.cnEraNames && row.cnEraNames[0];
+  const jp = row.jpEraNames && row.jpEraNames[0];
+  const cands = Array.isArray(row.eraFullCandidates) ? row.eraFullCandidates : [];
+  let name = '';
+  if (cn && cn !== '—' && cands.length) {
+    name = cands.find((c) => c.startsWith(cn)) || cands[0];
+  } else if (jp && jp !== '—' && cands.length) {
+    name = cands.find((c) => c.startsWith(jp)) || cands[0];
+  }
+  return name ? name + '（' + row.yearStr + '）' : row.yearStr;
+}
+
+// 纯函数：查询词 → 命中的行（顺序：干支语义 / 年号 / 朝代 / 君主 / 公元数字）
+export function matchRows(rows, rawQuery) {
+  const raw = String(rawQuery == null ? '' : rawQuery).trim();
+  if (!raw) return [];
+  const q = toSimplified(raw).toLowerCase();
+  let qNum = NaN;
+  if (/^-?\d{1,4}$/.test(q)) {
+    qNum = Number(q);
+  } else {
+    const bc = /^(?:公元前|西元前|前)\s*(\d{1,4})$/.exec(q);
+    if (bc) qNum = -Number(bc[1]);
+    else {
+      const ad = /^(?:公元|西元|ad)\s*(\d{1,4})$/.exec(q);
+      if (ad) qNum = Number(ad[1]);
+    }
+  }
+  if (Number.isFinite(qNum)) {
+    const hit = rows.filter((r) => r.year === qNum);
+    if (hit.length) return hit;   // 精确年份：唯一一行，优先于其它匹配
+  }
+  const exact = rows.filter((r) => rowSearchHit(r, q, false));
+  if (exact.length) return exact;
+  // 精确为空才启用模糊补全（"万历十五" → 万历十五年）
+  return rows.filter((r) => rowSearchHit(r, q, true));
+}
+
+// ============================================================
+// 渲染
+// ============================================================
+function eraCell(row) {
+  let html = '';
+  const cn = Array.isArray(row.eraFullCandidates) ? row.eraFullCandidates : [];
+  const cnNames = (row.cnEraNames || []).filter((n) => n && n !== '—');
+  const cnNames2 = cn.filter((n) => cnNames.some((x) => n.startsWith(x)));
+  if (cnNames2.length) {
+    html += cnNames2.map((n) => '<span class="m-era">' + escapeHtml(t2(n)) + '</span>').join('');
+  }
+  const jpNames = (row.jpEraNames || []).filter((n) => n && n !== '—');
+  const jp = cn.filter((n) => jpNames.some((x) => n.startsWith(x)));
+  if (jp.length) {
+    html += jp.map((n) => '<span class="m-era-jp">' + escapeHtml(t2(n)) + '</span>').join('');
+  }
+  return html || '<span class="m-dash">—</span>';
+}
+
+function renderRows(rows, q) {
+  const shown = rows.slice(0, MAX_ROWS);
+  hitCountEl.textContent = t2('命中 ' + rows.length + ' 行');
+  queryEchoEl.textContent = q ? t2('查询：') + t2(q) : '';
+  tbody.innerHTML = shown.map((row) => {
+    const cp = t2(copyTextForRow(row));   // 复制文本跟随显示字形（繁/简），与剪贴板内容一致
+    return '<tr class="mini-row" data-year="' + row.year + '" data-copy="' + escapeHtml(cp) + '" title="' +
+      escapeHtml(t2('复制 ') + cp) + '">' +
+      '<td class="m-col-year">' + escapeHtml(t2(row.yearStr)) + '</td>' +
+      '<td class="m-col-dyn"><span class="m-dyn">' + escapeHtml(t2(row.cnDynasty)) + '</span></td>' +
+      '<td class="m-col-era">' + eraCell(row) + '</td>' +
+      '<td class="m-col-ruler">' + escapeHtml(t2(row.cnRuler)) + '</td>' +
+      '<td class="m-col-gz">' + escapeHtml(t2(row.ganzhi)) + '</td>' +
+      '</tr>';
+  }).join('');
+  // 复制按钮单独 append：用真实 DOM 事件，避免行/按钮的双重触发
+  shown.forEach((row, i) => {
+    const tr = tbody.children[i];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'm-copy';
+    btn.setAttribute('aria-label', t2('复制 ') + copyTextForRow(row));
+    btn.title = '复制';
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+    tr.appendChild(btn);
+  });
+  table.hidden = rows.length === 0;
+  emptyEl.hidden = rows.length > 0;
+  if (!rows.length) emptyEl.textContent = t2('无匹配结果，换个写法试试（如「万历」「癸未」「前841」）');
+  scrollEl.scrollTop = 0;
+}
+
+// ============================================================
+// 复制（navigator.clipboard → textarea + execCommand 兜底）
+// ============================================================
+// 复制失败/出错提示属「软件状态」（非纪年数据），不做简繁转换，
+// 否则会因转换表的半繁体映射产出「浏览器調试」这类怪字。
+const COPY_FAIL_MSG = '复制失败（浏览器未授予剪贴板权限，请手动选中复制）：';
+
+async function copyText(text) {
+  let ok = false, err = null;
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try { await navigator.clipboard.writeText(text); ok = true; }
+    catch (e) { err = e; }
+  } else {
+    err = new Error('clipboard API 不可用');
+  }
+  if (!ok) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (!ok) err = err || new Error('execCommand 返回 false');
+    } catch (e) { err = e; }
+  }
+  if (ok) {
+    window.__miniLastCopied = text;           // 自动化测试观测点（同外壳 __kanseki* 风格）
+    setStatus(t2('已复制：') + '<b>' + escapeHtml(t2(text)) + '</b>', 'ok');
+    return true;
+  }
+  // 失败时把「最近一次成功的复制内容」一并显示，方便用户手动复制
+  const lastOk = window.__miniLastCopied
+    ? '<br><span class="m-dash">最近一次成功复制：' + escapeHtml(t2(window.__miniLastCopied)) + '</span>'
+    : '';
+  setStatus(COPY_FAIL_MSG + escapeHtml(t2(text)) +
+    (err ? ' <span class="m-dash">[' + escapeHtml(err.message || String(err)) + ']</span>' : '') + lastOk, 'err');
+  return false;
+}
+// 仅测试用：把当前行复制路径切到「必然失败」，验证失败提示确实出现在状态行；
+// 传 false 复原（浏览器里原生 execCommand 不可枚举地挂在 Document.prototype 上，
+// 故复原时改用自有实现，行为与原生一致：写入剪贴板）。
+window.__miniForceCopyFail = function (on) {
+  if (on) {
+    try {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: () => Promise.reject(new Error('mini-test-forced-failure')) }
+      });
+    } catch (_) { /* 忽略 */ }
+    document.execCommand = () => false;
+    window.__miniCopyFailForced = true;
+  } else {
+    try {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: (t) => { window.__miniLastCopied = String(t); return Promise.resolve(); } }
+      });
+    } catch (_) { /* 忽略 */ }
+    document.execCommand = (cmd) => cmd === 'copy';
+    window.__miniCopyFailForced = false;
+  }
+};
+
+// ============================================================
+// 检索流程
+// ============================================================
+let lastRows = [];
+function runSearch(rawQuery, opts) {
+  const q = String(rawQuery == null ? '' : rawQuery).trim();
+  const o = opts || {};
+  if (o.echo !== false) input.value = q;
+  if (!DATA.length) return [];
+  const rows = matchRows(DATA, q).slice().sort((a, b) => a.year - b.year);
+  lastRows = rows;
+  renderRows(rows, q);
+  if (rows.length) {
+    const extra = rows.length > MAX_ROWS ? t2('（仅显示前 ' + MAX_ROWS + ' 行）') : '';
+    setStatus(t2('命中 ') + rows.length + t2(' 行') + extra + t2(' · 点行或 ⧉ 即可复制'), '');
+  } else if (q) {
+    setStatus(t2('未找到「') + escapeHtml(t2(q)) + t2('」——可试「万历」「癸未」「1587」「前841」「明」'), 'err');
+  }
+  return rows;
+}
+
+function doSearch() { runSearch(input.value); }
+searchBtn.addEventListener('click', doSearch);
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
+shortcutBox.addEventListener('click', (e) => {
+  const chip = e.target.closest('.mini-chip');
+  if (!chip) return;
+  const kind = chip.dataset.miniQ;
+  const y = new Date().getFullYear();
+  if (chip.dataset.yearDelta) runSearch(String(y + Number(chip.dataset.yearDelta)));
+  else if (kind === '今年') runSearch(String(y));
+  else if (kind === 'prev') runSearch(String(y - 1));
+  else if (kind === 'next') runSearch(String(y + 1));
+  else runSearch(kind || chip.textContent);
+});
+
+// 点行本身 → 复制该年主年号文本；点行内复制按钮 → 只复制一次（阻止冒泡）
+tbody.addEventListener('click', (e) => {
+  if (e.target.closest('.m-copy')) return;      // 按钮自己的监听负责
+  const tr = e.target.closest('tr.mini-row');
+  if (!tr) return;
+  copyText(tr.dataset.copy || '');
+});
+tbody.addEventListener('click', (e) => {
+  const btn = e.target.closest('.m-copy');
+  if (!btn) return;
+  e.stopPropagation();
+  const tr = btn.closest('tr.mini-row');
+  if (!tr) return;
+  copyText(tr.dataset.copy || '');
+}, true);   // 捕获阶段先跑：按钮点击不会再走到行监听
+
+// ============================================================
+// 启动
+// ============================================================
+(function boot() {
+  applyTheme();
+  applyLang();
+  renderBrowserNotice();
+  try { DATA = buildFullDataset(); setFullData(DATA); }
+  catch (e) { setStatus(t2('数据加载失败：') + escapeHtml((e && e.message) || String(e)), 'err'); }
+  // 首屏：自动填充并查询当前年份，打开即有结果
+  runSearch(String(new Date().getFullYear()));
+  syncAlwaysOnTop();
+  window.__miniReady = true;
+  window.__miniRowCount = DATA.length;
+})();
+</script>
+</body>
+</html>

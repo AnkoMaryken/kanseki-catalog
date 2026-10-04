@@ -241,7 +241,10 @@ html, body {
   border-radius: 8px;
   object-fit: cover;
   display: block;
-  background: #fff;
+  /* ⚠️ 不要给白底：logo 是「黑色圆角方块 + 白色线条画」，四周本是透明，
+     加白底会在深色侧栏上显示成一圈白边（用户反馈「看着很不协调」）。
+     透明底 = 只看见黑色方块本身。 */
+  background: transparent;
   flex-shrink: 0;
 }
 .side-title .st-tx-wrap { min-width: 0; }
@@ -360,6 +363,28 @@ html, body {
   transition: background .15s, color .15s;
 }
 .nav-item svg { flex-shrink: 0; opacity: .75; }
+/* 「纪年小窗」行尾按钮（V9.7）：与 .nav-dir 视觉一致但**独立类**——
+   复用 .nav-dir 会与「内容导览」触发按钮的计数/语义串扰（v08_ui 会数错）。 */
+.nav-mini {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: #8b8b93;
+  flex-shrink: 0;
+  opacity: .55;
+  cursor: pointer;
+  transition: background .14s, color .14s, opacity .14s;
+}
+.nav-item:hover .nav-mini { opacity: 1; }
+.nav-mini:hover { background: rgba(255, 255, 255, .14); color: #f4f4f5; }
+.nav-item.active .nav-mini { color: #3f3f46; opacity: .7; }
+.nav-item.active .nav-mini:hover { background: rgba(22, 22, 24, .14); color: #161618; opacity: 1; }
+.nav-mini:focus-visible { outline: 2px solid rgba(255, 255, 255, .4); outline-offset: 1px; }
+.nav-mini svg { opacity: .95; }
 .nav-item:hover { background: rgba(255,255,255,.07); color: #e4e4e7; }
 .nav-item.active {
   background: linear-gradient(135deg, #e4e4e7, #c9c9cf);
@@ -840,6 +865,9 @@ html, body {
 .av-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fafafa; }
 .av-btn:disabled { opacity: .45; cursor: not-allowed; }
 .av-btn:disabled:hover { background: var(--accent); border-color: var(--accent); }
+/* ⚠️ 必留：.av-btn 是 inline-flex，会压过 [hidden] 的 display:none，
+   导致 hidden 的按钮照样显示（编目弹层的「删除」键曾因此在新增时露出） */
+.av-btn[hidden] { display: none !important; }
 
 /* ---- 提示条 ---- */
 .av-alert {
@@ -1485,7 +1513,16 @@ html, body {
      把「视口高度 − 标题栏/表单/状态行」全部让给结果区（结果为主）。 */
   flex: 1 1 auto;
   min-height: 0;
+  /* V9.6.1（用户反馈「检索框与结果之间空隙太大」）：
+     .av-wrap 的 18px 弹性间距在这样的检索面板里被撑成三段空白
+     （实测 表单→状态行 26px、状态行→结果 30px，另加底部 48px 内边距）。
+     这里整段收紧，把高度让给结果列表。 */
+  gap: 6px;
+  padding-bottom: 12px;
 }
+/* 状态行与结果区各自再留一点小间距即可 */
+.kdb-wrap .kdb-statusbar { margin-top: 2px; }
+.kdb-wrap .kdb-split { margin-top: 4px; }
 .kdb-head {
   flex: 0 0 auto;
   padding: 0 0 4px;
@@ -1699,4 +1736,397 @@ html, body {
   .kdb-wrap { min-height: 0; }
   .kdb-split { min-height: 0; }
   .kdb-panel { max-height: 70vh; }
+}
+
+/* ================================================
+   V9.5：国立公文书馆面板（#view-najdb）+ 编目记录（#view-records）
+   -------------------------------------------------
+   NAJ 面板沿用 kdb-* 的版面类（wrap/head/card/main/statusbar/split/
+   panel/row/kv/detail-bar/back...），此处只补两者特有的部分。
+   全部取值走主题变量，明/暗主题自动适配。
+   ================================================ */
+
+/* ---------- 侧栏图标：字母 DA（用户指定，替代 svg 图标） ----------
+   侧栏是固定深色（非主题变量），故此处跟随 .nav-item 的固定配色。 */
+.nav-ico-da {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 15px;
+  font-family: ui-monospace, Consolas, "Courier New", monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  line-height: 1;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255, 255, 255, .30);
+  border-radius: 4px;
+  opacity: .85;
+}
+.nav-item:hover .nav-ico-da { opacity: 1; }
+.nav-item.active .nav-ico-da {
+  color: #161618;
+  background: rgba(22, 22, 24, .12);
+  border-color: rgba(22, 22, 24, .38);
+  opacity: 1;
+}
+
+/* ---------- NAJ：检索行里的范围 / 件数下拉（不要 kdb-select 的 100% 宽） ---------- */
+.naj-scope { flex: 0 0 auto; width: auto; min-width: 168px; }
+.naj-rows-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-sec);
+  white-space: nowrap;
+}
+.naj-rows { width: auto; padding: 7px 9px; }
+
+/* ---------- NAJ：详细检索（浮层，内含内閣文庫分类） ----------
+   用户要求：详细检索的筛选框做**下拉浮动式菜单**，内閣文庫分类并入其中。
+   浮层把「条件 + 分类」一次性呈现，开合不影响页面布局（与「汉籍检索（日本）」的筛选一致）。 */
+.naj-adv { width: min(980px, 100%); }
+.naj-adv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px 16px;
+}
+.naj-adv-block { min-width: 0; }
+.naj-adv-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-sec);
+  margin-bottom: 6px;
+}
+.naj-adv-hint { font-weight: 400; font-size: 11.5px; color: var(--text-muted); margin-left: 6px; }
+.naj-checks { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.naj-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.naj-check input { margin: 0; }
+.naj-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.naj-field > span { font-size: 12.5px; font-weight: 600; color: var(--text-sec); }
+.naj-field input,
+.naj-field select {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+}
+.naj-field input:focus, .naj-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .06);
+}
+[data-theme="dark"] .naj-field input,
+[data-theme="dark"] .naj-field select { background: #1a1a1a; }
+.naj-adv-foot { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+/* ---------- NAJ：检索条保持**一整行**（用户要求） ---------- */
+.naj-main { flex-wrap: nowrap; }
+.naj-main .naj-scope { min-width: 132px; }
+.naj-main .kdb-main-input { min-width: 120px; }
+.naj-main .naj-rows-field { flex: 0 0 auto; }
+@media (max-width: 940px) {
+  /* 窗口很窄时才允许换行，避免控件被压到不可用 */
+  .naj-main { flex-wrap: wrap; }
+}
+
+/* ---------- NAJ：内閣文庫 汉籍分类（在详细检索浮层内） ---------- */
+.naj-naikaku-sec {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.naj-naikaku-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.naj-naikaku-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.naj-naikaku-hint { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+.naj-chips { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.naj-chip-wrap { display: inline-flex; align-items: stretch; }
+.naj-chip {
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.naj-chip:hover { background: var(--divider); }
+.naj-chip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fafafa;
+  font-weight: 600;
+}
+.naj-chip-page {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+.naj-chip-page:hover { background: var(--divider); color: var(--text); }
+.naj-naikaku-active {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--text-sec);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.naj-naikaku-active[hidden] { display: none !important; }
+.naj-naikaku-active b { color: var(--text); }
+
+/* 状态行右侧的条件摘要 */
+.naj-cond { flex: 1 1 auto; text-align: right; font-size: 12px; color: var(--text-sec); }
+.naj-cond[hidden] { display: none !important; }
+
+
+/* 分页（放在状态行右端；.kdb-sumline 已是 flex 项并右对齐） */
+.naj-pager { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.naj-page-btn { padding: 4px 10px; font-size: 12.5px; }
+.naj-page-info { font-size: 12px; color: var(--text-muted); }
+
+/* ---------- NAJ：结果条目 ---------- */
+.naj-row { cursor: pointer; gap: 6px; }
+.naj-row-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.naj-no {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  min-width: 16px;
+}
+.naj-row-title { font-family: var(--font-display); }
+.naj-tree { font-size: 12px; color: var(--text-sec); line-height: 1.7; }
+.naj-tree a {
+  color: var(--text-sec);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--border);
+}
+.naj-tree a:hover { color: var(--accent); }
+.naj-tree-sep { color: var(--text-muted); }
+.naj-kvs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2px 16px;
+  margin-top: 3px;
+}
+.naj-kv {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 6px;
+  font-size: 12.5px;
+}
+.naj-kv b { font-weight: 600; font-size: 12px; color: var(--text-muted); }
+.naj-kv span { color: var(--text); word-break: break-word; }
+
+/* ---------- NAJ：原链接（用户要求放在信息末尾，可点击开原网页看图像） ---------- */
+.naj-src {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px dashed var(--divider);
+}
+.naj-src-foot { margin-top: 16px; }
+.naj-src-label { flex: 0 0 auto; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+.naj-link {
+  font-size: 12.5px;
+  color: var(--accent);
+  text-decoration: underline;
+  word-break: break-all;
+  cursor: pointer;
+}
+.naj-link:hover { color: var(--accent-hover); }
+
+/* ---------- NAJ：详情 ---------- */
+.naj-detail-body { display: flex; align-items: flex-start; gap: 16px; }
+.naj-kvs-detail { flex: 1 1 auto; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.naj-thumb-box { flex: 0 0 auto; }
+.naj-thumb {
+  display: block;
+  width: 132px;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.naj-hier { margin-top: 10px; font-size: 12.5px; color: var(--text-sec); }
+.naj-cite {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--divider);
+  border-radius: var(--radius);
+}
+.naj-cite-head { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+.naj-cite-text { font-size: 12.5px; color: var(--text); line-height: 1.6; word-break: break-all; }
+
+/* ---------- 编目记录（V9.5） ---------- */
+.rec-wrap { width: 100%; max-width: 1180px; margin: 0 auto; box-sizing: border-box; }
+.rec-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.rec-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rec-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.rec-sort { width: auto; min-width: 156px; padding: 8px 10px; }
+.rec-count { margin-left: auto; font-size: 12.5px; color: var(--text-muted); }
+.rec-listcard { padding: 4px 12px; }
+
+.rec-list { display: flex; flex-direction: column; }
+/* ⚠️ 必留：.rec-list 是 flex，会压过 [hidden] 的 display:none，
+   导致切到「表格/文字预览」时卡片列表仍显示 */
+.rec-list[hidden] { display: none !important; }
+.rec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--divider);
+}
+.rec-item:last-child { border-bottom: 0; }
+.rec-item-main { flex: 1 1 auto; min-width: 0; }
+.rec-item-title {
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+.rec-seq {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+.rec-item-meta { margin-top: 3px; font-size: 12.5px; color: var(--text-sec); word-break: break-word; }
+.rec-item-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+.rec-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+.rec-item-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.rec-item-time { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
+.rec-item-actions { display: flex; gap: 6px; }
+.rec-item-actions .av-btn { padding: 3px 10px; font-size: 12px; }
+.rec-danger { color: var(--danger); border-color: var(--danger); }
+.rec-danger:hover { background: var(--danger); color: #fafafa; border-color: var(--danger); }
+
+/* 空状态：.av-empty 是 flex，必须显式压过 hidden 的 display:none */
+.rec-empty[hidden] { display: none !important; }
+.rec-empty .av-empty-ic { background: transparent; }
+.rec-empty .av-empty-ic img { display: block; border-radius: 10px; }
+
+/* ---------- 编目记录：预览方式切换 + 表格/文字预览（V9.7） ---------- */
+.rec-viewswitch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+.rec-vs {
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-sec);
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.rec-vs:last-child { border-right: 0; }
+.rec-vs:hover { background: var(--divider); color: var(--text); }
+.rec-vs.on { background: var(--accent); color: #fafafa; font-weight: 600; }
+
+/* 表格预览：与「编目表格」模板同列，横向可滚动，表头吸附 */
+.rec-tablewrap { max-height: 62vh; overflow: auto; }
+.rec-tablewrap[hidden] { display: none !important; }
+table.rec-table { border-collapse: collapse; font-size: 12.5px; min-width: 100%; }
+table.rec-table th, table.rec-table td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 92px;
+  max-width: 340px;
+}
+table.rec-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--divider);
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+table.rec-table tbody tr:hover { background: var(--divider); }
+table.rec-table td.rec-cell-empty { color: var(--text-muted); }
+
+/* 文字预览：按著录格式成文，等宽可选可复制 */
+.rec-textwrap {
+  max-height: 62vh;
+  overflow: auto;
+  font-family: ui-monospace, Consolas, "Courier New", monospace;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+.rec-textwrap[hidden] { display: none !important; }
+.rec-text-item { padding: 10px 2px; border-bottom: 1px dashed var(--divider); }
+.rec-text-item:last-child { border-bottom: 0; }
+.rec-text-sep { color: var(--text-muted); }
+
+/* 表单弹层底部：删除键靠左，取消/保存靠右 */
+.av-modal-foot { display: flex; align-items: center; gap: 10px; }
+.rec-foot-spacer { flex: 1 1 auto; }
+
+@media (max-width: 860px) {
+  .naj-main { align-items: stretch; }
+  .naj-scope { min-width: 0; width: 100%; }
+  .naj-kvs { grid-template-columns: minmax(0, 1fr); }
+  .naj-detail-body { flex-direction: column; }
+  .rec-item { flex-direction: column; }
+  .rec-item-side { align-items: flex-start; }
+  .rec-count { margin-left: 0; }
 }

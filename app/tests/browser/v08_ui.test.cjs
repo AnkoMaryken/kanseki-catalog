@@ -130,15 +130,15 @@ const config = require('../../../tests/helpers/config.js');
   await page.waitForTimeout(250);
   ok('Esc 可关闭菜单', await page.locator('#winMenu').isHidden());
 
-  // ---------- 5. 品牌底色改黑 ----------
-  console.log('\n[5] logo / favicon 底色改黑');
-  const favicon = await page.getAttribute('link[rel="icon"]', 'href');
-  ok('favicon 用黑色 #101012', /%23101012/i.test(favicon || ''), (favicon || '').slice(0, 80));
-  ok('favicon 不再用藏青 #2b3a67', !/2b3a67/i.test(favicon || ''));
-
-  // 关于页 logo（V9.4.2 起为新版 logo 图片，不再是内联 SVG）
-  await page.click('.nav-item[data-view="about"]');
+  // ---------- 5. 品牌标识（V9.5：全部改为用户提供的新 logo 图片） ----------
+  console.log('\n[5] logo / favicon 统一为新 logo 图片');
+  await page.evaluate(() => { location.hash = '#/about'; });
   await page.waitForTimeout(500);
+  {
+    const fav = await page.getAttribute('link[rel="icon"]', 'href');
+    ok('favicon 指向新 logo 图片', /assets\/favicon\.png$/.test(fav || ''), (fav || '').slice(0, 80));
+    ok('favicon 不再使用内联 SVG', !/^data:/.test(fav || ''), (fav || '').slice(0, 40));
+  }
   const aboutLogo = await page.evaluate(() => {
     const el = document.querySelector('#view-about .av-logo img');
     return el ? { src: el.getAttribute('src') || '', loaded: el.naturalWidth > 0, w: el.naturalWidth } : null;
@@ -147,12 +147,16 @@ const config = require('../../../tests/helpers/config.js');
     !!aboutLogo && /logo\.png$/.test(aboutLogo.src) && aboutLogo.loaded === true, JSON.stringify(aboutLogo));
   ok('关于页不再使用旧的「漢」SVG', await page.locator('#view-about .av-logo svg').count() === 0);
 
-  // 图标文件已重新生成（字节数应与藏青版不同）
+  // 图标文件已随新 logo 重新生成（尺寸取自 PNG 头，不写死某一版的字节数）
   const fs = require('fs');
   const iconPath = path.join(__dirname, '..', '..', 'tauri', 'icons', '128x128.png');
   if (fs.existsSync(iconPath)) {
-    const sz = fs.statSync(iconPath).size;
-    ok('128x128.png 已重新生成（9470B·黑底版）', sz === 9470, 'size=' + sz);
+    const buf = fs.readFileSync(iconPath);
+    const w = buf.readUInt32BE(16);   // PNG IHDR: width @16, height @20
+    const h = buf.readUInt32BE(20);
+    ok('128x128.png 为 128×128 的新 logo 图标', w === 128 && h === 128 && buf.length > 0,
+      w + 'x' + h + ' ' + buf.length + 'B');
+    ok('128x128.png 已重新生成（非上一版 9470B）', buf.length !== 9470, 'size=' + buf.length);
   } else {
     ok('128x128.png 存在', false, '文件缺失');
   }

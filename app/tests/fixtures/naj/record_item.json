@@ -1,0 +1,59 @@
+{
+    "@graph": [
+        {
+            "@id": "_:c45be9e5a9cd5be8e99c08c0d3b210f3",
+            "rdfs:label": "資料種別",
+            "rdf:value": "01:行政文書"
+        },
+        {
+            "@id": "http://www.digital.archives.go.jp/item/1017408",
+            "@type": "ead:Item",
+            "ead:accessrestrict": "01:公開",
+            "dct:subject": "image",
+            "ead:userestrict": "internet",
+            "foaf:name": "内閣法制局第三部（大蔵省関係）",
+            "foaf:thumbnail": "https://www.digital.archives.go.jp/thumb/1017408/C101355535600.jpg",
+            "owl:sameAs": "https://www.digital.archives.go.jp/img/1017408",
+            "prov:startedAtTime": "1961",
+            "rdfs:seeAlso": "https://www.digital.archives.go.jp/api/iiif/1017408/manifest.json",
+            "ead:materialspec": [
+                {
+                    "@id": "_:c45be9e5a9cd5be8e99c08c0d3b210f3"
+                },
+                {
+                    "@id": "_:b56219c8cbf6d30731c774e5c2188380"
+                },
+                {
+                    "@id": "_:4bce64f22a6b4d7355ac02ea9084ff77"
+                }
+            ],
+            "ead:physloc": "本館",
+            "dct:title": "国民年金特別会計法",
+            "dct:isPartOf": {
+                "@id": "http://www.digital.archives.go.jp/file/1017155"
+            },
+            "dct:identifier": "平１４法制00415100-01200",
+            "dct:license": "others"
+        },
+        {
+            "@id": "_:b56219c8cbf6d30731c774e5c2188380",
+            "rdfs:label": "目録データ種別",
+            "rdf:value": "3:件名"
+        },
+        {
+            "@id": "_:4bce64f22a6b4d7355ac02ea9084ff77",
+            "rdfs:label": "階層情報",
+            "rdf:value": "行政文書 ＞ 内閣法制局 ＞ 法令案審議録関係"
+        }
+    ],
+    "@context": {
+        "dct": "http://purl.org/dc/terms/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "dcndl": "http://ndl.go.jp/dcndl/terms/",
+        "ead": "http://www.digital.archives.go.jp/voc/ead/",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "foaf": "http://xmlns.com/foaf/0.1/"
+    }
+}

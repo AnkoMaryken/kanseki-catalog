@@ -32,10 +32,16 @@ function run(label, cmd) {
   }
 }
 
-// 单元测试（含 kanseki-parse 等纯逻辑）—— 秒级
+// 单元测试（含 kanseki-parse / naj-parse 等纯逻辑）—— 秒级
 run('单元测试', `"${NODE}" --test "tests/unit/*.test.js"`);
 // 侧栏结构（导航项/视图数量、入口文字、视图切换）—— 需 8766 服务
 run('侧栏结构 sidebar_merge', `"${NODE}" tests/browser/sidebar_merge.test.cjs`);
+// 国立公文书馆面板：结构与浏览器降级文案（不联网）—— 需 8766 服务
+run('国立公文书馆 najdb_ui', `"${NODE}" tests/browser/najdb_ui.test.cjs`);
+// 纪年小窗：检索/复制/表格视图（不联网）—— 需 8766 服务
+run('纪年小窗 mini_year', `"${NODE}" tests/browser/mini_year.test.cjs`);
+// 编目记录：导入 CSV/xlsx + 表格/文字预览 + 双格式导出 —— 需 8766 服务
+run('编目记录 records_io', `"${NODE}" tests/browser/records_io.test.cjs`);
 
 console.log('\n===== 桌面快跑汇总：失败 ' + fail + '，耗时 ' + ((Date.now() - t0) / 1000).toFixed(1) + 's =====');
 console.log('（发布打包前请再跑：活体测试 + 真机探针 + verify_portable/verify_installer）');

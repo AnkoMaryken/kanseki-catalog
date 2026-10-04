@@ -3,11 +3,10 @@
 // ================================================
 // 字段源自用户提供的「【27】編目表格模板.xlsx」（全球汉籍合璧工程编目表，14 列）
 //
-// ⚠️ TODO-ENABLE（后期启用）：
-//   本期「编目记录」为框架占位，不建 IndexedDB store、不落库。
-//   手机/平板端开发时启用本模块：创建 catalog_records store
-//   （IndexedDB schema v1 已预留空 store，无迁移成本），
-//   并接入 sync-engine 的 LWW + 墓碑同步（与 quick_links 同策略）。
+// V9.5 起本模块**已在生产路径使用**：ui/records.js 负责录入/编辑/删除，
+// 数据落 IndexedDB 的 catalog_records store（schema v1 早已预建，无需迁移），
+// 并由 sync-engine 的 LWW + 墓碑合并随坚果云同步。
+// 本文件只做纯逻辑（字段定义、校验、排序、搜索、元数据构造），便于 node:test 直测。
 // ================================================
 
 // 必填字段（模板中带 * 号者，8 项）
@@ -198,16 +197,23 @@ export function searchRecords(records, keyword) {
 }
 
 // ================================================
-// TODO-ENABLE: 以下为后期启用时的 CRUD + 同步接口（本期不调用）
+// CRUD + 同步接口（V9.5 起由 ui/records.js 调用）
 // ================================================
 
 // 创建记录（后期接入 store 时由 storage 层调用）
+//
+// ⚠️ 回归要点（V9.5 实测踩到）：data 通常是 createEmptyRecord() 的产物，
+// 其中的 `id: null` / `seq: null` 会覆盖本函数生成的 UUID ——
+// 一旦写成 `{ id: 新UUID, ...data }`，id 就被 null 覆盖，
+// IndexedDB 会直接抛「key path yielded a value that is not a valid key」。
+// 故此处**先展开 data，再强制写 id/seq 与元数据**。
 export function makeNewRecord(data, deviceId) {
   const now = Date.now();
+  const src = data || {};
   return {
-    id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : genFallbackId(),
-    seq: null, // 由 store 在插入时分配（max seq + 1）
-    ...data,
+    ...src,
+    id: src.id || genFallbackId(),
+    seq: (src.seq === undefined || src.seq === null) ? null : src.seq,
     createdAt: now,
     updatedAt: now,
     deletedAt: null,
@@ -220,15 +226,19 @@ export function markDeleted(rec, deviceId) {
   return Object.assign({}, rec, { deletedAt: Date.now(), updatedAt: Date.now(), deviceId });
 }
 
-// 更新（保持 createdAt，刷新 updatedAt）
+// 更新（保持 createdAt 与 id，刷新 updatedAt）
+// ⚠️ 同上：data 里的 id/createdAt（可能为 null）不得覆盖既有值
 export function touchUpdated(rec, data, deviceId) {
   const now = Date.now();
-  const out = Object.assign({}, rec, data, { updatedAt: now, deviceId });
-  if (!out.createdAt) out.createdAt = now;
+  const src = data || {};
+  const out = Object.assign({}, rec, src, { updatedAt: now, deviceId });
+  out.id = rec.id;
+  out.createdAt = rec.createdAt || now;
   return out;
 }
 
-// 无 crypto.randomUUID 环境的兜底 ID
+// 无 crypto.randomUUID 环境的兜底 ID（也用于 makeNewRecord 的默认 id）
 export function genFallbackId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'rec-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
 }

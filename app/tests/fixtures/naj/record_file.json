@@ -1,0 +1,63 @@
+{
+    "@graph": [
+        {
+            "@id": "_:464a0b149c8102d8b211f84f7ec1f7e5",
+            "rdfs:label": "階層情報",
+            "rdf:value": "寄贈・寄託文書 ＞ 小杉煕・醇旧蔵書"
+        },
+        {
+            "@id": "_:7d0c6ab3c1ac21f8fc097a1efbd59629",
+            "dct:medium": "紙",
+            "@type": "ead:Acquisition"
+        },
+        {
+            "@id": "_:54f62f999bde77acc510ab4a319a6f87",
+            "rdfs:label": "目録データ種別",
+            "rdf:value": "2:簿冊"
+        },
+        {
+            "@id": "_:2ed5ae6b6a9c64833e406f576d53536d",
+            "rdfs:label": "資料種別",
+            "rdf:value": "05:内閣文庫"
+        },
+        {
+            "@id": "http://www.digital.archives.go.jp/file/3879332",
+            "dct:language": "日本語",
+            "dct:isPartOf": {
+                "@id": "http://www.digital.archives.go.jp/fonds/3791162"
+            },
+            "prov:startedAtTime": "0000",
+            "ead:physloc": "本館",
+            "ead:materialspec": [
+                {
+                    "@id": "_:54f62f999bde77acc510ab4a319a6f87"
+                },
+                {
+                    "@id": "_:2ed5ae6b6a9c64833e406f576d53536d"
+                },
+                {
+                    "@id": "_:464a0b149c8102d8b211f84f7ec1f7e5"
+                }
+            ],
+            "@type": "ead:File",
+            "ead:accessrestrict": "01:公開",
+            "dct:source": {
+                "@id": "_:7d0c6ab3c1ac21f8fc097a1efbd59629"
+            },
+            "dct:license": "others",
+            "dct:identifier": "寄贈02349100",
+            "prov:endedAtTime": "0000",
+            "dct:title": "増訂四書大全"
+        }
+    ],
+    "@context": {
+        "dct": "http://purl.org/dc/terms/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "dcndl": "http://ndl.go.jp/dcndl/terms/",
+        "ead": "http://www.digital.archives.go.jp/voc/ead/",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "prov": "http://www.w3.org/ns/prov#",
+        "foaf": "http://xmlns.com/foaf/0.1/"
+    }
+}

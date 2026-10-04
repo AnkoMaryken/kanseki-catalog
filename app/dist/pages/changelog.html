@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23fafafa' font-family='serif'>J</text></svg>">
+<link rel="icon" type="image/png" href="assets/logo.png">
 <title>更新日志 — 古代史及汉籍研究工具</title>
 <style>
 :root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
@@ -138,7 +138,7 @@ body{transition:background-color .3s ease,color .3s ease}
     <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <a href="index.html" class="header-brand"><div class="bi">汉</div><h1>古代史及汉籍研究工具</h1></a>
+    <a href="index.html" class="header-brand"><img class="bi" src="assets/logo.png" alt="" style="width:32px;height:32px;object-fit:contain;display:block"><h1>古代史及汉籍研究工具</h1></a>
     <nav class="header-nav">
       <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="kanseki.html">古籍类目查询</a><a href="embed.html">快速跳转</a>
     </nav>
@@ -158,7 +158,7 @@ body{transition:background-color .3s ease,color .3s ease}
 <!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
 <div class="drawer-overlay" id="mDrawerOverlay"></div>
 <aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
-  <div class="drawer-brand"><div class="brand-icon" aria-hidden="true">汉</div><h2>古代史及汉籍研究工具</h2></div>
+  <div class="drawer-brand"><img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block"><h2>古代史及汉籍研究工具</h2></div>
   <nav class="drawer-nav">
     <div class="drawer-nav-group">导航</div>
     <a href="index.html" class="drawer-link">纪年查询</a>
@@ -179,6 +179,126 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v9.7 · 桌面版 0.16.0</span>
+      <span class="cl-date">2026-10-04</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li><b>新增「纪年小窗」</b>：纪年查询可另开一个 <b>460×620 的小窗口</b>（侧栏「纪年查询」行尾的小图标，或点击即开）。
+        小窗可自由缩放、<b>一键置顶在所有窗口之上</b>（默认即置顶），
+        支持输 <b>年份 / 年号 / 干支 / 朝代 / 君主</b> 查询（回车即查，另备「今年／上一年／下一年／万历／康熙／前841」快捷键），
+        结果以<b>表格视图</b>（公元／朝代／年号／君主／干支）呈现，<b>点行或点复制键即复制</b>该年主年号（如「万历十五年（1587）」），
+        并跟随全站简繁与明暗主题。关闭为隐藏，可反复打开；窗口由 Rust 首次点击时按需创建（省启动开销）。</li>
+      <li><b>编目记录：一键导入 Excel/CSV 表格</b>。支持 <code>.xlsx</code>（自解析 ZIP + 内置 inflate，零依赖）、
+        <code>.csv</code>/<code>.tsv</code>（自动识别 UTF-8／<b>GBK</b>／UTF-16，Excel 导出的中文 CSV 常是 GBK）。
+        表头按模板自动对应字段（模板原文 <code>*類目/*書名…</code>、简繁 label 与常见别名都能认），
+        认不出且列数 ≥13 时按模板列序回退，并回报未识别的表头。</li>
+      <li><b>编目记录：三种预览 + 两种导出</b>。
+        预览可切 <b>卡片 / 表格（同「编目表格」模板 14 列） / 文字（按著录格式成文）</b>；
+        导出可选 <b>表格（CSV）</b> 或 <b>文字（TXT）</b>。
+        文字版严格按著录骨架成文（书名/卷数·索书号·著者·版本·册数·行款版式·附注；
+        版式为空时输出「行款版式：」及其下 7 行待补模板），字段为空处标「（未填）」。</li>
+      <li><b>编目记录：必填项不再拦截保存</b>（按用户要求）：留空也能先编目、边编边补，
+        提示语会写明「还有 N 项带 * 的必填未填」。</li>
+      <li><b>国立公文书馆：检索条压成整一行</b>（检索范围／关键词／检索／详细检索／清空／显示件数）；
+        <b>内閣文庫分类并入「详细检索」，详细检索改回下拉浮动菜单</b>——一次展开即见全部条件与 9 个分类，
+        收起后不再占据版面，检索结果区更高。</li>
+      <li><b>修复</b>：切换「表格/文字预览」时卡片列表因 <code>.rec-list</code> 是 flex 而压过 <code>[hidden]</code>，
+        导致三种视图同时显示；以及侧栏新增整行条目会让 1280×800 下侧栏溢出 21px、底部按钮被挤出——
+        「纪年小窗」改为「纪年查询」行尾小图标（不占高度）。</li>
+      <li><b>排障备忘</b>：反复强杀应用会留下孤儿 <code>msedgewebview2</code> 进程锁住用户数据目录，
+        下次启动将 panic 退出（<code>Failed to create webview: HRESULT 0x8007139F</code>，退出码 101）；
+        测试脚本已加入自动清理。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v9.6 · 桌面版 0.15.0</span>
+      <span class="cl-date">2026-10-04</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li><b>国立公文书馆：补齐「详细检索」，条件标签全部中文</b>。
+        主检索行＝检索范围（全部／题名／作成者／件名·细目／参照代码）+ 关键词 + 显示件数（20/50/100/200），
+        并可展开<b>详细检索</b>：资料种别、图像等种类、利用限制、保存场所、作成年（起/止）、
+        移交元机关等（147 项）、旧藏（文库，52 项，含紅葉山文庫）、参照代码（起/止）；
+        展开按钮带「已选条件数」角标，状态行右侧回显<b>中文条件摘要</b>（如「资料种别：簿册 · 分类：經部」）。
+        详细检索为<b>就地展开</b>而非浮层——浮层会盖住下方分类区（实测连点击都会被拦截）。</li>
+      <li><b>国立公文书馆：可筛「簿册」与「件名·细目」</b>（原站 <code>type</code> 参数，
+        实测 <code>da22</code>=簿册、<code>da23</code>=件名·细目、<code>da21</code>=资料群，可多选）。
+        实测「漢書」不限 2323 件 → 仅簿册 <b>191</b> 件 → 仅件名 2130 件。</li>
+      <li><b>国立公文书馆：单列「内閣文庫 汉籍分类」区</b>，一键限定资料群检索：
+        内閣文庫（全部）／<b>漢籍（漢書部）</b>／經部／史部／子部／集部／叢書部／新書部／和書部，
+        每项旁 ↗ 直达原站分类页（无关键词也能浏览）。
+        实测：漢書部 2107 件、經部 393 件（首条即《四書集註》，階層「内閣文庫 ＞ 漢書 ＞ 経の部」）。</li>
+      <li><b>侧栏「编目记录」加红色「未上线」角标</b>（按用户要求提醒暂勿使用，功能后续逐步完善）。</li>
+      <li><b>修复品牌区 logo 的白边</b>：白边不在图片，而在 <code>.side-title .st-ic</code> 的
+        <code>background:#fff</code>——现改为透明，深色侧栏上只余黑色方块本体。
+        同时把全套 logo／favicon／程序图标重新导出为<b>透明背景</b>（圆角外全透明，
+        线条画与「汉」字逐像素保留；<code>icon.ico</code> 补齐 16/24/32/48/64/128/256 七档）。</li>
+      <li><b>国立公文书馆：「内閣文庫 汉籍分类」改为下拉浮动菜单</b>（按反馈：不再常驻占据版面）：
+        主检索行新增「内閣文庫分类 ↓」按钮，点开才浮出 9 个分类按钮；选中后按钮回显
+        「分类：經部」并带计数角标，浮层点外部或 <kbd>Esc</kbd> 收起。浮层与「详细检索」互斥开合。</li>
+      <li><b>收紧「检索框 → 检索结果」的间距，把版面让给结果</b>（两个检索面板都改）：
+        根因是 <code>.av-wrap</code> 的 18px 弹性间距在这样的面板里被撑成三段空白
+        （实测 表单→状态行 26px、状态行→结果 30px，另加底部 48px 内边距）。
+        现收紧为 8px / 10px、底部 12px：<b>国立公文书馆</b>表单 181→<b>99px</b>、结果区 457→<b>625px</b>；
+        <b>日本所藏汉籍检索</b>结果区也由约 600px 提升到 <b>641px</b>（间距合计 76→38px）。</li>
+      <li><b>修复解析保真度</b>：原站标题常拆成多个 <code>&lt;span&gt;</code>，
+        旧parser给行内标签补空格，会把「後漢書」读成「後 漢書」；现只让块级标签与 <code>&lt;br&gt;</code>
+        充当分隔（列表标题与 JSON-LD 真值一致）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v9.5 · 桌面版 0.14.0</span>
+      <span class="cl-date">2026-10-03</span>
+      <span class="cl-tag t-new">新增</span>
+      <span class="cl-tag t-opt">调整</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li><b>新增「国立公文书馆」检索面板</b>（侧栏「日本藏本检索」组内，图标为字母 <b>DA</b>）：
+        应用内直连<b>国立公文書館デジタルアーカイブ</b>（<code>https://www.digital.archives.go.jp</code>）。
+        检索式照原站详细检索习惯：<b>キーワード + 検索範囲</b>（すべて／タイトル／作成者／件名・細目／参照コード，
+        对应 <code>ks0=kw_all|kw_title|kw_creator|kw_item|kw_id</code>）、表示件数（20／50／100）与翻页。
+        <b>每条检索结果的信息末尾都给出原链接</b>，点击即在浏览器中打开原网页查看图像；
+        记录详情取自官方 JSON-LD（URI、レファレンスコード、階層、保存場所、利用制限、IIIF マニフェスト等），
+        并提供「复制引用例」（「国立公文書館所蔵」+ 請求番号 + URI）与「打开原网页」。
+        该馆目録元数据以 <b>CC0</b> 开放，可自由二次利用（建议注明出典）。</li>
+      <li><b>「编目记录」功能上线</b>（此前仅为占位预览）：按「全球汉籍合璧工程」编目表格模板 14 字段著录，
+        数据存本机 IndexedDB 并接入既有同步引擎（坚果云 WebDAV，LWW + 墓碑），
+        支持搜索（書名／索書號／著者／類目）、排序、编辑、删除与<b>导出 CSV</b>（带 BOM，Excel 直接打开不乱码）。
+        在日本藏本检索／国立公文书馆面板中可一键<b>「参考此记录新建编目记录」</b>：
+        只带入有把握的字段（書名／著者／索書號／類目／年代，附録写入引用例），
+        卷數／版式／函册等一律留空由编目者按实物著录。</li>
+      <li><b>新增 Rust 检索桥 <code>naj_db.rs</code></b>：站点与路径白名单（防 SSRF）、
+        连接被服务端重置时自动退避重试（该站实测偶发重置）、部分结果保全并标注「响应不完整」。</li>
+      <li><b>全站换用新 logo</b>（黑白萌犬／戴笠瑞兽 + 右上「汉」）：程序图标（16–256 多档 ICO）、
+        侧栏品牌、关于页，以及网页版各页顶部品牌与标签页图标一并更换。</li>
+      <li><b>顺带修复三处既有缺陷</b>：① <code>makeNewRecord()</code> 会用
+        <code>createEmptyRecord()</code> 里的 <code>id:null</code> 覆盖刚生成的 UUID，
+        写入 IndexedDB 报「key path ... not a valid key」（该路径此前未被调用故一直未暴露）；
+        ② <code>.av-btn</code> 的 <code>display:inline-flex</code> 压过 <code>[hidden]</code>，
+        使弹层内隐藏的「删除」键照样显示；③ 构建时未把 assets 同步到 <code>dist/pages/assets</code>，
+        内嵌页面引用的 logo 全部 404。</li>
+      <li><b>稳定性与安全加固</b>：原站 `.json` 端点会按 <code>Accept</code> 内容协商，
+        把 <code>text/html</code> 放前面时会返回 HTML 页面 —— 现按端点选择请求头
+        （数据端点只请求 JSON），并在解析失败时重试一次再退化；
+        站外/越界路径白名单加严（拒绝 <code>..</code>、反斜杠、<code>/searching</code>、<code>/item</code> 等），
+        且<b>不跟随重定向</b>；检索回应为 4xx/5xx 时明确报错而不是显示「没有命中」；
+        CSV 导出对 <code>= + - @</code> 开头的单元格做公式注入防护。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

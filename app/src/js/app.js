@@ -30,8 +30,9 @@
 import { openStore } from './core/sync/store-indexeddb.js';
 import { SyncEngine } from './core/sync/sync-engine.js';
 import { WebDavProvider } from './core/sync/provider-webdav.js';
-import { initRecordsView } from './ui/records.js';
+import { initRecordsView, refreshRecordsView } from './ui/records.js';
 import { initKansekiDbView } from './ui/kanseki-db.js';
+import { initNajDbView } from './ui/naj-db.js';
 
 // ---------- 工具 ----------
 const $ = (sel) => document.querySelector(sel);
@@ -640,7 +641,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.13.2';
+const APP_VERSION = '0.16.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -653,7 +654,7 @@ function refreshAboutInfo() {
 
 // ---------- 视图切换 ----------
 // 11 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
@@ -720,6 +721,10 @@ function navigate() {
   if (target === 'about') refreshAboutInfo();
   // V9.4：日本藏本检索面板（首次进入时初始化表单与机构列表）
   if (target === 'kansekidb') initKansekiDbView();
+  // V9.5：国立公文书馆数字档案面板
+  if (target === 'najdb') initNajDbView();
+  // V9.5：编目记录（进入时读库 + 消费检索面板带来的带入数据）
+  if (target === 'records') refreshRecordsView();
   // 账号页由 iframe 承载，登录成功后需回读 localStorage 刷新侧栏用户区
   if (target === 'login' || target === 'account') {
     whenFrameReady(frame, () => {
@@ -1069,10 +1074,14 @@ function toggleAppLang() {
 
 async function init() {
   // 绑定导航（点击也更新 hash）
+  // 注意：侧栏也有**动作型** nav-item（如「纪年小窗」，按钮而非链接、无 href），
+  // 它们由各自的处理函数负责，这里必须跳过，否则会被写进 location.hash。
   $$('.nav-item').forEach(el => {
+    const href = el.getAttribute('href');
+    if (!href) return;
     el.addEventListener('click', (e) => {
       e.preventDefault();
-      location.hash = el.getAttribute('href');
+      location.hash = href;
     });
   });
 
@@ -1191,6 +1200,26 @@ async function init() {
     } catch (e) {
       showToast('打开设置窗口失败：' + ((e && e.message) || e), 'err');
     }
+  });
+
+  // V9.7：「纪年小窗」——独立小窗口，可缩放、可置顶（窗口本身在 tauri.conf.json 声明）
+  // 它是「纪年查询」行尾的小按钮，点它不应连带切换视图，故 stopPropagation。
+  $('#miniYearBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isTauri) {
+      showToast('纪年小窗仅在 Windows 桌面版可用（浏览器调试环境无法创建系统窗口）', 'err');
+      return;
+    }
+    try {
+      await tauriInvoke('open_mini_window', {});
+      showToast('已打开纪年小窗：窗内可切换「置顶」', 'ok');
+    } catch (err) {
+      showToast('打开纪年小窗失败：' + ((err && err.message) || err), 'err');
+    }
+  });
+  $('#miniYearBtn')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); }
   });
 
   // V9.2：设置窗口保存同步凭据 / 请求同步后，经 storage 事件通知本窗口
@@ -1315,6 +1344,8 @@ async function init() {
     if (!d || d.type !== 'kanseki-export') return;
     showNotice(d);
   });
+  // 供编目记录（ui/records.js）导出后复用同一通知栏
+  window.__kansekiShowNotice = showNotice;
   $('#nbClose')?.addEventListener('click', hideNotice);
   $('#nbOpen')?.addEventListener('click', async () => {
     if (!lastExportPath) return;
@@ -1327,8 +1358,8 @@ async function init() {
     if (!ok) showToast('打开文件夹失败', 'err');
   });
 
-  // 编目占位视图初始化（表单弹层 + 校验）
-  initRecordsView();
+  // 编目记录视图初始化（V9.5：正式落库；store 传懒取值，因存储在本函数后半段才打开）
+  initRecordsView({ getStore: () => store, isTauri, invoke: tauriInvoke });
 
   // 同步视图
   $('#syncTestBtn')?.addEventListener('click', testConnection);

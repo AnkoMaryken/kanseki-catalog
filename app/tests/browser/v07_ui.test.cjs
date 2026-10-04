@@ -36,10 +36,11 @@ const config = require('../../../tests/helpers/config.js');
   console.log('\n[1] 侧栏导航重排');
   const navCount = await page.locator('.nav-item').count();
   ok('导航项仍为 11 个', navCount === 11, '实际 ' + navCount);
-  ok('视图 10 个', await page.locator('.view').count() === 10,
+  ok('视图 13 个（V9.5：新增 najdb）', await page.locator('.view').count() === 13,
     '实际 ' + await page.locator('.view').count());
 
-  // 「应用」组内应含 快速跳转 / 编目记录 / 同步设置 / 账号 / 关于（5 项）
+  // 「应用」组内应含 快速跳转 / 编目记录（V9.2.1 起同步设置/账号/关于已移出侧栏，
+  // 统一走设置窗口与左下角用户框；视图本身仍可由 hash 直达）
   const appGroup = await page.evaluate(() => {
     const secs = [...document.querySelectorAll('.app-sidebar .side-sec')];
     const sec = secs.find(s => (s.querySelector('.side-label') || {}).textContent === '应用');
@@ -49,17 +50,21 @@ const config = require('../../../tests/helpers/config.js');
   ok('「应用」组存在', !!appGroup, JSON.stringify(appGroup));
   ok('「应用」组含快速跳转', (appGroup || []).includes('jump'));
   ok('「应用」组含编目记录', (appGroup || []).includes('records'));
-  ok('「应用」组含同步设置', (appGroup || []).includes('sync'));
-  ok('「应用」组含账号', (appGroup || []).includes('login'));
-  ok('「应用」组含关于', (appGroup || []).includes('about'));
+  ok('「应用」组已不含同步设置（V9.2.1 起）', !(appGroup || []).includes('sync'));
+  ok('「应用」组已不含账号（V9.2.1 起）', !(appGroup || []).includes('login'));
+  ok('「应用」组已不含关于（V9.2.1 起）', !(appGroup || []).includes('about'));
 
-  // 「纪年查询」组应只剩 1 项（快速跳转已移走）
+  // 「纪年查询」组：仍只有 1 个路由项；「纪年小窗」是该行**行尾小按钮**（不占高度，
+  // 避免侧栏在 1280×800 下溢出），故不计入 nav-item。
   const chronoGroup = await page.evaluate(() => {
     const secs = [...document.querySelectorAll('.app-sidebar .side-sec')];
     const sec = secs.find(s => (s.querySelector('.side-label') || {}).textContent === '纪年查询');
-    return sec ? [...sec.querySelectorAll('.nav-item')].map(el => el.dataset.view) : null;
+    return sec ? [...sec.querySelectorAll('.nav-item')].map(el => el.dataset.view || el.id) : null;
   });
-  ok('「纪年查询」组只剩纪年查询', JSON.stringify(chronoGroup) === '["query"]', JSON.stringify(chronoGroup));
+  ok('「纪年查询」组仍只有纪年查询一个路由项',
+    JSON.stringify(chronoGroup) === '["query"]', JSON.stringify(chronoGroup));
+  ok('「纪年查询」行尾有「纪年小窗」按钮',
+    (await page.locator('#miniYearBtn.nav-mini').count()) === 1);
 
   // 「说明文档」组应只剩 2 项（编目记录已移走）
   const docGroup = await page.evaluate(() => {
@@ -69,10 +74,12 @@ const config = require('../../../tests/helpers/config.js');
   });
   ok('「说明文档」组只剩 2 项', (docGroup || []).length === 2, JSON.stringify(docGroup));
 
-  // 「待上线」徽标已移除
-  ok('「编目记录」不再带「待上线」徽标',
-    await page.locator('.nav-badge').count() === 0,
-    'badge=' + await page.locator('.nav-badge').count());
+  // V9.6（用户要求）：编目记录改为带红色「未上线」徽标，提醒暂勿使用
+  const badge = page.locator('.nav-item[data-view="records"] .nav-badge.soon');
+  ok('「编目记录」带「未上线」徽标', await badge.count() === 1,
+    'badge=' + await badge.count());
+  ok('徽标文字为「未上线」', ((await badge.textContent().catch(() => '')) || '').trim() === '未上线',
+    (await badge.textContent().catch(() => '')));
 
   // ---------- 2. 品牌栏保留在侧栏，功能键移到自绘标题栏 ----------
   console.log('\n[2] 品牌栏保留 + 标题栏功能键');
@@ -150,14 +157,16 @@ const config = require('../../../tests/helpers/config.js');
   // ---------- 5. 三视图统一样式 ----------
   console.log('\n[5] 三视图统一样式');
   for (const [view, cls] of [['records', '.av-empty'], ['sync', '.av-formcard'], ['about', '.av-about']]) {
-    await page.click(`.nav-item[data-view="${view}"]`);
+    // V9.2.1 起 sync / about 无侧栏入口，改 hash 直达；records 仍有侧栏项
+    if (view === 'records') await page.click(`.nav-item[data-view="${view}"]`);
+    else await page.evaluate((v) => { location.hash = '#/' + v; }, view);
     await page.waitForTimeout(400);
     ok(`${view} 视图激活`, await page.locator(`#view-${view}.active`).count() === 1);
     ok(`${view} 使用 .app-view`, await page.locator(`#view-${view}.app-view`).count() === 1);
     ok(`${view} 含统一组件 ${cls}`, await page.locator(`#view-${view} ${cls}`).count() === 1);
   }
   // 关键交互元素仍在（回归）
-  await page.click('.nav-item[data-view="sync"]');
+  await page.evaluate(() => { location.hash = '#/sync'; });
   await page.waitForTimeout(300);
   ok('同步表单元素保留', await page.locator('#syncUser').count() === 1 && await page.locator('#syncPass').count() === 1);
   ok('同步按钮保留', await page.locator('#syncTestBtn').count() === 1 && await page.locator('#syncNowBtn').count() === 1);
@@ -165,8 +174,8 @@ const config = require('../../../tests/helpers/config.js');
 
   await page.click('.nav-item[data-view="records"]');
   await page.waitForTimeout(300);
-  ok('编目「新增」按钮保留且禁用', await page.locator('#addRecordBtn').isDisabled());
-  await page.click('#previewFormBtn');
+  ok('编目「新增」按钮可用（V9.5 起正式启用）', !(await page.locator('#addRecordBtn').isDisabled()));
+  await page.click('#addRecordBtn');
   await page.waitForTimeout(400);
   ok('编目表单弹层可打开', await page.locator('#recordFormOverlay').isVisible());
   ok('弹层用统一样式 .av-modal', await page.locator('.av-modal').count() === 1);
@@ -176,7 +185,8 @@ const config = require('../../../tests/helpers/config.js');
   await page.waitForTimeout(300);
   ok('弹层可关闭', await page.locator('#recordFormOverlay').isHidden());
 
-  await page.click('.nav-item[data-view="about"]');
+  // V9.2.1 起侧栏已无 about 入口，改 hash 直达
+  await page.evaluate(() => { location.hash = '#/about'; });
   await page.waitForTimeout(400);
   // 版本号断言与 package.json 保持一致，避免每次发版都要改测试
   const pkgVer = require('../../package.json').version;
@@ -239,17 +249,16 @@ const config = require('../../../tests/helpers/config.js');
 
   // ---------- 8. 账号视图路由 ----------
   console.log('\n[8] 账号视图');
-  // V0.8.2: 「账号」项目标随登录态变化 —— 未登录进登录页，已登录进个人中心。
-  // 此处为未登录态（第 4 节末尾已退出登录），应指向 login。
-  const accViewGuest = await page.getAttribute('#navAccount', 'data-view');
-  ok('未登录时「账号」指向 login', accViewGuest === 'login', String(accViewGuest));
-  await page.click('.nav-item[data-view="login"]');
+  // V9.2.1：侧栏「账号」入口已移除（账号相关统一走设置窗口 / 左下角用户框），
+  // 故 #navAccount 不再存在 —— 这里改为验证「视图仍可由 hash 直达」这一保留行为。
+  ok('侧栏已无「账号」入口（V9.2.1 起）', (await page.locator('#navAccount').count()) === 0);
+  await page.evaluate(() => { location.hash = '#/login'; });
   await page.waitForTimeout(1500);
-  ok('login 视图激活', await page.locator('#view-login.active').count() === 1);
+  ok('login 视图激活（hash 直达）', await page.locator('#view-login.active').count() === 1);
   const loginFrame = page.frame({ url: /pages\/login\.html/ });
   ok('login iframe 已加载', !!loginFrame);
 
-  // 模拟登录后再看「账号」项：应改指 account（个人中心）
+  // 登录后 hash 直达个人中心（该页有登录门禁，须先置登录态）
   await page.evaluate(() => {
     localStorage.setItem('kanseki_user', JSON.stringify({
       email: 'nav@example.com', name: '導航測試', id: 'u-nav'
@@ -257,19 +266,9 @@ const config = require('../../../tests/helpers/config.js');
   });
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForTimeout(900);
-  const accViewLogged = await page.evaluate(() => {
-    const a = document.getElementById('navAccount');
-    return { view: a && a.dataset.view, href: a && a.getAttribute('href') };
-  });
-  ok('已登录时「账号」指向 account', accViewLogged.view === 'account',
-    JSON.stringify(accViewLogged));
-  ok('已登录时「账号」href 为 #/account', accViewLogged.href === '#/account',
-    String(accViewLogged.href));
-
-  // 点击后应进入个人中心视图（而非又回到登录页）
-  await page.click('#navAccount');
+  await page.evaluate(() => { location.hash = '#/account'; });
   await page.waitForTimeout(1800);
-  ok('点击「账号」进入个人中心视图', await page.locator('#view-account.active').count() === 1);
+  ok('已登录时进入个人中心视图', await page.locator('#view-account.active').count() === 1);
   const accFrame = page.frame({ url: /pages\/profile\.html/ });
   ok('profile iframe 已加载（未被登录门禁弹回）', !!accFrame);
   // 清理：恢复未登录，避免影响后续断言

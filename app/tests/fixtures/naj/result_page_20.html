@@ -1,0 +1,5566 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><title>検索結果一覧</title></head><body>
+<!-- 夹具：实站检索结果页满页（20 条，kw0=論語 / ks0=kw_all；头部内联 SVG 已剥离） -->
+<div class="archive-result-header">
+                <div class="archive-result-header__count">
+                  <span class="archive-result-header__count-total"><span >検索結果数</span> <span class="count-number" data-count="715">715</span><span
+                      class="fz13">件</span></span>
+                  <span class="archive-result-header__count-range">
+                    <span ></span> <span >1</span> <span >~</span> <span >20</span><span >件を表示</span>
+                  </span>
+                </div>
+                <div class="archive-result-header__sort">
+                  <div class="archive-result-header__sort-item">
+                    <div class="archive-result-header__sort-label"><label for="result-display-count">表示数</label></div>
+                    <div class="cmn-select-wrap">
+                      <select class="cmn-select-wrap__select cmn-select-wrap__select--left" id="result-display-count" name="rows">
+                        <option value="20" selected="selected">20<span >件</span></option>
+                        <option value="50">50<span >件</span></option>
+                        <option value="100">100<span >件</span></option>
+                        <option value="200">200<span >件</span></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="archive-result-header__sort-item">
+                    <div class="archive-result-header__sort-label"><label for="result-display-order">表示順</label></div>
+                    <div class="cmn-select-wrap">
+                      <select class="cmn-select-wrap__select cmn-select-wrap__select--left" id="result-display-order" name="sf">
+                        <option value="inst_a" selected="selected">移管元機関等/請求番号（昇順）</option>
+                        <option value="inst_d">移管元機関等/請求番号（降順）</option>
+                        <option value="title_a">標題/件名/書名（昇順）</option>
+                        <option value="title_d">標題/件名/書名（降順）</option>
+                        <option value="creator_a">作成・取得者/人名（昇順）</option>
+                        <option value="creator_d">作成・取得者/人名（降順）</option>
+                        <option value="date_a">年月日（昇順）</option>
+                        <option value="date_d">年月日（降順）</option>
+                        <option value="reference_a">請求番号（昇順）</option>
+                        <option value="reference_d">請求番号（降順）</option>
+                        <option value="stack_a">保存場所（昇順）</option>
+                        <option value="stack_d">保存場所（降順）</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="archive-result-header__sort-item">
+                    <div class="archive-result-header__sort-label"><label for="result-display-style">表示スタイル</label>
+                    </div>
+                    <div class="cmn-select-wrap">
+                      <select class="cmn-select-wrap__select cmn-select-wrap__select--left" id="result-display-style" name="vt">
+                        <option data-style="b" value="b">簡易</option>
+                        <option data-style="d" value="d" selected="selected">詳細</option>
+                        <option data-style="t" value="t">サムネイル</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                <input type="hidden" name="kw0" value="論語" />
+              
+            
+              
+                <input type="hidden" name="ks0" value="kw_all" />
+              
+            
+              
+            
+            </form>
+
+          
+            <form class="archive-result-form" id="actionForm" method="POST">
+              <input type="hidden" name="idaction" value="" />
+
+              <div class="archive-result-table is-detail" role="table" aria-label="検索結果一覧">
+                <div class="archive-result-table__header" role="row">
+                  <div class="archive-result-table__header-item cell-request" role="columnheader" id="col-request">
+                    <span class="archive-result-table__header-item-label">利用請求CSV出力</span>
+                  </div>
+                  <div class="archive-result-table__header-item cell-number" role="columnheader" id="col-number">
+                    <span class="archive-result-table__header-item-label">No.</span>
+                  </div>
+                  <div class="archive-result-table__header-item cell-summary" role="columnheader" id="col-summary">
+                    <span class="archive-result-table__header-item-label">概要情報</span>
+                  </div>
+                  <div class="archive-result-table__header-item cell-image" role="columnheader" id="col-image">
+                    <span class="archive-result-table__header-item-label">画像等</span>
+                  </div>
+                </div>
+
+                
+                
+    <ul class="archive-result-table__body" role="rowgroup">
+
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-1-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-1-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-1-title" name="id" value="da11/3879332">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-1-title">
+          <span class="archive-result-table__body-item-cell-label">1</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-1-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-1-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/3879332"  class="ajustField" data-showlen="200">
+                
+                  <span >増訂四書大全</span>
+                
+                
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3415072">寄贈・寄託文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3791162">小杉煕・醇旧蔵書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈02349100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈資料</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >平成 23</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >24</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+              
+              
+                <span >編者：汪份（清）／校訂者：馮暠（清）等、２４冊、書誌事項：大学章句大全３巻大学或問１巻中庸章句大全３巻中庸或問１巻<span class="text-highlight">論語</span>集註大全２０巻孟子集註大全１４巻、清康熙４２序刊、関連事項：文盛堂・致和堂</span>
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-030-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-1-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-2-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-2-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-2-title" name="id" value="da11/3918165">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-2-title">
+          <span class="archive-result-table__body-item-cell-label">2</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-2-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-2-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/3918165"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span >七経雕題略（<span class="text-highlight">論語</span>）</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3415072">寄贈・寄託文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3637700">光吉元次郎旧蔵書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈02510100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈資料</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >平成 24</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+              
+              
+                <span >４冊、書誌事項：<span class="text-highlight">論語</span>２０巻、写、関連事項：光吉氏手校本、旧蔵者：光吉元次郎</span>
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-030-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-2-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-3-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-3-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-3-title" name="id" value="da11/3918166">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-3-title">
+          <span class="archive-result-table__body-item-cell-label">3</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-3-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-3-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/3918166"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>欄外書</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3415072">寄贈・寄託文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3637700">光吉元次郎旧蔵書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈02511100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈資料</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >平成 24</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >選者：佐藤坦、１冊、書誌事項：全１巻、写、関連事項：光吉氏手校本、旧蔵者：光吉元次郎</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-030-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-3-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-4-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-4-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-4-title" name="id" value="da11/3918170">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-4-title">
+          <span class="archive-result-table__body-item-cell-label">4</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-4-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-4-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/3918170"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3415072">寄贈・寄託文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3637700">光吉元次郎旧蔵書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈02515100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >寄贈資料</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >平成 24</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+              
+              
+                <span >選者：何晏（魏）、２冊、書誌事項：１０巻、天保８序刊（有造館）、関連事項：縮臨古本<span class="text-highlight">論語</span>集解、篠崎小竹旧蔵、旧蔵者：光吉元次郎</span>
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-030-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-4-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-5-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-5-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-5-title" name="id" value="da11/760440">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-5-title">
+          <span class="archive-result-table__body-item-cell-label">5</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-5-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-5-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/760440"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span >役者<span class="text-highlight">論語</span></span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3682585">和書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/4503888">和書(多聞櫓文書を除く）</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1261584">新群書類従</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >ヨ０８１－０００２</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0003</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0008</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >活版:::</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >演劇３</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-5-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-6-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-6-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-6-title" name="id" value="da11/1221481">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-6-title">
+          <span class="archive-result-table__body-item-cell-label">6</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-6-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-6-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/1221481"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span >正平版<span class="text-highlight">論語</span>之研究</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3682585">和書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/4503888">和書(多聞櫓文書を除く）</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >ヨ１２３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >活版::昭和:090000:大阪同人会</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >図</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-6-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-7-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-7-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-7-title" name="id" value="da11/1258320">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-7-title">
+          <span class="archive-result-table__body-item-cell-label">7</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-7-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-7-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/1258320"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>年譜</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3682585">和書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/4503888">和書(多聞櫓文書を除く）</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >ヨ１２３－０００５</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >2冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >活版::大正:050000:東京大倉書店</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-7-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-8-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-8-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-8-title" name="id" value="da11/754730">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-8-title">
+          <span class="archive-result-table__body-item-cell-label">8</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-8-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-8-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/754730"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span >四書集註上・大学・<span class="text-highlight">論語</span>・四書解題</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3682585">和書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/4503888">和書(多聞櫓文書を除く）</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1259320">世界聖典全集</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >ヨ１６０－０００５</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0002</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0002</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >活版::大正:090000:</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-8-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-9-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-9-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-9-title" name="id" value="da11/762541">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-9-title">
+          <span class="archive-result-table__body-item-cell-label">9</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-9-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-9-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/762541"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>を中心として観たる訓点の変遷</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3682585">和書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/4503888">和書(多聞櫓文書を除く）</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1270918">松井博士古稀記念論文集</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >ヨ９１０－０００８</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0001</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0011</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >活版::昭和:070000:</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-9-title">
+
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-10-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-10-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-10-title" name="id" value="da11/2345601">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-10-title">
+          <span class="archive-result-table__body-item-cell-label">10</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-10-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-10-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/2345601"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集説開板願</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308961">行政文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2321508">＊内閣・総理府</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/567818">太政官・内閣関係</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2999753">第一類　公文録</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/568355">公文録・明治２年</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/2345343">公文録・明治二年・第九十一巻・己巳六月～辛未七月・飫肥藩伺</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >公00159100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >015</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >＊内閣・総理府</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >昭和 46</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >作成・取得者</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >太政官</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >年月日</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >明治03年</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-009-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開 / 原本閲覧（否）</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-10-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/2345601" class="result-image-link" aria-describedby="row-10-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-11-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-11-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-11-title" name="id" value="da11/2377263">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-11-title">
+          <span class="archive-result-table__body-item-cell-label">11</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-11-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-11-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/2377263"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集説開板願</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308961">行政文書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2321508">＊内閣・総理府</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/567818">太政官・内閣関係</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2321529">第一類　公文録（副本）</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/2376993">公文録（副本）・明治二年・第九十一巻・己巳六月～辛未七月・飫肥藩伺</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >公副00159100</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >015</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管元機関等</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >＊内閣・総理府</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >移管等年度</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >昭和 46</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >作成・取得者</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >太政官</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >年月日</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >明治02年06月</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >媒体の種別</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >紙</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >保存場所</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >本館-2A-025-00</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-11-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/2377263" class="result-image-link" aria-describedby="row-11-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-12-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-12-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-12-title" name="id" value="da11/1074148">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-12-title">
+          <span class="archive-result-table__body-item-cell-label">12</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-12-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-12-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/1074148"  class="ajustField" data-showlen="200">
+                
+                  <span >四書集註</span>
+                
+                
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別００９－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >10冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >刊本（後印）::寛文:070000:</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >旧蔵者</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >昌平坂学問所</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+              
+              
+                <span >大学章句・中庸章句各１巻<span class="text-highlight">論語</span>集註１０巻孟子集註７巻</span>
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+            <a href="/search?fond=1074148">&lt;件名一覧があります&gt;</a>
+          
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-12-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/1074148" class="result-image-link" aria-describedby="row-12-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-13-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-13-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-13-title" name="id" value="da11/1077384">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-13-title">
+          <span class="archive-result-table__body-item-cell-label">13</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-13-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-13-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/1077384"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>百篇詩</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610170">集の部</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０２２－０００５</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >写本::寛文:120000:</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >旧蔵者</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >林家（大学頭）</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >元祐７－紹興２９　林鵞峯手跋本</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+          
+            <span>&lt;件名一覧はありません&gt;</span>
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-13-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/1077384" class="result-image-link" aria-describedby="row-13-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-14-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-14-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-14-title" name="id" value="da11/1069936">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-14-title">
+          <span class="archive-result-table__body-item-cell-label">14</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-14-title">
+          <div class="result-header">
+
+          
+          
+            <span class="cmn-category-label file">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_file.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">簿冊</span>
+            </span>
+          
+          
+
+            <h3 id="row-14-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/file/1069936"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >4冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >刊本（序刊）::文化:130000:</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >旧蔵者</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >林家（大学頭）</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >関連事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >覆正平版単跋本　校本</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          </dl> <!-- /da22 -->
+           <!-- /da23 -->
+
+          <div class="result-subject simple-hide">
+
+          
+            <a href="/search?fond=1069936">&lt;件名一覧があります&gt;</a>
+          
+          
+
+          </div>
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-14-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/1069936" class="result-image-link" aria-describedby="row-14-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-15-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-15-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-15-title" name="id" value="da11/3323285">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-15-title">
+          <span class="archive-result-table__body-item-cell-label">15</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-15-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-15-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/3323285"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解　巻１－３</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1069936">論語集解</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0001</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0001</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-15-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/3323285" class="result-image-link" aria-describedby="row-15-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-16-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-16-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-16-title" name="id" value="da11/3323294">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-16-title">
+          <span class="archive-result-table__body-item-cell-label">16</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-16-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-16-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/3323294"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解　巻４－６</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1069936">論語集解</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0002</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0002</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-16-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/3323294" class="result-image-link" aria-describedby="row-16-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-17-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-17-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-17-title" name="id" value="da11/3323728">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-17-title">
+          <span class="archive-result-table__body-item-cell-label">17</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-17-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-17-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/3323728"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解　巻７－８</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1069936">論語集解</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0003</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0003</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-17-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/3323728" class="result-image-link" aria-describedby="row-17-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-18-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-18-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-18-title" name="id" value="da11/3768787">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-18-title">
+          <span class="archive-result-table__body-item-cell-label">18</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-18-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-18-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/3768787"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>集解　巻９－１０・<span class="text-highlight">論語</span>札記</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3610545">経の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1069936">論語集解</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３３－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0004</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0004</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >数量</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >1冊</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-18-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/3768787" class="result-image-link" aria-describedby="row-18-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-19-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-19-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-19-title" name="id" value="da11/591230">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-19-title">
+          <span class="archive-result-table__body-item-cell-label">19</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-19-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-19-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/591230"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>１～５</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/1080082">叢書の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1081945">古逸叢書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３８－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0005</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0005</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >刊本:::</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-19-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/591230" class="result-image-link" aria-describedby="row-19-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+      <li class="archive-result-table__body-item" role="row" aria-labelledby="row-20-title">
+        <div class="archive-result-table__body-item-cell cell-request" role="cell"
+          aria-labelledby="col-request row-20-title">
+          <label class="cmn-check-icon">
+            <input type="checkbox" class="csv-export" aria-labelledby="col-request row-20-title" name="id" value="da11/591229">
+            <span class="cmn-check-icon__icon" aria-hidden="true">
+              <img src="/bundles/da/images/common/icon_check.svg" alt="" width="8" height="7"
+                loading="lazy">
+            </span>
+          </label>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-number" role="cell"
+          aria-labelledby="col-number row-20-title">
+          <span class="archive-result-table__body-item-cell-label">20</span>
+        </div>
+        <div class="archive-result-table__body-item-cell cell-summary" role="cell"
+          aria-labelledby="col-summary row-20-title">
+          <div class="result-header">
+
+          
+          
+          
+            <span class="cmn-category-label item">
+              <span class="cmn-category-label__icon">
+                <img src="/bundles/da/images/common/cat_icons/icon_item.svg" alt="" loading="lazy" />
+              </span>
+              <span class="cmn-category-label__text">件名</span>
+            </span>
+          
+
+            <h3 id="row-20-title" class="result-header__title">
+
+            
+            
+            
+              <a href="https://www.digital.archives.go.jp/item/591229"  class="ajustField" data-showlen="200">
+                
+                
+                
+                  <span ><span class="text-highlight">論語</span>６～１０</span>
+                
+              </a>
+            
+            
+            
+
+            </h3>
+          </div>
+          <ol class="result-tree">
+
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/2308962">内閣文庫</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/3602612">漢書</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                <img src="/bundles/da/images/common/icon_fonds.svg" alt="" loading="lazy" />
+                
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/fonds/1080082">叢書の部</a>
+              </span>
+            </li>
+            
+            <li class="result-tree__item">
+              <span class="result-tree__item-icon w-12">
+                
+                <img src="/bundles/da/images/common/icon_file.svg" alt="" loading="lazy" />
+                
+              </span>
+              <span class="result-tree__item-label">
+                <a href="https://www.digital.archives.go.jp/file/1081945">古逸叢書</a>
+              </span>
+            </li>
+            
+
+          </ol>
+           <!-- /da21 -->
+           <!-- /da22 -->
+          <dl class="result-summary">
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >請求番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >別０３８－０００１</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >冊次</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0006</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >件名番号</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >0006</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          
+          
+            <div class="result-summary__item">
+              <dt class="result-summary__label">[<span >書誌事項</span>]</dt>
+
+            
+              <dd class="result-summary__value">
+              
+                <span >刊本:::</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+          
+
+          
+          
+          
+
+          
+          
+          
+
+          </dl> <!-- /da23 -->
+
+          
+
+          
+          
+          <dl class="result-info">
+
+
+          
+
+          
+            <div class="result-info__item">
+              <dt class="result-info__label">[<span >利用制限の区分等</span>]</dt>
+
+            
+              <dd class="result-info__value">
+              
+                <span >公開</span>
+              
+              
+              
+              </dd>
+            
+
+            </div>
+          
+
+          </dl>
+          
+          
+
+        
+
+        </div>
+        <div class="archive-result-table__body-item-cell cell-image" role="cell"
+          aria-labelledby="col-image row-20-title">
+
+          
+          <a href="https://www.digital.archives.go.jp/img/591229" class="result-image-link" aria-describedby="row-20-title" target="_blank">
+            <span>閲覧</span>
+          </a>
+          
+          
+
+        </div>
+      </li>
+    
+
+    </ul>
+</div>
+</body></html>

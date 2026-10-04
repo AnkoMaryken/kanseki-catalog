@@ -8,7 +8,7 @@
 //   settings        按 key LWW（凭据类 key webdav_* 排除，永不进 bundle）
 //   search_history  append 拼接去重，按 ts 降序截断 100
 //   quick_links     逐项 LWW + 墓碑（deletedAt 参与比较）
-//   catalog_records 预留（同 quick_links 策略）
+//   catalog_records 编目记录（V9.5 起正式使用，同 quick_links 策略：逐项 LWW + 墓碑）
 //
 // 调度：写库 -> pushChange 标记 dirty -> 防抖 5s 推送；失败指数退避 1s->60s（5 次后
 // 转「需手动同步」）；push 前 bundle 快照进 change_queue，成功后清空。

@@ -1,4 +1,4 @@
-// V7.1: 头像裁剪 + 全站 favicon 统一为 J
+// V7.1: 头像裁剪 + 全站 favicon 统一（V9.5 起由「J」改为新 logo 图片）
 const { CHROME_PATH, PORT, playwrightCorePath } = require('./helpers/config');
 const { chromium } = require(playwrightCorePath());
 const fs = require('fs');
@@ -33,11 +33,13 @@ const PAGES = ['index.html', 'guide.html', 'catalog.html', 'changelog.html', 'em
   const page = await ctx.newPage();
   page.setDefaultTimeout(10000);
 
-  console.log('\n[1] 五页 favicon 统一为「J」');
+  // V9.5：全站 logo/favicon 按用户要求统一换为新 logo 图片（原「J」data-URI 作废）
+  console.log('\n[1] 五页 favicon 统一指向新 logo 图片');
   for (const p of PAGES) {
     await page.goto(`${BASE}/${p}`);
     const href = await page.$eval('link[rel="icon"]', el => el.href);
-    ok(`${p} favicon 为 J`, href.includes("'>J</text></svg>") || href.includes('%3EJ%3C') || href.includes("serif'>J<"), href.slice(0, 60));
+    ok(`${p} favicon 为新 logo`, /\/assets\/logo\.png$/.test(href), href.slice(0, 80));
+    ok(`${p} 不再使用 J 的 data-URI`, !href.startsWith('data:'), href.slice(0, 40));
   }
 
   console.log('\n[2] profile 已登录: 上传图片 → 裁剪弹窗出现');

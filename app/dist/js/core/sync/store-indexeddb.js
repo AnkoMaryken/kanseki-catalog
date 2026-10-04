@@ -7,7 +7,7 @@
 //   quick_links     快捷链接（每项 LWW + 墓碑）     keyPath: 'id'
 //   sync_meta       同步元数据（revision/时间戳）    keyPath: 'key'
 //   change_queue    待同步变更队列（成功推送后清空） keyPath: 'id' (autoIncrement)
-//   catalog_records 编目记录（占位期空 store，schema v1 预留，后期直接启用）
+//   catalog_records 编目记录（V9.5 起正式使用：LWW + 墓碑）      keyPath: 'id'
 //
 // 设计要点：
 //  - 可注入 indexedDB 实现（fake-indexeddb 单测 / Tauri webview / Capacitor）
@@ -366,7 +366,7 @@ export class KansekiStore {
   }
   async clearQueue() { await idbClear(this.db, STORE_CHANGE_QUEUE); }
 
-  // ---- catalog_records（预留，后期启用）----
+  // ---- catalog_records（V9.5 起正式使用；写入方 ui/records.js）----
   async getAllRecords() { return idbGetAll(this.db, STORE_RECORDS); }
   async getRecord(id) { return idbGet(this.db, STORE_RECORDS, id); }
   async putRecordValue(row) { await idbPut(this.db, STORE_RECORDS, row); }

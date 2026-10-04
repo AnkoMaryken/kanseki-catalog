@@ -89,6 +89,10 @@ function syncSiteFiles(stats) {
   }
   // 工作手册：catalog.html 以 docs/manual.pdf 相对路径引用
   copyFileIfExists(join(ROOT, 'docs', 'manual.pdf'), join(PAGES_DIR, 'docs', 'manual.pdf'));
+  // V9.5：iframe 页面位于 /pages/ 下，页内的 `assets/logo.png` 相对引用会解析成
+  // /pages/assets/logo.png。故把前端 assets 同步一份到 pages/assets，
+  // 否则每个内嵌页面的 logo 都会 404（实测 dist 内 index.html 首屏即报）。
+  copyDir(join(SRC, 'assets'), join(PAGES_DIR, 'assets'));
   return missing;
 }
 
