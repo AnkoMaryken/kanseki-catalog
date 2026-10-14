@@ -1,0 +1,140 @@
+{
+ "@context": "http://iiif.io/api/presentation/2/context.json",
+ "@id": "https://www.digital.archives.go.jp/api/iiif/591091/manifest.json",
+ "@type": "sc:Manifest",
+ "label": "爾雅３",
+ "attribution": "National Archives of JAPAN",
+ "license": "https://www.digital.archives.go.jp/secondary-use",
+ "logo": "https://www.digital.archives.go.jp/bundles/da/images/common/da-banner.png",
+ "metadata": [
+  {
+   "label": "Source(URI)",
+   "value": [
+    "https://www.digital.archives.go.jp/item/591091"
+   ]
+  },
+  {
+   "label": "タイトル(Title)",
+   "value": [
+    "爾雅３"
+   ]
+  },
+  {
+   "label": "請求番号(Identifier:Reference Code)",
+   "value": [
+    "別０３８－０００１-0002"
+   ]
+  },
+  {
+   "label": "作成・取得部局(Creator)",
+   "value": [
+    "注釈者:郭璞（晋）"
+   ]
+  },
+  {
+   "label": "年月日(Date)",
+   "value": [
+    "00000000"
+   ]
+  }
+ ],
+ "sequences": [
+  {
+   "@id": "https://www.digital.archives.go.jp/api/iiif/591091/seq/s0",
+   "@type": "sc:Sequence",
+   "viewingHint": "individuals",
+   "canvases": [
+    {
+     "@id": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385500",
+     "@type": "sc:Canvas",
+     "width": 7558,
+     "height": 5825,
+     "label": "C104174385500",
+     "images": [
+      {
+       "@type": "oa:Annotation",
+       "motivation": "sc:painting",
+       "resource": {
+        "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385500/iiif/M1000000000000101774_0001.jp2/full/max/0/native.jpg",
+        "@type": "dctypes:Image",
+        "format": "image/jpeg",
+        "width": 7558,
+        "height": 5825,
+        "service": {
+         "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385500/iiif/M1000000000000101774_0001.jp2",
+         "@context": "http://iiif.io/api/image/2/context.json",
+         "profile": "http://iiif.io/api/image/2/level1.json"
+        }
+       },
+       "on": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385500"
+      }
+     ],
+     "thumbnail": {
+      "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385500/cover/M1000000000000101774_0001.jp2.jpg",
+      "@type": "dctypes:Image"
+     }
+    },
+    {
+     "@id": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385600",
+     "@type": "sc:Canvas",
+     "width": 7558,
+     "height": 5825,
+     "label": "C104174385600",
+     "images": [
+      {
+       "@type": "oa:Annotation",
+       "motivation": "sc:painting",
+       "resource": {
+        "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385600/iiif/M1000000000000101774_0002.jp2/full/max/0/native.jpg",
+        "@type": "dctypes:Image",
+        "format": "image/jpeg",
+        "width": 7558,
+        "height": 5825,
+        "service": {
+         "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385600/iiif/M1000000000000101774_0002.jp2",
+         "@context": "http://iiif.io/api/image/2/context.json",
+         "profile": "http://iiif.io/api/image/2/level1.json"
+        }
+       },
+       "on": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385600"
+      }
+     ],
+     "thumbnail": {
+      "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385600/cover/M1000000000000101774_0002.jp2.jpg",
+      "@type": "dctypes:Image"
+     }
+    },
+    {
+     "@id": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385700",
+     "@type": "sc:Canvas",
+     "width": 7558,
+     "height": 5825,
+     "label": "C104174385700",
+     "images": [
+      {
+       "@type": "oa:Annotation",
+       "motivation": "sc:painting",
+       "resource": {
+        "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385700/iiif/M1000000000000101774_0003.jp2/full/max/0/native.jpg",
+        "@type": "dctypes:Image",
+        "format": "image/jpeg",
+        "width": 7558,
+        "height": 5825,
+        "service": {
+         "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385700/iiif/M1000000000000101774_0003.jp2",
+         "@context": "http://iiif.io/api/image/2/context.json",
+         "profile": "http://iiif.io/api/image/2/level1.json"
+        }
+       },
+       "on": "https://www.digital.archives.go.jp/api/iiif/591091/canvas/C104174385700"
+      }
+     ],
+     "thumbnail": {
+      "@id": "https://www.digital.archives.go.jp/api/content/item/da12/C104174385700/cover/M1000000000000101774_0003.jp2.jpg",
+      "@type": "dctypes:Image"
+     }
+    }
+   ]
+  }
+ ]
+}

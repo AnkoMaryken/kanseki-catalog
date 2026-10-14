@@ -33,6 +33,8 @@ import { WebDavProvider } from './core/sync/provider-webdav.js';
 import { initRecordsView, refreshRecordsView } from './ui/records.js';
 import { initKansekiDbView } from './ui/kanseki-db.js';
 import { initNajDbView } from './ui/naj-db.js';
+// V9.9：下载中心（标题栏按钮 + 右侧抽屉 + 完成/失败提醒）——开机即挂，切视图不丢
+import { initDownloadCenter } from './ui/naj-dl-center.js';
 
 // ---------- 工具 ----------
 const $ = (sel) => document.querySelector(sel);
@@ -641,7 +643,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.16.0';
+const APP_VERSION = '0.21.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -1360,6 +1362,11 @@ async function init() {
 
   // 编目记录视图初始化（V9.5：正式落库；store 传懒取值，因存储在本函数后半段才打开）
   initRecordsView({ getStore: () => store, isTauri, invoke: tauriInvoke });
+
+  // V9.9：下载中心 —— 标题栏「下载」按钮 + 右侧抽屉 + 完成/失败提醒。
+  // 开机即挂（不等到进入国立公文书馆视图）：下载可以在后台继续，
+  // 用户切到任何视图都能看到进度、暂停或取消。
+  try { initDownloadCenter(); } catch (_) { /* 非桌面版/初始化失败不影响主流程 */ }
 
   // 同步视图
   $('#syncTestBtn')?.addEventListener('click', testConnection);

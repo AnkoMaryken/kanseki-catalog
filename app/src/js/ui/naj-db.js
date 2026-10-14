@@ -30,6 +30,11 @@ import {
   parseSearchPage, parseRecordJson, buildSearchUrl, buildRecordUrl,
   itemToPairs, recordToPairs, citationOf, citationOfItem, classifySearch,
 } from '../core/naj-parse.js';
+// V9.8：整册 PDF 下载（原生主通道 + IIIF 兜底 + 零缺册门禁）
+import { openBookDownload, dlAvailable, dlButtonHtml } from './naj-dl.js';
+// V9.9：下载中心（标题栏按钮 + 抽屉 + 完成/失败提醒）与批量下载面板
+import { initDownloadCenter } from './naj-dl-center.js';
+import { initBatchUi } from './naj-dl-batch.js';
 
 // ---------------------------------------------------------------- 环境与传输
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
@@ -244,11 +249,49 @@ function togglePop(which, force) {
   btn?.setAttribute('aria-expanded', String(next));
 }
 
-function closePops() { togglePop(null, false); }
+function closePops() { togglePop(null, false); toggleRowsMenu(false); }
 
 function anyPopOpen() {
   const e = el('najAdv');
-  return !!(e && !e.hasAttribute('hidden'));
+  const menu = el('najRowsMenu');
+  return !!((e && !e.hasAttribute('hidden')) || (menu && !menu.hasAttribute('hidden')));
+}
+
+/** 显示件数下拉（V10.0：从检索行里挪到状态栏，按钮点击弹浮层） */
+function toggleRowsMenu(force) {
+  const menu = el('najRowsMenu');
+  const btn = el('najRowsBtn');
+  if (!menu) return;
+  const next = (force === undefined) ? menu.hasAttribute('hidden') : !!force;
+  if (next) menu.removeAttribute('hidden'); else menu.setAttribute('hidden', '');
+  btn?.setAttribute('aria-expanded', String(next));
+}
+
+function buildRowsMenu() {
+  const menu = el('najRowsMenu');
+  const sel = el('najRows');
+  if (!menu || !sel) return;
+  menu.innerHTML = ROWS_OPTIONS
+    .map((v) => `<button type="button" class="naj-rows-item" data-naj-rows="${v}">${v} 件</button>`)
+    .join('');
+  const sync = () => {
+    const cur = String(sel.value || '20');
+    if (el('najRowsLabel')) el('najRowsLabel').textContent = cur;
+    menu.querySelectorAll('[data-naj-rows]').forEach((b) => {
+      b.classList.toggle('on', b.dataset.najRows === cur);
+    });
+  };
+  menu.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-naj-rows]');
+    if (!b) return;
+    e.stopPropagation();
+    sel.value = b.dataset.najRows;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    sync();
+    toggleRowsMenu(false);
+  });
+  sel.addEventListener('change', sync);
+  sync();
 }
 
 function clearAdvanced() {
@@ -268,9 +311,14 @@ export function initNajDbView() {
   const form = el('najForm');
   if (!form) return;
 
+  // V9.9：下载中心（标题栏按钮 + 抽屉）与「批量下载」入口，随本视图一并初始化（幂等）
+  try { initDownloadCenter(); } catch (_) { /* 非桌面版或初始化失败不应影响检索 */ }
+  try { initBatchUi(); } catch (_) { /* 同上 */ }
+
   // 下拉、复选框、分类按钮（标签全部中文）
   fillSelect(el('najScope'), SCOPES);
   fillSelect(el('najRows'), ROWS_OPTIONS.map((v) => ({ value: String(v), label: `${v} 件` })));
+  buildRowsMenu();
   fillSelect(el('najInst'), [{ value: '', label: '（不限）' }, ...INSTITUTIONS.map(([v, l]) => ({ value: v, label: l }))]);
   fillSelect(el('najWare'), [{ value: '', label: '（不限）' }, ...OLD_HOLDINGS.map(([v, l]) => ({ value: v, label: l }))]);
   fillChecks(el('najTypes'), TYPES, 'naj-type');
@@ -285,9 +333,11 @@ export function initNajDbView() {
     el('najReset')?.addEventListener('click', resetForm);
     // 详细检索浮层（内閣文庫分类就在其中）：点浮层外或 Esc 关闭
     el('najToggle')?.addEventListener('click', (e) => { e.stopPropagation(); togglePop(); });
+    // 显示件数下拉（状态栏里、分页左侧）
+    el('najRowsBtn')?.addEventListener('click', (e) => { e.stopPropagation(); toggleRowsMenu(); });
     document.addEventListener('click', (e) => {
       if (!anyPopOpen()) return;
-      if (e.target.closest && e.target.closest('#najAdv, #najToggle')) return;
+      if (e.target.closest && e.target.closest('#najAdv, #najToggle, #najRowsWrap')) return;
       closePops();
     });
     el('najAdvClear')?.addEventListener('click', () => { clearAdvanced(); });
@@ -312,6 +362,15 @@ export function initNajDbView() {
       const link = e.target.closest('a[data-naj-out]');
       if (link) { e.preventDefault(); openExternal(link.getAttribute('href')); return; }
       if (e.target.closest('[data-naj-retry]')) { runSearch(state.page); return; }
+      // V9.8：结果行右侧「下载」→ 整册 PDF（含全部子册）
+      const dl = e.target.closest('[data-naj-dl]');
+      if (dl) {
+        e.preventDefault();
+        e.stopPropagation();
+        const it = state.items[Number(dl.dataset.najDl)];
+        if (it) openBookDownload({ id: it.id, title: it.title, url: it.url, categoryPath: hierarchyToCategory(it) });
+        return;
+      }
       const row = e.target.closest('.kdb-row');
       if (row && row.dataset.idx != null) openDetail(Number(row.dataset.idx));
     });
@@ -319,6 +378,11 @@ export function initNajDbView() {
       const link = e.target.closest('a[data-naj-out]');
       if (link) { e.preventDefault(); openExternal(link.getAttribute('href')); return; }
       if (e.target.closest('[data-naj-back]')) { showResults(); return; }
+      if (e.target.closest('[data-naj-dlbook]')) {
+        const it = state.selected;
+        if (it) openBookDownload({ id: it.id, title: it.title, url: it.url, categoryPath: hierarchyToCategory(it) });
+        return;
+      }
       const copy = e.target.closest('[data-naj-copy]');
       if (copy) { copyText(copy.dataset.najCopy || ''); return; }
       if (e.target.closest('[data-naj-torecord]')) { toCatalogRecord(); return; }
@@ -478,6 +542,24 @@ function renderPager() {
 }
 
 // ---------------------------------------------------------------- 结果渲染
+
+/** 从检索条目的階層链取分类路径（去掉顶层「内閣文庫」与末段=记录自身） */
+function hierarchyToCategory(it) {
+  const titles = (it && it.hierarchy ? it.hierarchy : [])
+    .map((h) => h && h.title)
+    .filter((t) => t && t !== '内閣文庫');
+  if (titles.length && it && titles[titles.length - 1] === it.title) titles.pop();
+  return titles;
+}
+
+/** 结果条目 → 下载所需的最小记录（无 ID 则返回 null，绝不臆造） */
+function recordForDownload(it) {
+  if (!it) return null;
+  const id = it.id || (it.url ? (String(it.url).match(/(\d{3,})\s*$/) || [])[1] : '');
+  if (!id) return null;
+  return { id: String(id), title: it.title || '', url: it.url || '', categoryPath: hierarchyToCategory(it) };
+}
+
 function renderResults(parsed, kind) {
   const box = el('najResults');
   if (!box) return;
@@ -519,6 +601,7 @@ function resultRowHtml(it, i) {
         <span class="naj-no">${escHtml(it.no || String(i + 1))}</span>
         ${kind}
         <span class="kdb-row-title naj-row-title">${escHtml(it.title || '（原站该条无标题）')}</span>
+        ${recordForDownload(it) ? dlButtonHtml(i, it.title) : ''}
       </div>
       ${tree}
       <div class="naj-kvs">${kvs}</div>
@@ -613,6 +696,7 @@ function renderDetail(rec, item, resp) {
     </div>
     <div class="kdb-detail-actions">
       <a class="av-btn av-btn-primary" data-naj-out href="${escHtml(rec.pageUrl)}" style="text-decoration:none">打开原网页（查看图像）</a>
+      ${recordForDownload(item) ? '<button class="av-btn" data-naj-dlbook="1" type="button">下载整册 PDF</button>' : ''}
       <button class="av-btn" data-naj-copy="${escHtml(cite)}" type="button">复制引用例</button>
       <button class="av-btn" data-naj-torecord="1" type="button">参考此记录新建编目记录</button>
     </div>
@@ -648,6 +732,7 @@ function renderDetailFallback(item, resp, errMsg) {
     </div>
     <div class="kdb-detail-actions">
       <a class="av-btn av-btn-primary" data-naj-out href="${escHtml(item.url || '')}" style="text-decoration:none">打开原网页（查看图像）</a>
+      ${recordForDownload(item) ? '<button class="av-btn" data-naj-dlbook="1" type="button">下载整册 PDF</button>' : ''}
       <button class="av-btn" data-naj-copy="${escHtml(cite)}" type="button">复制引用例</button>
       <button class="av-btn" data-naj-torecord="1" type="button">参考此记录新建编目记录</button>
     </div>

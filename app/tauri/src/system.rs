@@ -15,6 +15,19 @@
 // ================================================
 use tauri::Manager;
 
+/// 显示并聚焦主窗口（V10.0：从托盘/下载中心唤回窗口用）
+#[tauri::command]
+pub async fn app_show_main(app: tauri::AppHandle) -> Result<(), String> {
+    crate::tray::show_main(&app);
+    Ok(())
+}
+
+/// 是否请求打开「下载中心」（托盘菜单点的；取走即清零）
+#[tauri::command]
+pub async fn app_take_open_center() -> Result<bool, String> {
+    Ok(crate::tray::take_open_center())
+}
+
 /// 显示并聚焦「设置」窗口
 ///
 /// 该窗口在 tauri.conf.json 中声明（启动时隐藏），正常情况下**始终存在**：

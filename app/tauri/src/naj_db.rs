@@ -26,13 +26,21 @@ use serde::{Deserialize, Serialize};
 /// 唯一允许的站点
 const HOST: &str = "www.digital.archives.go.jp";
 /// 允许的路径前缀（均为该站公开的检索/数据端点）
-const ALLOWED_PATHS: &[&str] = &[
+///
+/// V9.8 新增三项，供「批量下载」（naj_dl.rs）使用：
+///   · /img/            查看器页（下载表单与逐页 cid 就在这一页）
+///   · /contentDownload/ 站方原生下载端点（robots 中为 Disallow，仅由用户显式点选触发）
+///   · /api/content/item/ IIIF 逐页取图（兜底通道）
+pub(crate) const ALLOWED_PATHS: &[&str] = &[
     "/search",
     "/item/",
     "/file/",
     "/fonds/",
     "/sparql",
     "/api/iiif/",
+    "/api/content/item/",
+    "/contentDownload/",
+    "/img/",
     "/thumb/",
 ];
 /// 浏览器 UA：该站对非浏览器 UA 的连接处理更不稳定（实测），统一伪装
@@ -56,7 +64,7 @@ pub struct NajHttpResponse {
 }
 
 /// 白名单校验：仅 https + 本站 + 允许的路径前缀
-fn url_allowed(url: &str) -> bool {
+pub(crate) fn url_allowed(url: &str) -> bool {
     let rest = match url.strip_prefix("https://") {
         Some(r) => r,
         None => return false,
@@ -263,10 +271,28 @@ mod tests {
     }
 
     #[test]
+    fn allows_download_paths_added_in_v98() {
+        // V9.8：批量下载所需的三类端点（仍限本站、仍拒上跳/编码绕过）
+        assert!(url_allowed("https://www.digital.archives.go.jp/img/591091"));
+        assert!(url_allowed(
+            "https://www.digital.archives.go.jp/contentDownload/591091?type=imagePdf"
+        ));
+        assert!(url_allowed(
+            "https://www.digital.archives.go.jp/api/content/item/da12/C104174385500/iiif/M1_0001.jp2/full/max/0/native.jpg"
+        ));
+        // 但站外/非 https 仍被拒（下载通道不放松主机与协议判定）
+        assert!(!url_allowed("http://www.digital.archives.go.jp/contentDownload/1"));
+        assert!(!url_allowed("https://evil.example.com/contentDownload/1"));
+        assert!(!url_allowed(
+            "https://www.digital.archives.go.jp/item/../../contentDownload/1"
+        ));
+    }
+
+    #[test]
     fn rejects_other_hosts_schemes_and_paths() {
         assert!(!url_allowed("http://www.digital.archives.go.jp/search")); // 只走 https
         assert!(!url_allowed("https://www.digital.archives.go.jp/"));
-        assert!(!url_allowed("https://www.digital.archives.go.jp/contentDownload/a.pdf"));
+        assert!(!url_allowed("https://www.digital.archives.go.jp/contentDownloading/a.pdf")); // 前缀须整段命中
         assert!(!url_allowed("https://www.digital.archives.go.jp.evil.com/search"));
         assert!(!url_allowed("https://evil.example.com/search"));
         assert!(!url_allowed("https://www.digital.archives.go.jp:8443/search"));

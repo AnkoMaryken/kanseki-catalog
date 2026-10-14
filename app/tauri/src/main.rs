@@ -7,8 +7,11 @@ mod ai;
 mod http;
 mod kanseki_db;
 mod naj_db;
+mod naj_dl;
+mod pdf_merge;
 mod single_instance;
 mod system;
+mod tray;
 mod websearch;
 
 fn main() {
@@ -32,6 +35,24 @@ fn main() {
             kanseki_db::kanseki_fetch,
             // V9.5：国立公文書館デジタルアーカイブ（日本国立公文书馆）检索桥
             naj_db::naj_fetch,
+            // V9.8：国立公文书馆 批量下载（原生 PDF 主通道 + IIIF 兜底 + 打包/校验）
+            naj_dl::naj_dl_native_pdf,
+            naj_dl::naj_dl_iiif_volume,
+            naj_dl::naj_dl_zip,
+            naj_dl::naj_dl_verify_pdf,
+            naj_dl::naj_dl_write_text,
+            naj_dl::naj_dl_read_text,
+            naj_dl::naj_dl_stat,
+            naj_dl::naj_dl_mkdir,
+            naj_dl::naj_dl_default_root,
+            naj_dl::naj_dl_pick_folder,
+            naj_dl::naj_dl_progress,
+            naj_dl::naj_dl_progress_reset,
+            naj_dl::naj_dl_merge_pdfs,
+            naj_dl::naj_dl_remove,
+            // V10.0：托盘（关闭转后台）相关
+            system::app_show_main,
+            system::app_take_open_center,
             // V9.2：设置窗口与外部链接
             system::open_settings_window,
             // V9.7：纪年小窗（可置顶）
@@ -45,6 +66,26 @@ fn main() {
             system::reveal_path,
         ])
         .setup(|app| {
+            // V10.0：托盘图标 —— 关闭窗口不再退出，而是隐藏到托盘，下载在后台继续
+            {
+                use tauri::Manager;
+                if let Err(e) = tray::init(app.handle()) {
+                    eprintln!("托盘初始化失败（不影响主功能）：{}", e);
+                }
+                // 主窗口「关闭」→ 隐藏（只有托盘菜单「退出」才真正结束）
+                if let Some(win) = app.get_webview_window("main") {
+                    let w = win.clone();
+                    win.on_window_event(move |ev| {
+                        if let tauri::WindowEvent::CloseRequested { api, .. } = ev {
+                            if !tray::is_exiting() {
+                                api.prevent_close();
+                                let _ = w.hide();
+                            }
+                        }
+                    });
+                }
+            }
+
             // V9.2.1 修复「设置窗口只能打开一次」：
             // 用户关闭设置窗口时，Tauri 默认**销毁**该窗口，此后
             // app.get_webview_window("settings") 返回 None，

@@ -211,6 +211,8 @@
         </a>
         <a href="#/catalog?tab=1" data-view="catalog" data-tab="1" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>分类表查询</span>
+          <!-- 红标：该部分内容尚未按新规范调整（用户要求明确告知） -->
+          <span class="nav-flag" title="这部分内容尚未调整，请以《编目细则》与工作手册为准">未调整</span>
           <span class="nav-dir" data-dir-open="1" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
         <a href="#/catalog?tab=2" data-view="catalog" data-tab="2" class="nav-item">
@@ -388,7 +390,8 @@
           </div>
         </header>
         <form class="av-card kdb-card" id="najForm">
-          <!-- 常驻主检索行 -->
+          <!-- 常驻主检索行（按钮文字一律单行；「显示件数」已移到检索栏与结果栏之间，
+               见下方状态栏里的 #najRowsBtn 下拉） -->
           <div class="kdb-main naj-main">
             <select id="najScope" class="kdb-select naj-scope" aria-label="检索范围"></select>
             <input id="najKw" class="kdb-main-input" type="text" autocomplete="off"
@@ -399,8 +402,6 @@
               详细检索<span class="kdb-caret" aria-hidden="true">↓</span><span class="kdb-fn" id="najFilterCount" hidden>0</span>
             </button>
             <button type="button" class="av-btn" id="najReset">清空</button>
-            <label class="naj-rows-field"><span>显示件数</span>
-              <select id="najRows" class="kdb-select naj-rows" aria-label="显示件数"></select></label>
           </div>
 
           <!-- 详细检索（浮层，交互与「汉籍检索（日本）」的筛选一致） -->
@@ -458,6 +459,15 @@
         <div class="kdb-statusbar">
           <div class="kdb-status" id="najStatus"></div>
           <div class="kdb-sumline naj-cond" id="najCondSummary" hidden></div>
+          <!-- 显示件数：放在检索栏与结果栏之间的空隙处、分页按钮左侧；
+               点按钮弹出浮动下拉（原来是扎在检索行里的一个 select） -->
+          <div class="kdb-sumline naj-rows-wrap" id="najRowsWrap">
+            <button class="av-btn naj-rows-btn" id="najRowsBtn" type="button"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="najRowsMenu"
+                    title="每页显示多少条检索结果">显示件数：<b id="najRowsLabel">20</b> 件<span class="kdb-caret" aria-hidden="true">↓</span></button>
+            <div class="naj-rows-menu" id="najRowsMenu" hidden></div>
+            <select id="najRows" class="naj-rows-raw" aria-label="显示件数" hidden></select>
+          </div>
           <div class="kdb-sumline naj-pager" id="najPager" hidden>
             <button class="av-btn naj-page-btn" id="najPrev" type="button">← 上一页</button>
             <span id="najPageInfo" class="naj-page-info"></span>
@@ -636,13 +646,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.16.0（V5 路线图）</p>
+          <p class="av-ver">版本 0.21.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.16.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.21.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

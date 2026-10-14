@@ -1,6 +1,6 @@
 [package]
 name = "kanseki-app"
-version = "0.16.0"
+version = "0.21.0"
 description = "古代史及汉籍研究工具 - Windows 桌面 APP"
 authors = ["kanseki"]
 edition = "2021"
@@ -11,12 +11,19 @@ edition = "2021"
 #   会导致 cargo 报 "can't find library `kanseki_app_lib`" 而无法构建。）
 
 [dependencies]
-tauri = { version = "2", features = [] }
+# V10.0：tray-icon 特性 = 托盘图标（关闭转后台、点托盘可再进入）
+tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-shell = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
 base64 = "0.22"
+# ---- V9.8 国立公文书馆批量下载（naj_dl.rs）----
+# flate2：解析原站 /contentDownload 返回的 ZIP（deflate 条目）
+# sha2  ：逐册 PDF 的 SHA-256（断点续传与完整性清单的判据）
+# 两者均取本机 cargo 缓存中已有版本，避免联网拉取。
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+sha2 = "0.10"
 
 # ---- 工具链兼容修补（必留）----
 # 背景：schemars 0.8（tauri-build / tauri-utils 的传递依赖）依赖 indexmap 1.x，

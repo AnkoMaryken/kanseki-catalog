@@ -63,10 +63,17 @@ function waitForCdp(timeoutMs = 35000) {
   });
 }
 
+/** 设置「显示件数」（V10.0 起该控件移到状态栏、点按钮弹浮层；底层 select 已隐藏） */
+async function setRows(page, value) {
+  await page.click('#najRowsBtn');
+  await page.waitForSelector('#najRowsMenu:not([hidden])', { timeout: 5000 });
+  await page.click(`#najRowsMenu [data-naj-rows="${value}"]`);
+  await page.waitForTimeout(200);
+}
+
 (async () => {
   const pw = await import(pathToFileURL(config.playwrightCorePath()).href);
   const chromium = pw.default.chromium || pw.chromium;
-
   if (!require('fs').existsSync(EXE)) {
     console.log('!! 未找到 exe:', EXE);
     process.exit(2);
@@ -191,7 +198,7 @@ function waitForCdp(timeoutMs = 35000) {
   console.log('\n[4] 真实检索 論語（走 Rust 桥 → 原站）');
   await page.fill('#najKw', '論語');
   await page.selectOption('#najScope', 'kw_all');
-  await page.selectOption('#najRows', '20');
+  await setRows(page, '20');
   await page.click('#najSearchBtn');
 
   const started = Date.now();
@@ -252,12 +259,14 @@ function waitForCdp(timeoutMs = 35000) {
     return { n: await page.locator('.naj-row').count(), total: -1 };
   };
 
+  // 先设好「显示件数」再展开详细检索浮层（浮层会盖住状态栏；产品侧已把该按钮提高到浮层之上，
+  // 这里按真实用户顺序走，避免依赖层级）
+  await page.fill('#najKw', '漢書');
+  await setRows(page, '20');
   await page.click('#najToggle');
   await page.waitForTimeout(300);
   ok('详细检索面板可展开', await page.locator('#najAdv').isVisible());
   await page.check('#najTypes input[value="da22"]');
-  await page.fill('#najKw', '漢書');
-  await page.selectOption('#najRows', '20');
   await page.click('#najSearchBtn');
   const r22 = await waitResults();
   ok('限定簿册后有结果', r22.n > 0, 'items=' + r22.n + ' total=' + r22.total);
@@ -353,7 +362,7 @@ function waitForCdp(timeoutMs = 35000) {
   ok('站外域名被拒绝', deny !== 'ALLOWED' && /仅允许/.test(deny), deny.slice(0, 60));
   const denyPath = await page.evaluate(async () => {
     try {
-      await window.__TAURI_INTERNALS__.invoke('naj_fetch', { url: 'https://www.digital.archives.go.jp/contentDownload/a.pdf' });
+      await window.__TAURI_INTERNALS__.invoke('naj_fetch', { url: 'https://www.digital.archives.go.jp/bundles/da/js/common.js' });
       return 'ALLOWED';
     } catch (e) { return String(e && e.message ? e.message : e); }
   });
