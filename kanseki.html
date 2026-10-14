@@ -447,6 +447,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
           <span class="ks-aio-title" data-cn="AI 复检结果">AI 复检结果</span>
           <span id="ksAiVerdict"></span>
           <span class="ks-aio-spacer"></span>
+          <button class="ks-btn ks-btn-tiny" id="ksAiSet2" type="button" data-cn="设置">设置</button>
           <button class="ks-btn ks-btn-tiny" id="ksAiMd" type="button" data-cn="导出 Markdown">导出 Markdown</button>
           <button class="ks-btn ks-btn-tiny" id="ksAiClose" type="button" data-cn="收起">收起</button>
         </div>
@@ -1783,6 +1784,34 @@ function aiHintOut(msg){
   if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
   if ($('ksAiFb')) $('ksAiFb').hidden = true;
 }
+/* 打开 API 设置：桌面版开设置窗口，网页版跳设置页（由 ai-config.js 的 openSettings 决定） */
+function aiOpenSettings(){
+  if (!aiLib()) return;
+  aiLib().openSettings().catch(function (e) { aiHintOut(String(e && e.message || e)); });
+}
+/* 未配置 API 时的提示：**带一个可点的按钮**。
+   原先只显示一段文字「网页版：设置页 → API 管理」，用户根本找不到入口
+   （网页版导航里没有设置链接，唯一入口藏在长按弹出的弹窗底部）。 */
+function aiNeedKeyOut(){
+  var o = $('ksAiOut');
+  if (!o) return;
+  o.hidden = false;
+  if ($('ksAiVerdict')) $('ksAiVerdict').innerHTML = '';
+  if ($('ksAiSrc')) $('ksAiSrc').hidden = true;
+  if ($('ksAiOutBody')) {
+    $('ksAiOutBody').innerHTML =
+      '<span style="color:var(--color-text-muted)">' + aiEsc(toDisplay('尚未配置 DeepSeek API。')) + '</span>' +
+      '<div class="ks-ai-actions" style="margin-top:.55rem">' +
+        '<button class="ks-btn primary" id="ksAiGoSet" type="button">' + aiEsc(toDisplay('去配置 API')) + '</button>' +
+        '<span style="color:var(--color-text-muted);font-size:.78rem">' +
+          aiEsc(toDisplay('桌面版：设置窗口 → API 管理；网页版：设置页 → API 管理。')) + '</span>' +
+      '</div>';
+    var b = $('ksAiGoSet');
+    if (b) b.addEventListener('click', aiOpenSettings);
+  }
+  if ($('ksAiWarn')) $('ksAiWarn').hidden = true;
+  if ($('ksAiFb')) $('ksAiFb').hidden = true;
+}
 function aiBusyOut(msg){
   var o = $('ksAiOut'); if (!o) return;
   o.hidden = false;
@@ -1838,7 +1867,7 @@ function aiRecheck(){
   aiHintOut('请先在搜索框输入书名，或在表格中点击选中一条记录，再点「AI 复检」。（长按本按钮可整页复检或提问）');
 }
 function aiRecheckRow(i){
-  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'); return; }
+  if (!aiHasKey()) { aiNeedKeyOut(); return; }
   aiBusy = true;
   aiBusyOut('正在联网查证并复检第 ' + (i + 1) + ' 条…');
   aiRunSearches(aiSearchQueriesForRow(i), 5).then(function (search) {
@@ -1854,7 +1883,7 @@ function aiRecheckRow(i){
   });
 }
 function aiRecheckQuery(q){
-  if (!aiHasKey()) { aiHintOut('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'); return; }
+  if (!aiHasKey()) { aiNeedKeyOut(); return; }
   // 本表中的候选（用当前检索结果的前几条）
   var cands = (state.rows || []).slice(0, 5);
   aiBusy = true;
@@ -2036,7 +2065,7 @@ function aiOpenModal(which){
   aiTab(which || 'page');
   if ($('ksAiCfg')) $('ksAiCfg').textContent = aiCfgText();
   if (!aiHasKey()) {
-    aiPush('err', toDisplay('尚未配置 DeepSeek API。桌面版：设置 → API 管理；网页版：设置页 → API 管理。'), toDisplay('提示'));
+    aiPush('err', toDisplay('尚未配置 DeepSeek API，请点下方「打开设置」填写。'), toDisplay('提示'));
   }
   var t = $('ksAiInput'); if (t) setTimeout(function () { t.focus(); }, 50);
 }
@@ -2046,7 +2075,7 @@ function aiCloseModal(){
 }
 function aiPageRecheck(){
   if (aiBusy) return;
-  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请先到设置中填写。'), toDisplay('提示')); return; }
+  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请点下方「打开设置」填写。'), toDisplay('提示')); return; }
   var idxs = aiPick($('ksAiScope') ? $('ksAiScope').value : 'page');
   if (!idxs.length) { aiPush('err', toDisplay('当前结果为空，没有可送审的条目。'), toDisplay('提示')); return; }
   $('ksAiBody').innerHTML = '';
@@ -2066,7 +2095,7 @@ function aiAsk(){
   if (aiBusy) return;
   var el = $('ksAiInput'), q = el ? String(el.value || '').trim() : '';
   if (!q) return;
-  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请先到设置中填写。'), toDisplay('提示')); return; }
+  if (!aiHasKey()) { aiPush('err', toDisplay('尚未配置 DeepSeek API，请点下方「打开设置」填写。'), toDisplay('提示')); return; }
   aiPush('user', q, toDisplay('我'));
   el.value = '';
   aiSetBusy(true, '正在回答…');
@@ -2139,12 +2168,8 @@ function aiInit(){
     if ($('ksAiBody')) $('ksAiBody').innerHTML = '';
     aiPush('ai', toDisplay('对话已清空。'), toDisplay('提示'));
   });
-  B('ksAiOpenSet', function () {
-    if (!aiLib()) return;
-    aiLib().openSettings().catch(function (e) {
-      aiPush('err', String(e && e.message || e), toDisplay('错误'));
-    });
-  });
+  B('ksAiOpenSet', aiOpenSettings);
+  B('ksAiSet2', aiOpenSettings);
   var modal = $('ksAiModal');
   if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) aiCloseModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') aiCloseModal(); });

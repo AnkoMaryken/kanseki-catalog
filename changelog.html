@@ -171,6 +171,26 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v10.2.2 · 网页版同步</span>
+      <span class="cl-date">2026-10-07</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li><b>修复：网页版找不到 API 配置入口</b>。网页版要配置 AI 复检的 DeepSeek API，此前只有两条路：
+        ① 直接手输网址 <code>settings.html#api</code>；② <b>长按</b>「AI 复检」按钮弹出模态窗、再找底部的「打开设置」。
+        而没有配置时给出的提示「网页版：设置页 → API 管理」<b>只是一段死文字，点不了</b>，
+        于是用户看到「未配置」却不知道去哪配。现在：</li>
+      <li>· 未配置时的提示改为<b>带按钮</b>——「尚未配置 DeepSeek API。」下方直接给一个
+        <b>「去配置 API」</b> 主按钮，点一下即跳到设置页的 API 管理分区（桌面版则打开设置窗口）。</li>
+      <li>· AI 复检结果区<b>头部新增常驻的「设置」按钮</b>，任何时候都能一键进设置，不必再长按。</li>
+      <li>· 模态窗内两处「尚未配置」提示改为「请点下方『打开设置』填写」，与底部按钮对应。</li>
+      <li><b>说明</b>：网页版的配置页是 <code>settings.html</code>（API 管理分区），Key 存在浏览器
+        <code>localStorage</code>（<code>kanseki_deepseek_key</code>），与桌面版各自独立、互不同步。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v10.2.1 · 网页版同步</span>
       <span class="cl-date">2026-10-07</span>
       <span class="cl-tag t-opt">同步</span>
