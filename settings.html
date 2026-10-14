@@ -68,11 +68,14 @@
   .set-tab.active{background:var(--c-surface);color:var(--c-text);font-weight:600;
                   box-shadow:0 1px 2px rgba(0,0,0,.06)}
   .set-tab[hidden]{display:none !important}
-  /* 网页版专有：返回主站（桌面版是独立设置窗口，用标题栏关闭，不需要它） */
-  .set-back{display:block;padding:.5rem .65rem;margin-bottom:.35rem;border-radius:8px;
-            font-size:.83rem;color:var(--c-text-secondary);text-decoration:none;
-            border:1px solid var(--c-border);background:var(--c-surface)}
-  .set-back:hover{background:var(--c-surface-hover);color:var(--c-text)}
+  /* 「返回主页」：网页版与桌面版都显示（桌面版是关闭设置窗口回到主窗口）
+     —— 做得显眼一些，此前是细边框小字，用户反映「找不到返回按钮」 */
+  .set-back{display:flex;align-items:center;justify-content:center;gap:.35rem;
+            padding:.5rem .65rem;margin-bottom:.55rem;border-radius:8px;
+            font-size:.85rem;font-weight:600;color:var(--c-text);text-decoration:none;
+            border:1px solid var(--c-border);background:var(--c-surface);cursor:pointer;
+            transition:background .13s,color .13s,border-color .13s}
+  .set-back:hover{background:var(--c-text);color:var(--c-bg);border-color:var(--c-text)}
   .set-back[hidden]{display:none !important}
   .set-foot{margin-top:auto;padding:.7rem .65rem 0;font-size:.72rem;color:var(--c-text-muted);
             line-height:1.7;border-top:1px solid var(--c-border)}
@@ -86,6 +89,10 @@
   .set-pane iframe{width:100%;height:calc(100vh - 190px);border:1px solid var(--c-border);
                    border-radius:10px;background:#fff}
   .set-h{font-size:1.05rem;margin:0 0 .2rem}
+  /* 面板标题行：标题 + 「返回主页」（仅网页版显示） */
+  .set-hrow{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+  .set-home{flex:0 0 auto;text-decoration:none;display:inline-flex;align-items:center;gap:.25rem}
+  .set-home[hidden]{display:none !important}
   .set-sub{font-size:.8rem;color:var(--c-text-muted);margin:0 0 1rem;line-height:1.7}
   .set-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.35rem 0}
   .set-row label{font-size:.82rem;color:var(--c-text-secondary);min-width:112px}
@@ -164,7 +171,7 @@
 
 <div class="set-body">
   <aside class="set-rail">
-    <a class="set-back" id="setBack" href="index.html" hidden>← 返回纪年查询</a>
+    <a class="set-back" id="setBack" href="index.html" hidden>← 返回主页</a>
     <button class="set-tab active" id="tab-sync" type="button" data-pane="sync">同步设置</button>
     <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
     <div class="set-foot" id="setFoot" hidden>
@@ -203,7 +210,10 @@
 
     <!-- ---------- API 管理 ---------- -->
     <section class="set-pane" id="pane-api">
-      <h2 class="set-h">API 管理</h2>
+      <div class="set-hrow">
+        <h2 class="set-h">API 管理</h2>
+        <a class="set-btn set-home" id="setHome" href="index.html" hidden>← 返回主页</a>
+      </div>
       <p class="set-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只存在本机。</p>
 
       <div class="set-row">
@@ -310,9 +320,11 @@ if (IS_TAURI) {
   var sp = document.getElementById('pane-sync');
   if (st) st.hidden = true;
   if (sp) sp.hidden = true;
-  // 网页版：显示「返回纪年查询」，配好 API 后能直接回主站
-  var sb = document.getElementById('setBack');
-  if (sb) sb.hidden = false;
+  // 网页版：显示「返回主页」——左栏顶部一个、API 管理面板标题行一个（后者更醒目，用户要求「面板里也要有」）
+  var sBack = document.getElementById('setBack');
+  var sHome = document.getElementById('setHome');
+  if (sBack) sBack.hidden = false;
+  if (sHome) sHome.hidden = false;
 }
 
 /* ---------- 左栏切换 ---------- */
