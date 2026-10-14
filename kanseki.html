@@ -226,6 +226,33 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   font-size:.95rem;line-height:1;padding:.15rem .35rem;border-radius:4px}
 .ks-hist-del:hover{background:var(--color-surface-hover);color:#c0392b}
 .ks-hist-empty{font-size:.78rem;color:var(--color-text-muted);padding:.6rem .45rem}
+    /* V10.2：检索框包一层，历史浮层挂在它下面（点击检索框即显示，不再用「历史」按钮） */
+    .ks-search-wrap{position:relative;flex:1 1 280px;min-width:190px;display:flex}
+    .ks-search-wrap .ks-search{flex:1 1 auto;width:100%;min-width:0}
+    /* V10.2：批量查询面板 */
+    .ks-batch{margin:.7rem 1.1rem 0;padding:.85rem 1rem;border:1px solid var(--color-border);
+      border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-sm)}
+    .ks-batch[hidden]{display:none !important}
+    .ks-batch-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.55rem}
+    .ks-batch-title{font-size:.9rem;font-weight:600;color:var(--color-text)}
+    .ks-batch-hint{font-size:.74rem;color:var(--color-text-muted)}
+    .ks-batch-spacer{flex:1 1 auto}
+    .ks-batch-input{width:100%;min-height:86px;resize:vertical;font-family:var(--font-mono,var(--font-body));
+      font-size:.82rem;line-height:1.6;padding:.5rem .7rem;border:1px solid var(--color-border);
+      border-radius:var(--radius-md);background:var(--color-bg-alt);color:var(--color-text)}
+    .ks-batch-input:focus{outline:none;border-color:var(--color-primary);background:var(--color-surface)}
+    .ks-batch-actions{display:flex;align-items:center;gap:.5rem;margin:.55rem 0 .2rem}
+    .ks-batch-status{font-size:.76rem;color:var(--color-text-muted)}
+    .ks-batch-body{margin-top:.5rem;max-height:340px;overflow:auto}
+    .ks-batch-table{width:100%;border-collapse:collapse;font-size:.8rem}
+    .ks-batch-table th,.ks-batch-table td{border-bottom:1px solid var(--color-divider);
+      padding:.32rem .45rem;text-align:left;vertical-align:top}
+    .ks-batch-table th{position:sticky;top:0;background:var(--color-surface);font-weight:600;
+      color:var(--color-text-secondary);white-space:nowrap}
+    .ks-batch-table td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+    .ks-batch-q{font-weight:600}
+    .ks-batch-zero{color:#c0392b}
+    .ks-batch-sample{color:var(--color-text-muted)}
 /* 联网查证状态行（V9.3） */
 .ks-aio-src{padding:.45rem 1.1rem;border-bottom:1px solid var(--color-divider);
   font-size:.75rem;color:var(--color-text-secondary);line-height:1.7;word-break:break-all}
@@ -358,17 +385,12 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 
     <section class="ks-card" aria-label="检索区">
       <div class="ks-toolbar">
-        <input type="text" id="ksSearch" class="ks-search" autocomplete="off" spellcheck="false"
-               data-cn-ph="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
-               placeholder="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
-               aria-label="检索">
-        <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
-        <!-- 检索历史（V9.3.1）：记录最近检索词，一键回填重查 -->
-        <div class="ks-hist-wrap">
-          <button class="ks-btn" id="ksHistBtn" type="button" aria-haspopup="true" aria-expanded="false"
-                  title="最近检索过的关键词">
-            <span data-cn="历史">历史</span><span class="ks-hist-n" id="ksHistN" hidden>0</span>
-          </button>
+        <!-- V10.2：检索历史不再用按钮，改为**点击检索框**即显示（历史与「纪年查询」分开存储） -->
+        <div class="ks-search-wrap" id="ksSearchWrap">
+          <input type="text" id="ksSearch" class="ks-search" autocomplete="off" spellcheck="false"
+                 data-cn-ph="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
+                 placeholder="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
+                 aria-label="检索">
           <div class="ks-hist" id="ksHistPanel" hidden role="menu" aria-label="检索历史">
             <div class="ks-hist-head">
               <span data-cn="最近检索">最近检索</span>
@@ -377,6 +399,10 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
             <ul class="ks-hist-list" id="ksHistList"></ul>
           </div>
         </div>
+        <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
+        <!-- V10.2：批量查询（每行一条，逐条给命中数与示例） -->
+        <button class="ks-btn" id="ksBatchBtn" type="button" aria-haspopup="true" aria-expanded="false"
+                title="一次查多条：每行一条书名/著者/类目">批量查询</button>
         <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
         <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
                 title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
@@ -386,6 +412,29 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
           <button type="button" id="langBtnT" class="active" title="显示繁体字" data-cn="繁">繁</button>
         </div>
         <button class="btn-icon" id="themeToggleSide" type="button" title="切换主题">☀</button>
+      </div>
+
+      <!-- ============================================================
+           批量查询（V10.2）
+           每行一条查询词，逐条给出命中数、判定分布与前几条示例，可导出 CSV。
+           ============================================================ -->
+      <div class="ks-batch" id="ksBatchPanel" hidden>
+        <div class="ks-batch-head">
+          <span class="ks-batch-title" data-cn="批量查询">批量查询</span>
+          <span class="ks-batch-hint" data-cn="每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条">每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条</span>
+          <span class="ks-batch-spacer"></span>
+          <button class="ks-btn ks-btn-tiny" id="ksBatchExport" type="button" data-cn="导出结果 CSV">导出结果 CSV</button>
+          <button class="ks-btn ks-btn-tiny" id="ksBatchClose" type="button" data-cn="收起">收起</button>
+        </div>
+        <textarea class="ks-batch-input" id="ksBatchInput" spellcheck="false"
+                  data-cn-ph="每行一条，例如：&#10;周易&#10;論語 朱熹&#10;經部 易類"
+                  placeholder="每行一条，例如：&#10;周易&#10;論語 朱熹&#10;經部 易類"></textarea>
+        <div class="ks-batch-actions">
+          <button class="ks-btn primary" id="ksBatchRun" type="button" data-cn="开始查询">开始查询</button>
+          <button class="ks-btn" id="ksBatchClear" type="button" data-cn="清空">清空</button>
+          <span class="ks-batch-status" id="ksBatchStatus"></span>
+        </div>
+        <div class="ks-batch-body" id="ksBatchBody"></div>
       </div>
 
       <!-- ============================================================
@@ -549,7 +598,7 @@ document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
    ============================================================ */
-var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'9.4.2' };
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'10.2' };
 
 /* ============================================================
    繁简转换
@@ -943,6 +992,7 @@ function vdClass(v){
   return 'vd-none';
 }
 function render(){
+  if (batchMode) return;            // 批量查询期间不重绘（跑完统一重绘一次）
   var rows = state.rows || [], total = rows.length;
   var perPage = state.perPage || 100;
   var pages = Math.max(1, Math.ceil(total / perPage));
@@ -1139,13 +1189,15 @@ function exportCSV(){
    交互
    ============================================================ */
 /* ============================================================
-   检索历史（V9.3.1）
+   检索历史（V9.3.1；V10.2 改版）
    ------------------------------------------------------------
-   记录最近检索过的关键词（本机 localStorage，最多 20 条），可一键回填重查。
-   记录时机：按 Enter / 点「检索」/ 输入停顿 1.2 秒（即真正执行过的检索），
-   而不是每敲一个字就记一条。
+   · 记录最近检索过的关键词（本机 localStorage，最多 20 条），可一键回填重查；
+   · **与「纪年查询」的历史分开存储**：本页用 kanseki_cat_search_history，
+     纪年查询页用 kanseki_search_history，两边互不干扰（用户要求）。
+   · 不再有「历史」按钮：**点击检索框即显示**历史浮层。
+   记录时机：按 Enter / 点「检索」/ 输入停顿 1.2 秒（即真正执行过的检索）。
    ============================================================ */
-var HIST_KEY = 'kanseki_search_history';
+var HIST_KEY = 'kanseki_cat_search_history';
 var HIST_MAX = 20;
 function histLoad(){
   try {
@@ -1200,9 +1252,8 @@ function renderHist(){
   list.innerHTML = html;
 }
 function histInit(){
-  var btn = $('ksHistBtn'), panel = $('ksHistPanel'), list = $('ksHistList');
-  if (!btn || !panel || !list) return;
-  btn.addEventListener('click', function(e){ e.stopPropagation(); histPanel(!histIsOpen()); });
+  var panel = $('ksHistPanel'), list = $('ksHistList'), input = $('ksSearch');
+  if (!panel || !list || !input) return;
   var clearBtn = $('ksHistClear');
   if (clearBtn) clearBtn.addEventListener('click', function(e){ e.stopPropagation(); histClear(); });
   list.addEventListener('click', function(e){
@@ -1214,16 +1265,155 @@ function histInit(){
     var i = +(it.getAttribute('data-i'));
     var q = histLoad()[i];
     if (!q) return;
-    var input = $('ksSearch');
-    input.value = q;
+    var inp = $('ksSearch');
+    inp.value = q;
     runSearch(q);
     histPush(q);          // 重新置顶
     histPanel(false);
   });
   panel.addEventListener('click', function(e){ e.stopPropagation(); });
+  // V10.2：点击/聚焦检索框即显示历史（有历史才显示，避免空白浮层）
+  function maybeShow(){ if (histLoad().length) histPanel(true); }
+  input.addEventListener('click', function(e){ e.stopPropagation(); maybeShow(); });
+  input.addEventListener('focus', function(){ maybeShow(); });
   document.addEventListener('click', function(){ if (histIsOpen()) histPanel(false); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && histIsOpen()) histPanel(false); });
   renderHist();
+}
+
+/* ============================================================
+   批量查询（V10.2）
+   ------------------------------------------------------------
+   每行一条查询词，复用与「检索」完全相同的匹配逻辑（runSearch），
+   逐条给出命中数、判定分布与前几条示例，可导出 CSV。
+   实现要点：批量期间把 render() 短路（batchMode），跑完再按原状态重绘一次，
+   因此批量查询不会打乱当前列表/筛选/分页。
+   ============================================================ */
+var batchMode = false;
+var batchResults = [];
+
+function batchQueryOnly(q){
+  var snap = { raw: state.raw, page: state.page, sel: state.sel, terms: state.terms, rows: state.rows, level: state.level, hint: state.hint, ms: state.ms };
+  batchMode = true;
+  try { runSearch(q); } finally { batchMode = false; }
+  var rows = (state.rows || []).slice();
+  var level = state.level, hint = state.hint;
+  state.raw = snap.raw; state.page = snap.page; state.sel = snap.sel;
+  state.terms = snap.terms; state.rows = snap.rows; state.level = snap.level;
+  state.hint = snap.hint; state.ms = snap.ms;
+  return { rows: rows, level: level, hint: hint };
+}
+
+function batchVerdictCounts(rows){
+  var out = {};
+  for (var k = 0; k < rows.length; k++) {
+    var ci = catIdx[rows[k]];
+    var v = (CATS[ci] || [])[5] || '（未标）';
+    out[v] = (out[v] || 0) + 1;
+  }
+  return out;
+}
+
+function batchSampleLine(i){
+  var ci = catIdx[i], c = CATS[ci] || [];
+  return fmtRec(books[i]) + (authors[i] ? '（' + fmtRec(authors[i]) + '）' : '');
+}
+
+function runBatch(){
+  var box = $('ksBatchInput'), body = $('ksBatchBody'), st = $('ksBatchStatus');
+  if (!box || !body) return;
+  var lines = String(box.value || '').split(/\r?\n/).map(function(s){ return s.trim(); })
+    .filter(function(s){ return s && s.charAt(0) !== '#'; });
+  // 去重
+  var seen = {}, qs = [];
+  for (var i = 0; i < lines.length; i++) { if (!seen[lines[i]]) { seen[lines[i]] = 1; qs.push(lines[i]); } }
+  var MAXQ = 200;
+  var truncated = false;
+  if (qs.length > MAXQ) { qs = qs.slice(0, MAXQ); truncated = true; }
+  if (!qs.length) { if (st) st.textContent = toDisplay('请先粘贴要查询的条目（每行一条）'); return; }
+  if (st) st.textContent = toDisplay('查询中…') + ' 0/' + qs.length;
+  var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  batchResults = qs.map(function(q){
+    var r = batchQueryOnly(q);
+    return { q: q, n: r.rows.length, level: r.level, hint: r.hint, counts: batchVerdictCounts(r.rows),
+      sample: r.rows.slice(0, 3).map(batchSampleLine) };
+  });
+  // 收尾：按原状态重绘一次（批量期间的 render 被短路了）
+  render();
+  var ms = ((window.performance && performance.now) ? performance.now() : Date.now()) - t0;
+  renderBatch();
+  var hit = batchResults.filter(function(r){ return r.n > 0; }).length;
+  if (st) st.textContent = toDisplay('完成') + '：' + qs.length + ' ' + toDisplay('条查询，') + hit + ' ' + toDisplay('条有命中') +
+    (truncated ? toDisplay('（仅前 200 条）') : '') + '　' + ms.toFixed(0) + ' ms';
+}
+
+function renderBatch(){
+  var body = $('ksBatchBody');
+  if (!body) return;
+  if (!batchResults.length) { body.innerHTML = ''; return; }
+  var html = '<table class="ks-batch-table"><thead><tr>'
+    + '<th>#</th><th>' + esc(toDisplay('查询词')) + '</th><th>' + esc(toDisplay('命中')) + '</th>'
+    + '<th>' + esc(toDisplay('判定分布')) + '</th><th>' + esc(toDisplay('示例')) + '</th>'
+    + '</tr></thead><tbody>';
+  for (var i = 0; i < batchResults.length; i++) {
+    var r = batchResults[i];
+    var dist = Object.keys(r.counts).map(function(k){ return esc(fmtRec(k)) + ' ' + r.counts[k]; }).join('　');
+    html += '<tr>'
+      + '<td class="n">' + (i + 1) + '</td>'
+      + '<td class="ks-batch-q">' + esc(r.q) + '</td>'
+      + '<td class="n' + (r.n ? '' : ' ks-batch-zero') + '">' + r.n + '</td>'
+      + '<td>' + (dist || '<span class="ks-dash">—</span>') + '</td>'
+      + '<td class="ks-batch-sample">' + (r.sample.length ? esc(r.sample.join('；')) : '<span class="ks-dash">—</span>') + '</td>'
+      + '</tr>';
+  }
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
+function exportBatch(){
+  if (!batchResults.length) { return; }
+  var lines = ['序号,查询词,命中数,判定分布,示例1,示例2,示例3'];
+  for (var i = 0; i < batchResults.length; i++) {
+    var r = batchResults[i];
+    var dist = Object.keys(r.counts).map(function(k){ return fmtRec(k) + ' ' + r.counts[k]; }).join(' ');
+    var cells = [String(i + 1), r.q, String(r.n), dist, r.sample[0] || '', r.sample[1] || '', r.sample[2] || ''];
+    lines.push(cells.map(function(s){ return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }).join(','));
+  }
+  var csv = '\ufeff' + lines.join('\r\n') + '\r\n';
+  var name = '古籍类目_批量查询结果_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.csv';
+  if (window.KansekiAI && window.KansekiAI.saveExport) {
+    window.KansekiAI.saveExport(name, csv).then(function(r){
+      if (window.KansekiAI.notifyExport) window.KansekiAI.notifyExport({ name: r.name, path: r.path, kind: 'CSV', size: csv.length });
+    }).catch(function(){});
+  } else {
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  }
+}
+
+function batchPanel(open){
+  var p = $('ksBatchPanel'), b = $('ksBatchBtn');
+  if (!p) return;
+  p.hidden = !open;
+  if (b) b.setAttribute('aria-expanded', String(!!open));
+  if (open) { var t = $('ksBatchInput'); if (t) t.focus(); }
+}
+
+function batchInit(){
+  var btn = $('ksBatchBtn'), panel = $('ksBatchPanel');
+  if (!btn || !panel) return;
+  btn.addEventListener('click', function(e){ e.stopPropagation(); batchPanel(panel.hidden); });
+  var run = $('ksBatchRun'); if (run) run.addEventListener('click', runBatch);
+  var clr = $('ksBatchClear'); if (clr) clr.addEventListener('click', function(){
+    var t = $('ksBatchInput'); if (t) t.value = '';
+    batchResults = []; renderBatch();
+    var st = $('ksBatchStatus'); if (st) st.textContent = '';
+  });
+  var ex = $('ksBatchExport'); if (ex) ex.addEventListener('click', exportBatch);
+  var cl = $('ksBatchClose'); if (cl) cl.addEventListener('click', function(){ batchPanel(false); });
+  panel.addEventListener('click', function(e){ e.stopPropagation(); });
 }
 
 function clearAll(){
@@ -1259,6 +1449,7 @@ function bindEvents(){
   $('ksClear').addEventListener('click', clearAll);
   $('ksExport').addEventListener('click', exportCSV);
   histInit();
+  batchInit();
 
   $('ksBu').addEventListener('change', function(){ fBu = this.value; buildLeiOptions(); state.page = 1; runSearch(input.value); });
   $('ksLei').addEventListener('change', function(){ fLei = this.value; state.page = 1; runSearch(input.value); });
