@@ -78,6 +78,7 @@ body{transition:background-color .3s ease,color .3s ease}
 .user-btn{display:inline-flex;align-items:center}
 .user-login-link{color:inherit;text-decoration:none}
 .user-menu{right:0;left:auto;min-width:120px}
+.user-menu-settings{border-top:1px solid var(--color-border);margin-top:.25rem;padding-top:.5rem !important;border-radius:0 0 var(--radius-sm) var(--radius-sm) !important}
 .nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
 
 /* ===== V8.2 移动端适配 ===== */
@@ -137,7 +138,7 @@ body{transition:background-color .3s ease,color .3s ease}
         </button>
         <div class="nav-dropdown-menu user-menu" role="menu">
           <a href="login.html" role="menuitem">登录</a>
-          <a href="signup.html" role="menuitem">注册</a>
+          <a href="signup.html" role="menuitem">注册</a><a href="settings.html#api" role="menuitem" class="user-menu-settings">设置</a>
         </div>
       </div></div>
   </div>
@@ -167,6 +168,23 @@ body{transition:background-color .3s ease,color .3s ease}
   <div class="page-head">
     <h2>更新日志</h2>
     <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v10.2.3 · 网页版</span>
+      <span class="cl-date">2026-10-07</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>网页端右上角登录下拉菜单里新增「设置」</b>（放在「登录／注册」旁，带分隔线）：
+        点一下直达设置页的 <b>API 管理</b>分区，用来配置 AI 复检所需的 DeepSeek API。
+        此前网页版没有任何设置入口，只能手输网址或长按「AI 复检」找弹窗底部，很不好找。</li>
+      <li><b>设置页新增「← 返回纪年查询」</b>：网页版配好 API 后可一键回主页，不必按浏览器后退。
+        该入口<b>仅网页版显示</b>——桌面版的设置是独立窗口，用标题栏关闭即可。</li>
+      <li><b>覆盖全部 6 个页面</b>：纪年查询、编目规范、古籍类目查询、快速跳转、使用介绍、更新日志，
+        右上角菜单行为一致。设置页在网页版会隐去「同步设置」（浏览器没有同步能力），只保留 API 管理。</li>
+    </ul>
   </div>
 
   <div class="cl-entry">

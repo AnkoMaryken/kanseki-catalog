@@ -68,6 +68,12 @@
   .set-tab.active{background:var(--c-surface);color:var(--c-text);font-weight:600;
                   box-shadow:0 1px 2px rgba(0,0,0,.06)}
   .set-tab[hidden]{display:none !important}
+  /* 网页版专有：返回主站（桌面版是独立设置窗口，用标题栏关闭，不需要它） */
+  .set-back{display:block;padding:.5rem .65rem;margin-bottom:.35rem;border-radius:8px;
+            font-size:.83rem;color:var(--c-text-secondary);text-decoration:none;
+            border:1px solid var(--c-border);background:var(--c-surface)}
+  .set-back:hover{background:var(--c-surface-hover);color:var(--c-text)}
+  .set-back[hidden]{display:none !important}
   .set-foot{margin-top:auto;padding:.7rem .65rem 0;font-size:.72rem;color:var(--c-text-muted);
             line-height:1.7;border-top:1px solid var(--c-border)}
   .set-foot .sf-name{display:block;color:var(--c-text-secondary)}
@@ -158,6 +164,7 @@
 
 <div class="set-body">
   <aside class="set-rail">
+    <a class="set-back" id="setBack" href="index.html" hidden>← 返回纪年查询</a>
     <button class="set-tab active" id="tab-sync" type="button" data-pane="sync">同步设置</button>
     <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
     <div class="set-foot" id="setFoot" hidden>
@@ -303,6 +310,9 @@ if (IS_TAURI) {
   var sp = document.getElementById('pane-sync');
   if (st) st.hidden = true;
   if (sp) sp.hidden = true;
+  // 网页版：显示「返回纪年查询」，配好 API 后能直接回主站
+  var sb = document.getElementById('setBack');
+  if (sb) sb.hidden = false;
 }
 
 /* ---------- 左栏切换 ---------- */
