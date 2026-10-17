@@ -455,27 +455,20 @@
           <p class="av-hint">关键词请按原站著录字形输入（日文／繁体，如 論語 而非 论语）；空格分隔的多词请分批检索。</p>
         </form>
 
-        <!-- V10.5：内閣文庫 漢籍 部别统计
-             口径说明：簿冊数用「資料種別=簿册(da22)」的命中数，与原站分类页顯示的「該当件数」一致
-             （如 經部 3610545 = 1886）；件名数用 da23。数据一次性向原站查询后缓存到本机。 -->
-        <div class="av-card naj-stats" id="najStatsCard">
-          <div class="naj-stats-head">
-            <button type="button" class="naj-stats-btn" id="najStatsBtn"
-                    aria-expanded="false" aria-controls="najStatsBody">
-              内閣文庫 漢籍 部别统计<span class="kdb-caret" aria-hidden="true">↓</span>
-              <span class="naj-stats-n" id="najStatsN" hidden></span>
-            </button>
-            <span class="naj-stats-hint" id="najStatsHint">经／史／子／集等各部各有多少部书</span>
-            <span class="naj-stats-time" id="najStatsTime"></span>
+        <!-- V10.5.1：内閣文庫 漢籍 分類瀏覽
+             与原站 fonds 层级同序：内閣文庫 › 漢籍 › 經／史／子／集／叢書／新書 › 簿册一覧。
+             占地很小（一行工具栏 + 一行分类 chips）；点某部即在其下方列出该部簿册，可导出 CSV。 -->
+        <div class="av-card naj-browse" id="najBrowse">
+          <div class="naj-browse-head">
+            <span class="naj-browse-title">内閣文庫 漢籍 分類瀏覽</span>
+            <span class="naj-browse-path" id="najBrowsePath">内閣文庫 › 漢籍</span>
+            <span class="naj-browse-prog" id="najBrowseProg"></span>
+            <button type="button" class="av-btn naj-browse-mini" id="najBrowseRefresh"
+                    title="重新向原站统计各部簿册数">刷新件数</button>
+            <button type="button" class="av-btn naj-browse-mini" id="najBrowseCsv"
+                    disabled title="先点一个分类，再导出该部簿册清单">导出 CSV</button>
           </div>
-          <div class="naj-stats-body" id="najStatsBody" hidden>
-            <div class="naj-stats-act">
-              <button type="button" class="av-btn av-btn-primary" id="najStatsRun">开始统计</button>
-              <button type="button" class="av-btn" id="najStatsCsv" disabled>导出 CSV</button>
-              <span class="naj-stats-prog" id="najStatsProg"></span>
-            </div>
-            <div id="najStatsOut"><p class="av-hint">点「开始统计」向原站逐部查询命中数（约 10–20 秒），结果缓存在本机。</p></div>
-          </div>
+          <div class="naj-browse-chips" id="najBrowseChips"></div>
         </div>
 
         <div class="kdb-statusbar">

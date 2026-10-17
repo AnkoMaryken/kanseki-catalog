@@ -170,23 +170,23 @@ function setFond(id, label) {
   }
 }
 
-// ---------------------------------------------------------------- 内閣文庫 漢籍 部别统计（V10.5）
-// 用户要求：直接在检索页看到内閣文庫汉籍「经／史／子／集」等各部有多少书，并可导出 CSV。
+// ---------------------------------------------------------------- 内閣文庫 漢籍 分類瀏覽（V10.5.1）
+// 用户要求：能在软件里按原站 fonds 层级**逐层浏览**（内閣文庫 › 漢籍 › 經部… › 簿册一覧），
+//           而不是只给一个统计数字；并且要能导出 CSV；这一块不要占太大地方。
 //
-// 口径（实测得出，勿随意改动）：
-//   · 簿冊数 = 「資料種別=簿册(da22)」检索命中数 —— 与原站分类页 顯示的「該当件数」一致
-//     （例：經部 fonds/3610545 → 簿册 1886，件名 21583，不筛种别 23470）；
-//   · 件名数 = 「資料種別=件名·細目(da23)」命中数；
-//   · 和書部是日文典籍、漢籍(fonds/3602612) 是上级资料群，两者都不计入漢籍各部统计。
-// 请求量：6 部 × 2 类 = 12 次。原站对频繁请求会限流，故串行 + 间隔 + 重试，结果缓存本机。
+// 做法：一条紧凑工具栏 + 一行分类 chips。点某部 → 清空关键词、只留「資料種別=簿册(da22)」，
+//       用既有检索链路把该部簿册列到下方结果区（顺序与原站分类页一致）。
+// 簿册数口径：資料種別 da22 的命中数，与原站分类页「該当件数」一致（經部 1886）。
 
 const NAIKAKU_WABUN_FOND = '3682585';   // 和書部（日文典籍，非漢籍）
-const NAIKAKU_HANJI_FOND = '3602612';   // 漢籍（上级资料群，不单列）
-const NAJ_STATS_KEY = 'najNaikakuStatsV1';
-let najStatsRows = null;
+const NAIKAKU_HANJI_FOND = '3602612';   // 漢籍（上级资料群，作面包屑，不单列 chip）
+const NAJ_FOND_CACHE_KEY = 'najFondCountsV1';
+let fondCounts = null;                  // { at, rows:[{id,label,jp,count,pageUrl}] }
+let browse = null;                      // 当前浏览的分类 { id, label, jp }
+let browseCsvBusy = false;
 
-/** 待统计的「部」列表：经／史／子／集／叢書／新書 */
-function fondStatsList() {
+/** 待浏览的「部」：经／史／子／集／叢書／新書（与原站分类页同序） */
+function fondList() {
   return (NAIKAKU_BUNKO.groups || [])
     .filter((g) => g.id !== NAIKAKU_WABUN_FOND && g.id !== NAIKAKU_HANJI_FOND)
     .map((g) => ({ id: g.id, label: g.label, jp: g.jp, pageUrl: g.pageUrl }));
@@ -197,175 +197,177 @@ function csvCell(v) {
   return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
-function fmtCount(n) {
-  return (n == null || !Number.isFinite(Number(n))) ? '—' : Number(n).toLocaleString('zh-CN');
-}
-
-/** 查某资料群在指定资料种别下的命中数 */
-async function najCountByFond(fondId, type) {
-  const url = buildSearchUrl({
-    keyword: '', scope: 'kw_all', types: type ? [type] : [],
-    fond: fondId, rows: 20, page: 1,
-  });
-  const resp = await najFetch(url, 50);
-  const parsed = parseSearchPage(String(resp.body || ''));
-  if (parsed.total == null) throw new Error('未解析到命中数');
-  return parsed.total;
-}
-
-async function najCountRetry(fondId, type) {
-  let last = null;
-  for (let i = 0; i < 3; i++) {
-    try { return await najCountByFond(fondId, type); } catch (e) { last = e; }
-    await new Promise((r) => setTimeout(r, 900 * (i + 1)));
-  }
-  throw last || new Error('统计失败');
-}
-
-function loadCachedNaikakuStats() {
+function loadFondCounts() {
   try {
-    const raw = localStorage.getItem(NAJ_STATS_KEY);
-    if (!raw) return null;
-    const o = JSON.parse(raw);
+    const o = JSON.parse(localStorage.getItem(NAJ_FOND_CACHE_KEY) || 'null');
     return (o && Array.isArray(o.rows) && o.rows.length) ? o : null;
   } catch (_) { return null; }
 }
 
-function renderNaikakuStats(rows, opt = {}) {
-  const out = el('najStatsOut');
-  if (!out) return;
-  najStatsRows = rows;
-  const sumV = rows.reduce((s, r) => s + (Number(r.volumes) || 0), 0);
-  const sumI = rows.reduce((s, r) => s + (Number(r.items) || 0), 0);
-  const body = rows.map((r) => {
-    const pct = (sumV && Number.isFinite(Number(r.volumes))) ? (Number(r.volumes) / sumV * 100) : null;
-    return `<tr>
-      <td><b>${escHtml(r.label)}</b><span class="naj-stats-jp">${escHtml(r.jp || '')}</span></td>
-      <td class="num">${fmtCount(r.volumes)}</td>
-      <td class="num">${fmtCount(r.items)}</td>
-      <td class="num dim">${pct == null ? '—' : pct.toFixed(1) + '%'}</td>
-      <td><a class="kdb-link" data-naj-out href="${escHtml(r.pageUrl || '')}" title="到原站查看该分类">↗</a></td>
-    </tr>`;
-  }).join('');
-  out.innerHTML = `
-    <table class="naj-stats-tbl">
-      <thead><tr><th>部</th><th>簿册数</th><th>件名数</th><th>占比</th><th>原站</th></tr></thead>
-      <tbody>${body}
-        <tr class="sum"><td><b>合计</b><span class="naj-stats-jp">${rows.length} 部</span></td>
-          <td class="num">${fmtCount(sumV)}</td><td class="num">${fmtCount(sumI)}</td>
-          <td class="num dim">100%</td><td></td></tr>
-      </tbody>
-    </table>
-    <p class="av-hint">口径：<b>簿册数</b>＝「資料種別＝簿册」命中数，与原站分类页「該当件数」一致；
-      <b>件名数</b>＝「件名·細目」命中数。和書部为日文典籍，未计入。<br>
-      原站：www.digital.archives.go.jp（目録元数据 CC0）。${opt.partial ? '<b>正在统计…</b>' : ''}</p>`;
-
-  const t = el('najStatsTime');
-  if (t) {
-    if (opt.at) {
-      const d = new Date(opt.at);
-      t.textContent = '统计于 ' + d.toLocaleString('zh-CN', { hour12: false });
-    } else t.textContent = opt.partial ? '统计中…' : '';
-  }
-  const n = el('najStatsN');
-  if (n) { n.hidden = false; n.textContent = String(rows.length); }
+function countOfFond(id) {
+  const r = ((fondCounts && fondCounts.rows) || []).find((x) => x.id === id);
+  return r && Number.isFinite(Number(r.count)) ? Number(r.count) : null;
 }
 
-async function runNaikakuStats() {
-  const out = el('najStatsOut');
-  if (!out) return;
-  if (!isTauri) { out.innerHTML = '<p class="kdb-warn">仅桌面版可用：网页版受浏览器跨域限制，取不到原站命中数。</p>'; return; }
-  const list = fondStatsList();
-  if (!list.length) { toast('没有可统计的分类', 'warn'); return; }
+function renderFondChips() {
+  const box = el('najBrowseChips');
+  if (!box) return;
+  box.innerHTML = fondList().map((g) => {
+    const n = countOfFond(g.id);
+    const on = browse && browse.id === g.id;
+    return `<button type="button" class="naj-fond-chip${on ? ' on' : ''}"`
+      + ` data-fond="${escHtml(g.id)}" data-label="${escHtml(g.label)}"`
+      + ` title="原站分类：${escHtml(g.jp)}（点此在下方列出该部簿册；再点一次取消）">`
+      + `<span class="naj-fond-name">${escHtml(g.label)}</span>`
+      + `<b class="naj-fond-n">${n == null ? '—' : n.toLocaleString('zh-CN')}</b></button>`;
+  }).join('');
+}
 
-  const runBtn = el('najStatsRun');
-  const csvBtn = el('najStatsCsv');
-  const prog = el('najStatsProg');
-  if (runBtn) { runBtn.disabled = true; runBtn.textContent = '统计中…'; }
+function renderBrowsePath() {
+  const p = el('najBrowsePath');
+  if (p) p.textContent = browse ? `内閣文庫 › 漢籍 › ${browse.label} › 簿册` : '内閣文庫 › 漢籍';
+  const csvBtn = el('najBrowseCsv');
+  if (csvBtn) csvBtn.disabled = !browse || browseCsvBusy;
+}
+
+/** 统计各部簿册数（首次自动跑一次，结果缓存本机；点「刷新件数」可重算） */
+async function refreshFondCounts() {
+  if (!isTauri) return;
+  const list = fondList();
+  if (!list.length) return;
+  const prog = el('najBrowseProg');
+  const btn = el('najBrowseRefresh');
+  if (btn) btn.disabled = true;
+  const rows = list.map((g) => ({ ...g, count: null }));
+  for (let i = 0; i < rows.length; i++) {
+    if (prog) prog.textContent = `统计件数 ${i + 1}/${rows.length}…`;
+    try {
+      const url = buildSearchUrl({ keyword: '', scope: 'kw_all', types: ['da22'], fond: rows[i].id, rows: 20, page: 1 });
+      const resp = await najFetch(url, 50);
+      const parsed = parseSearchPage(String(resp.body || ''));
+      rows[i].count = parsed.total == null ? null : parsed.total;
+    } catch (_) { rows[i].count = null; }
+    fondCounts = { at: new Date().toISOString(), rows };
+    renderFondChips();
+    await new Promise((r) => setTimeout(r, 260));
+  }
+  fondCounts = { at: new Date().toISOString(), rows };
+  try { localStorage.setItem(NAJ_FOND_CACHE_KEY, JSON.stringify(fondCounts)); } catch (_) { /* 存不下无妨 */ }
+  renderFondChips();
+  if (prog) prog.textContent = '';
+  if (btn) btn.disabled = false;
+}
+
+/** 点分类 → 在下方结果区按原站分类页顺序列出该部簿册；再点一次取消限定 */
+function browseFond(id, label) {
+  const g = fondList().find((x) => x.id === id) || { id, label, jp: label };
+  if (browse && browse.id === id) {
+    browse = null;
+    state.fond = ''; state.fondLabel = '';
+    document.querySelectorAll('input[name="naj-type"]').forEach((cb) => { cb.checked = false; });
+    syncNaikakuActive();
+    updateFilterBadge();
+    renderFondChips();
+    renderBrowsePath();
+    toast('已取消分类限定', 'ok');
+    return;
+  }
+  browse = { id, label: g.label, jp: g.jp };
+  state.fond = id; state.fondLabel = g.label;
+  syncNaikakuActive();
+  if (el('najKw')) el('najKw').value = '';
+  // 只留「簿册」，避免把件名·细目混进来（原站分类页列的也是簿册）
+  document.querySelectorAll('input[name="naj-type"]').forEach((cb) => { cb.checked = cb.value === 'da22'; });
+  updateFilterBadge();
+  renderFondChips();
+  renderBrowsePath();
+  runSearch(1);
+}
+
+/** 把当前浏览分类的簿册导出为 CSV（分页抓全，带上限保护） */
+async function exportBrowseCsv() {
+  if (!browse || browseCsvBusy) return;
+  if (!isTauri) { toast('仅桌面版可用', 'warn'); return; }
+  const prog = el('najBrowseProg');
+  const csvBtn = el('najBrowseCsv');
+  browseCsvBusy = true;
   if (csvBtn) csvBtn.disabled = true;
 
-  const rows = list.map((g) => ({ ...g, volumes: null, items: null }));
-  renderNaikakuStats(rows, { partial: true });
-
-  // 第一轮：簿册数（这是「有多少书」的主口径，先出）
-  for (let i = 0; i < rows.length; i++) {
-    if (prog) prog.textContent = `簿册 ${i + 1}/${rows.length}…`;
-    try { rows[i].volumes = await najCountRetry(rows[i].id, 'da22'); } catch (_) { rows[i].volumes = null; }
-    renderNaikakuStats(rows, { partial: true });
-    await new Promise((r) => setTimeout(r, 280));
+  const ROWS = 200, MAX_PAGES = 12;    // 上限 2400 条
+  const items = [];
+  let total = null;
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    if (prog) prog.textContent = `导出中 第 ${page} 页…`;
+    try {
+      const url = buildSearchUrl({ keyword: '', scope: 'kw_all', types: ['da22'], fond: browse.id, rows: ROWS, page });
+      const resp = await najFetch(url, 60);
+      const parsed = parseSearchPage(String(resp.body || ''));
+      if (total == null) total = parsed.total;
+      items.push(...(parsed.items || []));
+      if (!parsed.items || parsed.items.length < ROWS) break;
+      if (total != null && items.length >= total) break;
+    } catch (e) {
+      toast('导出中断：' + (e.message || e), 'err');
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 260));
   }
-  // 第二轮：件名数（细目级，作参考）
-  for (let i = 0; i < rows.length; i++) {
-    if (prog) prog.textContent = `件名 ${i + 1}/${rows.length}…`;
-    try { rows[i].items = await najCountRetry(rows[i].id, 'da23'); } catch (_) { rows[i].items = null; }
-    renderNaikakuStats(rows, { partial: true });
-    await new Promise((r) => setTimeout(r, 280));
-  }
-
-  const stats = { at: new Date().toISOString(), rows };
-  try { localStorage.setItem(NAJ_STATS_KEY, JSON.stringify(stats)); } catch (_) { /* 存不下也不影响 */ }
-  renderNaikakuStats(rows, { at: stats.at });
   if (prog) prog.textContent = '';
-  if (runBtn) { runBtn.disabled = false; runBtn.textContent = '重新统计'; }
-  if (csvBtn) csvBtn.disabled = false;
-  toast('统计完成', 'ok');
-}
-
-function najStatsCsvText() {
-  if (!najStatsRows || !najStatsRows.length) return '';
-  const cached = loadCachedNaikakuStats();
-  const at = cached && cached.at ? cached.at : new Date().toISOString();
-  const sumV = najStatsRows.reduce((s, r) => s + (Number(r.volumes) || 0), 0);
-  const sumI = najStatsRows.reduce((s, r) => s + (Number(r.items) || 0), 0);
-  const lines = [['部', '簿册数', '件名数', '簿册占比', '原站链接', '统计时间'].join(',')];
-  for (const r of najStatsRows) {
-    const pct = (sumV && Number.isFinite(Number(r.volumes))) ? (Number(r.volumes) / sumV * 100).toFixed(1) + '%' : '';
-    lines.push([r.label, r.volumes == null ? '' : r.volumes, r.items == null ? '' : r.items, pct, r.pageUrl || '', at]
-      .map(csvCell).join(','));
+  browseCsvBusy = false;
+  if (!items.length) {
+    if (csvBtn) csvBtn.disabled = false;
+    toast('没有取到簿册数据', 'warn');
+    return;
   }
-  lines.push(['合计', sumV, sumI, '100%', '', at].map(csvCell).join(','));
-  return lines.join('\r\n');
-}
 
-async function exportNaikakuStats() {
-  const csv = najStatsCsvText();
-  if (!csv) { toast('还没有统计数据，请先点「开始统计」', 'warn'); return; }
+  // 列：固定列 + 各条目出现过的字段名（按首次出现顺序） + 原站链接
+  const fixed = ['番号', '資料種別', '簿冊名', '層級'];
+  const dyn = [];
+  for (const it of items) for (const f of (it.fields || [])) if (f.label && dyn.indexOf(f.label) < 0) dyn.push(f.label);
+  const lines = [[...fixed, ...dyn, '原站鏈接'].map(csvCell).join(',')];
+  items.forEach((it, i) => {
+    const byLabel = {};
+    for (const f of (it.fields || [])) if (f.label && byLabel[f.label] == null) byLabel[f.label] = f.value || '';
+    const row = [
+      it.no || String(i + 1),
+      it.kind || '',
+      it.title || '',
+      (it.hierarchy || []).map((h) => h.title).join(' › '),
+      ...dyn.map((k) => (byLabel[k] == null ? '' : byLabel[k])),
+      it.url || '',
+    ];
+    lines.push(row.map(csvCell).join(','));
+  });
+
   try {
     const day = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const path = await tauriInvoke('save_export', { name: `内閣文庫漢籍部别统计_${day}.csv`, content: csv });
-    toast('已导出 CSV：' + path, 'ok');
-    try { await tauriInvoke('reveal_path', { path }); } catch (_) { /* 打不开目录也不算失败 */ }
+    const safeLabel = String(browse.label).replace(/[\\/:*?"<>|]/g, '');
+    const path = await tauriInvoke('save_export', {
+      name: `内閣文庫漢籍_${safeLabel}_簿册_${day}.csv`,
+      content: lines.join('\r\n'),
+    });
+    const capped = total != null && items.length < total;
+    toast(`已导出 ${items.length} 条${capped ? `（该部共 ${total} 条，已按上限截取）` : ''}：${path}`, 'ok');
+    try { await tauriInvoke('reveal_path', { path }); } catch (_) { /* 打不开目录无妨 */ }
   } catch (e) {
     toast('导出失败：' + (e.message || e), 'err');
   }
+  if (csvBtn) csvBtn.disabled = false;
 }
 
-function bindNaikakuStats() {
-  if (!el('najStatsCard')) return;
-  el('najStatsBtn')?.addEventListener('click', () => {
-    const body = el('najStatsBody');
-    const btn = el('najStatsBtn');
-    if (!body) return;
-    const willOpen = body.hasAttribute('hidden');
-    if (willOpen) { body.removeAttribute('hidden'); btn?.setAttribute('aria-expanded', 'true'); }
-    else { body.setAttribute('hidden', ''); btn?.setAttribute('aria-expanded', 'false'); }
+function bindFondBrowse() {
+  if (!el('najBrowse')) return;
+  el('najBrowseChips')?.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-fond]');
+    if (chip) browseFond(chip.dataset.fond, chip.dataset.label);
   });
-  el('najStatsRun')?.addEventListener('click', () => { runNaikakuStats(); });
-  el('najStatsCsv')?.addEventListener('click', () => { exportNaikakuStats(); });
-  // 展开区里的原站链接（事件委托，避免每次重绘重复绑定）
-  el('najStatsCard')?.addEventListener('click', (e) => {
-    const a = e.target.closest('a[data-naj-out]');
-    if (a) { e.preventDefault(); openExternal(a.getAttribute('href')); }
-  });
-  // 有缓存就先显示，避免每次进页面都重新统计
-  const cached = loadCachedNaikakuStats();
-  if (cached) {
-    renderNaikakuStats(cached.rows, { at: cached.at });
-    const csvBtn = el('najStatsCsv');
-    if (csvBtn) csvBtn.disabled = false;
-    const runBtn = el('najStatsRun');
-    if (runBtn) runBtn.textContent = '重新统计';
-  }
+  el('najBrowseRefresh')?.addEventListener('click', () => { refreshFondCounts(); });
+  el('najBrowseCsv')?.addEventListener('click', () => { exportBrowseCsv(); });
+  fondCounts = loadFondCounts();
+  renderFondChips();
+  renderBrowsePath();
+  // 首次进页面若还没有缓存，自动统计一次（约 8–12 秒）；有缓存直接回显
+  if (!fondCounts && isTauri) refreshFondCounts();
 }
 
 // ---------------------------------------------------------------- 详细检索条件
@@ -524,7 +526,7 @@ export function initNajDbView() {
   fillChecks(el('najLimits'), LIMITS, 'naj-limit');
   fillChecks(el('najStacks'), STACKS, 'naj-stack');
   renderNaikaku();
-  bindNaikakuStats();   // V10.5：内閣文庫漢籍 部别统计（含缓存回显）
+  bindFondBrowse();   // V10.5.1：内閣文庫漢籍 分類瀏覽（含件数缓存回显）
 
   if (!state.bound) {
     state.bound = true;
@@ -626,14 +628,17 @@ function resetForm() {
 // ---------------------------------------------------------------- 检索
 async function runSearch(page) {
   const kw = (el('najKw')?.value || '').trim();
-  if (!kw) {
-    toast('请输入关键词（原站检索必须有检索词；只想浏览分类可点分类旁的 ↗ 到原站）', 'err');
+  const cond = readConditions();
+  // V10.5.1：原站「分类页」本身是「空关键词 + 資料群(fond) 限定」，这种 URL 实测能正常返回簿册列表；
+  // 因此浏览分类时必须放行空关键词，否则点分类只会弹一句「请输入关键词」，结果区永远空着。
+  const browsingFond = !kw && (cond.fond || (browse && browse.id));
+  if (!kw && !browsingFond) {
+    toast('请输入关键词（原站检索必须有检索词；也可点上方分类直接浏览该部簿册）', 'err');
     el('najKw')?.focus();
     return;
   }
   if (state.busy) return;
 
-  const cond = readConditions();
   state.keyword = kw;
   state.scope = el('najScope')?.value || 'kw_all';
   state.rows = Number(el('najRows')?.value || 20);
