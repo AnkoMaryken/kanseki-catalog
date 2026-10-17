@@ -12,8 +12,13 @@
 // ============================================================
 const { execSync } = require('child_process');
 const path = require('path');
-const NODE = process.env.KANSEKI_NODE || 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2-3/node.exe';
-process.env.NODE_PATH = 'C:/Users/华为/.workbuddy/binaries/node/workspace/node_modules';
+const fs = require('fs');
+// Node 路径：环境变量 > 历史 WorkBuddy 路径（存在才用）> 当前进程的 node
+// 教训：WorkBuddy 的 versions/ 目录已两次整体消失，硬编码会让所有套件瞬间全红。
+const LEGACY_NODE = 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2-3/node.exe';
+const NODE = process.env.KANSEKI_NODE || (fs.existsSync(LEGACY_NODE) ? LEGACY_NODE : process.execPath);
+const LEGACY_MODULES = 'C:/Users/华为/.workbuddy/binaries/node/workspace/node_modules';
+if (fs.existsSync(LEGACY_MODULES)) process.env.NODE_PATH = LEGACY_MODULES;
 
 let fail = 0;
 const t0 = Date.now();
