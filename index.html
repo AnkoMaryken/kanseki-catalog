@@ -1053,6 +1053,10 @@ tr.nearby-sep-row:hover td { background: transparent !important; }
 /* Mobile: bottom drawer */
 @media (max-width: 768px) {
   .knowledge-btn { bottom: 4.5rem; right: 1rem; width: auto; min-width: 42px; padding: 0 0.75rem; }
+  /* 卷数计算按钮的 class 是「knowledge-btn calc-btn」，会被上面一条规则一起改掉 bottom，
+     导致两个浮动按钮在手机宽度下完全重叠（实测同在 bottom:4.5rem）。
+     这里显式把它抬回 8.3rem，保持上下错开。 */
+  .knowledge-btn.calc-btn { bottom: 8.3rem; }
   .knowledge-btn .kb-text { max-width: 140px; opacity: 1; }
   .knowledge-panel {
     position: fixed; top: 0; right: 0; bottom: 0; left: 0;
