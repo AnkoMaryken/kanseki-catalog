@@ -164,17 +164,20 @@ function check(name, cond, extra) {
   check('输入停顿后自动记录', h[0] === '漢書' && h.length === 3, JSON.stringify(h));
 
   // 5) 徽标与面板
-  const panel = await kp.evaluate(() => {
-    const n = document.getElementById('ksHistN');
-    document.getElementById('ksHistBtn').click();
+  // V10.2 起取消独立「历史」按钮与条数徽标，改为**点/聚焦搜索框即显示**历史浮层，
+  // 因此这里不再断言 #ksHistBtn / #ksHistN（元素已移除），改为断言新的触发方式。
+  const panel = await kp.evaluate(async () => {
+    const input = document.getElementById('ksSearch');
+    input.focus();
+    input.click();
+    await new Promise(r => setTimeout(r, 250));
+    const p = document.getElementById('ksHistPanel');
     return {
-      badgeHidden: n.hidden, badge: n.textContent,
-      open: !document.getElementById('ksHistPanel').hidden,
+      open: p ? !p.hidden : false,
       items: [...document.querySelectorAll('#ksHistList .ks-hist-item')].map(b => b.textContent.trim())
     };
   });
-  check('历史按钮显示条数徽标', panel.badgeHidden === false && panel.badge === '3', panel.badge);
-  check('点击打开历史面板', panel.open === true);
+  check('点搜索框打开历史面板', panel.open === true);
   check('面板按最新在前列出', panel.items.join('|') === '漢書|周易|尚書', panel.items.join('|'));
 
   // 6) 点历史项回填并重查
@@ -196,8 +199,11 @@ function check(name, cond, extra) {
 
   // 7) 单条删除
   const delOne = await kp.evaluate(async () => {
-    document.getElementById('ksHistBtn').click();
-    await new Promise(r => setTimeout(r, 200));
+    // V10.2：点搜索框显示历史（原先是点 #ksHistBtn）
+    const inp = document.getElementById('ksSearch');
+    inp.focus();
+    inp.click();
+    await new Promise(r => setTimeout(r, 250));
     const dels = [...document.querySelectorAll('#ksHistList .ks-hist-del')];
     dels[0].click();
     await new Promise(r => setTimeout(r, 300));
@@ -215,12 +221,13 @@ function check(name, cond, extra) {
   check('历史在刷新后仍保留', persisted.length === 2 && persisted.indexOf('周易') === -1, JSON.stringify(persisted));
 
   // 9) 清空
+  // V10.2 起随「历史按钮」一起移除了 #ksHistN 徽标，故这里只断言数据被清空，
+  // 不再断言徽标隐藏（元素已不存在）。
   const clearedH = await kp.evaluate(() => {
     window.KansekiAIPage.hist.clear();
-    return { list: window.KansekiAIPage.hist.load(), badgeHidden: document.getElementById('ksHistN').hidden };
+    return window.KansekiAIPage.hist.load();
   });
-  check('可一键清空历史', clearedH.list.length === 0);
-  check('清空后徽标隐藏', clearedH.badgeHidden === true);
+  check('可一键清空历史', clearedH.length === 0, JSON.stringify(clearedH));
 
   // 10) 历史上限
   const cap = await kp.evaluate(() => {

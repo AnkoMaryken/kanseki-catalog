@@ -118,6 +118,12 @@ a:hover { opacity: 0.8; }
   .back { margin-top: 2rem; padding: 0.55rem 1rem; }
 }
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#fafafa">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="汉籍工具">
 </head>
 <body>
 <div class="page">
@@ -185,5 +191,6 @@ a:hover { opacity: 0.8; }
   document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
+<script defer src="pwa.js"></script>
 </body>
 </html>

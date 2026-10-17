@@ -324,6 +324,12 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   .ks-aio-body{max-height:none}
 }
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#fafafa">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="汉籍工具">
 </head>
 <body>
 
@@ -600,7 +606,7 @@ document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
    ============================================================ */
-var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'10.2' };
+var KSDBG = window.__ks = { ready:false, bootMs:0, lastMs:0, seq:0, version:'10.3' };
 
 /* ============================================================
    繁简转换
@@ -2255,5 +2261,6 @@ deferBoot(boot);
 
 })();
 </script>
+<script defer src="pwa.js"></script>
 </body>
 </html>

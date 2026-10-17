@@ -1,10 +1,14 @@
 // 一键运行全部浏览器测试 (串行 — 浏览器测试必须串行, 并行会卡死)
 // V9.0 修复: NODE 路径曾硬编码为 versions/22.22.2 (该目录已不存在, 整套跑不起来),
 //            现改为 22.22.2-3; 并补收此前遗漏的 4 个套件 (含最新的 v8.9 / v9.0)。
+// 再次修复: versions/22.22.2-3 后来也消失了 —— 改为「存在才用，否则回退 process.execPath」。
 const { execSync } = require('child_process');
 const path = require('path');
-const NODE = process.env.KANSEKI_NODE || 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2-3/node.exe';
-process.env.NODE_PATH = 'C:/Users/华为/.workbuddy/binaries/node/workspace/node_modules';
+const fs = require('fs');
+const LEGACY_NODE = 'C:/Users/华为/.workbuddy/binaries/node/versions/22.22.2-3/node.exe';
+const NODE = process.env.KANSEKI_NODE || (fs.existsSync(LEGACY_NODE) ? LEGACY_NODE : process.execPath);
+const LEGACY_MODULES = 'C:/Users/华为/.workbuddy/binaries/node/workspace/node_modules';
+if (fs.existsSync(LEGACY_MODULES)) process.env.NODE_PATH = LEGACY_MODULES;
 const tests = [
   // B 系列主功能
   'test_browser.js','test_browser2.js',

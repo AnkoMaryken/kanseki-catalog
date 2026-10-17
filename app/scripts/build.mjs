@@ -238,6 +238,30 @@ for (const [rel, rule] of Object.entries(EMBED_RULES)) {
 }
 console.log(`[build] 已注入 ${injected.length} 个页面：${injected.join(', ')}`);
 
+// 网页版的 PWA 三件套（manifest / pwa.js / apple-touch-icon）只对浏览器有意义。
+// 桌面版本身就是原生程序，内嵌页里保留这些标签只会请求不存在的文件（404 噪音），
+// 因此在拷贝出的副本里统一剔除。
+console.log('[build] 剔除 PWA 标签（桌面版内嵌页不适用）...');
+const PWA_STRIP = [
+  /[ \t]*<link rel="manifest"[^>]*>\r?\n?/g,
+  /[ \t]*<meta name="theme-color"[^>]*>\r?\n?/g,
+  /[ \t]*<link rel="apple-touch-icon"[^>]*>\r?\n?/g,
+  /[ \t]*<meta name="mobile-web-app-capable"[^>]*>\r?\n?/g,
+  /[ \t]*<meta name="apple-mobile-web-app-capable"[^>]*>\r?\n?/g,
+  /[ \t]*<meta name="apple-mobile-web-app-title"[^>]*>\r?\n?/g,
+  /[ \t]*<script defer src="pwa\.js"><\/script>\r?\n?/g
+];
+const pwaStripped = [];
+for (const rel of [...SITE_PAGES, ...ACCOUNT_PAGES]) {
+  const p = join(PAGES_DIR, rel);
+  if (!existsSync(p)) continue;
+  const before = readFileSync(p, 'utf8');
+  let after = before;
+  for (const re of PWA_STRIP) after = after.replace(re, '');
+  if (after !== before) { writeFileSync(p, after, 'utf8'); pwaStripped.push(rel); }
+}
+console.log(`[build] 已剔除 ${pwaStripped.length} 个页面的 PWA 标签`);
+
 console.log('[build] 拷贝 docs/manual.pdf...');
 copyFileIfExists(join(ROOT, 'docs', 'manual.pdf'), join(DIST, 'docs', 'manual.pdf'));
 

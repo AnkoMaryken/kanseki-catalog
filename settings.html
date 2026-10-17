@@ -146,6 +146,12 @@
   .set-h code,.set-note code{background:var(--c-bg-alt);border:1px solid var(--c-border);
                              border-radius:4px;padding:.05rem .3rem;font-size:.9em}
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#fafafa">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="汉籍工具">
 </head>
 <body>
 
@@ -612,5 +618,6 @@ if (IS_TAURI) (async function initSync() {
   winCmd('is_maximized').then(swapMaxIcon).catch(function () { });
 })();
 </script>
+<script defer src="pwa.js"></script>
 </body>
 </html>

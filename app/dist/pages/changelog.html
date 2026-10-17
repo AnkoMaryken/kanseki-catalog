@@ -184,6 +184,28 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v10.3.0 · 网页版</span>
+      <span class="cl-date">2026-10-17</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>网页版可「安装到手机主屏幕」了（PWA）</b>。用手机浏览器打开本站，会出现
+        「安装到主屏幕」提示；装好后<b>像 App 一样全屏打开、有独立图标、断网也能查</b>。
+        安卓 Chrome 走系统安装流程；iPhone 在 <b>Safari</b> 里点「分享 → 添加到主屏幕」即可。</li>
+      <li><b>离线可用</b>：纪年查询、古籍类目查询等常用页在首次访问后即缓存，之后<b>没网也能打开</b>
+        （AI 复检需联网，断网时不可用）。启动时优先取网络最新内容，取不到才回落到缓存。</li>
+      <li><b>缓存策略做了克制</b>：安装时只预缓存约 <b>1.1 MB</b> 的应用外壳；
+        古籍类目数据（<b>9.6 MB</b>）<b>不预下载</b>，只在你真正打开该页时才缓存，
+        避免首次安装耗时与流量浪费。</li>
+      <li><b>桌面版不受影响</b>：PWA 相关标签只在网页版生效，桌面版内嵌页在构建时会自动剔除，
+        不会产生多余请求。</li>
+      <li>维护：修复了测试脚本里<b>硬编码的 Node 路径</b>失效导致所有套件 0.1 秒全红的问题
+        （改为「存在才用、否则回退当前 Node」）；并更新了「检索历史」相关断言以匹配 V10.2 的新交互。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v10.2.4 · 网页版</span>
       <span class="cl-date">2026-10-07</span>
       <span class="cl-tag t-fix">修复</span>
