@@ -170,6 +170,204 @@ function setFond(id, label) {
   }
 }
 
+// ---------------------------------------------------------------- 内閣文庫 漢籍 部别统计（V10.5）
+// 用户要求：直接在检索页看到内閣文庫汉籍「经／史／子／集」等各部有多少书，并可导出 CSV。
+//
+// 口径（实测得出，勿随意改动）：
+//   · 簿冊数 = 「資料種別=簿册(da22)」检索命中数 —— 与原站分类页 顯示的「該当件数」一致
+//     （例：經部 fonds/3610545 → 簿册 1886，件名 21583，不筛种别 23470）；
+//   · 件名数 = 「資料種別=件名·細目(da23)」命中数；
+//   · 和書部是日文典籍、漢籍(fonds/3602612) 是上级资料群，两者都不计入漢籍各部统计。
+// 请求量：6 部 × 2 类 = 12 次。原站对频繁请求会限流，故串行 + 间隔 + 重试，结果缓存本机。
+
+const NAIKAKU_WABUN_FOND = '3682585';   // 和書部（日文典籍，非漢籍）
+const NAIKAKU_HANJI_FOND = '3602612';   // 漢籍（上级资料群，不单列）
+const NAJ_STATS_KEY = 'najNaikakuStatsV1';
+let najStatsRows = null;
+
+/** 待统计的「部」列表：经／史／子／集／叢書／新書 */
+function fondStatsList() {
+  return (NAIKAKU_BUNKO.groups || [])
+    .filter((g) => g.id !== NAIKAKU_WABUN_FOND && g.id !== NAIKAKU_HANJI_FOND)
+    .map((g) => ({ id: g.id, label: g.label, jp: g.jp, pageUrl: g.pageUrl }));
+}
+
+function csvCell(v) {
+  const s = String(v == null ? '' : v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function fmtCount(n) {
+  return (n == null || !Number.isFinite(Number(n))) ? '—' : Number(n).toLocaleString('zh-CN');
+}
+
+/** 查某资料群在指定资料种别下的命中数 */
+async function najCountByFond(fondId, type) {
+  const url = buildSearchUrl({
+    keyword: '', scope: 'kw_all', types: type ? [type] : [],
+    fond: fondId, rows: 20, page: 1,
+  });
+  const resp = await najFetch(url, 50);
+  const parsed = parseSearchPage(String(resp.body || ''));
+  if (parsed.total == null) throw new Error('未解析到命中数');
+  return parsed.total;
+}
+
+async function najCountRetry(fondId, type) {
+  let last = null;
+  for (let i = 0; i < 3; i++) {
+    try { return await najCountByFond(fondId, type); } catch (e) { last = e; }
+    await new Promise((r) => setTimeout(r, 900 * (i + 1)));
+  }
+  throw last || new Error('统计失败');
+}
+
+function loadCachedNaikakuStats() {
+  try {
+    const raw = localStorage.getItem(NAJ_STATS_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    return (o && Array.isArray(o.rows) && o.rows.length) ? o : null;
+  } catch (_) { return null; }
+}
+
+function renderNaikakuStats(rows, opt = {}) {
+  const out = el('najStatsOut');
+  if (!out) return;
+  najStatsRows = rows;
+  const sumV = rows.reduce((s, r) => s + (Number(r.volumes) || 0), 0);
+  const sumI = rows.reduce((s, r) => s + (Number(r.items) || 0), 0);
+  const body = rows.map((r) => {
+    const pct = (sumV && Number.isFinite(Number(r.volumes))) ? (Number(r.volumes) / sumV * 100) : null;
+    return `<tr>
+      <td><b>${escHtml(r.label)}</b><span class="naj-stats-jp">${escHtml(r.jp || '')}</span></td>
+      <td class="num">${fmtCount(r.volumes)}</td>
+      <td class="num">${fmtCount(r.items)}</td>
+      <td class="num dim">${pct == null ? '—' : pct.toFixed(1) + '%'}</td>
+      <td><a class="kdb-link" data-naj-out href="${escHtml(r.pageUrl || '')}" title="到原站查看该分类">↗</a></td>
+    </tr>`;
+  }).join('');
+  out.innerHTML = `
+    <table class="naj-stats-tbl">
+      <thead><tr><th>部</th><th>簿册数</th><th>件名数</th><th>占比</th><th>原站</th></tr></thead>
+      <tbody>${body}
+        <tr class="sum"><td><b>合计</b><span class="naj-stats-jp">${rows.length} 部</span></td>
+          <td class="num">${fmtCount(sumV)}</td><td class="num">${fmtCount(sumI)}</td>
+          <td class="num dim">100%</td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="av-hint">口径：<b>簿册数</b>＝「資料種別＝簿册」命中数，与原站分类页「該当件数」一致；
+      <b>件名数</b>＝「件名·細目」命中数。和書部为日文典籍，未计入。<br>
+      原站：www.digital.archives.go.jp（目録元数据 CC0）。${opt.partial ? '<b>正在统计…</b>' : ''}</p>`;
+
+  const t = el('najStatsTime');
+  if (t) {
+    if (opt.at) {
+      const d = new Date(opt.at);
+      t.textContent = '统计于 ' + d.toLocaleString('zh-CN', { hour12: false });
+    } else t.textContent = opt.partial ? '统计中…' : '';
+  }
+  const n = el('najStatsN');
+  if (n) { n.hidden = false; n.textContent = String(rows.length); }
+}
+
+async function runNaikakuStats() {
+  const out = el('najStatsOut');
+  if (!out) return;
+  if (!isTauri) { out.innerHTML = '<p class="kdb-warn">仅桌面版可用：网页版受浏览器跨域限制，取不到原站命中数。</p>'; return; }
+  const list = fondStatsList();
+  if (!list.length) { toast('没有可统计的分类', 'warn'); return; }
+
+  const runBtn = el('najStatsRun');
+  const csvBtn = el('najStatsCsv');
+  const prog = el('najStatsProg');
+  if (runBtn) { runBtn.disabled = true; runBtn.textContent = '统计中…'; }
+  if (csvBtn) csvBtn.disabled = true;
+
+  const rows = list.map((g) => ({ ...g, volumes: null, items: null }));
+  renderNaikakuStats(rows, { partial: true });
+
+  // 第一轮：簿册数（这是「有多少书」的主口径，先出）
+  for (let i = 0; i < rows.length; i++) {
+    if (prog) prog.textContent = `簿册 ${i + 1}/${rows.length}…`;
+    try { rows[i].volumes = await najCountRetry(rows[i].id, 'da22'); } catch (_) { rows[i].volumes = null; }
+    renderNaikakuStats(rows, { partial: true });
+    await new Promise((r) => setTimeout(r, 280));
+  }
+  // 第二轮：件名数（细目级，作参考）
+  for (let i = 0; i < rows.length; i++) {
+    if (prog) prog.textContent = `件名 ${i + 1}/${rows.length}…`;
+    try { rows[i].items = await najCountRetry(rows[i].id, 'da23'); } catch (_) { rows[i].items = null; }
+    renderNaikakuStats(rows, { partial: true });
+    await new Promise((r) => setTimeout(r, 280));
+  }
+
+  const stats = { at: new Date().toISOString(), rows };
+  try { localStorage.setItem(NAJ_STATS_KEY, JSON.stringify(stats)); } catch (_) { /* 存不下也不影响 */ }
+  renderNaikakuStats(rows, { at: stats.at });
+  if (prog) prog.textContent = '';
+  if (runBtn) { runBtn.disabled = false; runBtn.textContent = '重新统计'; }
+  if (csvBtn) csvBtn.disabled = false;
+  toast('统计完成', 'ok');
+}
+
+function najStatsCsvText() {
+  if (!najStatsRows || !najStatsRows.length) return '';
+  const cached = loadCachedNaikakuStats();
+  const at = cached && cached.at ? cached.at : new Date().toISOString();
+  const sumV = najStatsRows.reduce((s, r) => s + (Number(r.volumes) || 0), 0);
+  const sumI = najStatsRows.reduce((s, r) => s + (Number(r.items) || 0), 0);
+  const lines = [['部', '簿册数', '件名数', '簿册占比', '原站链接', '统计时间'].join(',')];
+  for (const r of najStatsRows) {
+    const pct = (sumV && Number.isFinite(Number(r.volumes))) ? (Number(r.volumes) / sumV * 100).toFixed(1) + '%' : '';
+    lines.push([r.label, r.volumes == null ? '' : r.volumes, r.items == null ? '' : r.items, pct, r.pageUrl || '', at]
+      .map(csvCell).join(','));
+  }
+  lines.push(['合计', sumV, sumI, '100%', '', at].map(csvCell).join(','));
+  return lines.join('\r\n');
+}
+
+async function exportNaikakuStats() {
+  const csv = najStatsCsvText();
+  if (!csv) { toast('还没有统计数据，请先点「开始统计」', 'warn'); return; }
+  try {
+    const day = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const path = await tauriInvoke('save_export', { name: `内閣文庫漢籍部别统计_${day}.csv`, content: csv });
+    toast('已导出 CSV：' + path, 'ok');
+    try { await tauriInvoke('reveal_path', { path }); } catch (_) { /* 打不开目录也不算失败 */ }
+  } catch (e) {
+    toast('导出失败：' + (e.message || e), 'err');
+  }
+}
+
+function bindNaikakuStats() {
+  if (!el('najStatsCard')) return;
+  el('najStatsBtn')?.addEventListener('click', () => {
+    const body = el('najStatsBody');
+    const btn = el('najStatsBtn');
+    if (!body) return;
+    const willOpen = body.hasAttribute('hidden');
+    if (willOpen) { body.removeAttribute('hidden'); btn?.setAttribute('aria-expanded', 'true'); }
+    else { body.setAttribute('hidden', ''); btn?.setAttribute('aria-expanded', 'false'); }
+  });
+  el('najStatsRun')?.addEventListener('click', () => { runNaikakuStats(); });
+  el('najStatsCsv')?.addEventListener('click', () => { exportNaikakuStats(); });
+  // 展开区里的原站链接（事件委托，避免每次重绘重复绑定）
+  el('najStatsCard')?.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-naj-out]');
+    if (a) { e.preventDefault(); openExternal(a.getAttribute('href')); }
+  });
+  // 有缓存就先显示，避免每次进页面都重新统计
+  const cached = loadCachedNaikakuStats();
+  if (cached) {
+    renderNaikakuStats(cached.rows, { at: cached.at });
+    const csvBtn = el('najStatsCsv');
+    if (csvBtn) csvBtn.disabled = false;
+    const runBtn = el('najStatsRun');
+    if (runBtn) runBtn.textContent = '重新统计';
+  }
+}
+
 // ---------------------------------------------------------------- 详细检索条件
 function readyear(v) {
   const s = String(v == null ? '' : v).trim();
@@ -326,6 +524,7 @@ export function initNajDbView() {
   fillChecks(el('najLimits'), LIMITS, 'naj-limit');
   fillChecks(el('najStacks'), STACKS, 'naj-stack');
   renderNaikaku();
+  bindNaikakuStats();   // V10.5：内閣文庫漢籍 部别统计（含缓存回显）
 
   if (!state.bound) {
     state.bound = true;

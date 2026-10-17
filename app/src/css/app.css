@@ -1909,6 +1909,78 @@ html, body {
 .naj-cond { flex: 1 1 auto; text-align: right; font-size: 12px; color: var(--text-sec); }
 .naj-cond[hidden] { display: none !important; }
 
+/* ---------- V10.5 内閣文庫 漢籍 部别统计 ---------- */
+/* flex:0 0 auto 必须加：.view 是定高 flex 列，卡片默认会被压缩，
+   再叠加本块的 overflow:hidden 就会把统计表裁掉（实测只显示到第二行）。 */
+.naj-stats { margin-top: 10px; overflow: hidden; flex: 0 0 auto; }
+.naj-stats-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; flex-wrap: wrap;
+}
+.naj-stats-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0; background: none; font-family: inherit; cursor: pointer;
+  font-size: 13px; font-weight: 700; color: var(--text); padding: 2px 0;
+}
+.naj-stats-btn:hover { color: var(--text-sec); }
+.naj-stats-n {
+  font-size: 11px; font-weight: 600; line-height: 1.5;
+  background: var(--divider); color: var(--text-sec);
+  border-radius: 999px; padding: 0 7px;
+}
+.naj-stats-n[hidden] { display: none !important; }
+.naj-stats-hint { font-size: 12px; color: var(--text-muted); }
+.naj-stats-time {
+  margin-left: auto; font-size: 11.5px; color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.naj-stats-body {
+  border-top: 1px solid var(--divider);
+  padding: 10px 14px;
+  /* 表体自身滚动，避免把检索结果区挤没；高度按 6 部 + 合计 一屏放下取值 */
+  max-height: min(420px, 52vh);
+  overflow-y: auto;
+}
+.naj-stats-body[hidden] { display: none !important; }
+.naj-stats-act { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.naj-stats-prog { font-size: 11.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.naj-stats-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.naj-stats-tbl th {
+  font-weight: 500; color: var(--text-muted); text-align: left;
+  padding: 0 8px 7px; border-bottom: 1px solid var(--divider);
+}
+.naj-stats-tbl td { padding: 6px 8px; border-bottom: 1px solid var(--divider); vertical-align: top; }
+.naj-stats-tbl tr:last-child td { border-bottom: 0; }
+.naj-stats-tbl td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.naj-stats-tbl td.dim { color: var(--text-muted); }
+.naj-stats-tbl tr.sum td { border-top: 1px solid var(--border); font-weight: 700; }
+.naj-stats-jp { display: block; font-size: 10.5px; color: var(--text-muted); font-weight: 400; margin-top: 1px; }
+
+/* ---------- V10.5 下载记录（下载中心里的任务列表，单本也入列） ---------- */
+.dlc-tasks { display: flex; flex-direction: column; gap: 4px; }
+.dlc-task-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: var(--radius);
+  font-size: 12px; color: var(--text-sec);
+}
+.dlc-task-row:hover { background: var(--divider); }
+.dlc-task-row .dlc-t-idx {
+  flex: 0 0 auto; font-size: 10.5px; color: var(--text-muted);
+  font-variant-numeric: tabular-nums; min-width: 16px;
+}
+.dlc-task-row .dlc-t-title {
+  flex: 1 1 auto; min-width: 0; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dlc-task-row .dlc-t-meta { flex: 0 0 auto; font-size: 10.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.dlc-task-row .dlc-t-open {
+  flex: 0 0 auto; border: 0; background: none; cursor: pointer;
+  color: var(--text-muted); font-family: inherit; font-size: 11px; padding: 2px 4px;
+}
+.dlc-task-row .dlc-t-open:hover { color: var(--text); }
+.dlc-task-row .dlc-t-err { flex: 0 0 auto; font-size: 10.5px; color: var(--danger); max-width: 120px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 
 /* 分页（放在状态行右端；.kdb-sumline 已是 flex 项并右对齐） */
 .naj-pager { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }

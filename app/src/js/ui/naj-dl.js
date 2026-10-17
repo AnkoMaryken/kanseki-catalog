@@ -56,8 +56,65 @@ export const RUN = {
   current: null,           // { book, task, dir, startedAt }
   lastResult: null,        // 最近一次完成结果
   decided: null,           // 批量失败待决：'retry'|'skip'|'pause'|'cancel'
+  tasks: [],               // V10.5：下载记录（单本与批量都入列，最新在前）
   listeners: new Set(),
 };
+
+// ---------------------------------------------------------------- V10.5 下载记录
+// 背景：原先只有「批量」会把逐本状态写进下载中心列表；单本下载走 executeTask，
+//       既不设 RUN.current 也不记录，导致下载中心显示「当前没有下载任务」、右上角也没有角标。
+// 现在单本与批量都登记到 RUN.tasks，下载中心据此列出每一本的进度与结果。
+
+const TASK_KEEP = 24;      // 记录上限，避免无限增长
+let taskSeq = 0;
+
+/** 供下载中心读取（避免循环 import） */
+export function listRunTasks() { return RUN.tasks; }
+
+function taskProgress(task) {
+  const vols = (task && task.volumes) || [];
+  return {
+    total: vols.length,
+    done: vols.filter((v) => v.status === 'done').length,
+    pages: vols.reduce((s, v) => s + (Number(v.pageCount) || 0), 0),
+  };
+}
+
+/** 登记一条下载记录（返回记录对象，后续用 updTask 更新） */
+function regTask(kind, task) {
+  const p = taskProgress(task);
+  const rec = {
+    id: ++taskSeq,
+    kind,                                  // 'single' | 'batch'
+    title: (task && task.book && task.book.title) || '（未命名）',
+    status: 'running',
+    startedAt: Date.now(),
+    endedAt: 0,
+    total: p.total,
+    done: p.done,
+    pages: p.pages,
+    error: '',
+    dir: task ? taskDir(task) : '',
+    task,
+  };
+  RUN.tasks.unshift(rec);
+  if (RUN.tasks.length > TASK_KEEP) RUN.tasks.length = TASK_KEEP;
+  return rec;
+}
+
+function updTask(rec, patch) {
+  if (!rec) return;
+  if (patch) Object.assign(rec, patch);
+  const p = taskProgress(rec.task);
+  rec.total = p.total; rec.done = p.done; rec.pages = p.pages;
+  if (rec.status !== 'running') rec.endedAt = rec.endedAt || Date.now();
+}
+
+/** 进度刷新：只在执行引擎自己 emit('progress') 时同步记录，避免额外轮询 */
+function touchRunningTask() {
+  const rec = RUN.tasks.find((t) => t.status === 'running');
+  if (rec) updTask(rec);
+}
 
 export function onEngine(cb) {
   RUN.listeners.add(cb);
@@ -400,6 +457,7 @@ export async function executeTask(task) {
       if (v.status === 'done') continue;
       await runVolume(task, v, dir);
       await saveTask(task);
+      touchRunningTask();                       // V10.5：同步「下载记录」里的进度
       emit('progress', { task });
       await sleep(Math.max(0, Number(task.options.delayMs) || 0));
     }
@@ -457,11 +515,13 @@ export async function runBook(book, options) {
     });
   }
   RUN.current = { book, task, dir: taskDir(task), startedAt: Date.now() };
+  const rec = regTask('batch', task);          // V10.5：批量里的每一本也进「下载记录」
   emit('bookStart', { book, task });
   const res = await executeTask(task);
   const error = res.ok ? '' : res.audit.problems.slice(0, 3).join('；');
   RUN.current = null;
   RUN.lastResult = { book, task, dir: res.dir, ok: res.ok, error };
+  updTask(rec, { status: res.ok ? 'done' : 'failed', error });
   emit('bookEnd', RUN.lastResult);
   return { ...res, error };
 }
@@ -845,6 +905,11 @@ function startRun(task, { resume }) {
   RUN.cancelled = false;
   RUN.mode = 'single';
   S.task = task;
+  // V10.5：单本下载也进下载中心 —— 登记记录 + 设置当前任务 + 通知引擎订阅者，
+  // 这样抽屉里的「当前任务/下载记录」和右上角角标都能看到本单的进度。
+  const rec = regTask('single', task);
+  RUN.current = { book: task.book, task, dir: taskDir(task), startedAt: Date.now() };
+  emit('bookStart', { book: task.book, task });
   el('najDlPrepare').hidden = true;
   el('najDlRun').hidden = false;
   el('najDlStart').hidden = true;
@@ -856,6 +921,13 @@ function startRun(task, { resume }) {
     .then((res) => {
       RUN.running = false;
       S.task = task;
+      RUN.current = null;
+      RUN.lastResult = {
+        book: task.book, task, dir: res.dir, ok: res.ok,
+        error: res.ok ? '' : ((res.audit && res.audit.problems) || []).slice(0, 3).join('；'),
+      };
+      updTask(rec, { status: res.ok ? 'done' : 'failed', error: RUN.lastResult.error });
+      emit('bookEnd', RUN.lastResult);
       renderTask();
       if (!res.ok) {
         renderProblems(res.audit, '未通过完整性门禁，已拒绝打包（避免出现缺册却看似完整的压缩包）。可点「只重试未完成册」补齐后再打包。');
@@ -883,7 +955,12 @@ function startRun(task, { resume }) {
     })
     .catch((e) => {
       RUN.running = false;
-      toast(`任务异常终止：${e.message || e}`, 'err');
+      RUN.current = null;
+      const msg = String(e.message || e);
+      RUN.lastResult = { book: task.book, task, dir: taskDir(task), ok: false, error: msg };
+      updTask(rec, { status: 'failed', error: msg });
+      emit('bookEnd', RUN.lastResult);
+      toast(`任务异常终止：${msg}`, 'err');
     });
 }
 
@@ -897,13 +974,31 @@ async function onRetryFailed() {
   RUN.running = true;
   RUN.cancelled = false;
   RUN.paused = false;
+  // V10.5：补齐同样登记进下载中心
+  const rec = regTask('single', S.task);
+  RUN.current = { book: S.task.book, task: S.task, dir: taskDir(S.task), startedAt: Date.now() };
+  emit('bookStart', { book: S.task.book, task: S.task });
   renderTask();
   executeTask(S.task).then((res) => {
     RUN.running = false;
+    RUN.current = null;
+    RUN.lastResult = {
+      book: S.task.book, task: S.task, dir: res.dir, ok: res.ok,
+      error: res.ok ? '' : ((res.audit && res.audit.problems) || []).slice(0, 3).join('；'),
+    };
+    updTask(rec, { status: res.ok ? 'done' : 'failed', error: RUN.lastResult.error });
+    emit('bookEnd', RUN.lastResult);
     renderTask();
     if (!res.ok) renderProblems(res.audit, '仍有未完成册，已拒绝打包。');
     else window.__najDlNotify?.({ kind: 'ok', title: '补齐完成', text: `${S.task.book.title} 已全部完成`, dir: res.dir, task: S.task });
-  }).catch((e) => { RUN.running = false; toast(String(e.message || e), 'err'); });
+  }).catch((e) => {
+    RUN.running = false;
+    RUN.current = null;
+    const msg = String(e.message || e);
+    updTask(rec, { status: 'failed', error: msg });
+    emit('bookEnd', { book: S.task.book, task: S.task, dir: taskDir(S.task), ok: false, error: msg });
+    toast(String(msg), 'err');
+  });
 }
 
 async function onReveal() {

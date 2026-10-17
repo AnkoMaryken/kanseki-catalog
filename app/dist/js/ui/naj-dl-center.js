@@ -13,7 +13,7 @@
 //     这里每 800ms 轮询一次 —— 只依赖 `__TAURI_INTERNALS__.invoke`，零额外前端依赖；
 //   · 提示音用 WebAudio 现场合成（不引入音频文件）。
 // ================================================
-import { RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, onEngine } from './naj-dl.js';
+import { RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, onEngine, listRunTasks } from './naj-dl.js';
 
 const el = (id) => document.getElementById(id);
 let pollTimer = null;
@@ -191,6 +191,10 @@ function ensureDrawer() {
         <div class="dlc-sec-title">批量队列</div>
         <div id="dlcQueue" class="dlc-queue"></div>
       </div>
+      <div class="dlc-sec" id="dlcTasksSec" hidden>
+        <div class="dlc-sec-title">下载记录</div>
+        <div id="dlcTasks" class="dlc-tasks"></div>
+      </div>
       <div class="dlc-sec" id="dlcDecideSec" hidden>
         <div class="dlc-sec-title">这一本下载失败，要怎么处理？</div>
         <div class="dlc-decide" id="dlcDecideText"></div>
@@ -220,7 +224,13 @@ function ensureDrawer() {
   });
   d.addEventListener('click', (e) => {
     const b = e.target.closest('[data-dlc-decide]');
-    if (b) { decide(b.dataset.dlcDecide); renderDrawer(); }
+    if (b) { decide(b.dataset.dlcDecide); renderDrawer(); return; }
+    // V10.5：下载记录里的「打开所在文件夹」
+    const openDir = e.target.closest('[data-dlc-task-dir]');
+    if (openDir) {
+      const p = openDir.getAttribute('data-dlc-task-dir');
+      if (p) invoke('reveal_path', { path: p }).catch(() => { });
+    }
   });
 }
 
@@ -380,6 +390,38 @@ function renderDecide() {
   }
 }
 
+/** V10.5 下载记录：单本与批量每一本都在这里，带状态与逐册进度 */
+function renderTasks() {
+  const sec = el('dlcTasksSec');
+  const box = el('dlcTasks');
+  if (!sec || !box) return;
+  const list = listRunTasks() || [];
+  if (!list.length) { sec.hidden = true; box.innerHTML = ''; return; }
+  sec.hidden = false;
+  const label = {
+    running: ['下载中', 'dl-b-run'],
+    done: ['完成', 'dl-b-ok'],
+    failed: ['失败', 'dl-b-err'],
+    cancelled: ['已取消', 'dl-b-warn'],
+  };
+  box.innerHTML = list.slice(0, 12).map((t, i) => {
+    const [tx, cls] = label[t.status] || ['—', 'dl-b-idle'];
+    const kind = t.kind === 'single' ? '单本' : '批量';
+    const prog = t.total ? `${t.done}/${t.total} 册` : '';
+    const when = new Date(t.startedAt || Date.now());
+    const hm = `${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}`;
+    const err = t.error ? `<span class="dlc-t-err" title="${esc(t.error)}">· ${esc(String(t.error).slice(0, 16))}</span>` : '';
+    return `<div class="dlc-task-row">
+      <span class="dlc-t-idx">${String(list.length - i).padStart(2, '0')}</span>
+      <span class="dl-badge ${cls}">${esc(tx)}</span>
+      <span class="dlc-t-title" title="${esc(t.title)}">${esc(t.title)}</span>
+      <span class="dlc-t-meta">${kind}${prog ? ' · ' + prog : ''} · ${hm}</span>
+      ${err}
+      <button class="dlc-t-open" type="button" data-dlc-task-dir="${esc(t.dir || '')}" title="打开所在文件夹">↗</button>
+    </div>`;
+  }).join('');
+}
+
 function renderDrawer() {
   if (!el('dlcDrawer')) return;
   const running = RUN.running;
@@ -390,6 +432,7 @@ function renderDrawer() {
   el('dlcCancel').disabled = !running;
   renderNow();
   renderQueue();
+  renderTasks();
   renderDecide();
 }
 
