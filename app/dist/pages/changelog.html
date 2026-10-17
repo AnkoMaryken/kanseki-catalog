@@ -184,6 +184,46 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v10.4.0 · 手机版 App</span>
+      <span class="cl-date">2026-10-17</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>真正的手机版 App 上线（m.html）</b>：不再是「桌面网页塞进手机」，而是按手机版设计稿重做的
+        <b>竖屏 App</b>——底部 5 个 Tab（首页 / 纪年 / 类目 / 检索 / 我的）、灰底白卡、大圆角。
+        装到主屏幕后打开的就是它。</li>
+      <li><b>首页</b>：头像与问候并排、5 个快捷入口（纪年·类目·<b>日藏</b>·公文书馆·编目）、
+        <b>每日推荐</b>（金句/书史小故事，按日期轮换）、编目资料（细则查阅 / 分类表 / 工作手册 /
+        岁时落款常识 / 软件介绍）。</li>
+      <li><b>纪年查询是真数据</b>：输入公历年，同时给出<b>中国 → 日本 → 其他地区</b>三组年号与君主，
+        可切<b>卡片 / 表格</b>两种视图，带干支与生肖。数据与桌面版同源（同一份 <code>era_data.js</code>）。</li>
+      <li><b>古籍类目查询是真数据</b>：《中國古籍總目》全量 <b>177,107 条</b>著录 + 349 个类目组合，
+        可按书名 / 著者 / 类目检索，带「完全相同 / 可对应 / 无对应」三态判定；
+        首次打开才载入 9.6 MB 数据，不拖慢启动。</li>
+      <li><b>岁时落款常识是真数据</b>：干支别称 / 农历月份雅称 / 季令与节令称谓 / 书画落款规范 /
+        古代年龄称谓，五节可切换。</li>
+      <li><b>检索页</b>：日本所藏中文古籍数据库、日本国立公文书馆两个入口，直连对方站点；
+        并明确标注<b>应用内检索与批量下载 PDF 需桌面版</b>（浏览器跨域限制）。</li>
+      <li><b>状态保持</b>：在「纪年」查了词、切到别的 Tab 再回来，检索词、视图、结果都还在。</li>
+      <li><b>技术重构</b>：纪年数据（中国朝代 / 日本时代 / 周边政权，约 54 KB）从 index.html 内联块
+        抽成共用文件 <code>era_data.js</code>，网页版与手机版共用同一份，避免两处漂移。</li>
+      <li>桌面版不受影响：<code>m.html</code> 只属于网页/手机端，桌面版内嵌页仍是原页面。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
+      <span class="cl-ver">v10.3.1 · 网页版</span>
+      <span class="cl-date">2026-10-17</span>
+      <span class="cl-tag t-fix">修复</span>
+    </div>
+    <ul>
+      <li>修复手机宽度下「岁时落款」与「卷数计算」两个浮动按钮完全重叠的问题。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v10.3.0 · 网页版</span>
       <span class="cl-date">2026-10-17</span>
       <span class="cl-tag t-new">新增</span>

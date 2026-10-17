@@ -68,6 +68,7 @@ const SITE_SCRIPTS = [
   'conv_tables.js',     // 简繁转换表
   'pinyin_data.js',     // 拼音数据
   'knowledge.js',       // 知识数据
+  'era_data.js',        // V10.4 纪年数据（中国朝代/日本时代/周边政权），index.html 依赖
   'catalog_data.js',    // 编目数据
   'kanseki_data.js',    // V9.0 古籍类目数据（9.6MB，仅 kanseki.html 使用）
   'kanseki_conv.js',    // V9.0 古籍类目专用 繁→简 表

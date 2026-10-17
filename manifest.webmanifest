@@ -2,7 +2,7 @@
   "name": "古代史及汉籍研究工具",
   "short_name": "汉籍工具",
   "description": "纪年查询 · 古籍类目查询 · 日本所藏汉籍检索 · 编目规范",
-  "start_url": "./index.html",
+  "start_url": "./m.html",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],

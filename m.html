@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>古代史及汉籍研究工具</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F2F3F5">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="汉籍工具">
+<style>
+/* ============================================================
+   手机版 App（m.html）
+   设计：灰底白卡 · 单色强调(近黑 #171A1F) · 大圆角无描边
+   数据：era_data.js（纪年）· kanseki_data.js（类目）· knowledge.js（岁时落款）
+   ============================================================ */
+:root{
+  --brand:#171A1F;
+  --bg-page:#F2F3F5;--bg-card:#FFF;--bg-fill:#F2F3F5;--bg-badge:#EDEEF0;
+  --t1:#171A1F;--t2:#5F6672;--t3:#8F959E;--t4:#C2C6CC;--divider:#F0F1F3;
+  --r-card:26px;--r-card-sm:20px;--r-pill:999px;--r-badge:6px;
+  --fs-hero:18px;--fs-page:16px;--fs-list:15px;--fs-body:14px;
+  --fs-sub:12.5px;--fs-cap:11.5px;--fs-tab:9.5px;--fs-quick:11px;
+  --shadow-card:0 6px 20px rgba(0,0,0,.06);
+  --shadow-float:0 8px 28px rgba(0,0,0,.08);
+  --ease:cubic-bezier(.2,0,0,1);
+  --font:-apple-system,"PingFang SC","HarmonyOS Sans","Microsoft YaHei",Roboto,sans-serif;
+  --font-serif:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:var(--font);background:var(--bg-page);color:var(--t1);font-size:var(--fs-body);
+  line-height:1.5;overscroll-behavior-y:none}
+.app{display:flex;flex-direction:column;height:100dvh;max-width:640px;margin:0 auto}
+.view{flex:1 1 auto;display:none;flex-direction:column;min-height:0}
+.view.on{display:flex}
+.scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:max(8px,env(safe-area-inset-top)) 16px 8px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* 底栏 */
+.nav{flex:0 0 auto;height:64px;margin:0 12px calc(10px + env(safe-area-inset-bottom,0px));
+  border-radius:var(--r-card);background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  box-shadow:var(--shadow-float);display:flex;align-items:center;padding:0 4px}
+.nav button{flex:1;border:0;background:none;padding:8px 0 6px;font-family:inherit;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--t3);transition:color .18s var(--ease)}
+.nav button b{font-size:var(--fs-tab);font-weight:500}
+.nav button svg{width:22px;height:22px;stroke-width:1.7;fill:none;stroke:currentColor}
+.nav button.on{color:var(--brand)}
+.nav button.on svg{stroke-width:1.9}
+.nav button:active{transform:scale(.97)}
+
+/* 顶栏 */
+.topbar{display:flex;align-items:center;gap:8px;height:52px;margin:0 -4px;flex:0 0 auto}
+.tb-btn{width:36px;height:36px;flex:0 0 36px;border:0;background:none;border-radius:var(--r-pill);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t1)}
+.tb-btn:active{background:var(--bg-badge)}
+.tb-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}
+.tb-title{font-size:var(--fs-page);font-weight:700;flex:1}
+
+/* 首页 */
+.hero{padding:2px 2px 16px}
+.hero-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.avatar{width:48px;height:48px;flex:0 0 48px;border-radius:var(--r-pill);background:var(--bg-badge);
+  border:0;font-family:inherit;font-size:16px;font-weight:700;color:var(--t1);cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.hero-row h2{font-size:var(--fs-hero);font-weight:700;margin:0 0 3px;letter-spacing:-.01em;line-height:1.25}
+.hero-row .sub{font-size:var(--fs-cap);color:var(--t2)}
+.quick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.quick button{border:0;background:none;font-family:inherit;cursor:pointer;padding:0;
+  display:flex;flex-direction:column;align-items:center;gap:7px}
+.quick .qi{width:48px;height:48px;border-radius:var(--r-pill);background:var(--bg-fill);
+  display:flex;align-items:center;justify-content:center}
+.quick .qi svg{width:23px;height:23px;fill:var(--brand);stroke:none}
+.quick span{font-size:var(--fs-quick);color:var(--t1);font-weight:500}
+.quick button:active .qi{transform:scale(.94);background:var(--bg-badge)}
+
+/* 卡片 */
+.card{background:var(--bg-card);border-radius:var(--r-card);box-shadow:var(--shadow-card);
+  padding:17px;margin-bottom:12px}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.card-h b{font-size:13px;font-weight:600}
+.daily-date{font-size:var(--fs-cap);color:var(--t3);font-variant-numeric:tabular-nums}
+.quote{margin:12px 0 0;font-family:var(--font-serif);font-size:18px;font-weight:600;line-height:1.8;color:var(--t1)}
+.quote-src{font-size:var(--fs-cap);color:var(--t3);margin-top:9px}
+.quote-note{font-size:var(--fs-sub);color:var(--t2);line-height:1.75;margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--divider)}
+.story-title{font-size:var(--fs-list);font-weight:600;margin:12px 0 7px}
+.story-body{font-size:var(--fs-sub);color:var(--t2);line-height:1.85}
+
+/* 行 */
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider);
+  cursor:pointer;text-decoration:none;color:inherit}
+.row:last-child{border-bottom:0;padding-bottom:2px}
+.row:active{opacity:.6}
+.ri{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:var(--bg-fill);
+  display:flex;align-items:center;justify-content:center}
+.ri svg{width:19px;height:19px;fill:none;stroke:var(--t1);stroke-width:1.7}
+.rt{flex:1;min-width:0}
+.rt b{display:block;font-size:var(--fs-list);font-weight:600;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt span{display:block;font-size:var(--fs-cap);color:var(--t3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra{color:var(--t4);font-size:13px}
+
+/* 三行记录 */
+.rec{padding:13px 0;border-bottom:1px solid var(--divider)}
+.rec:last-child{border-bottom:0}
+.rec .meta{font-size:var(--fs-cap);color:var(--t3);margin-bottom:3px}
+.rec .title{font-size:var(--fs-list);font-weight:600;margin-bottom:5px;line-height:1.35}
+.rec .info{font-size:var(--fs-cap);color:var(--t2);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.rec .info em{font-style:normal;color:var(--t3)}
+.group-h{display:flex;align-items:baseline;justify-content:space-between;padding:14px 2px 6px}
+.group-h b{font-size:13px;font-weight:600}
+.group-h span{font-size:var(--fs-cap);color:var(--t3)}
+
+/* 搜索 */
+.search-bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.search-pill{flex:1;min-width:0;height:46px;background:var(--bg-card);border-radius:var(--r-pill);
+  box-shadow:var(--shadow-card);display:flex;align-items:center;gap:10px;padding:0 16px}
+.search-pill svg{width:18px;height:18px;fill:none;stroke:var(--t2);stroke-width:1.9;flex:0 0 18px}
+.search-pill input{border:0;background:none;outline:none;font-family:inherit;font-size:var(--fs-body);
+  color:var(--t1);width:100%;min-width:0}
+.search-pill input::placeholder{color:var(--t3)}
+.search-x{flex:0 0 40px;width:40px;height:40px;border-radius:var(--r-pill);border:0;background:var(--bg-badge);
+  color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.search-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2}
+
+/* 分段 */
+.seg{display:flex;background:var(--bg-badge);border-radius:var(--r-pill);padding:3px;margin-bottom:12px}
+.seg button{flex:1;height:34px;border:0;background:none;border-radius:var(--r-pill);font-family:inherit;
+  font-size:var(--fs-sub);font-weight:500;color:var(--t2);cursor:pointer;transition:all .18s var(--ease);
+  white-space:nowrap;padding:0 12px}
+.seg button.on{background:var(--bg-card);color:var(--t1);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* 表格 */
+.yr-table{width:100%;border-collapse:collapse;font-size:var(--fs-cap)}
+.yr-table th{font-weight:500;color:var(--t3);text-align:left;padding:0 0 8px;border-bottom:1px solid var(--divider)}
+.yr-table td{padding:9px 0;border-bottom:1px solid var(--divider);color:var(--t1);vertical-align:top}
+.yr-table tr:last-child td{border-bottom:0}
+.yr-table td.reg{color:var(--t3);white-space:nowrap;padding-right:8px}
+.yr-table td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.yr-table td .era{display:block;font-weight:600;margin-bottom:1px}
+
+/* 徽章 */
+.badge{display:inline-block;font-size:var(--fs-cap);font-weight:600;padding:2px 8px;
+  border-radius:var(--r-badge);line-height:1.5}
+.badge.b1{background:#DCDFE3;color:var(--t1)}
+.badge.b2{background:var(--bg-badge);color:var(--t2)}
+.badge.b3{background:#F7F8F9;color:var(--t4)}
+
+.stat-line{display:flex;align-items:baseline;gap:8px;padding:2px 4px 10px}
+.stat-line b{font-size:var(--fs-page);font-weight:700;font-variant-numeric:tabular-nums}
+.stat-line span{font-size:var(--fs-cap);color:var(--t3)}
+.stat-line .sp{flex:1}
+
+/* 按钮 */
+.btn{width:100%;height:44px;border:0;border-radius:var(--r-pill);background:var(--brand);color:#fff;
+  font-family:inherit;font-size:var(--fs-body);font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.btn:active{transform:scale(.98);background:#0C0E12}
+.btn.ghost{background:var(--bg-fill);color:var(--t1)}
+.btn.sm{height:34px;font-size:var(--fs-cap);width:auto;padding:0 14px}
+
+/* 键值 */
+.kv{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--divider);font-size:var(--fs-body)}
+.kv:last-child{border-bottom:0}
+.kv b{flex:0 0 84px;color:var(--t3);font-weight:400;font-size:var(--fs-sub);padding-top:1px}
+.kv span{flex:1;color:var(--t1);line-height:1.45;word-break:break-word}
+
+.note-bar{display:flex;gap:8px;background:var(--bg-badge);border-radius:var(--r-card-sm);
+  padding:11px 13px;margin-bottom:12px}
+.note-bar svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:var(--t2);stroke-width:1.8;margin-top:1px}
+.note-bar p{margin:0;font-size:var(--fs-cap);color:var(--t2);line-height:1.6}
+
+/* 数据库入口 */
+.db-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:var(--bg-card);
+  border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:18px;margin-bottom:12px;
+  font-family:inherit;cursor:pointer;text-decoration:none;color:inherit}
+.db-card:active{transform:scale(.99)}
+.db-ic{width:46px;height:46px;flex:0 0 46px;border-radius:15px;background:var(--bg-fill);
+  display:flex;align-items:center;justify-content:center}
+.db-ic svg{width:23px;height:23px;fill:var(--brand);stroke:none}
+.db-tx{flex:1;min-width:0}
+.db-tx b{display:block;font-size:var(--fs-list);font-weight:600;margin-bottom:5px;line-height:1.3}
+.db-tx span{display:block;font-size:var(--fs-cap);color:var(--t3);line-height:1.55}
+
+/* 账号 */
+.acct{display:flex;align-items:center;gap:14px;padding:4px 0 16px}
+.acct .av{width:56px;height:56px;flex:0 0 56px;border-radius:var(--r-pill);background:var(--bg-badge);
+  display:flex;align-items:center;justify-content:center}
+.acct .av svg{width:26px;height:26px;stroke:var(--t3);fill:none;stroke-width:1.8}
+.acct .ai b{display:block;font-size:var(--fs-list);font-weight:600;margin-bottom:3px}
+.acct .ai span{font-size:var(--fs-cap);color:var(--t3)}
+
+/* knowledge.js 片段 */
+.kn-body h4{margin:0 0 8px;font-size:var(--fs-sub);font-weight:600;color:var(--t2)}
+.kn-body .sub-section{margin-bottom:14px}
+.kn-body .sub-section:last-child{margin-bottom:0}
+.kn-body table{width:100%;border-collapse:collapse;font-size:var(--fs-cap);margin-bottom:4px}
+.kn-body th{font-weight:500;color:var(--t3);text-align:left;padding:0 0 7px;border-bottom:1px solid var(--divider)}
+.kn-body td{padding:7px 6px 7px 0;border-bottom:1px solid var(--divider);color:var(--t1);vertical-align:top}
+.kn-body tr:last-child td{border-bottom:0}
+.kn-body td.kw{font-weight:600;white-space:nowrap}
+.kn-body td.pinyin{color:var(--t3);font-size:11px;font-variant-numeric:tabular-nums}
+.kn-body p{margin:0 0 8px;font-size:var(--fs-sub);color:var(--t2);line-height:1.7}
+.kn-body ul{margin:0 0 8px;padding-left:18px}
+.kn-body li{font-size:var(--fs-sub);color:var(--t2);line-height:1.7}
+
+/* 状态 */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  padding:52px 20px;color:var(--t3);font-size:var(--fs-sub)}
+.spin{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--bg-badge);
+  border-top-color:var(--brand);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:46px 20px;color:var(--t4);font-size:var(--fs-sub);line-height:1.7}
+.view-title{font-size:var(--fs-page);font-weight:700;padding:4px 2px 14px}
+.hint{font-size:var(--fs-cap);color:var(--t3);padding:0 2px 14px;line-height:1.65}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script src="conv_tables.js"></script>
+<script src="era_data.js"></script>
+<script>
+/* ============================================================
+   图标：FILL = 实心（功能入口）· LINE = 细线（导航/列表）
+   ============================================================ */
+var FILL = {
+  calendar:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>',
+  tree:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3h7z"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/></svg>',
+  archive:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-1 18H5V9h14v11zM4 7V4h16v3H4zm5 3h6v2H9v-2z"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
+};
+var LINE = {
+  home:'<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8Z"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 2.8v4M16 2.8v4"/></svg>',
+  tree:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6" height="5" rx="1.3"/><rect x="14.5" y="15.5" width="6" height="5" rx="1.3"/><path d="M6.5 8.5v6a2 2 0 0 0 2 2h6"/></svg>',
+  search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.7-3.6 3.6-5.4 7.2-5.4s6.5 1.8 7.2 5.4"/></svg>',
+  back:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>',
+  doc:'<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+  clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8.2v.2"/></svg>',
+  book:'<svg viewBox="0 0 24 24"><path d="M12 6.6C10.4 5.3 8.3 4.6 6 4.6H3.5v13H6c2.3 0 4.4.7 6 2 1.6-1.3 3.7-2 6-2h2.5v-13H18c-2.3 0-4.4.7-6 2Z"/><path d="M12 6.6v13"/></svg>',
+  x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+};
+
+/* ============================================================
+   工具函数
+   ============================================================ */
+var TG = '甲乙丙丁戊己庚辛壬癸';
+var DZ = '子丑寅卯辰巳午未申酉戌亥';
+var SX = '鼠牛虎兔龙蛇马羊猴鸡狗猪';
+function ganzhi(y) { var n = ((y - 4) % 60 + 60) % 60; return TG.charAt(n % 10) + DZ.charAt(n % 12); }
+function zodiac(y) { var n = ((y - 4) % 12 + 12) % 12; return SX.charAt(n); }
+var CN_NUM = '〇一二三四五六七八九';
+function cnNum(n) {
+  if (n <= 0) return String(n);
+  if (n < 10) return CN_NUM.charAt(n);
+  if (n === 10) return '十';
+  if (n < 20) return '十' + CN_NUM.charAt(n - 10);
+  var t = Math.floor(n / 10), u = n % 10;
+  return CN_NUM.charAt(t) + '十' + (u ? CN_NUM.charAt(u) : '');
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+function loadScript(src) {
+  return new Promise(function (resolve, reject) {
+    if (document.querySelector('script[data-lazy="' + src + '"]')) { resolve(); return; }
+    var s = document.createElement('script');
+    s.src = src;
+    s.setAttribute('data-lazy', src);
+    s.onload = function () { resolve(); };
+    s.onerror = function () { reject(new Error('加载失败: ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+
+/* 简→繁：纪年与知识数据源是简体，站内默认显示繁体（转换表来自 conv_tables.js） */
+var _s2tKeysReady = false;
+function toT(s) {
+  if (!s) return s;
+  if (typeof S2T_MAP === 'undefined') return s;
+  var out = '', i = 0, n = s.length;
+  while (i < n) {
+    var hit = false;
+    // 只尝试 1–4 字的键，避免逐键全表扫描
+    for (var L = Math.min(4, n - i); L >= 1; L--) {
+      var key = s.substr(i, L);
+      var v = S2T_MAP[key];
+      if (v !== undefined) { out += v; i += L; hit = true; break; }
+    }
+    if (!hit) { out += s.charAt(i); i++; }
+  }
+  return out;
+}
+
+/* ============================================================
+   每日推荐
+   ============================================================ */
+var DAILY = [
+  { type:'quote', text:'觀天下書未遍，不得妄下雌黃。', src:'顏之推《顏氏家訓·勉學》', note:'未見原書而轉抄前人著錄，最容易把一處錯誤沿襲成通說。編目時寧可空著，不要妄補。' },
+  { type:'story', title:'楊守敬訪書', src:'事見楊守敬《日本訪書志》、黎庶昌《古逸叢書》序', body:'光緒六年（1880）起，楊守敬隨黎庶昌駐日。時值明治維新，舊家藏書紛紛散出，他日遊書肆、廣事搜訪，成《日本訪書志》。黎氏據以輯刻《古逸叢書》二十六種，多為中土久佚之本。' },
+  { type:'quote', text:'書猶藥也，善讀之可以醫愚。', src:'劉向《說苑·建本》', note:'目錄之學亦然：著錄體例是藥方，每一條目是藥材，缺一味便治不了病。' },
+  { type:'quote', text:'讀書百遍，而義自見。', src:'《三國志·魏志·王肅傳》裴松之注引《魏略》', note:'同一部書反覆過眼，才看得出避諱字、版心刻工、行款上的細微差異。' },
+  { type:'story', title:'皕宋樓書東去', src:'事見靜嘉堂文庫藏書源流相關記載', body:'光緒三十三年（1907），歸安陸心源皕宋樓藏書四萬餘冊，由其子售與日本岩崎氏靜嘉堂文庫。此為近代漢籍流散最大一宗，至今仍為書史之痛。' },
+  { type:'quote', text:'奇文共欣賞，疑義相與析。', src:'陶淵明《移居》其一', note:'編目非一人之事：疑處標出、互校互證，比獨斷可靠得多。' },
+  { type:'quote', text:'舊書不厭百回讀，熟讀深思子自知。', src:'蘇軾《送安惇秀才失解西歸》', note:'宋元舊槧的價值，常藏在校勘與版式細節裡：讀一遍看不見，讀十遍才浮出來。' }
+];
+function dayOfYear(d) { return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000); }
+var TODAY = new Date();
+var dailyIdx = dayOfYear(TODAY) % DAILY.length;
+
+function dailyHTML() {
+  var d = DAILY[dailyIdx];
+  var mmdd = (TODAY.getMonth() + 1) + '月' + TODAY.getDate() + '日';
+  var head = '<div class="card-h"><b>每日推荐</b><span class="daily-date">' + mmdd + '</span></div>';
+  var foot = '<div style="text-align:right;margin-top:12px"><button class="btn ghost sm" id="dailyNext">换一条</button></div>';
+  if (d.type === 'quote') {
+    return head + '<blockquote class="quote">「' + esc(d.text) + '」</blockquote>' +
+      '<div class="quote-src">—— ' + esc(d.src) + '</div>' +
+      '<div class="quote-note">' + esc(d.note) + '</div>' + foot;
+  }
+  return head + '<div class="story-title">' + esc(d.title) + '</div>' +
+    '<div class="story-body">' + esc(d.body) + '</div>' +
+    '<div class="quote-src" style="margin-top:9px">' + esc(d.src) + '</div>' + foot;
+}
+
+/* ============================================================
+   纪年：真实数据（era_data.js）
+   ============================================================ */
+function eraEntries(year) {
+  var cn = [], jp = [], other = [];
+  function push(list, el, ownerName) {
+    var s = el.r && el.r[0], e = el.r ? (el.r[1] || el.r[0]) : null;
+    if (s == null || e == null) return;
+    if (year < s || year > e) return;
+    list.push({ dyn: ownerName, era: el.name, ruler: el.ruler || '—', n: year - s + 1 });
+  }
+  (window.CN_DYNASTIES || []).forEach(function (d) {
+    (d.eras || []).forEach(function (e) { push(cn, e, d.name); });
+  });
+  (window.JP_PERIODS || []).forEach(function (p) {
+    (p.eras || []).forEach(function (e) { push(jp, e, p.name); });
+  });
+  (window.OTHER_STATES || []).forEach(function (o) {
+    (o.eras || []).forEach(function (e) { push(other, e, o.name); });
+  });
+  // 同年可能有多条同号记录（分裂时期），按年号去重
+  function dedupe(a) {
+    var seen = {}, out = [];
+    a.forEach(function (x) {
+      var k = x.dyn + '|' + x.era;
+      if (seen[k]) return;
+      seen[k] = 1; out.push(x);
+    });
+    return out;
+  }
+  return { cn: dedupe(cn), jp: dedupe(jp), other: dedupe(other) };
+}
+
+function eraLabel(e) {
+  return esc(toT(e.era)) + (e.n === 1 ? '元年' : cnNum(e.n) + '年');
+}
+
+function renderEra(year, view) {
+  var g = eraEntries(year);
+  var total = g.cn.length + g.jp.length + g.other.length;
+  if (!total) {
+    var minY = -841, maxY = 2026;
+    return '<div class="empty">未收录 ' + year + ' 年的纪年<br><span style="font-size:11px">可查范围约 ' +
+      (minY < 0 ? '前' + Math.abs(minY) : minY) + ' — ' + maxY + ' 年</span></div>';
+  }
+  var gz = ganzhi(year), sx = zodiac(year);
+  var head = '<div class="stat-line"><b>' + year + '</b><span>' + gz + ' · ' + sx + ' · 共 ' + total + ' 条</span></div>';
+
+  if (view === 'table') {
+    var rows = '';
+    function row(reg, e) {
+      rows += '<tr><td class="reg">' + esc(reg) + '</td><td><span class="era">' + eraLabel(e) +
+        '</span>' + esc(toT(e.dyn)) + '</td><td>' + esc(toT(e.ruler)) + '</td><td class="num">' + gz + '</td></tr>';
+    }
+    g.cn.forEach(function (e) { row('中国', e); });
+    g.jp.forEach(function (e) { row('日本', e); });
+    g.other.forEach(function (e) { row('其他', e); });
+    return head + '<div class="card" style="padding:14px 17px"><table class="yr-table">' +
+      '<thead><tr><th>区域</th><th>年号</th><th>君主</th><th>干支</th></tr></thead><tbody>' +
+      rows + '</tbody></table></div>';
+  }
+
+  function card(group, list, title) {
+    if (!list.length) return '';
+    var inner = list.map(function (e) {
+      return '<div class="rec"><div class="meta">' + esc(toT(e.dyn)) + '</div>' +
+        '<div class="title">' + eraLabel(e) + '</div>' +
+        '<div class="info"><em>君主</em>' + esc(toT(e.ruler)) + '<em>干支</em>' + gz + '</div></div>';
+    }).join('');
+    return '<div class="group-h"><b>' + title + '</b><span>' + list.length + ' 条</span></div>' +
+      '<div class="card" style="padding:4px 17px">' + inner + '</div>';
+  }
+  return head +
+    card('cn', g.cn, '中国') +
+    card('jp', g.jp, '日本') +
+    card('other', g.other, '其他地区');
+}
+
+/* ============================================================
+   古籍类目：真实数据（kanseki_data.js）
+   ============================================================ */
+var K = { ready: false, loading: false, cats: null, rows: null };
+function ensureKanseki() {
+  if (K.ready) return Promise.resolve();
+  if (K.loading) return K.loading;
+  K.loading = loadScript('kanseki_data.js').then(function () {
+    K.cats = window.KANSEKI_CATS || [];
+    var raw = window.KANSEKI_ROWS || '';
+    K.rows = raw.length ? raw.split('\n').filter(Boolean).map(function (l) { return l.split('\t'); }) : [];
+    K.ready = true;
+  });
+  return K.loading;
+}
+
+function verdictOf(idx) {
+  var c = K.cats[idx];
+  if (!c) return { text: '—', cls: 'b3' };
+  var v = c[5] || '';
+  var cls = 'b3';
+  if (v.indexOf('完全相同') >= 0 || v.indexOf('完全相同') >= 0) cls = 'b1';
+  else if (v.indexOf('對應') >= 0 || v.indexOf('对应') >= 0) cls = 'b2';
+  return { text: v, cls: cls, bu: c[0], lei: c[1], shu: c[2] };
+}
+
+function searchKanseki(q) {
+  var kw = q.trim();
+  if (!kw) return null;
+  var upper = kw.toUpperCase();
+  var hits = [];
+  for (var i = 0; i < K.rows.length; i++) {
+    var r = K.rows[i];
+    var catIdx = +r[0];
+    var title = r[1] || '';
+    var author = r[2] || '';
+    var cat = K.cats[catIdx] || [];
+    var catText = (cat[0] || '') + (cat[1] || '') + (cat[2] || '');
+    if (title.indexOf(kw) >= 0 || author.indexOf(kw) >= 0 || catText.indexOf(kw) >= 0) {
+      hits.push({ idx: catIdx, title: title, author: author });
+    }
+    if (hits.length >= 400) break;   // 上限保护
+  }
+  return hits;
+}
+
+/* ============================================================
+   视图
+   ============================================================ */
+var NAV = [
+  { key:'home', label:'首页', icon:LINE.home },
+  { key:'query', label:'纪年', icon:LINE.calendar },
+  { key:'kanseki', label:'类目', icon:LINE.tree },
+  { key:'search', label:'检索', icon:LINE.search },
+  { key:'mine', label:'我的', icon:LINE.user }
+];
+var VS = {};       // 每视图状态
+var CURRENT = null;
+
+function navHTML(active) {
+  return NAV.map(function (n) {
+    return '<button data-nav-key="' + n.key + '" class="' + (n.key === active ? 'on' : '') + '">' +
+      n.icon + '<b>' + n.label + '</b></button>';
+  }).join('');
+}
+
+function shell(key, activeNav, bodyHTML) {
+  return '<section class="view on" id="v-' + key + '">' +
+    '<div class="scroll" data-scroll="' + key + '">' + bodyHTML + '<div style="height:6px"></div></div>' +
+    '<nav class="nav">' + navHTML(activeNav) + '</nav>' +
+    '</section>';
+}
+
+/* ---------- 首页 ---------- */
+function viewHome() {
+  var h = new Date().getHours();
+  var greet = h < 6 ? '夜深了' : h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好';
+  var body =
+    '<div class="hero">' +
+      '<div class="hero-row">' +
+        '<button class="avatar" data-go="mine">古</button>' +
+        '<div><h2>' + greet + '</h2><div class="sub">数据仅保存在本机</div></div>' +
+      '</div>' +
+      '<div class="quick">' +
+        '<button data-go="query"><span class="qi">' + FILL.calendar + '</span><span>纪年</span></button>' +
+        '<button data-go="kanseki"><span class="qi">' + FILL.tree + '</span><span>类目</span></button>' +
+        '<button data-go="search"><span class="qi">' + FILL.book + '</span><span>日藏</span></button>' +
+        '<button data-go="search"><span class="qi">' + FILL.archive + '</span><span>公文书馆</span></button>' +
+        '<button data-go="records"><span class="qi">' + FILL.pen + '</span><span>编目</span></button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" id="dailyCard">' + dailyHTML() + '</div>' +
+    '<div class="card">' +
+      '<div class="card-h"><b>编目资料</b></div>' +
+      '<a class="row" href="catalog.html?tab=0"><div class="ri">' + LINE.doc + '</div>' +
+        '<div class="rt"><b>细则查阅</b><span>编目细则两版对照</span></div><div class="ra">›</div></a>' +
+      '<a class="row" href="catalog.html?tab=1"><div class="ri">' + LINE.tree + '</div>' +
+        '<div class="rt"><b>分类表查询</b><span>四部分类表</span></div><div class="ra">›</div></a>' +
+      '<a class="row" href="catalog.html?tab=2"><div class="ri">' + LINE.book + '</div>' +
+        '<div class="rt"><b>工作手册</b><span>著录格式与常见问题</span></div><div class="ra">›</div></a>' +
+      '<div class="row" data-go="knowledge"><div class="ri">' + LINE.clock + '</div>' +
+        '<div class="rt"><b>岁时落款常识</b><span>干支别称 · 月份雅称 · 落款规范</span></div><div class="ra">›</div></div>' +
+      '<a class="row" href="guide.html"><div class="ri">' + LINE.info + '</div>' +
+        '<div class="rt"><b>软件介绍</b><span>使用介绍 · 更新日志</span></div><div class="ra">›</div></a>' +
+    '</div>';
+  return shell('home', 'home', body);
+}
+
+/* ---------- 纪年 ---------- */
+function viewQuery() {
+  var st = VS.query || (VS.query = { q: '', view: 'card' });
+  var body =
+    '<div class="topbar"><div class="tb-title">纪年查询</div></div>' +
+    '<div class="search-bar">' +
+      '<div class="search-pill">' + LINE.search +
+        '<input id="qInput" type="search" inputmode="numeric" placeholder="输入公历年，如 1600" value="' + esc(st.q) + '"></div>' +
+      '<button class="search-x" data-clear="qInput">' + LINE.x + '</button>' +
+    '</div>' +
+    '<div class="seg" id="qSeg">' +
+      '<button data-v="card" class="' + (st.view === 'card' ? 'on' : '') + '">卡片</button>' +
+      '<button data-v="table" class="' + (st.view === 'table' ? 'on' : '') + '">表格</button>' +
+    '</div>' +
+    '<div id="qOut">' + (st.q ? renderEra(+st.q, st.view) : '<div class="empty">输入公历年份后按回车 / 点键盘搜索</div>') + '</div>';
+  return shell('query', 'query', body);
+}
+
+/* ---------- 类目 ---------- */
+function viewKanseki() {
+  var st = VS.kanseki || (VS.kanseki = { q: '', out: '', loaded: false });
+  var body =
+    '<div class="topbar"><div class="tb-title">古籍类目查询</div></div>' +
+    '<div class="search-bar">' +
+      '<div class="search-pill">' + LINE.search +
+        '<input id="kInput" type="search" placeholder="書名 / 著者 / 类目，如 論語" value="' + esc(st.q) + '"></div>' +
+      '<button class="search-x" data-clear="kInput">' + LINE.x + '</button>' +
+    '</div>' +
+    '<div id="kOut">' + (st.out || '<div class="empty">输入书名、著者或类目后按回车<br><span style="font-size:11px">收录《中國古籍總目》全量著录 177,107 条</span></div>') + '</div>';
+  return shell('kanseki', 'kanseki', body);
+}
+
+/* ---------- 检索 ---------- */
+function viewSearch() {
+  var body =
+    '<div class="topbar"><div class="tb-title">检索</div></div>' +
+    '<div class="hint">选择一个数据源。两者均为日本所藏汉籍的主要目录。</div>' +
+    '<a class="db-card" href="http://kanji.zinbun.kyoto-u.ac.jp/kanseki/" target="_blank" rel="noopener">' +
+      '<div class="db-ic">' + FILL.book + '</div>' +
+      '<div class="db-tx"><b>日本所藏中文古籍数据库</b><span>全國漢籍データベース · 京都大学人文科学研究所</span></div>' +
+      '<div class="ra">↗</div></a>' +
+    '<a class="db-card" href="https://www.digital.archives.go.jp/" target="_blank" rel="noopener">' +
+      '<div class="db-ic">' + FILL.archive + '</div>' +
+      '<div class="db-tx"><b>日本国立公文书馆</b><span>内閣文庫 · デジタルアーカイブ</span></div>' +
+      '<div class="ra">↗</div></a>' +
+    '<div class="note-bar">' + LINE.info +
+      '<p>这两个库<b>不允许浏览器跨域直连</b>，网页版无法在应用内检索，点卡片会打开对方站点。<b>应用内检索与批量下载 PDF 请用桌面版</b>。</p></div>';
+  return shell('search', 'search', body);
+}
+
+/* ---------- 我的 ---------- */
+function viewMine() {
+  var body =
+    '<div class="topbar"><div class="tb-title">我的</div></div>' +
+    '<div class="card">' +
+      '<div class="acct"><div class="av">' + LINE.user + '</div>' +
+        '<div class="ai"><b>未登录</b><span>数据仅保存在本机</span></div></div>' +
+      '<a class="btn" href="login.html">登录 / 注册</a>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-h"><b>设置</b></div>' +
+      '<a class="row" href="settings.html#api"><div class="ri">' + LINE.gear + '</div>' +
+        '<div class="rt"><b>API 管理</b><span>AI 复检所用 DeepSeek 配置</span></div><div class="ra">›</div></a>' +
+      '<a class="row" href="settings.html"><div class="ri">' + LINE.doc + '</div>' +
+        '<div class="rt"><b>同步与偏好</b><span>坚果云 WebDAV · 字形 · 主题</span></div><div class="ra">›</div></a>' +
+      '<a class="row" href="changelog.html"><div class="ri">' + LINE.info + '</div>' +
+        '<div class="rt"><b>关于与更新日志</b><span>版本信息</span></div><div class="ra">›</div></a>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-h"><b>提示</b></div>' +
+      '<div class="kv"><b>本机数据</b><span>检索历史、API Key 等只存在本机浏览器</span></div>' +
+      '<div class="kv"><b>离线可用</b><span>装到主屏幕后，断网也能查纪年与类目</span></div>' +
+    '</div>';
+  return shell('mine', 'mine', body);
+}
+
+/* ---------- 岁时落款常识 ---------- */
+function viewKnowledge() {
+  var body =
+    '<div class="topbar"><button class="tb-btn" data-go="home">' + LINE.back + '</button>' +
+      '<div class="tb-title">岁时落款常识</div></div>' +
+    '<div class="seg" id="knSeg" style="overflow-x:auto"></div>' +
+    '<div id="knOut"><div class="loading"><div class="spin"></div><div>正在载入…</div></div></div>';
+  return shell('knowledge', 'home', body);
+}
+
+/* ---------- 编目记录（说明页） ---------- */
+function viewRecords() {
+  var body =
+    '<div class="topbar"><button class="tb-btn" data-go="home">' + LINE.back + '</button>' +
+      '<div class="tb-title">编目记录</div></div>' +
+    '<div class="note-bar">' + LINE.info +
+      '<p>编目记录依赖本机数据库与文件导出，<b>请在桌面版使用</b>。网页版可查阅编目规范。</p></div>' +
+    '<a class="db-card" href="catalog.html?tab=0"><div class="db-ic">' + FILL.doc + '</div>' +
+      '<div class="db-tx"><b>前往编目规范</b><span>细则查阅 / 分类表 / 工作手册</span></div><div class="ra">›</div></a>';
+  return shell('records', 'home', body);
+}
+
+var RENDER = {
+  home: viewHome, query: viewQuery, kanseki: viewKanseki, search: viewSearch,
+  mine: viewMine, knowledge: viewKnowledge, records: viewRecords
+};
+
+/* ============================================================
+   路由
+   ============================================================ */
+function go(key) {
+  CURRENT = key;
+  document.getElementById('app').innerHTML = RENDER[key]();
+  var sc = document.querySelector('[data-scroll="' + key + '"]');
+  if (sc && VS.__scroll && VS.__scroll[key]) sc.scrollTop = VS.__scroll[key];
+  bind();
+  if (key === 'query') { if (VS.query && VS.query.q) runQuery(); }
+  if (key === 'kanseki') { if (VS.kanseki && VS.kanseki.q && !VS.kanseki.out) runKanseki(); }
+  if (key === 'knowledge') initKnowledge();
+  try { history.replaceState(null, '', '#' + key); } catch (_) {}
+}
+
+function bind() {
+  var app = document.getElementById('app');
+  app.querySelectorAll('[data-go]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); go(el.dataset.go); });
+  });
+  app.querySelectorAll('[data-nav-key]').forEach(function (el) {
+    el.addEventListener('click', function () { go(el.dataset.navKey); });
+  });
+  app.querySelectorAll('[data-clear]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var inp = document.getElementById(el.dataset.clear);
+      if (inp) { inp.value = ''; inp.focus(); }
+      if (el.dataset.clear === 'qInput') { VS.query.q = ''; document.getElementById('qOut').innerHTML = '<div class="empty">输入公历年份后按回车 / 点键盘搜索</div>'; }
+      if (el.dataset.clear === 'kInput') { VS.kanseki.q = ''; VS.kanseki.out = ''; document.getElementById('kOut').innerHTML = '<div class="empty">输入书名、著者或类目后按回车</div>'; }
+    });
+  });
+  // 每日推荐换一条
+  var dn = document.getElementById('dailyNext');
+  if (dn) dn.addEventListener('click', function () {
+    dailyIdx = (dailyIdx + 1) % DAILY.length;
+    document.getElementById('dailyCard').innerHTML = dailyHTML();
+    bind();
+  });
+  // 纪年
+  var qi = document.getElementById('qInput');
+  if (qi) {
+    qi.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); qi.blur(); runQuery(); } });
+    qi.addEventListener('change', runQuery);
+  }
+  var qseg = document.getElementById('qSeg');
+  if (qseg) qseg.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      VS.query.view = b.dataset.v;
+      qseg.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      if (VS.query.q) document.getElementById('qOut').innerHTML = renderEra(+VS.query.q, VS.query.view);
+    });
+  });
+  // 类目
+  var ki = document.getElementById('kInput');
+  if (ki) {
+    ki.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); ki.blur(); runKanseki(); } });
+  }
+}
+
+/* ---------- 纪年执行 ---------- */
+function runQuery() {
+  var inp = document.getElementById('qInput');
+  if (!inp) return;
+  var raw = inp.value.trim();
+  VS.query.q = raw;
+  var out = document.getElementById('qOut');
+  if (!raw) { out.innerHTML = '<div class="empty">输入公历年份后按回车</div>'; return; }
+  var y = parseInt(raw.replace(/[^\d-]/g, ''), 10);
+  if (isNaN(y)) { out.innerHTML = '<div class="empty">请输入公历年份，例如 1600</div>'; return; }
+  // 支持「前841」写法
+  if (/^前/.test(raw)) y = -Math.abs(y);
+  out.innerHTML = renderEra(y, VS.query.view);
+}
+
+/* ---------- 类目执行 ---------- */
+function runKanseki() {
+  var inp = document.getElementById('kInput');
+  if (!inp) return;
+  var q = inp.value.trim();
+  VS.kanseki.q = q;
+  var out = document.getElementById('kOut');
+  if (!q) { out.innerHTML = '<div class="empty">输入书名、著者或类目后按回车</div>'; return; }
+  if (!K.ready) {
+    out.innerHTML = '<div class="loading"><div class="spin"></div><div>首次使用需载入古籍总目数据（约 9.6 MB）…</div></div>';
+    ensureKanseki().then(function () {
+      if (CURRENT === 'kanseki') doKansekiSearch(q);
+    }).catch(function () {
+      out.innerHTML = '<div class="empty">数据载入失败，请检查网络后重试</div>';
+    });
+    return;
+  }
+  doKansekiSearch(q);
+}
+
+function doKansekiSearch(q) {
+  var out = document.getElementById('kOut');
+  if (!out) return;
+  var hits = searchKanseki(q) || [];
+  if (!hits.length) {
+    VS.kanseki.out = '<div class="empty">未找到包含「' + esc(q) + '」的条目<br><span style="font-size:11px">可试书名、著者，或「經部」「論語之屬」等类目</span></div>';
+    out.innerHTML = VS.kanseki.out;
+    return;
+  }
+  var shown = hits.slice(0, 60);
+  var list = shown.map(function (h) {
+    var v = verdictOf(h.idx);
+    var catLine = [v.bu, v.lei, v.shu].filter(Boolean).join(' · ');
+    return '<div class="rec"><div class="meta">' + esc(catLine) + '</div>' +
+      '<div class="title">' + esc(h.title) + '</div>' +
+      '<div class="info"><em>著者</em>' + esc(h.author || '—') +
+      '<em>判定</em><span class="badge ' + v.cls + '">' + esc(v.text || '—') + '</span></div></div>';
+  }).join('');
+  VS.kanseki.out = '<div class="stat-line"><b>' + hits.length + '</b><span>条命中' +
+    (hits.length > 60 ? '（显示前 60 条）' : '') + '</span></div>' +
+    '<div class="card" style="padding:6px 17px">' + list + '</div>';
+  out.innerHTML = VS.kanseki.out;
+}
+
+/* ---------- 岁时落款 ---------- */
+var knInited = false;
+function initKnowledge() {
+  if (knInited) return;
+  loadScript('knowledge.js').then(function () {
+    var data = (typeof KNOWLEDGE_DATA !== 'undefined') ? KNOWLEDGE_DATA : null;
+    var seg = document.getElementById('knSeg');
+    var out = document.getElementById('knOut');
+    if (!data || !data.length) { out.innerHTML = '<div class="empty">知识数据载入失败</div>'; return; }
+    seg.innerHTML = data.map(function (d, i) {
+      return '<button data-i="' + i + '" class="' + (i === 0 ? 'on' : '') + '">' + esc(d.title) + '</button>';
+    }).join('');
+    function show(i) {
+      out.innerHTML = '<div class="card"><div class="kn-body">' + toT(data[i].html) + '</div></div>';
+      seg.querySelectorAll('button').forEach(function (b, j) { b.classList.toggle('on', j === i); });
+    }
+    seg.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () { show(+b.dataset.i); });
+    });
+    show(0);
+    knInited = true;
+  }).catch(function () {
+    var out = document.getElementById('knOut');
+    if (out) out.innerHTML = '<div class="empty">知识数据载入失败，请检查网络</div>';
+  });
+}
+
+/* ============================================================
+   启动
+   ============================================================ */
+(function boot() {
+  var hash = (location.hash || '').replace('#', '');
+  var start = RENDER[hash] ? hash : 'home';
+  go(start);
+})();
+</script>
+<script src="pwa.js" defer></script>
+</body>
+</html>

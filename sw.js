@@ -12,14 +12,16 @@
       只在用户真正打开古籍类目查询页时按需缓存。
    ============================================================ */
 
-const VERSION = 'pwa-1';
+const VERSION = 'pwa-2';
 const CACHE = 'kanseki-' + VERSION;
 
-/* 预缓存：只放「离线也必须有」的最小集合（约 600 KB） */
+/* 预缓存：只放「离线也必须有」的最小集合（约 750 KB） */
 const PRECACHE = [
   './',
+  './m.html',
   './index.html',
   './kanseki.html',
+  './era_data.js',
   './manifest.webmanifest',
   './assets/logo.png',
   './assets/favicon.png',
