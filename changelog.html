@@ -178,6 +178,31 @@ body{transition:background-color .3s ease,color .3s ease}
 
   <div class="cl-entry">
     <div class="cl-head">
+      <span class="cl-ver">v10.4.1 · 网页版 + 桌面版</span>
+      <span class="cl-date">2026-10-17</span>
+      <span class="cl-tag t-new">新增</span>
+    </div>
+    <ul>
+      <li><b>「分类表查询」按标准类目表重做</b>：改为<b>经部 21 类、史部 17 类、子部 18 类、
+        集部 7 类、类丛部 2 类，附新学类 1 类，共 66 类</b>。</li>
+      <li><b>每部都有部级介绍</b>，说明该部的收录范围与分类由来；
+        <b>每类都有收录说明</b>，并附<b>代表古籍举例</b>（共 181 部，如易类《周易正义》、四书类《四书章句集注》）。</li>
+      <li><b>六部筛选 + 全文检索</b>：可按部切换，也可直接搜类名、收录说明或书名；
+        <b>检索自动忽略部筛选</b>，避免「先点了史部、再搜论语查不到」的误会。</li>
+      <li><b>繁简通检</b>：数据为简体，输入繁体（如「論語」）同样能命中——采用项目内由 opencc 比对生成的
+        <code>KANSEKI_T2S</code>（2162 字）做归一。</li>
+      <li><b>原三级「合璧细目」完整保留</b>：页面上可在「标准分类 / 合璧细目」间切换，
+        既能看到新标准表，也不丢失原三级类目与录入数据。</li>
+      <li>同步移除分类表页的「未调整」红标与提示条（内容已按标准规范调整）。</li>
+      <li><b>顺带修复</b>：① <code>catalog.html?tab=N</code> 深链接此前未被解析，首页「编目资料」与桌面版侧栏
+        点了都落在细阅查阅；② 分类表在手机宽度下正文被挤到约 97px ——
+        <code>.docs-layout.wide</code> 特异性高于断点里的 <code>.docs-layout</code>，已显式覆盖。</li>
+      <li>桌面版内嵌页同步更新（<code>classify_data.js</code> 已纳入构建同步列表）。</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-head">
       <span class="cl-ver">v10.4.0 · 手机版 App</span>
       <span class="cl-date">2026-10-17</span>
       <span class="cl-tag t-new">新增</span>

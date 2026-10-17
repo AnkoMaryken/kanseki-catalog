@@ -70,6 +70,7 @@ const SITE_SCRIPTS = [
   'knowledge.js',       // 知识数据
   'era_data.js',        // V10.4 纪年数据（中国朝代/日本时代/周边政权），index.html 依赖
   'catalog_data.js',    // 编目数据
+  'classify_data.js',   // V10.4 标准分类表（六部 66 类，含介绍与代表古籍）
   'kanseki_data.js',    // V9.0 古籍类目数据（9.6MB，仅 kanseki.html 使用）
   'kanseki_conv.js',    // V9.0 古籍类目专用 繁→简 表
   'ai-config.js',       // V9.2 DeepSeek 配置与调用（kanseki.html / settings.html / profile.html 共用）

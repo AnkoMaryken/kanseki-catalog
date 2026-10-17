@@ -142,6 +142,33 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
 [data-theme="dark"] .cat-notice{background:#2a1416;border-bottom-color:#5b2226;color:#fca5a5}
 .cat-notice b{font-weight:600}
 .cat-notice .nav-flag{margin-left:0;flex-shrink:0;vertical-align:0}
+/* ---------- V10.4 标准分类表（六部 66 类，含介绍与代表古籍） ---------- */
+.cat-modebar{display:flex;gap:.35rem;align-items:center;padding:.7rem 1.1rem;border-bottom:1px solid var(--color-divider);background:var(--color-surface);flex-wrap:wrap}
+.cat-modebar .sp{flex:1;min-width:8px}
+.cat-modebar .cs{max-width:280px}
+.cat-mode{font-weight:600}
+.cat-gchips{display:flex;gap:.35rem;padding:.6rem 1.1rem;flex-wrap:wrap;background:var(--color-bg-alt);border-bottom:1px solid var(--color-divider)}
+.cat-gchips .cfb{padding:.32rem .8rem;border:1px solid var(--color-border);border-radius:999px;background:var(--color-surface);font-size:.78rem;font-family:var(--font-body);cursor:pointer;transition:all var(--transition-fast)}
+.cat-gchips .cfb:hover{border-color:var(--color-primary)}
+.cat-gchips .cfb.active{background:var(--color-primary);color:var(--color-bg);border-color:var(--color-primary)}
+.cat-gchips .gcnt{font-size:.72rem;color:var(--color-text-muted);margin-left:.5rem;align-self:center}
+/* 侧栏导航里的类目计数也要有间距 */
+.cfb-side .gcnt,.anchor-list .gcnt{font-size:.72rem;color:var(--color-text-muted);margin-left:.45rem;opacity:.85}
+.cat-scroll{padding:1rem 1.1rem 2rem}
+.cg{background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:1rem 1.15rem;margin-bottom:1rem}
+.cg-head{display:flex;align-items:baseline;gap:.6rem}
+.cg-head h3{margin:0;font-size:1.02rem;font-weight:700;letter-spacing:.02em}
+.cg-head .cg-count{font-size:.74rem;color:var(--color-text-muted)}
+.cg-intro{margin:.55rem 0 .2rem;font-size:.83rem;line-height:1.85;color:var(--color-text-secondary)}
+.ccl{border-top:1px solid var(--color-divider);padding:.85rem 0 .1rem}
+.ccl:first-of-type{border-top:0;margin-top:.4rem}
+.ccl-head{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.ccl-head b{font-size:.92rem;font-weight:600}
+.ccl-idx{font-size:.7rem;color:var(--color-text-muted);font-variant-numeric:tabular-nums}
+.ccl-intro{margin:.3rem 0 .4rem;font-size:.8rem;line-height:1.75;color:var(--color-text-secondary)}
+.ccl-books{display:flex;gap:.35rem;flex-wrap:wrap}
+.ccl-books span{font-size:.74rem;padding:.18rem .52rem;border-radius:6px;background:var(--color-bg-alt);color:var(--color-text);border:1px solid var(--color-divider)}
+.cat-empty{padding:2.5rem 1rem;text-align:center;color:var(--color-text-muted);font-size:.86rem}
 .cat-toolbar .cfb{padding:.35rem .8rem;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);font-size:.78rem;font-family:var(--font-body);cursor:pointer;transition:all var(--transition-fast)}
 .cat-toolbar .cfb:hover{border-color:var(--color-primary)}
 .cat-toolbar .cfb.active{background:var(--color-primary);color:var(--color-bg);border-color:var(--color-primary)}
@@ -179,7 +206,10 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
 /* ---------- 响应式 ---------- */
 @media(max-width:1150px){.docs-layout{grid-template-columns:236px minmax(0,1fr)}.docs-toc{display:none}}
 @media(max-width:820px){
-  .docs-layout{grid-template-columns:1fr;padding:1rem .9rem 2rem;gap:.75rem}
+  /* .docs-layout.wide 是两个类，特异性高于单类 .docs-layout，
+     故必须显式覆盖，否则分类表/工作手册这类 wide 页面在手机上仍是双列，正文被挤到几十像素。 */
+  .docs-layout,
+  .docs-layout.wide{grid-template-columns:1fr;padding:1rem .9rem 2rem;gap:.75rem}
   .docs-sidebar{position:static;max-height:none;flex-direction:column}
   .side-sec .anchor-list{max-height:180px}
   .doc-toolbar,.cat-toolbar{position:static}
@@ -299,7 +329,7 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
       <div class="side-label">内容导览</div>
       <nav class="side-nav" role="tablist">
         <button class="tab-btn side-item active" data-tab="0" role="tab" aria-selected="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>细则查阅</button>
-        <button class="tab-btn side-item" data-tab="1" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>分类表查询<span class="nav-flag" title="这部分内容尚未调整，请以《编目细则》与工作手册为准">未调整</span></button>
+        <button class="tab-btn side-item" data-tab="1" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>分类表查询</button>
         <button class="tab-btn side-item" data-tab="2" role="tab" aria-selected="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg>工作手册</button>
       </nav>
     </div>
@@ -318,6 +348,9 @@ mark.doc-hl{background:var(--color-highlight);color:var(--color-highlight-text);
 </div>
 
 <script src="catalog_data.js"></script>
+<script src="classify_data.js"></script>
+<script src="conv_tables.js"></script>
+<script src="kanseki_conv.js"></script>
 <script src="overlay.js"></script>
 <script src="mobile-nav.js"></script>
 <script>
@@ -358,7 +391,39 @@ initTheme();document.getElementById('themeToggle').addEventListener('click',setT
 document.getElementById('themeToggleSide').addEventListener('click',setTheme);
 
 document.querySelector('.side-nav').addEventListener('click',function(e){const b=e.target.closest('.tab-btn');if(!b)return;tab=parseInt(b.dataset.tab);document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()});
-render();
+
+/* 分类表「标准分类 / 合璧细目」切换：事件委托挂在 #m 上，
+   两种视图共用一个监听，避免其中一个视图忘记绑定导致切不回来。 */
+document.getElementById('m').addEventListener('click',function(e){
+  const b=e.target.closest('.cat-mode');
+  if(!b)return;
+  catMode=b.dataset.mode;
+  if(catMode==='heritage'){catL1='all';catL2='all';}
+  renderCat();
+});
+
+/* V10.4：支持 ?tab=1 / #tab=1 深链接。
+   首页「编目资料」与桌面版侧栏都按 catalog.html?tab=N 跳转，此前未解析，一律落在细则查阅。 */
+(function applyTabFromUrl(){
+  let n=null;
+  try{
+    const sp=new URLSearchParams(location.search||'');
+    if(sp.has('tab'))n=parseInt(sp.get('tab'),10);
+    if(n===null||isNaN(n)){
+      const m=/#tab=(\d)/.exec(location.hash||'');
+      if(m)n=parseInt(m[1],10);
+    }
+  }catch(_){}
+  if(n===null||isNaN(n)||n<0||n>2)return;
+  tab=n;
+  document.querySelectorAll('.tab-btn').forEach(x=>{
+    const on=parseInt(x.dataset.tab,10)===n;
+    x.classList.toggle('active',on);
+    x.setAttribute('aria-selected',on?'true':'false');
+  });
+})();
+/* 注意：首次 render() 必须放到脚本最末尾。
+   分类表渲染依赖后面才 let 声明的 catMode/catL1/$q 等，提前调用会撞 TDZ。 */
 
 function sc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function render(){if(tab===0){document.querySelector('.docs-layout').classList.remove('wide');renderDoc()}else if(tab===1){document.querySelector('.docs-layout').classList.add('wide');renderCat()}else{document.querySelector('.docs-layout').classList.add('wide');renderPdf()}}
@@ -683,8 +748,118 @@ function descFor(name){
 function exFor(name){return L3E[name]||''}
 
 let catL1='all',catL2='all',$q='';
+/* V10.4：分类表查询改为「标准分类」为主视图（六部 66 类，含部/类介绍与代表古籍）；
+   原三级「合璧细目」保留为可切换视图，避免丢失用户录入类目的展示。 */
+let catMode='standard',catGroup='all';
 
 function renderCat(){
+  return catMode==='heritage'?renderCatHeritage():renderCatStandard();
+}
+
+/* 繁→简归一，供检索匹配用（分类数据为简体，用户可能输繁体，如「論語」）。
+   优先用 kanseki_conv.js 的 KANSEKI_T2S（2162 键，由 opencc 比对生成），
+   它比 conv_tables.js 的 T2S_MAP（914 键，只覆盖项目数据用字）完整得多；
+   两者都缺时原样返回，不影响其它功能。 */
+function normCJK(s){
+  s=String(s==null?'':s);
+  const P=(typeof KANSEKI_T2S_PHRASE!=='undefined')?KANSEKI_T2S_PHRASE:null;
+  if(P){
+    for(const k in P){ if(s.indexOf(k)>=0) s=s.split(k).join(P[k]); }
+  }
+  const M=(typeof KANSEKI_T2S!=='undefined')?KANSEKI_T2S
+        :((typeof T2S_MAP!=='undefined')?T2S_MAP:null);
+  if(!M)return s;
+  let out='';
+  for(let i=0;i<s.length;i++){
+    const c=s.charAt(i);
+    out+=(M[c]!==undefined?M[c]:c);
+  }
+  return out;
+}
+
+/* 按当前筛选条件生成标准分类表的正文（只刷这块，输入时不丢焦点） */
+function paintStandardBody(){
+  const box=document.getElementById('catScroll');
+  if(!box)return;
+  const D=window.STANDARD_CLASSIFY||{groups:[]};
+  const q=normCJK(($q||'').trim());
+  const hit=s=>!q||normCJK(s).includes(q);
+  let html='',shownTotal=0;
+  for(const g of D.groups||[]){
+    if(catGroup!=='all'&&g.name!==catGroup)continue;
+    const gHit=hit(g.name)||hit(g.intro);
+    let clsHtml='',clsShown=0;
+    const list=g.classes||[];
+    for(let i=0;i<list.length;i++){
+      const c=list[i];
+      const cHit=gHit||hit(c.name)||hit(c.intro)||(c.books||[]).some(hit);
+      if(!cHit)continue;
+      clsShown++;
+      const books=(c.books||[]).map(b=>'<span>'+sc(b)+'</span>').join('');
+      clsHtml+='<article class="ccl">'
+        +'<div class="ccl-head"><span class="ccl-idx">'+String(i+1).padStart(2,'0')+'</span><b>'+sc(c.name)+'</b></div>'
+        +'<p class="ccl-intro">'+sc(c.intro||'')+'</p>'
+        +'<div class="ccl-books">'+books+'</div>'
+        +'</article>';
+    }
+    if(!clsShown&&q)continue;
+    shownTotal+=clsShown;
+    html+='<section class="cg" id="cg-'+sc(g.id||g.name)+'">'
+      +'<div class="cg-head"><h3>'+sc(g.name)+'</h3><span class="cg-count">'+clsShown+' 类</span></div>'
+      +'<p class="cg-intro">'+sc(g.intro||'')+'</p>'
+      +clsHtml+'</section>';
+  }
+  box.innerHTML=html||'<div class="cat-empty">没有匹配的类目，换个关键词试试（可检索类名、介绍或书名）</div>';
+}
+
+function renderCatStandard(){
+  const D=window.STANDARD_CLASSIFY||{groups:[],note:'',updated:''};
+  const groups=D.groups||[];
+  document.getElementById('m').innerHTML=`
+    <div class="tab-content active cat-pane">
+      <div class="cat-modebar">
+        <button class="cfb cat-mode active" data-mode="standard">标准分类</button>
+        <button class="cfb cat-mode" data-mode="heritage">合璧细目</button>
+        <span class="sp"></span>
+        <input type="text" class="cs" id="csi" placeholder="检索类目 / 介绍 / 书名……" value="${sc($q)}" autocomplete="off">
+      </div>
+      <div class="cat-gchips">
+        <button class="cfb${catGroup==='all'?' active':''}" data-g="all">全部</button>
+        ${groups.map(g=>`<button class="cfb${catGroup===g.name?' active':''}" data-g="${sc(g.name)}">${sc(g.name)}<span class="gcnt">${(g.classes||[]).length}</span></button>`).join('')}
+      </div>
+      <div class="cat-scroll" id="catScroll"></div>
+    </div>`;
+  paintStandardBody();
+
+  /* 侧栏：部级导航 */
+  const sideBox=document.getElementById('sideAnchors');
+  sideBox.innerHTML='<div class="side-label">标准分类</div><div class="anchor-list">'
+    +`<button class="cfb cfb-side${catGroup==='all'?' active':''}" data-g="all">全部类目<span class="gcnt">66</span></button>`
+    +groups.map(g=>`<button class="cfb cfb-side${catGroup===g.name?' active':''}" data-g="${sc(g.name)}">${sc(g.name)}<span class="gcnt">${(g.classes||[]).length}</span></button>`).join('')
+    +'</div>'
+    +`<div class="side-card" style="margin-top:.8rem"><div class="cr"><span>类目数</span><b>66 类</b></div>`
+    +`<div class="cr"><span>更新</span><b>${sc(D.updated||'')}</b></div></div>`;
+  fillToc(null);
+
+  /* 事件（.cat-mode 的切换由 #m 上的委托统一处理，此处只挂筛选与搜索） */
+  document.querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',function(){
+    catGroup=this.dataset.g;
+    document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('active',x===this));
+    paintStandardBody();
+  }));
+  const csi=document.getElementById('csi');
+  if(csi)csi.addEventListener('input',function(){
+    $q=this.value.trim();
+    // 搜索时自动回到「全部」，否则会受上一次的部筛选限制而查不到，容易误以为没有该类
+    if($q&&catGroup!=='all'){
+      catGroup='all';
+      document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('active',x.dataset.g==='all'));
+    }
+    paintStandardBody();
+  });
+}
+
+function renderCatHeritage(){
   let rows='';
   for(const[l1,l2map]of Object.entries(CATALOG_TREE)){
     if(catL1!=='all'&&l1!==catL1)continue;
@@ -713,9 +888,11 @@ function renderCat(){
   
   document.getElementById('m').innerHTML=`
     <div class="tab-content active cat-pane">
-      <div class="cat-notice" role="note">
-        <span class="nav-flag">未调整</span>
-        <span>本部分内容<b>尚未按新规范调整</b>，请以《编目细则》与工作手册为准。</span>
+      <div class="cat-modebar">
+        <button class="cfb cat-mode" data-mode="standard">标准分类</button>
+        <button class="cfb cat-mode active" data-mode="heritage">合璧细目</button>
+        <span class="sp"></span>
+        <input type="text" class="cs" id="csi" placeholder="检索类目名称……" value="${sc($q)}" autocomplete="off">
       </div>
       <div class="cat-toolbar">
         <button class="cfb${catL1==='all'?' active':''}" data-f="all" data-type="l1">全部</button>
@@ -728,7 +905,6 @@ function renderCat(){
         <span style="color:var(--color-text-muted);font-size:.8rem;margin:0 .5rem">|</span>
         <span style="font-size:.78rem;color:var(--color-text-secondary)">二级：</span>
         <select class="cfb" id="l2sel"><option value="all"${catL2==='all'?' selected':''}>全部二级</option></select>
-        <input type="text" class="cs" id="csi" placeholder="检索类目名称……" value="${sc($q)}" autocomplete="off">
       </div>
       <div class="cat-scroll">
       <table class="ctbl">
@@ -786,6 +962,9 @@ function renderPdf(){
 }
 
 function hl(t){return $q?t.replace(new RegExp('('+$q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark class="doc-hl">$1</mark>'):t}
+
+/* 首次渲染：放在所有 let 声明之后（见上方 TDZ 说明） */
+render();
 })();
 </script>
 <script src="user-state.js"></script>
