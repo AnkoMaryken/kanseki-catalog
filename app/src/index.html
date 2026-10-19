@@ -49,12 +49,6 @@
           </div>
         </div>
       </div>
-      <!-- 一键简繁切换（V0.8.2）：紧邻「窗口」按钮，作用于内嵌页面的显示字形。
-           按钮显示「将要切换到的目标字形」——当前为繁体时显示「简」，
-           即点击后转为简体。字形偏好与页内下拉共用 localStorage，两边同步。 -->
-      <button class="tb-iconbtn tb-langbtn" id="langToggleBtn" type="button" title="切换为简体字" aria-label="简繁切换">
-        <span id="langToggleTx">简</span>
-      </button>
     </div>
 
     <!-- 中间：纯拖动区域（双击切换最大化）
@@ -64,8 +58,27 @@
          窗口标题（任务栏/Alt-Tab 可见）。 -->
     <div class="tb-title" data-tauri-drag-region></div>
 
-    <!-- 右侧：最小化 / 最大化 / 关闭 -->
+    <!-- 右侧（V1.1 按设计稿 v3）：简繁分段 · GitHub · 明暗主题 · 下载情况 · 窗口三键 -->
     <div class="tb-right">
+      <!-- 简繁切换：作用于整个界面（外壳 + 所有内嵌页数据） -->
+      <div class="tb-seg" id="langSeg" role="group" aria-label="简繁切换（整个界面）">
+        <button type="button" data-lang="s" class="on" title="全部显示为简体">简</button>
+        <button type="button" data-lang="t" title="全部显示为繁体">繁</button>
+      </div>
+      <button class="tb-iconbtn" id="githubBtn" type="button" title="打开 GitHub 项目主页" aria-label="GitHub">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      </button>
+      <!-- 明暗主题（V1.1：从侧栏底部移到这里） -->
+      <button class="tb-iconbtn" id="themeBtn" type="button" title="切换明暗主题" aria-label="切换明暗主题">
+        <svg class="tb-ico-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.2 5.2l1.8 1.8M17 17l1.8 1.8M5.2 18.8 7 17M17 7l1.8-1.8"/></svg>
+        <svg class="tb-ico-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+      </button>
+      <span class="tb-sep" aria-hidden="true"></span>
+      <!-- 下载情况（V1.1：替代原「下载中心」抽屉，点开进入下载中心视图） -->
+      <button class="tb-iconbtn tb-dlbtn" id="tbDl" type="button" title="查看下载情况" aria-label="查看下载情况">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4 20h16"/></svg>
+        <span class="tb-dl-badge" id="tbDlBadge" hidden>0</span>
+      </button>
       <button class="tb-win" id="tbMin" type="button" title="最小化" aria-label="最小化">
         <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1.1"/></svg>
       </button>
@@ -78,6 +91,20 @@
       </button>
     </div>
   </header>
+
+  <!-- V1.1：收起侧栏后的浮出导航（按设计稿 v3 的 FAB）：点圆钮弹出快捷项 -->
+  <div class="fab-wrap" id="fabWrap" hidden>
+    <div class="fab-pop" id="fabPop" hidden>
+      <button type="button" class="fp-item" data-fab="#/wb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8Z"/></svg><b>首页</b></button>
+      <button type="button" class="fp-item" data-fab="#/query"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 2.8v4M16 2.8v4"/></svg><b>纪年</b></button>
+      <button type="button" class="fp-item" data-fab="#/kanseki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="5" rx="1.3"/><rect x="14.5" y="15.5" width="6" height="5" rx="1.3"/><path d="M6.5 8.5v6a2 2 0 0 0 2 2h6"/></svg><b>类目</b></button>
+      <button type="button" class="fp-item" data-fab="#/kansekidb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><b>检索</b></button>
+      <button type="button" class="fp-item" data-fab="__settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><b>设置</b></button>
+      <span class="fp-sep"></span>
+      <button type="button" class="fp-expand" id="fabExpand" title="展开完整侧栏" aria-label="展开完整侧栏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <button type="button" class="fab" id="fab" title="导航" aria-label="导航"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1.7"/><rect x="14" y="4" width="6" height="6" rx="1.7"/><rect x="4" y="14" width="6" height="6" rx="1.7"/><rect x="14" y="14" width="6" height="6" rx="1.7"/></svg></button>
+  </div>
 
   <!-- ============================================================
        早期窗口控件接管（V0.8.2）
@@ -106,7 +133,7 @@
     'use strict';
     // 需要早期接管的控件：标题栏三键 + 一键简繁切换
     // （侧栏等其它控件如需纳入，把 id 加进来即可）
-    var IDS = ['tbMin', 'tbMax', 'tbClose', 'langToggleBtn'];
+    var IDS = ['tbMin', 'tbMax', 'tbClose'];
     var queued = [];        // 按点击先后记录控件 id（同 id 去重，保留最后一次）
     var log = [];           // 诊断用：{ id, t }
     var listeners = [];
@@ -196,11 +223,6 @@
     <div class="side-sec">
       <div class="side-label">编目</div>
       <nav class="side-nav">
-        <button type="button" class="nav-item" id="navDownloads" data-view="downloads"
-                title="打开下载中心（查看进度、暂停/取消、打开文件夹）">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h4l1.5 3h5L16 13h4"/><path d="M5.5 4.5h13l1.5 8.5v5a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 18v-5l1.5-8.5Z"/></svg><span>下载中心</span>
-          <span class="nav-badge" id="navDlCount" hidden></span>
-        </button>
         <a href="#/records" data-view="records" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span>
           <span class="nav-badge soon" title="尚未正式上线，请暂勿使用，功能仍在完善中">未上线</span>
@@ -235,6 +257,10 @@
         <a href="#/changelog" data-view="changelog" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg><span>更新日志</span>
         </a>
+        <button type="button" class="nav-item" id="navSettings" data-view="settings"
+                title="打开设置窗口（API / 同步 / 外观与快捷键 / 关于）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><span>设置</span>
+        </button>
       </nav>
     </div>
     </div>
@@ -261,16 +287,17 @@
         <button class="sum-item" id="sideSettingsBtn" type="button">设置</button>
         <button class="sum-item sum-danger" id="sideLogoutBtn" type="button" hidden>退出登录</button>
       </div>
-      <div class="side-footer-btns">
-        <button class="side-btn sb-ghost" id="themeToggleBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>切换主题</button>
-        <button class="side-btn sb-ghost" id="openWebBtn" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>打开网页版</button>
-      </div>
     </div>
   </aside>
 
   <!-- 主内容区 -->
   <main class="app-main">
     <!-- 查询视图：iframe 承载静态站 -->
+      <!-- V1.1：下载中心（视图形态，替代原抽屉；标题栏「下载情况」进入） -->
+      <section id="view-downloads" class="view app-view">
+        <div class="dlv" id="dlvRoot"></div>
+      </section>
+
       <!-- V3 正式版 1.0：工作台（快捷入口 + 每日推荐 + 今日概览 + 资料磁贴）
            内容由 js/ui/workbench.js 渲染；数据全部取本机真实状态，不写死。 -->
       <section id="view-wb" class="view app-view">
@@ -344,7 +371,7 @@
               <select id="kdbOr" multiple size="6"></select>
             </div>
 
-            <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一（陶潛=陶潜、搜神記=捜神記），但人名异称不归一（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</p>
+            <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一；人名异称不归一（陶潛 / 陶淵明 需分别查）。</p>
           </div>
         </form>
 
@@ -423,7 +450,7 @@
               <label class="naj-field"><span>参照代码（止）</span>
                 <input id="najRefTo" type="text" autocomplete="off"></label>
             </div>
-            <p class="av-hint">「作成年」填公历年（西历）；「移交元机关等」「旧藏（文库）」的选项名沿用原站著录（机关名、文库名为专名，不另译）。「参照代码」原站对格式敏感，实测填资料群或请求番号可能返回 0 件，仅供参考。</p>
+            <p class="av-hint">「作成年」填公历年；机关名、文库名沿用原站著录。</p>
 
             <!-- 内閣文庫 汉籍分类（用户要求：并入详细检索，随详细检索一起以下拉浮动菜单呈现） -->
             <div class="naj-naikaku-sec">
@@ -440,7 +467,7 @@
             </div>
           </div>
 
-          <p class="av-hint">关键词请按原站著录字形输入（日文／繁体，如 論語 而非 论语）；空格分隔的多词请分批检索。</p>
+          <p class="av-hint">关键词按原站字形输入（日文／繁体）；多词请分批检索。</p>
         </form>
 
         <!-- V10.5.1：内閣文庫 漢籍 分類瀏覽
@@ -480,7 +507,7 @@
 
         <div class="kdb-split view-results" id="najSplit">
           <div class="av-card kdb-panel kdb-results" id="najResults">
-            <p class="kdb-empty">输入关键词后点「检索」。可检索書名、作成者、件名・細目与参照コード。</p>
+            <p class="kdb-empty">输入关键词后点「检索」；也可直接点上方分类浏览该部簿册。</p>
           </div>
           <div class="av-card kdb-panel kdb-detail" id="najDetail"></div>
         </div>
@@ -649,13 +676,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 1.0.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.1.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.0.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.1.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
@@ -712,6 +739,8 @@
   </span>
 </div>
 
+<!-- V1.1：全局简繁转换表（S2T_MAP / T2S_MAP），外壳与内嵌页共用 -->
+<script src="pages/conv_tables.js"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -1,128 +1,87 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <title>更新日志 — 古代史及汉籍研究工具</title>
+<script>
+/* 主题：桌面外壳会把 data-theme 直接写到本页 documentElement；网页版读 localStorage 'theme' */
+(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}
+window.addEventListener('storage',function(e){if(e.key==='theme'&&(e.newValue==='dark'||e.newValue==='light'))document.documentElement.setAttribute('data-theme',e.newValue);});})();
+</script>
 <style>
-:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-table-header:#171717;--color-table-header-text:#fafafa;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
-[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;-webkit-text-size-adjust:100%}
-body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
-:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
-
-.app-header{background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--color-text);padding:.8rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--color-border-light)}
-.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
-.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:var(--color-bg);font-weight:700}
-.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:var(--color-text);white-space:nowrap}
-.header-nav{display:flex;gap:.25rem;flex-shrink:0}
-.header-nav a{color:var(--color-text-muted);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
-.header-nav a:hover{color:var(--color-text);background:var(--color-surface-hover)}
-.header-nav a.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
-.header-actions{margin-left:auto;display:flex;gap:.5rem}
-.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
-.btn-icon:hover{background:var(--color-surface-hover);color:var(--color-text)}
-
-.page{max-width:860px;margin:0 auto;padding:2rem 1.5rem 3rem;width:100%;flex:1}
-.page-head{margin-bottom:2rem}
-.page-head h2{font-family:var(--font-display);font-size:1.4rem;color:var(--color-primary);margin-bottom:.3rem}
-.page-head p{font-size:.85rem;color:var(--color-text-muted)}
-
-.cl-entry{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:1.25rem 1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow-sm)}
-.cl-entry .cl-head{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap;margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid var(--color-divider)}
-.cl-entry .cl-ver{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--color-primary)}
-.cl-entry .cl-date{font-size:.8rem;color:var(--color-text-muted)}
-.cl-tag{font-size:.72rem;font-weight:600;padding:.12rem .5rem;border-radius:999px;color:#fff;white-space:nowrap}
-.cl-tag.t-new{background:#171717}.cl-tag.t-fix{background:#525252}.cl-tag.t-del{background:#737373}.cl-tag.t-opt{background:#404040}
-[data-theme="dark"] .cl-tag.t-new{background:#fafafa;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-fix{background:#d4d4d4;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-del{background:#a3a3a3;color:#0a0a0a}[data-theme="dark"] .cl-tag.t-opt{background:#e5e5e5;color:#0a0a0a}
-.cl-entry ul{list-style:none;padding:0}
-.cl-entry li{font-size:.875rem;line-height:1.8;color:var(--color-text);padding-left:1.1em;position:relative}
-.cl-entry li::before{content:'';position:absolute;left:0;top:.7em;width:4px;height:4px;border-radius:50%;background:var(--color-accent)}
-.cl-entry li + li{margin-top:.15rem}
-.cl-entry li b{color:var(--color-primary)}
-
-.back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--color-primary-light);text-decoration:none;margin-bottom:1rem}
-.back-link:hover{color:var(--color-accent)}
-
-.app-footer{background:var(--color-bg-alt);border-top:1px solid var(--color-border-light);padding:1rem 0;margin-top:auto}
-.footer-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;text-align:center;font-size:.78rem;color:var(--color-text-muted)}
-
-@media(max-width:768px){
-  .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
-  .page{padding:1.25rem 1rem 2rem}.cl-entry{padding:1rem 1rem}
+:root{
+  --brand:#171A1F; --brand-fg:#FFFFFF;
+  --bg-page:#F2F3F5; --bg-card:#FFFFFF; --bg-fill:#F2F3F5; --bg-hover:#F7F8F9; --bg-badge:#EDEEF0; --bg-badge-hover:#E2E4E8;
+  --t1:#171A1F; --t2:#5F6672; --t3:#8F959E; --t4:#C2C6CC; --divider:#F0F1F3;
+  --r-card:24px; --r-mid:18px; --r-pill:999px;
+  --pad-card:20px; --gap-page:28px; --gap-card:16px;
+  --shadow-card:0 6px 20px rgba(0,0,0,.06); --shadow-float:0 8px 28px rgba(0,0,0,.08);
+  --font:-apple-system,"PingFang SC","HarmonyOS Sans","Microsoft YaHei",Roboto,sans-serif;
+  --ease:cubic-bezier(.2,0,0,1);
 }
-/* v2.2 进入动画 */
-body{transition:background-color .3s ease,color .3s ease}
-.app-header{animation:hdrIn .5s var(--ease-spring)}
-@keyframes hdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.page{animation:pageIn .45s var(--ease-spring) .08s backwards}
-@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+html[data-theme="dark"]{
+  --brand:#F2F3F5; --brand-fg:#171A1F;
+  --bg-page:#0E1013; --bg-card:#171A1F; --bg-fill:#22262C; --bg-hover:#1D2126; --bg-badge:#2A2E36; --bg-badge-hover:#343941;
+  --t1:#F2F3F5; --t2:#B4BAC3; --t3:#8A919B; --t4:#5C636D; --divider:#262A31;
+  --shadow-card:0 6px 20px rgba(0,0,0,.35); --shadow-float:0 10px 30px rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;color-scheme:light dark}
+body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-family:var(--font);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background-color .25s ease,color .25s ease}
+.page{max-width:1080px;margin:0 auto;padding:26px var(--gap-page) 44px}
+.phead{display:flex;align-items:flex-start;gap:16px;padding:2px 2px 18px}
+.phead .pt{flex:1;min-width:0}
+.phead h1{font-size:20px;font-weight:700;line-height:1.3;margin:0 0 4px;letter-spacing:-.01em}
+.phead .pd{font-size:12px;color:var(--t3);line-height:1.6;margin:0}
+.phead .pa{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px}
+.tool-btn{height:32px;padding:0 14px;border:0;border-radius:var(--r-pill);background:var(--bg-badge);color:var(--t1);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:background .18s var(--ease)}
+.tool-btn:hover{background:var(--bg-badge-hover)}
+.tool-btn:active{transform:scale(.98)}
+.cl-list{display:flex;flex-direction:column;gap:10px}
+.cl-item{background:var(--bg-card);border-radius:var(--r-mid);box-shadow:var(--shadow-card);transition:box-shadow .18s var(--ease)}
+.cl-item[open]{box-shadow:var(--shadow-float)}
+.cl-sum{display:flex;align-items:center;gap:9px;list-style:none;cursor:pointer;padding:13px 18px;user-select:none;-webkit-user-select:none;border-radius:var(--r-mid)}
+.cl-sum::-webkit-details-marker{display:none}
+.cl-sum:hover{background:var(--bg-hover)}
+.cl-ver{font-size:14px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap}
+.cl-plat{font-size:11px;color:var(--t3);background:var(--bg-fill);border-radius:var(--r-pill);padding:1px 8px;white-space:nowrap}
+.cl-tag{font-size:10.5px;font-weight:600;border-radius:var(--r-pill);padding:2px 8px;background:var(--bg-badge);color:var(--t2);white-space:nowrap}
+.cl-tag.new{background:var(--brand);color:var(--brand-fg)}
+.cl-tag.fix{color:var(--t1)}
+.cl-tag.del{color:var(--t3)}
+.cl-tag.opt{color:var(--t2)}
+.cl-tag.sync{color:var(--t2)}
+.cl-date{margin-left:auto;font-size:11.5px;color:var(--t3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cl-chev{width:14px;height:14px;flex:0 0 14px;color:var(--t4);transition:transform .2s var(--ease)}
+.cl-item[open] .cl-chev{transform:rotate(180deg)}
+.cl-points{list-style:none;margin:0 18px;padding:10px 0 14px;border-top:1px solid var(--divider)}
+.cl-points li{position:relative;padding:4px 0 4px 16px;font-size:13px;line-height:1.7;color:var(--t2)}
+.cl-points li::before{content:"";position:absolute;left:1px;top:14px;width:5px;height:5px;border-radius:50%;background:var(--t4)}
+.cl-points li + li{margin-top:1px}
+@media (max-width:720px){
+  .page{padding:18px 14px 32px}
+  .phead{flex-wrap:wrap;gap:10px}
+  .phead .pa{width:100%;padding-top:0}
+  .cl-sum{flex-wrap:wrap;row-gap:5px;padding:12px 14px}
+  .cl-points{margin:0 14px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}}
 
-/* v3.0 导航下拉菜单 (说明文档) */
-.nav-dropdown{position:relative;flex-shrink:0}
-.nav-dropdown-btn{display:inline-flex;align-items:center;gap:.1rem;color:var(--color-text-muted);font-size:.85rem;font-weight:500;font-family:var(--font-body);padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap;border:none;background:none;cursor:pointer}
-.nav-dropdown-btn:hover{color:var(--color-text);background:var(--color-surface-hover)}
-.nav-dropdown-btn.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
-.nav-dropdown-btn svg{transition:transform var(--transition-fast)}
-.nav-dropdown:hover .nav-dropdown-btn svg,.nav-dropdown:focus-within .nav-dropdown-btn svg{transform:rotate(180deg)}
-.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:132px;padding:.3rem;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease-spring),visibility .18s var(--ease-spring),transform .18s var(--ease-spring);z-index:210}
-.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
-.nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
-.user-dropdown{position:relative}
-.user-btn{display:inline-flex;align-items:center}
-.user-login-link{color:inherit;text-decoration:none}
-.user-menu{right:0;left:auto;min-width:120px}
-.user-menu-settings{border-top:1px solid var(--color-border);margin-top:.25rem;padding-top:.5rem !important;border-radius:0 0 var(--radius-sm) var(--radius-sm) !important}
-.nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
-
-/* ===== V8.2 移动端适配 ===== */
-.m-hamburger {
-  display: none; width: 40px; height: 40px; flex-shrink: 0;
-  background: var(--color-surface); border: 1px solid var(--color-border);
-  border-radius: var(--radius-md); cursor: pointer;
-  align-items: center; justify-content: center; color: var(--color-text);
-}
-.drawer-overlay {
-  display: none; position: fixed; inset: 0; z-index: 900;
-  background: rgba(0,0,0,0.45); opacity: 0; visibility: hidden;
-  transition: opacity 250ms cubic-bezier(.16,1,.3,1), visibility 250ms cubic-bezier(.16,1,.3,1);
-}
-.drawer-overlay.open { opacity: 1; visibility: visible; }
-.drawer {
-  display: none; position: fixed; top: 0; right: 0; bottom: 0; z-index: 950;
-  width: min(78vw, 320px); background: var(--color-surface);
-  border-left: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
-  transform: translateX(105%); transition: transform 250ms cubic-bezier(.16,1,.3,1);
-  overflow-y: auto; padding: 1rem 0.9rem 2rem; flex-direction: column;
-}
-.drawer.open { transform: translateX(0); }
-.drawer-brand { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.4rem 1rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0.8rem; }
-.drawer-brand .brand-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
-.drawer-brand h2 { font-size: 0.92rem; font-weight: 600; margin: 0; }
-.drawer-nav { display: flex; flex-direction: column; gap: 0.1rem; }
-.drawer-nav-group { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.8rem 0.4rem 0.3rem; letter-spacing: 0.03em; }
-.drawer-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.6rem; border-radius: var(--radius-md); font-size: 0.92rem; color: var(--color-text); text-decoration: none; transition: all var(--transition-fast); }
-.drawer-link:hover { background: var(--color-surface-hover); }
-.drawer-link.active { background: var(--color-bg-alt); font-weight: 600; }
-.drawer-user { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--color-border); }
-@media (max-width: 768px) {
-  .m-hamburger { display: inline-flex; }
-  .drawer-overlay, .drawer { display: block; }
-  .header-inner .header-nav { display: none !important; }
-  .header-actions { display: none !important; }
-}
-
+  /* V1.1：网页版站点导航条 */
+  .web-nav-strip { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    max-width: 1240px; margin: 12px auto 0; padding: 0 20px; }
+  .web-nav-strip a { color: var(--text-sec, var(--t2, var(--color-text-muted))); text-decoration: none;
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px; }
+  .web-nav-strip a:hover { background: var(--bg-badge, var(--color-surface-hover)); color: var(--text, var(--t1, var(--color-text))); }
+  html.is-embed .web-nav-strip { display: none !important; }
 </style>
 <style id="kanseki-app-embed">/* kanseki-app-embed */
 .app-header{display:none !important}
 .filter-bar{top:0 !important}
 .doc-toolbar,.cat-toolbar{top:0 !important}
+.web-nav-strip{display:none !important}
 .doc-body{max-height:calc(100vh - 132px) !important}
 .cat-scroll{max-height:calc(100vh - 132px) !important}
 .pdf-frame{height:calc(100vh - 116px) !important}
@@ -133,1455 +92,799 @@ body{transition:background-color .3s ease,color .3s ease}
 </style>
 </head>
 <body>
-
-<header class="app-header">
-  <div class="header-inner">
-    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <a href="index.html" class="header-brand"><img class="bi" src="assets/logo.png" alt="" style="width:32px;height:32px;object-fit:contain;display:block"><h1>古代史及汉籍研究工具</h1></a>
-    <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn active" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" class="active" role="menuitem">更新日志</a></div></div><a href="index.html" >纪年查询</a><a href="catalog.html" >编目规范</a><a href="kanseki.html">古籍类目查询</a><a href="embed.html">快速跳转</a>
-    </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
-      <div class="nav-dropdown user-dropdown">
-        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
-          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="nav-dropdown-menu user-menu" role="menu">
-          <a href="login.html" role="menuitem">登录</a>
-          <a href="signup.html" role="menuitem">注册</a><a href="settings.html#api" role="menuitem" class="user-menu-settings">设置</a>
-        </div>
-      </div></div>
-  </div>
-</header>
-
-<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
-<div class="drawer-overlay" id="mDrawerOverlay"></div>
-<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
-  <div class="drawer-brand"><img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block"><h2>古代史及汉籍研究工具</h2></div>
-  <nav class="drawer-nav">
-    <div class="drawer-nav-group">导航</div>
-    <a href="index.html" class="drawer-link">纪年查询</a>
-    <a href="catalog.html" class="drawer-link">编目规范</a>
-    <a href="kanseki.html" class="drawer-link">古籍类目查询</a>
-    <a href="embed.html" class="drawer-link">快速跳转</a>
-    <div class="drawer-nav-group">说明文档</div>
-    <a href="guide.html" class="drawer-link">使用介绍</a>
-    <a href="changelog.html" class="drawer-link active">更新日志</a>
+  <!-- V1.1：网页版站点导航（桌面内嵌时由构建注入的 CSS 隐藏） -->
+  <nav class="web-nav-strip" aria-label="站点导航">
+    <a href="index.html">纪年查询</a>
+    <a href="catalog.html?tab=0">细则查阅</a>
+    <a href="catalog.html?tab=1">分类表</a>
+    <a href="catalog.html?tab=2">工作手册</a>
+    <a href="kanseki.html">古籍类目</a>
+    <a href="embed.html">快速跳转</a>
+    <a href="guide.html">使用介绍</a>
+    <a href="changelog.html">更新日志</a>
   </nav>
-  <div class="drawer-user">
-    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
-  </div>
-</aside>
 
 <main class="page">
-  <a href="index.html" class="back-link">← 返回纪年查询</a>
-  <div class="page-head">
-    <h2>更新日志</h2>
-    <p>记录每次功能新增、修改与删减，帮助您了解工具的最新变化。</p>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.0.0 · 桌面版正式版</span>
-      <span class="cl-date">2026-10-18</span>
-      <span class="cl-tag t-new">正式版</span>
-    </div>
-    <ul>
-      <li><b>桌面版按「桌面版 v3」设计稿整套重做</b>：灰底白卡、24px 圆角、无描边、42px 标题栏；
-        侧栏改为 <b>5 组 13 项</b>（查询 / 检索 / 编目 / 资料 / 系统），选中项为黑底白字胶囊。</li>
-      <li><b>新增「工作台」并设为启动首页</b>：5 个快捷入口 + <b>每日推荐</b>（古籍引文与编目小识按日轮换）
-        + 今日概览（编目记录 / 下载中 / 检索历史，取本机真实数据）+ 最近更新 + 5 个资料磁贴。</li>
-      <li><b>「DA 国文书馆」更名为「日本国立公文书馆」</b>；<b>「下载中心」上移到「编目记录」之上</b>，
-        点侧栏该项直接打开下载中心抽屉（进度、暂停/取消、逐册明细、打开文件夹）。</li>
-      <li><b>纪年查询打开即显示全部年份表格</b>，不必先输入年份；原有按年查询、置顶小窗等能力保留。</li>
-      <li><b>细则查阅</b>：删掉右侧「在本页」索引栏，章节树改为页头右上角浮出；树条目改为<b>左对齐</b>并修正层级缩进；
-        <b>2023.09 与 2025.10 两个版本统一为一套 UI 与交互</b>（同一套章节树 + 同一套正文排版）。</li>
-      <li><b>分类表</b>：删掉「五部概览」框；每一类、每一属都给出介绍与代表古籍列举
-        （无下位属的类明确标注「该类无下位属」）。</li>
-      <li><b>工作手册</b>：文件信息框收小，<b>PDF 直接内嵌预览</b>，不再占一张大卡片。</li>
-      <li><b>使用介绍</b>：去掉章节侧边栏，页头右上角新增「章节树」浮出按钮（与细则查阅同一套交互）。</li>
-      <li><b>数据完全沿用</b>：编目记录、检索历史、下载队列、类目与纪年数据均沿用上一版，升级不迁移、不丢数据。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.6.0 · 桌面版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>「内閣文庫 漢籍」改为按原站 fonds 层级直接浏览</b>：不再是只给一张统计表，
-        而是照着原站顺序逐层看——<b>内閣文庫 › 漢籍 › 經部／史部／子部／集部／叢書部／新書部 › 簿册一覧</b>。
-        点某个部，下方结果区就按原站分类页的顺序列出该部簿册，可继续点开看详情、下载整册 PDF。</li>
-      <li><b>各部件数直接标在分类上</b>：如「經部 1,886」「史部 3,766」「子部 5,268」……
-        口径与原站分类页「該当件数」一致（資料種別＝簿册）。首次进页面自动统计一次并缓存本机，
-        之后秒开；点「刷新件数」可重新向原站核对。</li>
-      <li><b>可导出该部簿册清单 CSV</b>：自动分页抓取整部（上限 2,400 条，超出会在提示里说明），
-        列含番号、資料種別、簿冊名、層級、原站各行字段（作成年、参照コード等）与原站链接；
-        自动带 BOM，Excel 直接打开不乱码，落到系统「下载」文件夹并自动定位。</li>
-      <li><b>占地大幅缩小</b>：从原来那张多行统计表改成<b>一行工具栏 + 一行分类 chips</b>
-        （实测高度约 70 px），不再挤占检索结果区。</li>
-      <li>再点一次已选中的分类即可取消限定；面包屑会同步显示当前所处层级。</li>
-      <li>同版还包含：<b>单本下载进度纳入「下载中心」</b>（任务行 + 右上角角标 + 完成通知），
-        详见下一条 v10.5.0。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.5.0 · 桌面版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>「国立公文书馆」检索页新增「内閣文庫 漢籍 部别统计」</b>：点开即可看到
-        <b>经部 / 史部 / 子部 / 集部 / 丛书部 / 新书部</b>各有多少书，并给出占比、原站分类页链接与统计时间。
-        <br>当前实测：经部 <b>1,886</b> 册、史部 3,766、子部 5,268、集部 3,824、丛书部 279、新书部 241，合计 <b>15,264</b> 册。</li>
-      <li><b>口径与原站分类页「該当件数」一致</b>：簿册数＝資料種別「簿册」的命中数（如经部 1,886，与
-        <code>fonds/3610545</code> 页一致）；件名数＝「件名·細目」的命中数（经部 21,583）。
-        和書部为日文典籍，不计入汉籍统计。</li>
-      <li><b>可导出 CSV</b>：含部、簿册数、件名数、簿册占比、原站链接、统计时间；自动加 BOM，
-        Excel 直接打开不乱码；导出到系统「下载」文件夹并自动定位到该文件。</li>
-      <li><b>统计结果缓存在本机</b>：关掉再开无需重新查询，点「重新统计」即可刷新。</li>
-      <li><b>单本下载进度也纳入「下载中心」</b>：在检索结果里点条目右侧「下载」后，下载中心抽屉里
-        会像批量下载一样出现任务行（状态徽章 + 逐册进度 + 时间 + 「打开文件夹」），
-        右上角「下载中」按钮同时显示 <code>1/3</code> 这样的进度。</li>
-      <li><b>单本下载完成/失败同样弹横幅通知并响提示音</b>，可一键打开所在文件夹；
-        失败时列出缺册原因。</li>
-      <li><b>下载记录保留最近 24 条</b>（单本与批量都记录，最新在前）。</li>
-      <li>顺带修复：此前单本下载不登记当前任务，导致下载中心显示「当前没有下载任务」、右上角也没有角标。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.4.2 · 网页版 + 桌面版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-del">删减</span>
-    </div>
-    <ul>
-      <li><b>「分类表查询」不再有「标准分类 / 合璧细目」两个视图</b>——按需求删除了原三级「合璧细目」，
-        页面现在<b>只有标准分类一套类目</b>：经部 21、史部 17、子部 18、集部 7、类丛部 2、附新学类 1，共 66 类。</li>
-      <li>标准分类即合璧工程所用类目，一条路径看全，不必再切换视图。</li>
-      <li>同时清掉只服务旧三级表的代码与样式（约 15 KB）：三级表、二级下拉、类目速览字典、
-        「未调整」提示块等；检索框改为占满工具条。</li>
-      <li>桌面版发行包同步重编（<code>release/古代史及汉籍研究工具_v0.21.1.zip</code>）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.4.1 · 网页版 + 桌面版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>「分类表查询」按标准类目表重做</b>：改为<b>经部 21 类、史部 17 类、子部 18 类、
-        集部 7 类、类丛部 2 类，附新学类 1 类，共 66 类</b>。</li>
-      <li><b>每部都有部级介绍</b>，说明该部的收录范围与分类由来；
-        <b>每类都有收录说明</b>，并附<b>代表古籍举例</b>（共 181 部，如易类《周易正义》、四书类《四书章句集注》）。</li>
-      <li><b>六部筛选 + 全文检索</b>：可按部切换，也可直接搜类名、收录说明或书名；
-        <b>检索自动忽略部筛选</b>，避免「先点了史部、再搜论语查不到」的误会。</li>
-      <li><b>繁简通检</b>：数据为简体，输入繁体（如「論語」）同样能命中——采用项目内由 opencc 比对生成的
-        <code>KANSEKI_T2S</code>（2162 字）做归一。</li>
-      <li><b>原三级「合璧细目」完整保留</b>：页面上可在「标准分类 / 合璧细目」间切换，
-        既能看到新标准表，也不丢失原三级类目与录入数据。</li>
-      <li>同步移除分类表页的「未调整」红标与提示条（内容已按标准规范调整）。</li>
-      <li><b>顺带修复</b>：① <code>catalog.html?tab=N</code> 深链接此前未被解析，首页「编目资料」与桌面版侧栏
-        点了都落在细阅查阅；② 分类表在手机宽度下正文被挤到约 97px ——
-        <code>.docs-layout.wide</code> 特异性高于断点里的 <code>.docs-layout</code>，已显式覆盖。</li>
-      <li>桌面版内嵌页同步更新（<code>classify_data.js</code> 已纳入构建同步列表）。</li>
-      <li><b>桌面版发行包 v0.21.1</b>：安装版 + 免安装版重新编译，
-        <code>release/古代史及汉籍研究工具_v0.21.1.zip</code>（14.90 MB）；
-        已移除侧栏「未调整」红标；真机验证 14/14（分类表 6 部 66 类、深链接、纪年查询、0 JS 错误）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.4.0 · 手机版 App</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>真正的手机版 App 上线（m.html）</b>：不再是「桌面网页塞进手机」，而是按手机版设计稿重做的
-        <b>竖屏 App</b>——底部 5 个 Tab（首页 / 纪年 / 类目 / 检索 / 我的）、灰底白卡、大圆角。
-        装到主屏幕后打开的就是它。</li>
-      <li><b>首页</b>：头像与问候并排、5 个快捷入口（纪年·类目·<b>日藏</b>·公文书馆·编目）、
-        <b>每日推荐</b>（金句/书史小故事，按日期轮换）、编目资料（细则查阅 / 分类表 / 工作手册 /
-        岁时落款常识 / 软件介绍）。</li>
-      <li><b>纪年查询是真数据</b>：输入公历年，同时给出<b>中国 → 日本 → 其他地区</b>三组年号与君主，
-        可切<b>卡片 / 表格</b>两种视图，带干支与生肖。数据与桌面版同源（同一份 <code>era_data.js</code>）。</li>
-      <li><b>古籍类目查询是真数据</b>：《中國古籍總目》全量 <b>177,107 条</b>著录 + 349 个类目组合，
-        可按书名 / 著者 / 类目检索，带「完全相同 / 可对应 / 无对应」三态判定；
-        首次打开才载入 9.6 MB 数据，不拖慢启动。</li>
-      <li><b>岁时落款常识是真数据</b>：干支别称 / 农历月份雅称 / 季令与节令称谓 / 书画落款规范 /
-        古代年龄称谓，五节可切换。</li>
-      <li><b>检索页</b>：日本所藏中文古籍数据库、日本国立公文书馆两个入口，直连对方站点；
-        并明确标注<b>应用内检索与批量下载 PDF 需桌面版</b>（浏览器跨域限制）。</li>
-      <li><b>状态保持</b>：在「纪年」查了词、切到别的 Tab 再回来，检索词、视图、结果都还在。</li>
-      <li><b>技术重构</b>：纪年数据（中国朝代 / 日本时代 / 周边政权，约 54 KB）从 index.html 内联块
-        抽成共用文件 <code>era_data.js</code>，网页版与手机版共用同一份，避免两处漂移。</li>
-      <li>桌面版不受影响：<code>m.html</code> 只属于网页/手机端，桌面版内嵌页仍是原页面。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.3.1 · 网页版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li>修复手机宽度下「岁时落款」与「卷数计算」两个浮动按钮完全重叠的问题。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.3.0 · 网页版</span>
-      <span class="cl-date">2026-10-17</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>网页版可「安装到手机主屏幕」了（PWA）</b>。用手机浏览器打开本站，会出现
-        「安装到主屏幕」提示；装好后<b>像 App 一样全屏打开、有独立图标、断网也能查</b>。
-        安卓 Chrome 走系统安装流程；iPhone 在 <b>Safari</b> 里点「分享 → 添加到主屏幕」即可。</li>
-      <li><b>离线可用</b>：纪年查询、古籍类目查询等常用页在首次访问后即缓存，之后<b>没网也能打开</b>
-        （AI 复检需联网，断网时不可用）。启动时优先取网络最新内容，取不到才回落到缓存。</li>
-      <li><b>缓存策略做了克制</b>：安装时只预缓存约 <b>1.1 MB</b> 的应用外壳；
-        古籍类目数据（<b>9.6 MB</b>）<b>不预下载</b>，只在你真正打开该页时才缓存，
-        避免首次安装耗时与流量浪费。</li>
-      <li><b>桌面版不受影响</b>：PWA 相关标签只在网页版生效，桌面版内嵌页在构建时会自动剔除，
-        不会产生多余请求。</li>
-      <li>维护：修复了测试脚本里<b>硬编码的 Node 路径</b>失效导致所有套件 0.1 秒全红的问题
-        （改为「存在才用、否则回退当前 Node」）；并更新了「检索历史」相关断言以匹配 V10.2 的新交互。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.2.4 · 网页版</span>
-      <span class="cl-date">2026-10-07</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>「返回主页」按钮放进「API 管理」面板内部</b>。上一版把它放在设置页<b>左栏顶部</b>，
-        且是细边框小字，用户反映在 API 管理里「没有返回主页的按钮」。现在做成<b>醒目按钮</b>，
-        并<b>在 API 管理标题行右侧再放一个</b>（面板顶部，进页面第一眼就能看到）；
-        左栏那个也保留、一并改成醒目样式。两处都直接回主页。</li>
-      <li>说明：本项<b>仅改网页版</b>。桌面版的设置是独立窗口，用标题栏关闭即可，不涉及。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.2.3 · 网页版</span>
-      <span class="cl-date">2026-10-07</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>网页端右上角登录下拉菜单里新增「设置」</b>（放在「登录／注册」旁，带分隔线）：
-        点一下直达设置页的 <b>API 管理</b>分区，用来配置 AI 复检所需的 DeepSeek API。
-        此前网页版没有任何设置入口，只能手输网址或长按「AI 复检」找弹窗底部，很不好找。</li>
-      <li><b>设置页新增「← 返回纪年查询」</b>：网页版配好 API 后可一键回主页，不必按浏览器后退。
-        该入口<b>仅网页版显示</b>——桌面版的设置是独立窗口，用标题栏关闭即可。</li>
-      <li><b>覆盖全部 6 个页面</b>：纪年查询、编目规范、古籍类目查询、快速跳转、使用介绍、更新日志，
-        右上角菜单行为一致。设置页在网页版会隐去「同步设置」（浏览器没有同步能力），只保留 API 管理。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.2.2 · 网页版同步</span>
-      <span class="cl-date">2026-10-07</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>修复：网页版找不到 API 配置入口</b>。网页版要配置 AI 复检的 DeepSeek API，此前只有两条路：
-        ① 直接手输网址 <code>settings.html#api</code>；② <b>长按</b>「AI 复检」按钮弹出模态窗、再找底部的「打开设置」。
-        而没有配置时给出的提示「网页版：设置页 → API 管理」<b>只是一段死文字，点不了</b>，
-        于是用户看到「未配置」却不知道去哪配。现在：</li>
-      <li>· 未配置时的提示改为<b>带按钮</b>——「尚未配置 DeepSeek API。」下方直接给一个
-        <b>「去配置 API」</b> 主按钮，点一下即跳到设置页的 API 管理分区（桌面版则打开设置窗口）。</li>
-      <li>· AI 复检结果区<b>头部新增常驻的「设置」按钮</b>，任何时候都能一键进设置，不必再长按。</li>
-      <li>· 模态窗内两处「尚未配置」提示改为「请点下方『打开设置』填写」，与底部按钮对应。</li>
-      <li><b>说明</b>：网页版的配置页是 <code>settings.html</code>（API 管理分区），Key 存在浏览器
-        <code>localStorage</code>（<code>kanseki_deepseek_key</code>），与桌面版各自独立、互不同步。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.2.1 · 网页版同步</span>
-      <span class="cl-date">2026-10-07</span>
-      <span class="cl-tag t-opt">同步</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>网页版补齐「未调整」提示</b>：「编目规范 → 分类表查询」此前只有<b>桌面版侧栏</b>挂了红色
-        「未调整」角标，网页版看不到任何提醒。现在<b>网页版同步补上</b>——该页签本身带红色角标
-        （悬停提示「请以《编目细则》与工作手册为准」），并在分类表上方增加一条<b>页内提示条</b>。</li>
-      <li><b>修正版本标记</b>：<code>kanseki.html</code> 的调试版本号仍是 <code>9.4.2</code>，
-        而该页实际已含 V10.2 的「批量查询」与「检索历史改版」，现更正为 <code>10.2</code>。</li>
-      <li><b>核对结论</b>：桌面版 V9.5–V10.2 中<b>可同步到网页版的部分均已同步且经实测可用</b>——
-        古籍类目「批量查询」（2 条查询 119 ms，論語 758 命中／陶淵明集 29 命中，注释行自动跳过，
-        结果可导出 CSV）、「检索历史改版」（点检索框即显示，且与纪年查询历史<b>分开存储</b>）、
-        使用介绍十二节（含 12 处「仅桌面版可用」标注）、更新日志。</li>
-      <li><b>无法同步的部分（技术原因，非遗漏）</b>：<b>国立公文书馆检索</b>与<b>汉籍检索（日本）</b>
-        的原站<b>不返回 CORS 响应头</b>（实测浏览器 <code>fetch</code> 直接失败），静态网页版无法直连；
-        <b>国立公文书馆下载／下载中心／批量下载</b>需要写盘、PDF 合并与系统文件夹选择，
-        且该站 <code>/contentDownload/*</code> 在 robots 中为 Disallow，只能由桌面版逐次点选触发；
-        <b>纪年小窗、系统托盘、窗口菜单</b>是操作系统级能力。以上仅桌面版提供。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.2 · 桌面版 0.21.0</span>
-      <span class="cl-date">2026-10-07</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>下载产物只留 PDF</b>（用户要求）：不再生成 <code>_报告.csv</code> 与 <code>_manifest.jsonl</code>；
-        <code>_任务.json</code> 只在下载过程中存在，<b>该本下完就自动删除</b>——
-        最终每个书目目录里只剩 PDF 与压缩包。未下完时仍会保留任务文件，供「只重试未完成册」续传；
-        批量整批成功后，输出根目录的 <code>_批量队列.json</code> 也会清理。</li>
-      <li><b>修复：断网后重新下载，每本书只下了一册</b>。根因是「目录页请求失败」被静默当成
-        「这本书没有子册」，于是一本 50 册的书只下了 1 册。现在改为严格判定：
-        只有原站**明确**答复没有子册（404，或 200 且确实 0 行）才按单册处理；
-        <b>网络失败、响应被掐断、403/5xx 一律报错并禁用「开始下载」</b>，宁可不开始也不下一半。
-        另外批量下载会优先复用已冻结的 <code>_任务.json</code>，不再重新解析册清单。</li>
-      <li><b>古籍类目查询新增「批量查询」</b>：每行一条（书名／著者／类目，写法同检索框，<code>#</code> 注释），
-        逐条给出<b>命中数、判定分布（完全相同／可对应／无对应）与前三条示例</b>，可<b>导出结果 CSV</b>；
-        批量期间不打断当前列表，跑完自动回到原状态。</li>
-      <li><b>古籍类目查询：检索历史改版</b>——去掉「历史」按钮，改为<b>点击检索框即显示</b>历史浮层；
-        并且<b>与「纪年查询」的历史分开存储</b>（本页用 <code>kanseki_cat_search_history</code>，
-        纪年查询仍用 <code>kanseki_search_history</code>），两边互不污染。</li>
-      <li><b>批量下载：三套命名都带「▾」浮动下拉</b>：点开即可选要拼进去的字段
-        （<code>{书名}</code> <code>{分类}</code> <code>{册次}</code> <code>{册名}</code> <code>{册ID}</code>
-        <code>{主册ID}</code> <code>{总册数}</code> <code>{日期}</code>）与分隔符、补零写法（<code>{册次:03}</code>），
-        插到「目录名／每册文件名／压缩包名」各自对应的输入框，互不串台；下方新增<b>实时预览</b>。</li>
-      <li><b>修复：残缺 PDF 会被当成合格文件收下</b>。原生 PDF 一边收一边写盘，若传输中途被掐断，
-        早期版本会保留半截响应继续走，而校验只数 <code>/DCTDecode</code>——图片都数得够、
-        只是少了文件尾部的页面树与 xref，于是<b>打不开的残缺 PDF 一路进了压缩包</b>
-        （实测：一卷「50 页」的 PDF 没有 trailer/xref，合并时报「声明 50 页、实际提取 49 页」）。
-        现在：读取被掐断或长度短于服务端声明<b>一律判失败并重试／走兜底</b>，
-        落盘前还要求文件尾部有 <code>%%EOF</code>，不完整就地作废。</li>
-      <li><b>修复：PDF 合并的对象定位改为读 xref 表</b>。此前靠文本扫描 <code>endobj</code> 找对象边界，
-        而站方 PDF 是「一页一张 JPEG」，<b>JPEG 数据里偶然出现 "endobj" 这 6 个字节</b>就会把对象截断、
-        后续对象全部错位（数据相关、时好时坏）。现在优先按 xref 表精确定位，无 xref 时才回退扫描，
-        且回退扫描会按 <code>/Length</code> 跳过流数据；分卷提取数与声明页数不符时再用对象顺序复核。</li>
-      <li><b>测试</b>：新增真机实测 <code>najdl_v102_live.test.cjs</code> 19 项
-        （故障注入下不得按单册开工、三套命名字段下拉与预览、类目批量查询、
-        类目历史与纪年历史互不污染等）；三份下载实测同步改为断言
-        「完成后目录里只剩 PDF 与压缩包」。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.1 · 桌面版 0.20.0</span>
-      <span class="cl-date">2026-10-06</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>修复</b>：打开「详细检索」浮层时，「显示件数」按钮会浮在浮层上面把它挡住。
-        现在该按钮<b>不再抬高层级</b>——浮层展开时正常盖住它，收起后即可照常点击（层级归属改由浮层决定）。</li>
-      <li><b>使用介绍全面重写</b>：从原来的三节扩为<b>十二节</b>（含内容导航）：
-        快速上手（界面总览、窗口菜单、<b>关闭＝缩到托盘</b>、哪些功能需要联网）、纪年查询（含纪年小窗）、古籍类目查询、
-        汉籍检索（日本）、国立公文书馆检索（详细检索与内閣文庫分类）、
-        <b>国立公文书馆下载</b>（单本三步、三套命名、&gt;50 页自动合并、下载中心、批量下载与索书号、失败决策、零缺册、合规提醒）、
-        编目规范、编目记录、账号与同步、界面与快捷键、<b>常见问题</b>、更新日志与反馈。</li>
-      <li><b>侧栏新增红色「未调整」标记</b>：标在「编目规范 → 分类表查询」旁，
-        提示该部分内容尚未按新规范调整（鼠标悬停有说明：请以《编目细则》与工作手册为准）。</li>
-      <li><b>测试</b>：新增真机实测 <code>ui_v101_live.test.cjs</code> 11 项——浮层层级探测
-        （<code>elementFromPoint</code> 命中的必须是浮层而非按钮）、收起后按钮恢复可点、
-        红标文本与颜色（<code>rgb(220,38,38)</code>）、使用介绍章节数与关键内容齐备。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v10.0 · 桌面版 0.19.0</span>
-      <span class="cl-date">2026-10-06</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>检索条更紧凑</b>：主检索行的按钮文字一律<b>单行</b>（此前窄窗口下「详细检索」会折行）；
-        <b>「显示件数」移到检索栏与结果栏之间的空隙处、上一页/下一页左侧</b>，改成一个按钮，
-        点它弹出浮动下拉（20／50／100／200），选完即生效。</li>
-      <li><b>超过 50 页的册自动合并成一个 PDF</b>：站方原生 PDF 每批最多 50 页，此前 86 页的册会落成
-        <code>书名_1-50.pdf</code>＋<code>书名_51-86.pdf</code> 两个分卷；现在下载完会自动合并为
-        <b>一个完整 PDF</b>——按页面树顺序取出各分卷内嵌的 JPEG <b>原样重装</b>（不解码、不重编码，画质不损失），
-        合并后校验页数（<code>/DCTDecode</code> 计数）与整册页数一致才删掉分卷；万一合并失败则保留分卷并在报告里写明原因。</li>
-      <li><b>批量下载可以导入索书号了</b>（如 <code>子046-0012</code>）：此前按原站「参照コード」检索一律 0 命中，
-        故改为走<b>全字段检索再核对「請求番号」</b>；并对全角/半角、连接符做归一（原站著录为全角 <code>子０４６－００１２</code>）。
-        命中多条时（例如同时有簿冊与各子册）会在该行给出<b>候选下拉</b>供核对选择，绝不擅自挑一条。</li>
-      <li><b>三套命名各自独立生效并记住</b>：目录名／每册文件名／压缩包名三套模板都支持自定义，
-        改完会记住（下次自动带出），落盘名字严格照模板。</li>
-      <li><b>关闭窗口＝最小化到托盘，不再退出</b>：点关闭按钮后程序留在后台（<b>下载继续跑</b>），
-        右下角托盘图标左键单击即可回到窗口；托盘右键菜单有「显示主窗口／下载中心／退出」，
-        只有菜单里的「退出」才真正结束进程。</li>
-      <li><b>修复</b>：① 详细检索浮层展开时会盖住状态栏里的「显示件数」按钮，已把该按钮层级提到浮层之上；
-        ② 老实测里「站内非白名单路径」用的例子（<code>/contentDownload/</code>）在 V9.8 已进入下载白名单，
-        改用真正未白名单的路径继续守着。</li>
-      <li><b>测试</b>：JS 单测 200 例（新增索书号归一/匹配、批量输入）；Rust 单测 21 例
-        （新增 PDF 合并：合成件保持页序、真实站方 86 页分卷合并校验）；
-        真机实测新增 <code>najdl_v10_live.test.cjs</code> 22 项（检索行单行、显示件数浮层、索书号解析与候选、
-        三套命名落盘、<b>86 页合并为一个 PDF 并独立复核页数</b>、关闭不退出与唤回）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.9 · 桌面版 0.18.0</span>
-      <span class="cl-date">2026-10-06</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>下载位置可自选</b>：单本面板与批量面板都加了「浏览…」，调系统文件夹选择框（Rust 侧手写
-        Win32 <code>SHBrowseForFolderW</code>，沿用本项目「零额外依赖」的做法），并记住上次选择的位置。</li>
-      <li><b>标题栏新增「下载中心」按钮</b>（在<b>最小化旁边</b>，带进度角标）：点开右侧抽屉，
-        可随时看<b>实时速度、已下载字节、本册页数与整体进度</b>，并能<b>暂停／继续／取消／打开文件夹</b>。
-        抽屉是浮层、不占用视图布局，<b>一边下载一边正常使用检索、纪年、编目等其他功能</b>。</li>
-      <li><b>完成提醒</b>：整包下载并打包完毕后，主界面<b>顶部弹出横幅</b>（含「打开所在文件夹／查看下载详情」），
-        同时右下角提示与提示音；失败则弹常驻通知并响提示音。</li>
-      <li><b>批量下载</b>（「国立公文书馆」检索条上的「批量下载」按钮）：
-        一次粘贴多条 <b>ID／原站链接／索书号</b>（<code>#</code> 开头为注释），先<b>读取书目信息</b>
-        （书名、册数）供核对，确认后<b>排队逐本下载，下完一本自动开始下一本</b>；
-        队列进度写入输出目录 <code>_批量队列.json</code>，中断后可「恢复上次队列」续跑。</li>
-      <li><b>批量失败可决策</b>：某一本下不动时，右下角弹窗 + 提示音，并在下载中心给出四个选择——
-        <b>重试这一本 / 略过继续下一本 / 暂停整批（保留进度）/ 取消整批</b>；
-        全程可随时开始、暂停、继续、取消。</li>
-      <li><b>修复</b>：① 批量里只贴 ID 时取不到书名——实测该站 <code>.json</code> 端点偶发被掐断后改回 HTML，
-        现改为「JSON-LD 重试两层 + 查看器页 <code>&lt;title&gt;</code> 兜底」，批量清单能显示真实书名；
-        ② 右下角通知会压住下载中心抽屉底部的「暂停/取消」按钮，现抽屉打开时通知整体左移，
-        并把抽屉层级提到弹层之上；③ 批量开始后自动收起批量面板，避免遮挡抽屉。</li>
-      <li><b>测试</b>：新增批量输入解析与查看器标题解析单测（合计 39 例）；
-        新增真机实测 <code>najdl_center_live.test.cjs</code> 26 项——覆盖按钮位置、抽屉不阻塞、批量读取书目、
-        失败弹窗与四选项、暂停/继续、实时速度、完成横幅、失败那本「无 PDF 无 ZIP 但有报告」等。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.8 · 桌面版 0.17.0</span>
-      <span class="cl-date">2026-10-06</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>国立公文书馆：检索结果右侧一键「下载」整册 PDF</b>。
-        点某本书右侧的「下载」，先解析 <code>/file/&lt;主册ID&gt;</code> 目录页列出该书<b>全部子册</b>，
-        确认范围后逐册下载，可打包成一个 ZIP。<b>命名方式可自定义</b>：
-        「目录名 / 每册文件名 / 压缩包名」三套模板，字段可点选插入（书名、分类、册次、册名、册ID、主册ID、总册数、日期），
-        支持 <code>{册次:03}</code> 补零，并有实时目录树预览。</li>
-      <li><b>双通道</b>：主通道走站方原生 PDF（<code>POST /contentDownload/&lt;冊ID&gt;?type=imagePdf</code>，
-        每批 ≤50 页，一册通常一次请求）；失败自动降级到 <b>IIIF 逐页</b>取图，由 Rust 合成 PDF
-        （JPEG 以 DCTDecode 原样内嵌，不重编码）。<b>降级时册序号、文件名、报告条目均不变</b>。</li>
-      <li><b>零缺册保证</b>（用户要求：绝不能出现「下了第 13 册、漏了第 2 册」）：
-        ① 册清单先落盘冻结，下载期间不再重新解析；
-        ② 逐册状态机（pending/running/partial/failed/done），<b>只有页数校验通过才记为完成</b>
-        （原生 PDF 用 <code>/DCTDecode</code> 计数核页；页数不可核验一律不计完成，改由兜底通道重出）；
-        ③ 每批下载后按批校验页数，一册拆多批时按各 part 页数求和比对；
-        ④ <b>打包前过完整性门禁</b>——册数、序号连续性、页数、文件名唯一性任一不通过即拒绝打包，
-        并在界面逐条列出缺哪几册；
-        ⑤ 全部写盘走 <code>.part → rename</code> 原子替换，断电只留临时文件、不留半个成品；
-        ⑥ 可「只重试未完成册」；断点续传读 <code>_任务.json</code>，已完成的册不重下。</li>
-      <li><b>产物与溯源</b>：每册一个 PDF（超 50 页的册自动分批，命名为「书名_起-止.pdf」），
-        另有 <code>_任务.json</code>（断点与命名冻结）、<code>_报告.csv</code>（每册每产物一行，含通道与 SHA-256）、
-        <code>_manifest.jsonl</code>（逐册来源与校验值）；完成后可一键「打开所在文件夹」。</li>
-      <li><b>合规</b>：<code>/contentDownload/*</code> 在站方 robots.txt 中为 Disallow，故该功能
-        <b>只由用户逐次点选触发</b>，不提供「整部／整库」入口，默认并发 1 册、册与册之间强制间隔，
-        界面写明数据来源与出典（目録 CC0、数字内容可自由复制改変再发布，请注明出典）。</li>
-      <li><b>修复</b>：解析目录页子册时，原按 <code>&lt;/li&gt;</code> 切片会被行内嵌的分类树
-        <code>&lt;li class="result-tree__item"&gt;</code> 提前截断，导致分类路径丢失；
-        改按「下一个行开标签」切片。另修正查看器页解析把 <code>p-viewer-download__item-footer</code>
-        误当新页、以致取不到逐页 cid 的问题。</li>
-      <li><b>测试</b>：新增 34 例单元测试（含「第 13 册完成而第 2 册缺失必须拒绝」等零缺册用例）、
-        16 例 Rust 单测（PDF 合成／ZIP 读写／SHA-256／白名单／参数反序列化），
-        以及真机实测 <code>najdl_live.test.cjs</code> 18 项（真实下载 22 页 → 独立复核 PDF 内
-        <code>/DCTDecode</code> 计数与记录一致 → 过门禁 → 生成 ZIP；再跑一遍 IIIF 兜底通道）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.7 · 桌面版 0.16.0</span>
-      <span class="cl-date">2026-10-04</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>新增「纪年小窗」</b>：纪年查询可另开一个 <b>460×620 的小窗口</b>（侧栏「纪年查询」行尾的小图标，或点击即开）。
-        小窗可自由缩放、<b>一键置顶在所有窗口之上</b>（默认即置顶），
-        支持输 <b>年份 / 年号 / 干支 / 朝代 / 君主</b> 查询（回车即查，另备「今年／上一年／下一年／万历／康熙／前841」快捷键），
-        结果以<b>表格视图</b>（公元／朝代／年号／君主／干支）呈现，<b>点行或点复制键即复制</b>该年主年号（如「万历十五年（1587）」），
-        并跟随全站简繁与明暗主题。关闭为隐藏，可反复打开；窗口由 Rust 首次点击时按需创建（省启动开销）。</li>
-      <li><b>编目记录：一键导入 Excel/CSV 表格</b>。支持 <code>.xlsx</code>（自解析 ZIP + 内置 inflate，零依赖）、
-        <code>.csv</code>/<code>.tsv</code>（自动识别 UTF-8／<b>GBK</b>／UTF-16，Excel 导出的中文 CSV 常是 GBK）。
-        表头按模板自动对应字段（模板原文 <code>*類目/*書名…</code>、简繁 label 与常见别名都能认），
-        认不出且列数 ≥13 时按模板列序回退，并回报未识别的表头。</li>
-      <li><b>编目记录：三种预览 + 两种导出</b>。
-        预览可切 <b>卡片 / 表格（同「编目表格」模板 14 列） / 文字（按著录格式成文）</b>；
-        导出可选 <b>表格（CSV）</b> 或 <b>文字（TXT）</b>。
-        文字版严格按著录骨架成文（书名/卷数·索书号·著者·版本·册数·行款版式·附注；
-        版式为空时输出「行款版式：」及其下 7 行待补模板），字段为空处标「（未填）」。</li>
-      <li><b>编目记录：必填项不再拦截保存</b>（按用户要求）：留空也能先编目、边编边补，
-        提示语会写明「还有 N 项带 * 的必填未填」。</li>
-      <li><b>国立公文书馆：检索条压成整一行</b>（检索范围／关键词／检索／详细检索／清空／显示件数）；
-        <b>内閣文庫分类并入「详细检索」，详细检索改回下拉浮动菜单</b>——一次展开即见全部条件与 9 个分类，
-        收起后不再占据版面，检索结果区更高。</li>
-      <li><b>修复</b>：切换「表格/文字预览」时卡片列表因 <code>.rec-list</code> 是 flex 而压过 <code>[hidden]</code>，
-        导致三种视图同时显示；以及侧栏新增整行条目会让 1280×800 下侧栏溢出 21px、底部按钮被挤出——
-        「纪年小窗」改为「纪年查询」行尾小图标（不占高度）。</li>
-      <li><b>排障备忘</b>：反复强杀应用会留下孤儿 <code>msedgewebview2</code> 进程锁住用户数据目录，
-        下次启动将 panic 退出（<code>Failed to create webview: HRESULT 0x8007139F</code>，退出码 101）；
-        测试脚本已加入自动清理。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.6 · 桌面版 0.15.0</span>
-      <span class="cl-date">2026-10-04</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>国立公文书馆：补齐「详细检索」，条件标签全部中文</b>。
-        主检索行＝检索范围（全部／题名／作成者／件名·细目／参照代码）+ 关键词 + 显示件数（20/50/100/200），
-        并可展开<b>详细检索</b>：资料种别、图像等种类、利用限制、保存场所、作成年（起/止）、
-        移交元机关等（147 项）、旧藏（文库，52 项，含紅葉山文庫）、参照代码（起/止）；
-        展开按钮带「已选条件数」角标，状态行右侧回显<b>中文条件摘要</b>（如「资料种别：簿册 · 分类：經部」）。
-        详细检索为<b>就地展开</b>而非浮层——浮层会盖住下方分类区（实测连点击都会被拦截）。</li>
-      <li><b>国立公文书馆：可筛「簿册」与「件名·细目」</b>（原站 <code>type</code> 参数，
-        实测 <code>da22</code>=簿册、<code>da23</code>=件名·细目、<code>da21</code>=资料群，可多选）。
-        实测「漢書」不限 2323 件 → 仅簿册 <b>191</b> 件 → 仅件名 2130 件。</li>
-      <li><b>国立公文书馆：单列「内閣文庫 汉籍分类」区</b>，一键限定资料群检索：
-        内閣文庫（全部）／<b>漢籍（漢書部）</b>／經部／史部／子部／集部／叢書部／新書部／和書部，
-        每项旁 ↗ 直达原站分类页（无关键词也能浏览）。
-        实测：漢書部 2107 件、經部 393 件（首条即《四書集註》，階層「内閣文庫 ＞ 漢書 ＞ 経の部」）。</li>
-      <li><b>侧栏「编目记录」加红色「未上线」角标</b>（按用户要求提醒暂勿使用，功能后续逐步完善）。</li>
-      <li><b>修复品牌区 logo 的白边</b>：白边不在图片，而在 <code>.side-title .st-ic</code> 的
-        <code>background:#fff</code>——现改为透明，深色侧栏上只余黑色方块本体。
-        同时把全套 logo／favicon／程序图标重新导出为<b>透明背景</b>（圆角外全透明，
-        线条画与「汉」字逐像素保留；<code>icon.ico</code> 补齐 16/24/32/48/64/128/256 七档）。</li>
-      <li><b>国立公文书馆：「内閣文庫 汉籍分类」改为下拉浮动菜单</b>（按反馈：不再常驻占据版面）：
-        主检索行新增「内閣文庫分类 ↓」按钮，点开才浮出 9 个分类按钮；选中后按钮回显
-        「分类：經部」并带计数角标，浮层点外部或 <kbd>Esc</kbd> 收起。浮层与「详细检索」互斥开合。</li>
-      <li><b>收紧「检索框 → 检索结果」的间距，把版面让给结果</b>（两个检索面板都改）：
-        根因是 <code>.av-wrap</code> 的 18px 弹性间距在这样的面板里被撑成三段空白
-        （实测 表单→状态行 26px、状态行→结果 30px，另加底部 48px 内边距）。
-        现收紧为 8px / 10px、底部 12px：<b>国立公文书馆</b>表单 181→<b>99px</b>、结果区 457→<b>625px</b>；
-        <b>日本所藏汉籍检索</b>结果区也由约 600px 提升到 <b>641px</b>（间距合计 76→38px）。</li>
-      <li><b>修复解析保真度</b>：原站标题常拆成多个 <code>&lt;span&gt;</code>，
-        旧parser给行内标签补空格，会把「後漢書」读成「後 漢書」；现只让块级标签与 <code>&lt;br&gt;</code>
-        充当分隔（列表标题与 JSON-LD 真值一致）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.5 · 桌面版 0.14.0</span>
-      <span class="cl-date">2026-10-03</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>新增「国立公文书馆」检索面板</b>（侧栏「日本藏本检索」组内，图标为字母 <b>DA</b>）：
-        应用内直连<b>国立公文書館デジタルアーカイブ</b>（<code>https://www.digital.archives.go.jp</code>）。
-        检索式照原站详细检索习惯：<b>キーワード + 検索範囲</b>（すべて／タイトル／作成者／件名・細目／参照コード，
-        对应 <code>ks0=kw_all|kw_title|kw_creator|kw_item|kw_id</code>）、表示件数（20／50／100）与翻页。
-        <b>每条检索结果的信息末尾都给出原链接</b>，点击即在浏览器中打开原网页查看图像；
-        记录详情取自官方 JSON-LD（URI、レファレンスコード、階層、保存場所、利用制限、IIIF マニフェスト等），
-        并提供「复制引用例」（「国立公文書館所蔵」+ 請求番号 + URI）与「打开原网页」。
-        该馆目録元数据以 <b>CC0</b> 开放，可自由二次利用（建议注明出典）。</li>
-      <li><b>「编目记录」功能上线</b>（此前仅为占位预览）：按「全球汉籍合璧工程」编目表格模板 14 字段著录，
-        数据存本机 IndexedDB 并接入既有同步引擎（坚果云 WebDAV，LWW + 墓碑），
-        支持搜索（書名／索書號／著者／類目）、排序、编辑、删除与<b>导出 CSV</b>（带 BOM，Excel 直接打开不乱码）。
-        在日本藏本检索／国立公文书馆面板中可一键<b>「参考此记录新建编目记录」</b>：
-        只带入有把握的字段（書名／著者／索書號／類目／年代，附録写入引用例），
-        卷數／版式／函册等一律留空由编目者按实物著录。</li>
-      <li><b>新增 Rust 检索桥 <code>naj_db.rs</code></b>：站点与路径白名单（防 SSRF）、
-        连接被服务端重置时自动退避重试（该站实测偶发重置）、部分结果保全并标注「响应不完整」。</li>
-      <li><b>全站换用新 logo</b>（黑白萌犬／戴笠瑞兽 + 右上「汉」）：程序图标（16–256 多档 ICO）、
-        侧栏品牌、关于页，以及网页版各页顶部品牌与标签页图标一并更换。</li>
-      <li><b>顺带修复三处既有缺陷</b>：① <code>makeNewRecord()</code> 会用
-        <code>createEmptyRecord()</code> 里的 <code>id:null</code> 覆盖刚生成的 UUID，
-        写入 IndexedDB 报「key path ... not a valid key」（该路径此前未被调用故一直未暴露）；
-        ② <code>.av-btn</code> 的 <code>display:inline-flex</code> 压过 <code>[hidden]</code>，
-        使弹层内隐藏的「删除」键照样显示；③ 构建时未把 assets 同步到 <code>dist/pages/assets</code>，
-        内嵌页面引用的 logo 全部 404。</li>
-      <li><b>稳定性与安全加固</b>：原站 `.json` 端点会按 <code>Accept</code> 内容协商，
-        把 <code>text/html</code> 放前面时会返回 HTML 页面 —— 现按端点选择请求头
-        （数据端点只请求 JSON），并在解析失败时重试一次再退化；
-        站外/越界路径白名单加严（拒绝 <code>..</code>、反斜杠、<code>/searching</code>、<code>/item</code> 等），
-        且<b>不跟随重定向</b>；检索回应为 4xx/5xx 时明确报错而不是显示「没有命中」；
-        CSV 导出对 <code>= + - @</code> 开头的单元格做公式注入防护。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.4.2 · 桌面版 0.13.2</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-fix">修复</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>修复「日本藏本检索」检索后整页变窄</b>：检索前约 988px、检索后骤降到 613px。
-        根因是外壳的 <code>.av-wrap</code> 带 <code>margin:0 auto</code>，而在弹性列容器里
-        「自动外边距」会让宽度退化为<b>收缩到内容宽度</b>，于是状态文字一变短、整页跟着变窄。
-        现显式给宽度 <code>100%</code>，<b>检索前后宽度恒定</b>（实测 1012px 不变）。</li>
-      <li><b>高级筛选改为浮窗菜单</b>：不再内联展开推挤下方内容，而是绝对定位浮在结果之上，
-        <b>开合完全不影响页面布局</b>（实测检索卡片高度与结果区位置均不变）；
-        点浮窗外部或按 <kbd>Esc</kbd> 关闭，点面板内部不关。</li>
-      <li><b>桌面版换用新 logo</b>（木刻印章风：方框 + 四角圆点 + 戴笠瑞兽 + 右上「汉」）：
-        程序图标（任务栏 / 安装包 / 开始菜单）与侧栏品牌、关于页 logo 一并更换。
-        <b>网页版 logo 保持不变</b>。</li>
-      <li><b>测试分两档，加快迭代</b>：新增
-        <code>node tests/run_quick.js</code>（网页，6 套件约 75 秒）与
-        <code>node app/tests/run_quick.cjs</code>（桌面，约 96 秒）供日常改动后快速验证；
-        全量 <code>run_all.js</code> 与真机探针、发布物校验改为<b>发布打包前</b>再跑。
-        此前改一行也要跑十几个来回的重复测试。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.4.1 · 桌面版 0.13.1</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>「日本藏本检索」版面重做：筛选可折叠，页面以搜索结果为主</b>。
-        原先检索表单常驻展开（6 个字段 + 机构多选 + 操作行），占去大半个屏幕，
-        结果与详情又左右并排、各自只剩三百来像素。
-        <br>现在改为：<b>常驻一行主检索条</b>（書名 + 检索 + 筛选 + 清空）；
-        其余条件（著者名／刊年／出版者／子目／keyword／所藏机构／超时）收进
-        <b>可折叠的高级筛选区，默认收起</b>；<b>检索完成后自动收起</b>；
-        结果区用弹性布局<b>吃掉剩余的全部高度</b>（实测真机中占视口 51%，此前仅 43%）。</li>
-      <li><b>结果与详情共用一块全宽区域并切换显示</b>：点条目即全宽切到详情，
-        详情顶部有「← 返回结果」，返回后原选中行保持高亮 —— 不再左右并排挤压。</li>
-      <li><b>筛选开关带条件计数徽标，收起时同排显示一行条件摘要</b>：
-        收起状态下也能一眼看出有几项筛选在生效、这批结果是怎么查出来的。
-        摘要与状态行<b>合占同一行</b>，不额外吃掉结果区高度。</li>
-      <li><b>摘要按「提交时的条件快照」回显</b>：该站检索要跑 1–3 分钟，若期间改动表单，
-        原写法会让摘要与实际结果对不上；现记录提交瞬间的条件，保证「摘要 = 产生这批结果的条件」。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.4 · 桌面版 0.13.0</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>新增「日本藏本检索」</b>（侧栏独立分组）：应用内直连
-        <b>全國漢籍データベース</b>（京都大学人文科学研究所 附属東アジア人文情報学研究センター 运营，
-        日本 76 家机构、约 92.5 万条记录），支持按
-        <b>書名 / 著者名 / 刊年 / 出版者 / 子目 / keyword</b> 以及<b>所藏机构（可多选）</b>检索；
-        结果与详情同屏显示，可查看记录详情、四部分类、索书号、子目清单与卷头书影链接。</li>
-      <li><b>该功能仅桌面版可用</b>：原站不返回 CORS 头、只有 http 服务（从 https 页面请求属混合内容），
-        且为老旧 CGI（大结果集约 190 秒被服务器掐断）。故由 Rust 桥直连本机网络栈绕过前两点；
-        网页版不做此功能并在界面说明，不静默失败。</li>
-      <li><b>安全与稳健</b>：Rust 桥只允许访问
-        <code>kanji.zinbun.kyoto-u.ac.jp</code> 的 <code>/kanseki</code> 路径
-        （避免本命令被当作任意 URL 代理的 SSRF 出口）；
-        服务器中途掐断时<b>保留已读到的部分结果</b>并标记为「不完整」，
-        界面据此提示细化检索条件，不会把残页当完整结果展示。</li>
-      <li><b>检索小贴士</b>（已写入面板提示）：原站自动归一繁简与异体字（陶潛=陶潜、搜神記=捜神記），
-        但<b>人名异称不归一</b>（陶潛 954 条 vs 陶淵明 8 条），查某人请分别检索其各种称名。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.3.1 · 桌面版 0.12.1</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>设置窗口精简</b>：移除「个人中心」分区，只保留<b>同步设置</b>与<b>API 管理</b>。
-        桌面版打开设置默认进「同步设置」，网页版默认进「API 管理」；旧的
-        <code>settings.html#profile</code> 链接会自动落到可用分区，不再出现空面板。</li>
-      <li><b>API 管理新增「Token 用量」可视化</b>：统计每次调用返回的 token 用量并图形化展示 ——
-        累计 tokens 与调用次数、<b>输入/输出占比堆叠条</b>、其中思维链用量、
-        <b>按模型分布条形图</b>、最近 10 次调用明细（时间/模型/tokens），并可一键<b>清零统计</b>。
-        统计只写本机、不上传；桌面版与网页版共用同一份统计。</li>
-      <li><b>古籍类目查询新增「检索历史」</b>：工具栏「历史」按钮记录最近 20 条检索词
-        （带条数徽标），点任一条即<b>回填搜索框并重新检索</b>；支持单条删除与一键清空。
-        记录时机为「按 Enter / 点检索 / 输入停顿约 1.2 秒」，因此不会把半截输入也记进去；
-        历史存在本机，刷新与重开都还在。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.3 · 桌面版 0.12.0</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-fix">修复</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>修复「deepseek 返回了空内容」</b>：原因是模型名与 token 预算两处都不对。
-        <br>· DeepSeek 现行模型是 <code>deepseek-flash</code> / <code>deepseek-v4-pro</code>，
-        旧名 <code>deepseek-chat</code> / <code>deepseek-reasoner</code> 已不在官方价格表内 —— 本软件此前写死了旧名。
-        现在「API 管理」里的模型列表<b>直接向接口拉取</b>（可点「刷新列表」），不再写死。
-        <br>· 思考模式下<b>思维链与正文共享同一份 token 预算</b>，此前单条复检只给 400 tokens，
-        推理模型的预算全被思维链吃光、正文自然为空。现在默认给 8000，并可在设置里调整；
-        万一正文仍为空，会自动回落到思维链内容并明确标注，而不是只报一句「空内容」。</li>
-      <li><b>AI 复检会联网查证了</b>：复检时程序先自己上网检索，把查到的网页标题/摘要/链接
-        作为「网络查证资料」交给模型，要求它<b>据此与现有分类交叉核对</b>；结果区会显示
-        「已联网查证：N 条网络资料」及来源链接。<br>
-        说明：DeepSeek 的 API 本身<b>不提供服务端联网搜索</b>（官方文档明确「内置工具类型会被忽略」），
-        所以「上网查」由本软件完成。网页版因浏览器跨域限制无法检索，界面会明确提示。</li>
-      <li><b>不再把本表当作标准答案</b>：提示词明确告知模型「本表是人工整理、可能有错漏，请独立判断」，
-        并<b>取消了篇幅限制</b>，允许它充分论述；同时要求它说明哪些结论有网络资料支持、
-        哪些仅凭自身知识。</li>
-      <li><b>可直接复检搜索框里的书</b>：表格里选中某行 → 复检该条；<b>未选中时改为复检搜索框内容</b>，
-        因此<b>本表没有收录的书也能查</b>（提示词会带上本表中书名相近的条目供核对，
-        并说明本表未收录）。</li>
-      <li><b>输出先给一致性结论</b>：回答第一行固定为「【一致性】一致 / 可能不一致 / 不一致」，
-        与当前《中国古籍总目》分类核对；<b>不一致或可能不一致一律标红</b>并给出修改建议，
-        另附「反馈错误结果」面板（邮件 / 复制报告）。</li>
-      <li><b>导出改为右下角通知栏</b>：导出 CSV / Markdown 后，主界面<b>右下角</b>弹出横条通知，
-        显示文件名与<b>完整保存路径</b>，并提供「打开文件」「打开所在文件夹」按钮 ——
-        不再是默默下到某个不知道的文件夹里。桌面版会明确保存到系统「下载」目录（同名自动加序号，不覆盖）。</li>
-      <li><b>侧栏「打开网页版」改为直达 GitHub 项目页</b>（源码 / 更新日志 / 线上站入口都在那里）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.2.1 · 桌面版 0.11.1</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-fix">修复</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>修复「设置窗口只能打开一次」</b>：此前关闭设置窗口会把它销毁，再点「设置」就报
-        「设置窗口未创建」。现在关闭改为<b>隐藏</b>（窗口对象始终存活），可反复打开；
-        并加了一层「窗口缺失即按原参数重建」的兜底。</li>
-      <li><b>设置窗口改用自绘标题栏</b>：不再使用 Windows 原生标题栏，改为与主界面同款样式
-        （38px 高、左侧「漢」标识、中间可拖动区、右侧最小化 / 最大化 / 关闭三键，
-        双击标题栏最大化）。最大化图标随状态切换，不再叠图。</li>
-      <li><b>设置窗口显示版本号</b>：左栏底部显示当前桌面版版本，版本号直接取自程序本身，
-        不会与其它位置不同步。</li>
-      <li><b>删除「个人中心」页里重复的 API 管理</b>：该卡片与设置窗口的「API 管理」分区重复，已移除。
-        API 配置入口统一为：桌面版「设置 → API 管理」、网页版「设置页 → API 管理」。</li>
-      <li><b>桌面版侧栏精简</b>：移除「同步设置 / 账号 / 关于」三个跳转按钮，统一以设置窗口为准
-        —— 同步设置见设置窗口的「同步设置」；账号见「个人中心」（左下角用户框亦可直达）；
-        版本信息见设置窗口左栏底部。侧栏同步状态指示保留。
-        （对应视图仍可由地址直达，未删除。）</li>
-      <li><b>网页版设置页</b>：设置页在网页侧同样可用（仅保留「个人中心」与「API 管理」，
-        自动隐藏桌面版专属的标题栏与「同步设置」）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.2 · 桌面版 0.11.0</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>新增「设置」独立窗口</b>：左下角个人中心框点击后新增「设置」入口，弹出独立系统窗口，内含
-        <b>个人中心 / 同步设置 / API 管理</b> 三个分区。DeepSeek 的 API Key、调用模型、API 地址与反馈收件邮箱
-        都在「API 管理」中配置。</li>
-      <li><b>AI 复检改为「单条为主 + 长按整页」</b>：
-        <br>· <b>单击</b>工具条「AI 复检」＝复检表格中<b>选中的那一条</b>（点行即选中），结果显示在<b>搜索栏下方</b>，可<b>导出 Markdown</b>；回答只给「判定 / 分类 / 依据 / 出处」四行，力求简短省 token。
-        <br>· <b>长按</b>（约 0.65 秒）「AI 复检」＝打开弹窗，可做<b>整页复检</b>（当前页 / 当前结果抽样 / 全库抽样）或<b>提问</b>。
-        <br>· AI 面板中<b>不再显示 API 设置</b>（统一到设置窗口）。</li>
-      <li><b>复检推翻时会强提示</b>：若结论与本表类目完全不一致，该结论<b>加粗标红</b>，并提示「请截图此结果并联系软件开发者修改条目内容」，
-        同时提供<b>反馈错误结果</b>面板，可一键<b>邮件发送</b>（收件邮箱在设置中配置）或<b>复制报告</b>到剪贴板。</li>
-      <li><b>网页版同步具备该功能</b>：网页版同样可以单击/长按复检、导出 Markdown、反馈错误；
-        其 API 配置入口在「个人中心 → API 管理」（网页版没有独立系统窗口）。两处与桌面版共用同一份配置模块。</li>
-      <li><b>表头更名</b>：「合璧对应类目」→「合璧中是否有相同类目」；「合璧判定」→「是否一致」（表格与 CSV 导出一致，CSV 同时更正表头）。</li>
-      <li><b>更正上一版说明</b>：v9.1 的更新日志写「浏览器直连 DeepSeek 会被 CORS 拦截」，实测有误 ——
-        DeepSeek 接口会返回 CORS 响应头（预检 200、允许 POST 与 authorization 头），浏览器可直连，故网页版无需代理即可使用 AI 复检。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.1 · 桌面版 0.10.0</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>新增「AI 复检」（桌面版）</b>：在「古籍类目查询」页可导入 DeepSeek API Key，一键把当前筛选结果（连同《中国古籍总目》与《全球汉籍合璧工程》两套分类体系）交给 AI 逐条复核，输出总体判断、可疑条目清单与建议类目；可在同一会话继续追问。送审范围可选「当前页／当前结果抽样 100 条／全库抽样 100 条」。</li>
-      <li>API Key <b>只保存在本机</b>（桌面程序本地存储），不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek，设置页可一键清除。</li>
-      <li>桌面版侧栏「古籍类目查询」<b>移至「纪年查询」之下</b>，与其他查询入口相邻。</li>
-      <li>桌面版<b>隐藏页内的「导出 CSV / 简繁 / 切换主题」</b>三个按钮：简繁在程序标题栏已有一键切换、主题在侧栏已有「切换主题」，页内属重复入口。<b>网页版仍完整保留这三项功能</b>（网页版没有外壳替代入口）。</li>
-      <li>AI 复检依赖桌面程序转发请求（浏览器直连 DeepSeek 会被 CORS 拦截），故<b>网页版不显示该功能</b>。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v9.0 · 桌面版 0.9.0</span>
-      <span class="cl-date">2026-10-02</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li>新增「古籍类目查询」页面：检索《中国古籍总目》全量 177,107 条著录</li>
-      <li>支持模糊/多词/字段限定检索，并对输错的字做容错匹配</li>
-      <li>结果同时显示中国古籍总目分类与全球汉籍合璧工程类目的对应与判定</li>
-      <li>结果支持繁简显示与 CSV 导出</li>
-      <li>桌面版新增「古籍类目查询」视图（V0.9.0）</li>
-      <li><b>修复「干支」在繁体模式下被误显示为「幹支」</b>（本站核心概念，全站 100 余处受影响，桌面版表头即为「幹支」）；<b>并修复「周」被误转「週」</b>（西周 → 西週、周烈王 → 週烈王、周边政权 → 週边政权）。两者均为简繁映射表的既有缺陷，本次逐语境审计后按专名修正惯例改正（「后 → 後」经审计确认无误，未改）。</li>
-      <li>补充「古籍类目查询」页所需简繁词条与字符（S2T 456 → 540，旧条目零丢失）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.9 · 桌面版 0.8.2</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>桌面版：修复「最大化按钮有两个图标叠在一起」</b>（本次重点）。标题栏右侧最大化按钮内部本就备有两个图标——「最大化」方块与「还原」双框，按窗口状态只显示其中一个，但两者<b>同时显示并重叠</b>了。原因是样式表里一条针对按钮内图标的显示规则（<code>display:block</code>）<b>优先级高于</b>浏览器对 <code>hidden</code> 属性自带的隐藏规则，于是「隐藏」指令被静默覆盖。现补回一条更高优先级的兜底规则，实测<b>同时可见的图标由 2 个变为 1 个</b>，且点击最大化后正确切换为「还原」图标。</li>
-      <li><b>桌面版：「窗口」按钮旁新增一键简繁切换</b>（按反馈新增）。标题栏左上角「窗口」按钮右侧加入一个方形按钮，点击即在<b>简体／繁体之间一键对调</b>；按钮上显示的是<b>将要切换到的字形</b>（当前为繁体时显示「简」），鼠标悬停有文字说明，切换后右下角会弹出提示。<br>该按钮与页面内原有的简繁下拉<b>读写同一份设置</b>，因此两处入口始终一致——从任一处切换，另一处会同步跟随。实测点击后内嵌页面的表头文字确实由繁体变为简体、再点一次复原。</li>
-      <li><b>全站：简繁字形选择现在会被记住</b>（本次重点）。此前每次打开都是繁体，切到简体后一刷新就回到繁体。现改为<b>记住上次选择</b>，下次打开（含桌面版与网页版）保持同一字形；清除浏览器数据后恢复繁体默认值。</li>
-      <li><b>桌面版：登录后再点「账号」直接进个人中心</b>（按反馈修正）。侧栏「账号」项此前固定指向登录页，于是登录完成后点它<b>又回到登录页</b>，查看资料必须再绕一次。现在该项的<b>目标随登录状态自动变化</b>：未登录进登录页，已登录直接进个人中心，悬停提示也同步变化；退出登录后自动回落到登录页，并会离开个人中心（该页需登录才能查看）。</li>
-      <li><b>桌面版：登录成功自动进入个人中心</b>。登录页在窗口内是独立页面，登录成功后的跳转只发生在页面内部，<b>窗口导航不会跟着变</b>，造成「已经登录上了，界面还停在登录页」。现在登录成功后会自动切到个人中心并提示「登录成功」；同时侧栏头像与昵称立即刷新。</li>
-      <li><b>桌面版：修复「窗口最大化等操作点了没反应」</b>（深层成因）。此前虽已修正窗口指令的名称写法，但实测仍会<b>间歇性失灵</b>——点「最大化」后窗口要么纹丝不动，要么图标先变、随即又变回去。经逐条追踪指令收发与界面变化过程查明真正原因：点击其实是<b>生效</b>的，问题出在<b>随后的状态回读</b>上——窗口放大过程中会连续触发尺寸变化事件，而该事件会在放大动画尚未结束时去问内核要真实状态，此刻内核仍返回「未最大化」的旧值，于是<b>刚点出来的正确图标被这个旧值覆盖了回去</b>。<br>实测记录（每 60 毫秒采样一次）：点击后 +121 毫秒图标已正确变为「还原」，但 +195 毫秒又被改回「最大化」，而窗口尺寸已是放大后的数值——即“窗口放大了，图标却说自己没放大”。<br>现改为三重保障：<br>① <b>改用可重试的指令</b>——「最大化」不再使用「翻转」式指令（翻转指令一旦重试就会翻回去），改用目标明确的「最大化／取消最大化」式指令，没到位就再发一次，重复发送无副作用；<br>② <b>状态保护期</b>——程序自己改动窗口大小后的一段时间内，尺寸变化事件<b>不采信</b>回读结果，改由操作流程独占状态写入，待动画彻底结束后再做一次权威校准；<br>③ <b>二次确认</b>——保护期之外的任何回读，都要连续两次读数一致才允许改写界面，单次读到旧值不足以推翻已经正确的显示。<br>「全屏」「置顶」「按尺寸调整」同样改为「操作后回读确认」，确认到位才算成功，三轮仍未生效则明确提示「请再试一次」，不再出现「点了没反应」也毫无反馈的情况。</li>
-      <li><b>桌面版：修复「点简繁切换后下拉菜单不收」</b>（排查中一并发现）。页面右上的登录下拉里带有「简／繁」字形切换按钮；切换后菜单本应自动收起，但当所选字形与当前字形相同时（例如刷新后按习惯再点一下确认），程序会直接跳过后续流程，<b>菜单停在展开状态</b>悬在页面上，遮挡下方按钮——实测会挡住「导出」按钮导致无法点击。现调整为：<b>只要点了字形按钮就一定收起菜单</b>，与字形是否真的发生变化无关。</li>
-      <li><b>桌面版：修复「最大化后图标偶尔不跟着变」</b>（排查中一并发现）。点击最大化后，图标有概率仍停在「最大化」上，看起来同样像「点了没反应」，而窗口其实已经放大。原因是两处回读逻辑互相打架：窗口放大过程中会连续触发尺寸变化事件，该事件与点击后的状态回读<b>都会去问内核要真实状态</b>；在放大动画尚未结束时，内核仍返回「未最大化」的旧值，于是刚点出来的正确图标又被改了回去。现改为点击处理<b>独占</b>状态写入，动画期间屏蔽另一侧的回读。另修正了「按尺寸调整」的判断——该操作必然退出最大化，原先按「翻转」推断会得出相反的结论。</li>
-      <li><b>桌面版：修复「启动后前几秒点标题栏没反应」</b>（排查中一并发现，本次重点补漏）。程序刚打开的头几秒里，点最小化／最大化／关闭及简繁按钮<b>全都毫无反应</b>，等一会儿又恢复正常。实测页面时间线查明：这些按钮在页面载入约 <b>0.4 秒</b>时就已经画好、肉眼可见，但处理点击的程序（外壳脚本）要等到约 <b>3 秒</b>才被执行——中间这段两秒多的「看得见却点不动」的空窗，主因是内嵌的查询页要一次性载入数张巨大的对照数据表，占满了主线程。<br>现改为<b>两个阶段衔接</b>：解析页面时先用一段轻量脚本把这几枚按钮的点击<b>接住暂存</b>，待外壳脚本就绪后立即<b>补发一次</b>，用户那一下点击不会丢（连点多次只按一次算）。实测在页面时间 <b>0.11 秒</b>处点击最大化，窗口最终正确地放大到 1440×912、图标切为「还原」，与此前「点了没反应」的表现彻底告别。</li>
-      <li><b>桌面版：修复「最大化图标偶尔闪一下才稳定」</b>（排查中一并发现）。启动阶段的状态回读与用户点击若同时发生，回读会在放大动画期间读到「未最大化」的旧值并把图标写回错的，随后才被保护期结束后的权威校准纠正——视觉上就是图标先跳错再跳回。现已让启动回读遵循与点击相同的保护规则：动画期间不采信回读，把状态判断让给正在执行的点击流程。</li>
-      <li><b>桌面版：新增「可直接分享给他人」的发布包</b>（本次新增）。此前只有开发用的编译产物，无法直接发给别人使用。现提供两种形式，一份压缩包即可完整分享：<br>① <b>安装版</b>（约 4 MB）——双击按提示安装，自动创建开始菜单与桌面快捷方式，可随时从系统「应用」中卸载；<br>② <b>免安装版</b>（约 12.5 MB）——<b>单个文件，双击即用</b>，不写注册表、不在系统留痕，可放在 U 盘或任意目录，删除文件即等于卸载。<br>压缩包内另附<b>《使用说明》</b>（含安装方式、系统要求、功能简介、数据存放说明）与 <b>SHA256 校验值</b>（便于确认文件在传输中未损坏）。<br>发布前已实测两种形式：免安装版复制到<b>空目录</b>（仅此一个文件、无任何配套资源）仍能完整运行，全部页面、工作手册与窗口操作正常（17 项全通过）；安装版在临时目录<b>静默安装 → 启动验证 → 卸载</b>全链路通过（12 项全通过），确认「装得上、能用、卸得掉」。</li>
-      <li><b>全站：新增简繁切换自动化测试</b>。网页版 21 项（接口可用性、偏好持久化、默认值回归、往返切换、非法值回退、页内入口兼容），桌面版 36 项（图标数量与切换、窗口状态竞态复测、按钮位置与可见性、实际字形与表头变化、账号路由两态、退出回落、个人中心加载、真实表单登录、<b>启动早期点击不丢失</b>），便于日后回归。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.8 · 桌面版 0.8.1</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>桌面版：修复「窗口最大化等操作无法使用」</b>（本次重点）。窗口栏的多数按钮、以及「窗口」菜单里的<b>最大化／全屏／置顶／按尺寸调整</b>等项点了均无反应，最小化与关闭却正常。原因是发送给程序内核的<b>指令名称大小写不匹配</b>：内核只认下划线写法，而代码用的是驼峰写法，被权限校验直接拒绝。仅有「最小化／最大化／关闭」等单词指令两种写法恰好同形，因此<b>看起来只有一部分失灵</b>。现已统一为内核要求的写法，并同步修正了「按尺寸调整」与边缘拖拽缩放的参数格式。<br>附带改进：最大化状态不再靠本地变量取反推断，而是<b>每次操作后向内核回读真实状态</b>，避免出现「按钮显示最大化、窗口其实没变」的错位。实测 22 条窗口指令全部通过，点击「最大化」窗口尺寸由 1280×800 变为 1440×912、按钮文字正确变为「还原」。</li>
-      <li><b>桌面版：修复「程序名重复显示」</b>（按反馈修正）。自绘标题栏中央的程序名与侧栏品牌栏的程序名在同一屏内上下只隔约 50 余像素，重复显示。现<b>移除标题栏那一处</b>，保留侧栏品牌栏（该处为反馈要求保留）；标题栏中部仍为可拖动区域，<b>双击即可最大化／还原</b>，窗口名仍可在任务栏与 Alt-Tab 中看到。</li>
-      <li><b>全站：修复「登录和注册都用不了」</b>（本次重点）。此前注册与登录一律提示失败。经查，配置中填写的云端认证服务地址<b>实际并不存在</b>（域名解析返回 NXDOMAIN，即该子域从未部署），而此前的判断逻辑仅检查「是否填写了凭据」，未验证地址是否真的可用，于是每次都发起注定失败的请求。<br>现改为：启动时先<b>探测认证端点是否可达</b>，不可用则自动切换为<b>本地账号模式</b>——注册与登录均在本地完成（密码仅存哈希值，不保存明文），无需邮箱验证即可登录，登录状态与头像正常保存。端点将来恢复可用时，无需改动即自动切回云端认证。桌面版与网页版共用同一套逻辑，<b>两端一并生效</b>。</li>
-      <li><b>全站：修复注册／登录的两处安全与体验缺陷</b>（排查中一并发现）。<br>① 原先在本地模式下<b>任意邮箱配任意密码都能登录</b>，密码输错也会放行；现改为严格校验：密码有误提示「密码错误」，邮箱未注册则提示「该邮箱尚未注册」并附「前往注册」链接。<br>② 注册成功后跳转回登录页时没有成功提示，容易让人误以为注册失败；现明确显示「注册成功！请使用刚才设置的邮箱与密码登录」，并<b>自动回填邮箱</b>。</li>
-      <li><b>全站：新增登录／注册自动化测试</b>。网页版 22 项、桌面版 19 项，覆盖注册、登录、登录态回显、密码错误拒绝、未注册邮箱拒绝、注册回跳提示等完整链路，便于日后回归。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.7 · 桌面版 0.8.0</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-      <span class="cl-tag t-fix">修复</span>
-    </div>
-    <ul>
-      <li><b>桌面版：修复「打开后不能用、容易崩溃」</b>（本次重点）。此项实为<b>两个叠加的故障</b>，均源于本机安全策略拦截浏览器内核（WebView2）的子进程，已分别处置：
-        <br>① <b>白屏</b>：内核的图形子进程被拦截，启动约 6～12 秒后消亡，窗口只剩一片空白。现通过调整内核启动参数解除该限制，页面得以正常载入。
-        <br>② <b>状态不保存</b>（更隐蔽、影响更广）：承担数据落盘的存储子进程同样被拦截，导致<b>写入的数据当场看着有效、下一次读取即消失</b>。表现为：切换主题「点了没反应」、侧栏收起状态、登录状态、快捷跳转自定义项、编目记录等<b>全部无法记忆，重启即复位</b>——这正是「不能用」的主因。现已一并解除。
-        <br>验证方式：以真实程序窗口直连调试接口实测，页面载入、数据跨次读取留存、连点两次主题可正常明暗来回、侧栏状态落盘、连续运行 20 秒无异常，共 7 项全部通过。
-        <br>③ <b>附带加固：单实例保护</b>。重复点击图标时不再新开实例，而是唤起已打开的窗口；万一旧实例已无响应，程序会自动结束它并正常启动，不会出现「点了图标毫无反应」。注：此前将该问题仅归因于缺少单实例保护，实际单实例保护<b>并不能</b>解决白屏与状态不保存，真正原因是上述内核子进程被拦截，特此更正。</li>
-      <li><b>桌面版：品牌栏完整保留</b>（按反馈修正）。上一版误将侧栏顶部的品牌区（「漢」字标 +「古代史及汉籍研究工具」+「Windows 桌面版」）一并删除，本版<b>已完整恢复</b>，仍位于侧栏最顶部。</li>
-      <li><b>桌面版：「收起侧栏」与「窗口」按钮移入系统标题栏位置</b>（按反馈修正）。上一版把两个按钮放在侧栏内部；现改为<b>自绘窗口标题栏</b>——即原先显示最小化、最大化、关闭三键的那一条。左侧为「收起侧栏」与「窗口」菜单，中间显示程序名（可拖动窗口、双击最大化／还原），右侧为最小化、最大化／还原、关闭三键。副作用是窗口四周不再有系统边框，故同时补齐了<b>四边与四角的拖拽缩放</b>热区，拖动窗口边缘调整大小的操作与普通窗口一致。</li>
-      <li><b>桌面版：编目规范的三项导览改为弹窗</b>（按反馈修正）。「细则查阅／分类表查询／工作手册」三项右侧各有一个 ▸ 按钮，点击后<b>在主区内弹出浮层面板</b>显示章节导航／分类导航／工作手册信息卡，不再在侧栏内就地展开。这样侧栏高度始终稳定，不会再出现「一展开导航项就被挤下去」的情况；点击面板内条目即跳转并自动关闭，Esc 或点面板外也可关闭。</li>
-      <li><b>桌面版：侧栏登录菜单改为向上弹出</b>（按反馈修正）。点击侧栏底部的登录区后，菜单改为<b>向上弹在按钮上方</b>，不再向下展开把「登录」按钮顶走。菜单位置固定，操作更顺手。</li>
-      <li><b>桌面版：程序图标底色改为黑色</b>（按反馈修正）。图标由原先的藏青底白「漢」字改为<b>黑底白「漢」字</b>，与侧栏底色统一；同时网页版标签页图标与「关于」页内的图标同步改黑。</li>
-      <li><b>桌面版：版本号升至 0.8.0</b>：程序包配置、依赖锁定文件与「关于」页版本号同步更新。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.6 · 桌面版 0.7.0</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>桌面版：左上角改为「收起侧栏」+「窗口」菜单</b>：移除了原品牌文字占位，改为两个实用按钮（<b>v8.7 起此二按钮已移至系统标题栏位置，见 v8.7</b>）。<b>「收起侧栏」</b>点击后左侧栏整体收起，主内容区自动铺满窗口，收起状态会被记住，下次打开程序保持原样。<b>「窗口」</b>菜单提供最小化、最大化／还原、关闭窗口、窗口置顶、全屏（F11）、窗口居中，以及标准（1280×800）／宽广（1600×1000）／紧凑（1100×720）三档尺寸预设，改尺寸后自动居中。</li>
-      <li><b>桌面版：侧栏底部新增登录区</b>：在「切换主题／打开网页版」上方加入用户区——未登录时显示「登录」并提示「登录后可同步编目记录」，点击进入账号页；登录后显示头像与昵称，下拉可进「个人中心」或「退出登录」（退出仅清除登录状态，本地资料保留）。登录区与网页版共用同一份账号数据，在软件内登录网页版同样生效，反之亦然。</li>
-      <li><b>桌面版：「账号」入口并入侧栏</b>：侧栏「应用」组新增「账号」项，在软件内直接完成登录、注册与个人中心操作，无需切到浏览器。「应用」组现含快速跳转、编目记录、同步设置、账号、关于五项。</li>
-      <li><b>桌面版：三个界面与全站风格统一</b>：<b>编目记录</b>、<b>同步设置</b>、<b>关于</b>三页原先各自为政的旧样式（灰底方块、系统字体标题）整体重做，改用与网页版一致的视觉语言——衬线体标题、黑白灰配色、圆角卡片、统一按钮（主按钮黑底白字）与输入框，并补齐深色主题适配。现在三个界面与内嵌网页版页面观感连贯，不再是「两个程序拼在一起」。</li>
-      <li><b>桌面版：程序图标</b>：新增桌面程序图标——白色「漢」字标（<b>v8.7 起底色由藏青改为黑</b>），Windows 任务栏与桌面快捷方式均可辨识（含 16 至 256 像素多档尺寸）。</li>
-      <li><b>桌面版：导航重排</b>：原「快速跳转」从「纪年查询」组、「编目记录」从「说明文档」组移入「应用」组，使分组语义更清晰——前两组为查阅类内容，后一组为工具类功能。侧栏导航由 10 项增至 11 项。</li>
-      <li><b>桌面版：矮窗口适配</b>：新增「账号」项后侧栏在最小窗口（960×600）下会溢出，已压缩各组间距与字号，保证最矮窗口下全部导航项仍一屏可见、无需滚动。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.5 · 桌面版 0.6.4</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>桌面版：外壳品牌与网页版统一</b>：桌面版的窗口标题栏、程序内首页顶栏与「关于」页此前仍显示旧品牌「日本汉籍编目工具」，本次统一改为「古代史及汉籍研究工具」，与网页版 V8.0 后的全站名称保持一致。共修正 6 处（窗口标题、顶栏名称、关于页标题与介绍文字、程序包名与说明、程序内部包标识）。</li>
-      <li><b>桌面版：版本号升至 0.6.4</b>：「关于」页版本号、程序包配置、构建配置与依赖锁定文件共 4 处版本号同步更新，避免「关于」页显示与实际程序版本不一致。</li>
-      <li><b>说明：账号系统品牌「Juvenile」为有意保留，非漏改</b>：登录、注册、个人中心、服务条款、隐私政策、管理员 6 个账号类页面继续使用品牌名「Juvenile（逐风少年）」与「J」图标，与研究工具主品牌「古代史及汉籍研究工具」并存，属<b>刻意设计</b>（账号系统为独立的通用登录体系，不跟随研究工具更名）。今后核对品牌一致性时请注意：<b>账号类 6 页保留「Juvenile」是预期状态</b>，不必修改；全站标签页图标统一为「J」亦为既定设计（见 v6.1）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.4 · 桌面版 0.6.3</span>
-      <span class="cl-date">2026-09-29</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>桌面版：首个可直接运行的 Windows 程序</b>：完成 Windows 桌面版的编译，生成可独立运行的 <b>kanseki-app.exe</b>（约 13 MB，界面资源已内置，双击即用，无需安装浏览器或其他依赖）。此前仅存在源码、从未成功构建过——本次修复了 4 处阻断构建的问题（详见下方「修复」）。</li>
-      <li><b>桌面版：修复构建被阻断</b>：① <code>Cargo.toml</code> 声明了 <code>[lib]</code> 目标但 <code>src/lib.rs</code> 并不存在（移动端模板残留），导致 cargo 无法解析项目；② 依赖链中 <code>schemars 0.8</code> 需要的 <code>indexmap</code> 在当前工具链下编译报错（缺少默认泛型参数），已显式启用其 std 特性修补；③ <code>PROPFIND</code> 是 WebDAV 扩展方法，<code>reqwest</code> 没有对应常量，已改用运行时构造方式；④ 打包命令的相对路径基准有误，导致构建前置步骤找不到脚本。以上均已在代码中注明原因，避免日后被误删。</li>
-      <li><b>桌面版：打包流程可重复执行</b>：修复了构建脚本在「目标文件已存在」时报错中断的问题（Windows 文件系统限制），现在连续重复构建不会失败。</li>
-      <li><b>桌面版：顶部导航全部并入左侧栏</b>：Windows 桌面版把「纪年查询 / 快速跳转 / 编目规范 / 说明文档」以及「编目记录 / 同步设置 / 关于」统一收进左侧栏，页面内不再重复出现顶部导航条；由原来的 4 个入口扩展为 10 个，分组为「纪年查询 / 编目规范 / 说明文档 / 应用」。</li>
-      <li><b>桌面版：编目规范侧栏合并进主侧栏</b>：编目规范页原来自带的深色侧栏（内容导览 + 章节导航）整体并入软件主侧栏——「细则查阅 / 分类表查询 / 工作手册」三项可直接在左侧栏切换；「章节导航」随所选版本（2023 旧版 / 2025 新版）自动列出章节，点章节即滚动定位；「分类表查询」显示分类导航并联动表格；「工作手册」显示 PDF 信息卡。</li>
-      <li><b>桌面版：新增「切换主题」与侧栏状态区</b>：左侧栏底部新增「切换主题」按钮，一键在明/暗色间切换并同步到所有内嵌页面；侧栏常驻显示同步状态指示灯。</li>
-      <li><b>桌面版：页面内导航精简</b>：编目规范、快速跳转、使用介绍、更新日志四个内嵌页面不再显示自带顶栏；纪年查询页保留搜索框与「简 / 繁」字形切换、主题按钮（导航部分已上移到侧栏）。「关于」页的「使用介绍 / 更新日志」按钮改为在软件内直接切换视图。</li>
-      <li><b>桌面版：内嵌页面按需加载</b>：各内嵌页仅在首次点击时加载，启动更快；侧栏与内嵌页的主题、分类筛选、章节高亮保持双向联动。</li>
-      <li><b>桌面版：修复各页面内容显示不全</b>：修正内嵌页高度失效问题（编目规范等页面此前只显示很窄一条），现在「细则查阅 / 分类表查询 / 工作手册」内容区均完整铺满窗口；同时修正顶栏隐藏后残留的空白与「快速跳转」浮动输入框的悬空错位，侧栏底部「切换主题 / 打开网页版」改为吸底常显。</li>
-      <li><b>桌面版：内嵌内容改为实时同步网页版</b>：修正桌面版内嵌页面长期使用旧版快照的问题——此前它停留在 v6.0 时期的副本，缺少其后 7 个版本的全部内容（周边政权数据、《使用介绍》改版、手机端适配、卡片网格排布等），且缺少三个必要脚本导致部分交互失效。现改为打包时从网页版源文件实时同步，今后网页版更新即自动生效，不会再出现「软件版内容陈旧」。</li>
-      <li><b>桌面版：补齐账号相关页面</b>：登录、注册、服务条款、隐私政策、个人中心页面一并纳入桌面版，页面内的账号入口不再指向空白页。</li>
-      <li><b>桌面版：侧栏在矮窗口下完整可见</b>：压缩侧栏间距并为矮窗口单独适配，在最小窗口（960×600）下 10 个导航项与底部按钮也能一屏显示，不再需要滚动查找。</li>
-      <li><b>桌面版：全量回归测试通过</b>：网页版与桌面版共 20 余套测试全部跑通（网页版 B2–B18 及各项专项测试；桌面版单元测试 92 项、界面测试 127 项）。过程中修正了 3 处会随版本推进而误报的测试断言（硬编码的年月与版本号、依赖外部网站可达性的跳转测试），使测试结果更可靠地反映真实功能状态。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.3</span>
-      <span class="cl-date">2026-08-22</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>卡片模式横向排布 + 列数可调</b>：电脑端卡片视图由「一卡拉全屏」改为横向网格排布，默认 4 列、可切换 6 列（视图切换旁新增「4列/6列」按钮，选择持久化）；窗口变窄时自动降为 3/2/1 列，移动端保持单列。</li>
-      <li><b>卡片视图按年号独立复制</b>：修复卡片视图中「其他朝代」年份复制是一大串的问题——现与表格一致，每个年号都有独立复制按钮（如「日本·天正」「高丽·xx」分开复制），不再整段复制。</li>
-      <li><b>快捷筛选支持整朝筛选</b>：快捷筛选右列顶部新增「选择整个朝代」按钮——点击一次即筛选该朝代全部年份，也可再点年号精确到某皇帝；另有「全选本朝年号/清空本朝年号」快捷按钮，筛选更灵活。</li>
-      <li><b>组合搜索：汉字+拼音/数字</b>：支持「年号+拼音干支」与「年号+数字」混合查询——输入「光绪wushen」直接命中「光绪戊申」年，「光绪3」命中「光绪三年」，「光绪1843」直接定位公历 1843 年；搜索建议同步给出组合候选。</li>
-      <li><b>干支错写「猜你想搜」</b>：古籍中「己」常误写为「巳」（如「己巳」写成「巳巳」、「己卯」写成「巳卯」）。输入此类错写时，表格上方弹出「干支错写提醒」框，提示正确干支并列出对应年份，同时自动用修正后的干支显示搜索结果并弱高亮。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.2</span>
-      <span class="cl-date">2026-08-21</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>全站手机端适配（11 页）</b>：为「手机软件化」第一步——所有页面新增顶部汉堡按钮 + 右侧滑出抽屉导航（含字形切换/登录入口），≤768px 自动启用；桌面端布局完全不变。</li>
-      <li><b>纪年查询卡片视图</b>：新增「表格/卡片」双视图切换（桌面端可自由切换并记忆）；移动端强制卡片式布局——一行一卡，保留年份/干支/中国/其他朝代/备注/生肖全部信息，触屏友好（复制按钮常显）。</li>
-      <li><b>快捷筛选全屏底部抽屉</b>：移动端快捷筛选改为从底部滑出的全屏抽屉（左侧朝代 + 右侧年号），带安全区适配。</li>
-      <li><b>数据覆盖层 + 大事记（管理端配套）</b>：新增 overlay.js 数据层——管理员在后台录入的朝代/年号（kanseki_overlay）、大事记（kanseki_events）、编目规范覆盖（kanseki_catalog_overlay）统一经 localStorage 存储、查询页优先显示；同源多标签页自动同步刷新。</li>
-      <li><b>管理员工作台移动端适配</b>：工作台指标卡、数据面板在窄屏单列排布；新增编辑抽屉（edit-drawer）用于录改数据。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.1</span>
-      <span class="cl-date">2026-08-17</span>
-      <span class="cl-tag t-fix">修复</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>修复登录后重新进入「登录信息/头像丢失」问题</b>：根因是 Supabase 默认开启邮箱验证，未验证账号登录返回 400「账号或密码错误」，登录从未成功、浏览器自然不保存登录态（头像其实一直在，只是登不进去看不到）。现新增<b>本地账号兜底</b>——注册时同步在浏览器本地保存账号（密码仅存 SHA-256 哈希），真实模式登录失败时自动回退本地账号校验，<b>同一浏览器内注册的账号无需邮箱验证即可登录</b>，登录态与头像可持久保留。</li>
-      <li><b>登录/注册页体验优化</b>：注册成功但 Supabase 需邮箱验证时，明确提示「已保存本地账号，可直接登录」；登录失败时根据是否存在本地账号给出针对性提示。</li>
-      <li><b>说明</b>：登录数据保存在浏览器 localStorage，按「源」隔离（localhost 与 127.0.0.1 互不可见属正常）；清理浏览器数据/无痕模式会清除本地账号，跨设备登录仍需 Supabase 账号（建议完成邮箱验证）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v8.0</span>
-      <span class="cl-date">2026-08-17</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>日本部分扩展为「其他朝代」</b>：纪年查询表「日本时代/日本年号/在位天皇」三列更名为「其他朝代/年号/在位君主」，除日本外新增朝鲜半岛（高句丽、新罗、泰封、后百济、高丽、朝鲜王朝）、渤海、云南（南诏、大理）、越南（前李朝、丁朝、前黎朝、李朝、陈朝、胡朝、后黎朝、莫朝、后黎朝后期、阮朝）等 19 个周边政权的约 230 个年号，全部支持一键复制；「在位君主」列改为鼠标悬停显示完整君主名，默认省略显示。</li>
-      <li><b>快捷筛选支持单独筛选朝代/时代</b>：快捷筛选左列除中国朝代、日本时代外，新增朝鲜半岛/东北/云南/越南分区的周边政权，点击朝代名即可单独筛选该政权全部年号（不必再逐年号点选）。</li>
-      <li><b>全站品牌名更新</b>：左上角标题由「日本汉籍编目工具」更名为「古代史及汉籍研究工具」（繁体「古代史及漢籍研究工具」），同步更新各页标题、meta 描述、CSV 导出文件名与控制台标识。账号类 6 个页面（登录/注册/个人中心/服务条款/隐私政策/管理员）因其使用独立品牌「Juvenile」而不在更名范围内，属预期设计（见 v8.4 说明）。</li>
-      <li><b>无年号时期友好显示</b>：日本历史上无年号时期（如飞鸟时代 655-701 等）由「飞鸟·—四年」改为「飞鸟·无年号」，不再生成复制按钮、不再干扰搜索匹配。</li>
-      <li><b>重名提醒范围扩大</b>：年号重名提醒文案更新为「中國與其他朝代（日本、朝鮮、越南等）」，周边政权年号纳入重名检测（如「天授」= 武周 + 高丽、「建福」= 越南 + 渤海等）。</li>
-      <li><b>管理员工作台同步「其他朝代」</b>：工作台「日本时代」指标卡更名为「其他朝代」，数据分布面板并入周边政权（按年号数排序前 5，标注「周边」徽标），数据源 site-data.js 同步提取 19 个周边政权数据。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v7.2</span>
-      <span class="cl-date">2026-08-17</span>
-      <span class="cl-tag t-opt">修复</span>
-    </div>
-    <ul>
-      <li><b>头像裁剪「所见即所得」修复</b>：修复裁剪预览与最终头像不一致的问题——1) 弹窗打开时先显示再初始化，避免隐藏状态下图片不可见；2) 拖拽/缩放统一以图片中心为锚点、以裁剪圈中心为输出中心，坐标计算与显示完全一致；3) 拖拽范围限制在图片内，裁剪圈不会拖出图片外；4) 拖拽结束鼠标落在遮罩上不再误关弹窗；5) 图片过小（小于裁剪圈）时仍可自由拖动定位。修复后所见即所得：圆框内显示什么，最终头像就是什么。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v7.1</span>
-      <span class="cl-date">2026-08-17</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>头像上传支持裁剪</b>：个人中心上传图片后先进入裁剪弹窗——可拖动图片、滑块缩放（或 −/+ 按钮微调），圆形裁剪框内所见即所得，确定后输出 256px 圆形头像。图片上限放宽至 5MB；Esc/遮罩点击/取消按钮均可关闭。</li>
-      <li><b>全站标签页图标统一为「J」</b>：纪年查询/使用介绍/编目规范/更新日志/快速跳转五页的标签页小图标由「漢」改为与登录页一致的 Juvenile「J」黑色圆角标（此前登录/注册/条款/隐私/管理员/个人中心页已为「J」），全站 11 个页面图标风格统一。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v7.0</span>
-      <span class="cl-date">2026-08-17</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>个人中心页（新）</b>：新增 profile.html 个人中心——头像自定义（上传图片 / 颜色+文字 / 恢复默认）、昵称编辑、邮箱展示、退出登录；未登录访问自动跳转登录页。头像与昵称保存在浏览器本地（kanseki_profile），仅登录后可见。</li>
-      <li><b>表头登录区改为头像+昵称</b>：登录后五页（纪年查询/使用介绍/编目规范/更新日志/快速跳转）右上角「登录」替换为头像+昵称下拉，内含「个人中心」「退出登录」（纪年查询页保留显示字形切换）；未登录仍显示「登录」。用户登录后不再「感觉跟没登录一样」。</li>
-      <li><b>登录后状态同步</b>：登录成功即写入本地用户信息（邮箱/昵称），全站各页刷新即显示头像；昵称、头像修改后全站同步生效。</li>
-      <li><b>头像方案</b>：优先用户自定义（图片 base64 或颜色+文字），未设置时按邮箱哈希自动生成彩色首字母头像。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v6.4</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>管理员角色判断增强（适配线上部署）</b>：管理员判定改为「用户角色优先 + 白名单兜底」——支持 user_metadata.role / app_metadata.role（'admin'/'administrator' 或布尔值），不再依赖本地白名单文件。线上部署无需 admin-config.js 即可用：在 Supabase Dashboard 给管理员用户设置 role='admin' 即生效。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v6.3</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>管理员登录升级为 Supabase 认证（方案A）</b>：管理员工作台登录改用 Supabase 邮箱+密码认证，登录后校验邮箱是否在管理员白名单（window.ADMIN_CONFIG.emails）或用户角色为 admin；非管理员账号登录会被拒绝并提示「该账号无管理员权限」。会话信息（含邮箱）24 小时有效。未配置 Supabase 时保留本地演示登录。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v6.2</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>Supabase 真实接入</b>：填入正式 Project URL 与 anon key，登录/注册从演示模式切换为真实邮箱密码认证（Supabase 托管，注册用户需邮箱验证后登录）。管理员工作台用户列表自动切换为「Supabase 已连接」状态，可在 Supabase Dashboard → Authentication → Users 中管理。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v6.1</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>管理员入口改为隐藏触发</b>：管理员登录入口不再显示在页面任何位置——在登录页或注册页连续快速点击品牌「Juvenile」区域 5 次，即可进入管理员登录界面。普通用户正常单击品牌仍会返回首页，不受影响。</li>
-      <li><b>管理员凭据去敏</b>：更新日志与登录界面不再展示任何管理员演示身份信息，避免公开发布后被滥用；管理员账号密码仅由部署方在服务器端（window.ADMIN_CONFIG）配置。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v6.0</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>深浅色模式全站同步</b>：主题偏好统一存储于全站共用键（localStorage.theme），在登录页、注册页或任意页面切换深浅色后，进入其他任何页面（主页、编目规范、使用介绍、更新日志、快速跳转、管理员工作台、条款、隐私页）均保持同一主题，不再出现"登录页选了深色、进主页变浅色"的情况。</li>
-      <li><b>Supabase 接入（预留）</b>：新增 supabase-config.js 统一管理 Supabase 配置与认证封装（signIn / signUp / signOut / getSession）。当前未填入真实 URL 与 Key 时自动进入演示模式（本地模拟登录/注册），配置真实凭据后即切换为真实认证。</li>
-      <li><b>管理员工作台（admin.html）</b>：新增管理员工作台页面，需管理员身份验证后进入；含站点数据总览（总记录、中国朝代、日本时代、注册用户）、中国朝代/日本时代数据分布图表、用户列表（Supabase 配置后自动切换真实用户管理）。管理员入口采用隐藏触发方式，登录会话 24 小时有效，支持退出登录。</li>
-      <li><b>登录/注册表单接入认证</b>：登录与注册表单已接入 SupabaseAuth 封装：真实模式走 Supabase 邮箱密码认证（注册需邮箱验证），演示模式本地模拟成功并写入本地用户信息。</li>
-      <li><b>条款与隐私页支持深色主题</b>：服务条款、隐私政策页面补全主题应用逻辑，跟随全站深浅色设置。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v5.1</span>
-      <span class="cl-date">2026-08-16</span>
-      <span class="cl-tag t-new">新增</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>快捷筛选浮窗</b>：纪年查询的朝代/年号筛选改为浮窗式——记录数右侧新增「快捷筛选」按钮，点击展开两栏浮窗（左：中国朝代 + 日本时代，右：年号），原顶部朝代/年号/日本时代标签筛选区移除，界面更清爽。</li>
-      <li><b>年号按皇帝分组</b>：浮窗内各朝代/时代的年号按时间顺序排布，同一皇帝的年号归为一组（帝号加粗、名字小字跟随，如「唐太宗 李世民」），既可选单个年号，也能直观按皇帝浏览。</li>
-      <li><b>选中框与一键清除</b>：选中的朝代、年号以圆角框沿「快捷筛选」按钮向右依次排列，点击框上 × 可单独移除；末尾垃圾桶按钮一键清空全部筛选，清空后自动隐藏。</li>
-      <li><b>登录入口右置 + 用户菜单</b>：五页导航的「登录」移至表头最右侧（深浅色切换按钮右边），并加下拉箭头；纪年查询页的下拉内含「显示字形（简/繁）」切换（原表头简/繁按钮并入此处，为后续个人中心预留），其余四页下拉含登录/注册入口。</li>
-      <li><b>登录/注册页「游客访问」</b>：登录、注册页右上角「深色」按钮旁新增「游客访问」按钮，不登录也能直接进入主页查看内容；登录页品牌「J」图标调小，与「Juvenile」文字比例协调。</li>
-      <li><b>界面统一简体</b>：除纪年查询结果内容可切换简繁外，全站交互界面（含编目规范页）统一为简体；编目规范页界面文字与 2025 新版细则正文均转为简体显示。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v5.0</span>
-      <span class="cl-date">2026-08-15</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>登录与注册页面</b>：新增 login.html（登录）与 signup.html（注册）页面，黑白极简卡片式设计，品牌名 Juvenile（逐风少年），支持深浅主题切换，表单含基础校验（邮箱格式、密码长度、两次密码一致）。</li>
-      <li><b>服务条款与隐私政策</b>：新增 terms.html 与 privacy.html 两个文档页面，登录/注册页底部均提供条款链接。</li>
-      <li><b>全站导航新增「登录」入口</b>：五页导航栏统一加入「登录」链接（繁体页显示「登錄」）。</li>
-      <li><b>登录体系规划</b>：登录/注册表单已预留 Supabase 接入口（邮箱 + 密码认证），后续接入后即可实现真实的注册、登录与用户数据存储。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.3.2</span>
-      <span class="cl-date">2026-08-15</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>横线下方新增小字标题</b>：精准结果分隔横线的下方、年号全部年份的上方，左上角新增一行小字「该年号下的所有年份」，明确提示横线以下的内容范围（简繁随界面语言切换）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.3.1</span>
-      <span class="cl-date">2026-08-15</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>精准命中行去除描边</b>：精准命中行不再有任何描边强调，与正常行完全一致的视觉，避免命中年份过于突兀。</li>
-      <li><b>分隔横线间距加大</b>：精准结果下方的居中横线与上下表格的间距适当加大，分隔更清晰、不拥挤。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.3</span>
-      <span class="cl-date">2026-08-15</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>删除「常用年号」快捷区</b>：移除筛选栏新增的「常用年号」快捷标签，改为逐个复核每个朝代的年号是否齐全（中国 22 朝代共 526 个年号名均已确认完整）。</li>
-      <li><b>年号数据修正</b>：修复辽朝年号占位符「-」导致筛选出现空标签的问题（神册年号起始年修正为 916 年）；补全西夏缺失的「皇建」年号，修正「应天」「光定」年份区间。</li>
-      <li><b>精准查询展示改版（横线分隔）</b>：精准命中行下方以居中的横线分隔，横线下方完整展示该年号在归属朝代/时代内的全部年份（命中年在前，其余按年份升序），不再只显示前后 2 年，方便一次性核对整个年号区间。</li>
-      <li><b>精准行强调样式回归</b>：精准命中行改回与正常行一致的视觉（此前的深黑胶囊样式已移除）。</li>
-      <li><b>回车搜索跳转定位修复</b>：搜索年号回车后正确跳转到该年号第一年（或精准命中年），不再因排序错位跳到中间年份。</li>
-      <li><b>跨朝代年号归属修正</b>：新增年号—朝代/时代归属映射表，崇祯等跨朝代年号只归原政权（如崇祯只属明 1628–1644），不再错误归入后续朝代（如清 1644）。</li>
-      <li><b>重名提醒归属去污染</b>：相同年号高亮提醒框的朝代/年份区间改从归属映射表获取，不再因同年行合并导致朝代归属污染。</li>
-      <li><b>搜索后关闭建议浮层</b>：搜索提交后自动关闭搜索建议浮层，避免浮层遮挡精准结果行。</li>
-      <li><b>跳转滚动补偿固定栏偏移</b>：搜索跳转时补偿顶部固定栏（导航栏＋筛选栏）的高度，精准结果行不再被固定栏遮挡。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.2</span>
-      <span class="cl-date">2026-08-15</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>精准查询自动展示临近年份</b>：查询「年号＋年份」（如道光三年）或「年号＋干支」（如道光丁酉）精准命中单一目标年后，在该行下方隔行展示前后各 2 年的临近记录，并标注「猜你会需要」分组标签，省去翻找前后相似年份的时间。</li>
-      <li><b>精准行与临近行视觉区分</b>：精准命中行带轻微描边强调，临近行整体弱化（半透明＋次级色），避免复制错年份或看错行。</li>
-      <li><b>日本年号命中闪烁提醒</b>：搜索日本专属年号（如大化）时，结果行的「日本年号」单元格闪烁两次高亮，提醒你检索的是日本年号。</li>
-      <li><b>相同年号高亮提醒框</b>：当检索的年号在中国历史上被多个朝代使用（如太和、建武），或同时是中国与日本年号（如贞观、天保、嘉庆），表格上方显示高亮提醒框，列出所有出现的朝代/时代与年份区间，避免查错对象。</li>
-      <li><b>常用年号快捷区</b>：筛选栏新增「常用年号」快捷标签（含贞观、开元、永乐、万历、乾隆等 80 余个高频年号），无需先选朝代即可一键筛选，复核并确认数据完整（贞观：唐 627–649、西夏 1101–1113、日本 859–877 均已收录）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.1</span>
-      <span class="cl-date">2026-08-14</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>移除浮动侧边栏</b>：快速跳转页不再使用左侧浮动侧边栏，快捷网站统一以等宽等高的标签网格展示，界面更简洁。</li>
-      <li><b>精简页面文案</b>：删除页头说明文字与地址栏输入框的占位提示，页面更清爽。</li>
-      <li><b>标签等宽等高</b>：快捷网站标签卡片改为统一尺寸的正方形网格（响应式自适应列数），视觉整齐划一。</li>
-      <li><b>支持自定义标签</b>：网格末尾新增「＋ 添加标签」按钮，可自由添加自己常用的网站（自定义名称＋网址），添加后可随时删除。</li>
-      <li><b>标签自动持久化</b>：自定义标签自动保存在本地浏览器中，每次进入页面都会保留，无需重新配置。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v4.0</span>
-      <span class="cl-date">2026-08-14</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>「嵌入」页重做为「快速跳转」页</b>：顶部导航「嵌入」改为「快速跳转」。页面全面重做，不再使用 iframe 内嵌，改为直接跳转目标网站，为将来桌面版/手机版 APP 化铺路。</li>
-      <li><b>自定义页面跳转</b>：页面右上角新增一体化搜索栏（输入框＋跳转按钮，毛玻璃浮动样式），输入网址或域名即可自动补全协议并在新标签页打开；支持 Enter 快捷提交，空输入有友好提示。</li>
-      <li><b>快捷页面跳转（浮动侧边栏）</b>：左侧新增毛玻璃浮动侧边栏，内置 7 个常用网站（典津全球汉籍影像开放集成系统、国学大全、日本所藏中文古籍数据库、日本国立公文书馆、古籍觅宝、PaddleOCR、GitHub），点击即达。</li>
-      <li><b>侧边栏可收缩为标签按钮组</b>：侧边栏可一键收缩为竖排标签按钮组（图标共享边框样式，hover 显示名称），再次点击展开；收缩状态自动记忆，窄屏默认收缩。</li>
-      <li><b>快捷网站卡片网格</b>：页面主体新增 7 张快捷网站卡片（图标＋名称＋网址），悬停上浮动效，点击同样直达目标网站。</li>
-      <li><b>跳转成功提示</b>：跳转后在右下角弹出轻量提示条，2.4 秒自动消失。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v3.2.1</span>
-      <span class="cl-date">2026-08-14</span>
-      <span class="cl-tag t-opt">修复</span>
-    </div>
-    <ul>
-      <li><b>修复嵌入页面显示不全</b>：嵌入框架（iframe）高度改为绝对定位铺满容器，解决 flex 布局下高度塌陷为默认 150px、网页只显示顶部一小条的问题；嵌入内容现可完整显示并正常滚动。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v3.2</span>
-      <span class="cl-date">2026-08-14</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>「嵌入」功能</b>：顶部导航新增「嵌入」入口，进入网站嵌入页后输入任意网址，即可在页面内直接打开目标网站（如本站 GitHub Pages 线上版、Animate UI 文档等），无需离开当前站点。</li>
-      <li><b>嵌入兼容检测</b>：打开前自动检测目标网站是否允许被嵌入（X-Frame-Options / CSP frame-ancestors），不允许嵌入的网站会提示改用新窗口打开，避免出现空白页。</li>
-      <li><b>快捷入口</b>：嵌入页内置本站 GitHub Pages、工作手册 PDF、Animate UI、shadcn 文档等常用快捷入口，一键打开。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v3.1</span>
-      <span class="cl-date">2026-08-13</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>2025 新版细则改为简体</b>：编目规范页「细则查阅」中 2025 新版细则全文由繁体转为简体，与 2023 旧版保持一致，便于阅读与检索。</li>
-      <li><b>分类表/工作手册布局扩展</b>：这两个栏目没有右侧「在本页」目录，内容区自动扩展填满，不再显得窄小。</li>
-      <li><b>工作手册题头精简</b>：删除「PDF 原版 · 可直接翻阅、缩放、打印」副标题文字。</li>
-      <li><b>卷数计算器改为弹窗</b>：点击「卷」按钮弹出居中模态弹窗（支持点击遮罩/关闭按钮/Esc 关闭），操作更清晰。</li>
-      <li><b>计算过程预览</b>：弹窗内新增计算过程预览条，实时显示算式与结果（如「12 ＋ 7 ＝ 19」），每步运算一目了然。</li>
-      <li><b>修复按钮遮挡</b>：卷数计算器按钮上移至知识按钮上方，不再遮挡右下角「回到顶部」按钮。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v3.0</span>
-      <span class="cl-date">2026-08-13</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>「说明文档」下拉菜单</b>：「使用介绍」与「更新日志」合并为顶部导航的「说明文档」入口，鼠标悬停展开下拉菜单，可分别进入使用介绍或更新日志；四页导航统一更新。</li>
-      <li><b>编目规范页全面重做（文档站风格）</b>：采用三栏文档站布局——左侧深色导航栏（Animate UI / shadcn Create 风格圆角配置卡片）、中央文档区、右侧「在本页」目录。</li>
-      <li><b>深色侧栏导航</b>：左侧栏以深色底承载「细则查阅 / 分类表查询 / 工作手册」三个内容入口，下方实时显示当前文档的章节锚点列表或分类快捷导航，底部为「返回纪年查询」「切换主题」按钮组。</li>
-      <li><b>章节锚点导航</b>：细则文档每个章节自动生成锚点，点击侧栏或右侧目录条目即可平滑滚动至对应章节；滚动时自动高亮当前章节（scroll-spy）。</li>
-      <li><b>「在本页」目录</b>：右侧新增随文档滚动定位的章节目录（过滤文档大标题与副标题），细则查阅时实时跟随。</li>
-      <li><b>布局响应式</b>：三栏布局在中等屏幕自动隐藏右侧目录，窄屏转为单列堆叠，侧栏导航保持可用。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v2.2</span>
-      <span class="cl-date">2026-08-12</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>全新黑白极简界面</b>：全站配色改为以黑白灰为主的现代极简风格（浅色模式为纯白/浅灰，深色模式为纯黑/深灰），整体视觉更简洁、高级，接近现代化设计系统。</li>
-      <li><b>毛玻璃顶栏</b>：页面顶栏与筛选栏改为半透明毛玻璃效果（backdrop-filter），内容滚动时呈现细腻的模糊过渡。</li>
-      <li><b>全站动效升级</b>：新增页面进入动画（顶栏下滑、内容区依次淡入）、搜索建议弹出动画、筛选标签点按弹性反馈、对话框缩放进入、表格渲染淡入等微动效，交互更流畅自然。</li>
-      <li><b>滚动进度指示</b>：页面顶部新增 2px 滚动进度条，随页面滚动实时指示阅读位置。</li>
-      <li><b>主题切换平滑过渡</b>：明暗主题切换时背景与文字颜色平滑渐变，不再生硬跳变；并遵循系统「减少动画」偏好设置。</li>
-      <li><b>表格视觉优化</b>：表头改为浅色细线风格、行悬停反馈更细腻、圆角与阴影全面精修，数据可读性更强。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v2.1</span>
-      <span class="cl-date">2026-08-12</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>年份拼音检索</b>：输入年份读音全拼（如「erlingerliu」→ 2026）或首字母缩写（如「ell」→ 2000 年代系列年份）即可检索对应年份，候选直接定位到该年的纪年记录。</li>
-      <li><b>干支拼音检索</b>：输入干支读音（如「wuchen」→ 戊辰年、「jz」→ 甲子年）即可检索该干支对应的全部纪年，60 组干支全拼、缩写均可查询。</li>
-      <li><b>搜索历史</b>：搜索框支持记录最近 10 条搜索内容（浏览器本地保存），点击搜索框即可查看历史记录，点击条目可回填并重新搜索，支持一键清空。</li>
-      <li><b>卷数计算器</b>：右下角新增「卷」按钮（位于岁时落款常识按钮下方），悬停展开迷你计算器，可随时做丛书卷数加减运算，支持键盘输入与结果清空，方便编目时合计卷册。</li>
-      <li><b>简繁兼容</b>：新增功能（搜索历史标签、计算器界面等）在繁体模式下同样正常显示与使用。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v2.0</span>
-      <span class="cl-date">2026-08-12</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>拼音检索年号</b>：输入拼音（如「jingtai」）或首字母缩写（如「jt」「wl」）即可检索对应年号，输入过程中即时提示候选，无需敲完即可跳转。</li>
-      <li><b>候选按年号顺序排列</b>：输入单字时（如「景」），候选不再按年份逐年罗列，而是按年号顺序聚合展示——「春秋·景王」「汉景帝」「三国·景初」「唐·景龙」……方便快速定位。</li>
-      <li><b>候选带朝代前缀</b>：候选栏年号前统一标注朝代/时代，如「明·景泰」「明·万历」「近现代·明治」「清·同治十一年」，中日年号一目了然。</li>
-      <li><b>帝王名候选</b>：候选栏同步收录帝王/天皇名（如「汉景帝」「辽景宗」「孝德」），输入人名亦能快速定位对应纪年。</li>
-      <li><b>内置拼音数据</b>：新增 pinyin_data.js 拼音映射数据（1392 词条），覆盖全部年号、朝代、时代与君主名，繁简切换下拼音检索均可用。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.5</span>
-      <span class="cl-date">2026-08-08</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>工作手册 PDF 在线阅读</b>：编目规范页新增「工作手册」标签页，可在线直接浏览《（修订）全球汉籍合璧工程精华编整理工作手册》PDF 原版，支持翻阅、缩放、打印，也可新窗口打开。</li>
-      <li><b>工作手册 PDF 更新</b>：替换为最新修订版 PDF 文件（2026-08-08 更新，文件大小与内容以 WPS 云盘源文件为准）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.4</span>
-      <span class="cl-date">2026-08-07</span>
-      <span class="cl-tag t-opt">调整</span>
-    </div>
-    <ul>
-      <li><b>2023 舊版細則全文更新</b>：替换为《全球汉籍合璧工程编目工作细则》（2023.09 修订稿）完整原文，按原文结构呈现十个章节、参考著录格式与单书/丛书著录实例。</li>
-      <li><b>2025 新版細則全文更新</b>：替换为《全球漢籍合璧工程境外漢籍編目工作細則》（2025.10 修訂，徵求意見稿）完整原文，按原文结构呈现八个章节、文稿参考著录格式与编目实例。</li>
-      <li><b>大标题居中</b>：两版细则的文档大标题与次标题均改为居中显示，章节标题保持左对齐。</li>
-      <li><b>引号规范</b>：两版细则正文中的直角引号「」统一改为现代全角双引号“”。</li>
-      <li><b>排版增强</b>：细则正文新增引用示例块、参考著录格式代码块、列表项样式，阅读层级更清晰；顶部导航补充「更新日志」入口，四页导航统一。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.3</span>
-      <span class="cl-date">2026-08-07</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>使用介绍页</b>：顶部导航新增「使用介绍」入口（位于「纪年查询」左侧），点击进入独立介绍页面，详细说明各部分使用方法——纪年查询（如何查询、可查内容、输入方式、筛选、导出、岁时落款常识）、编目细则（两版细则查阅、类目表及介绍）、其他说明（更新日志、简繁切换、明暗主题等）。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.2</span>
-      <span class="cl-date">2026-08-07</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>模糊关键词搜索</b>：搜索建议支持「年号 + 片段」灵活补全。输入「同治一」会提示「同治十一年」，输入「明治三」会提示「明治三十一年」「明治三十二年」等全部候选，输入「永乐一」会提示「永乐十一年」「永乐二十一年」。</li>
-      <li><b>搜索直达</b>：按回车或点「查找」时，若关键词无法精确匹配，自动启用模糊匹配，直接展示「年号 + 片段」对应的纪年结果。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.1.1</span>
-      <span class="cl-date">2026-08-06</span>
-      <span class="cl-tag t-fix">调整</span>
-    </div>
-    <ul>
-      <li><b>默认繁体显示</b>：进入纪年查询页面时默认显示繁体字（表头、数据、筛选标签、搜索提示、复制与导出内容均随之为繁体），可随时通过右上角「简/繁」按钮切换。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.1</span>
-      <span class="cl-date">2026-08-05</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li><b>CSV 导出自定义</b>：导出前可自由勾选导出列（公历年份、干支、中国年号、中国朝代、在位皇帝、日本时代、日本年号、在位天皇、备注、生肖），并可选导出范围（全部筛选结果 / 仅当前页）。</li>
-      <li><b>更新日志入口</b>：页面底部新增「更新日志」小按钮，可查看历次更新记录。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.1</span>
-      <span class="cl-date">2026-08-05</span>
-      <span class="cl-tag t-fix">调整</span>
-    </div>
-    <ul>
-      <li><b>删除首页</b>：移除首页入口页面及顶部导航中的「首页」链接，直接进入纪年查询。</li>
-      <li><b>删除跳转年份按钮</b>：移除搜索框旁的「跳转年份」输入框与按钮（搜索框已支持年份直达，功能重复）。</li>
-      <li><b>标题条宽度统一</b>：纪年查询页与编目规范页的顶部标题条改为一致宽度与高度。</li>
-      <li><b>标题更名</b>：「中日历代纪年对照」更名为「古代史及汉籍研究工具」，标题左侧图标由「历」改为「汉」。</li>
-    </ul>
-  </div>
-
-  <div class="cl-entry">
-    <div class="cl-head">
-      <span class="cl-ver">v1.0</span>
-      <span class="cl-date">2026-08-01</span>
-      <span class="cl-tag t-new">新增</span>
-    </div>
-    <ul>
-      <li>中日历史纪年对照查询工具上线：以公历年份为基准轴，同步展示中国与日本朝代、年号、君主、干支、生肖等完整纪年信息。</li>
-      <li>支持全局检索（公历年份、干支、生肖、年号、君主名），带搜索建议与跳转高亮。</li>
-      <li>支持中国朝代 + 日本时代多维筛选、升序/降序排序、分页、CSV 导出。</li>
-      <li>编目规范查阅页上线：支持 2023 / 2025 版细则查阅与全文检索，以及四部分类表查询。</li>
-    </ul>
+  <header class="phead">
+    <div class="pt">
+      <h1>更新日志</h1>
+      <p class="pd">共 70 个版本 · 当前 v1.1.0（桌面版）· 默认展开最近 2 个版本</p>
+    </div>
+    <div class="pa">
+      <button type="button" class="tool-btn" id="btnExpand">展开全部</button>
+      <button type="button" class="tool-btn" id="btnCollapse">收起全部</button>
+    </div>
+  </header>
+  <div class="cl-list" id="clList">
+      <details class="cl-item" data-ver="v1.1.0" data-date="2026-10-19" open>
+  <summary class="cl-sum">
+    <span class="cl-ver">v1.1.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">交互重做</span><span class="cl-date">2026-10-19</span>
+  </summary>
+  <ul class="cl-points">
+    <li>标题栏重做：简/繁、GitHub、明暗主题、下载情况集中到右上角，移除左侧旧简繁按钮</li>
+    <li>简繁切换现在作用于整个界面（外壳 + 所有内嵌页），不再只影响检索页</li>
+    <li>侧栏移除「下载中心」与底部按钮；下载中心改为独立视图，从标题栏「下载情况」进入</li>
+    <li>收起侧栏后左下角出现浮出导航，内容区自动铺满窗口</li>
+    <li>设置窗口新增「外观与快捷键」「关于」；各页面删除页内重复切换条与冗余说明</li>
+  </ul>
+</details>
+  <details class="cl-item" data-ver="v1.0.0" data-date="2026-10-18">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.0.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">正式版</span><span class="cl-date">2026-10-18</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>桌面版正式版发布，界面按 v3 设计稿整套重做</li>
+          <li>新增「工作台」并设为启动首页，含每日推荐与今日概览</li>
+          <li>纪年查询打开即显示全部年份表格，无需先输入年份</li>
+          <li>细则查阅去掉右侧索引，章节树改为页头右上角浮出</li>
+          <li>分类表精简为部类介绍与代表古籍，工作手册 PDF 直接内嵌</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.6.0" data-date="2026-10-17" open>
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.6.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>内閣文庫漢籍改为按原站 fonds 层级逐层浏览</li>
+          <li>各部件数直接标在分类上，与原站「該当件数」同口径</li>
+          <li>可导出该部簿册清单 CSV，Excel 打开不乱码</li>
+          <li>分类区缩为一行工具栏加一行 chips，不再挤占结果区</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.5.0" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.5.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>国立公文书馆新增「内閣文庫漢籍部别统计」，含各部件数与占比</li>
+          <li>统计结果缓存本机，可导出 CSV 并一键重新统计</li>
+          <li>单本下载进度纳入「下载中心」，含进度角标与逐册明细</li>
+          <li>单本完成或失败均弹通知并响提示音，失败列出缺册原因</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.4.2" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.4.2</span><span class="cl-plat">网页版 + 桌面版</span><span class="cl-tag del">删减</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>分类表查询删除三级「合璧细目」，只保留标准分类一套</li>
+          <li>标准分类共六部 66 类，一条路径看全，不必切换视图</li>
+          <li>清掉旧三级表相关代码与样式，检索框改为占满工具条</li>
+          <li>桌面版发行包同步重编</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.4.1" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.4.1</span><span class="cl-plat">网页版 + 桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>分类表按标准类目重做：六部 66 类，每部每类均附介绍</li>
+          <li>代表古籍举例 181 部，可搜类名、收录说明或书名</li>
+          <li>繁简通检：输入繁体（如「論語」）同样能命中</li>
+          <li>修复 catalog.html 深链接未解析与手机宽度正文被挤窄</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.4.0" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.4.0</span><span class="cl-plat">手机版 App</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>手机版 App 上线（m.html）：竖屏布局，底部 5 个 Tab</li>
+          <li>纪年查询同时给出中国、日本与其他地区三组年号</li>
+          <li>古籍类目为真实数据（177,107 条），沿用三态判定</li>
+          <li>岁时落款五节常识可切换，检索状态跨 Tab 保持</li>
+          <li>纪年数据抽为共用 era_data.js，桌面版不受影响</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.3.1" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.3.1</span><span class="cl-plat">网页版</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复手机宽度下「岁时落款」与「卷数计算」浮动按钮重叠</li>
+          <li>两按钮恢复各自可点，不再互相遮挡</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.3.0" data-date="2026-10-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.3.0</span><span class="cl-plat">网页版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>网页版支持安装到手机主屏幕（PWA），可全屏离线使用</li>
+          <li>常用页首次访问后离线可查（AI 复检仍需联网）</li>
+          <li>安装只预缓存约 1.1 MB 外壳，类目数据按需缓存</li>
+          <li>桌面版内嵌页不加载 PWA，不产生多余请求</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.2.4" data-date="2026-10-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.2.4</span><span class="cl-plat">网页版</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>「返回主页」按钮移入 API 管理面板并改为醒目样式</li>
+          <li>API 管理标题行右侧再放一个返回按钮，左栏入口保留</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.2.3" data-date="2026-10-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.2.3</span><span class="cl-plat">网页版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>网页端登录下拉新增「设置」，直达 API 管理</li>
+          <li>设置页新增「返回纪年查询」，仅网页版显示</li>
+          <li>六个页面的右上角菜单行为统一</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.2.2" data-date="2026-10-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.2.2</span><span class="cl-plat">网页版同步</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复网页版找不到 DeepSeek API 配置入口的问题</li>
+          <li>未配置提示改为「去配置 API」按钮，可一键跳转</li>
+          <li>AI 复检结果区头部新增常驻「设置」按钮</li>
+          <li>模态窗内两处提示改为指向「打开设置」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.2.1" data-date="2026-10-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.2.1</span><span class="cl-plat">网页版同步</span><span class="cl-tag sync">同步</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>网页版补齐分类表「未调整」红色角标与页内提示条</li>
+          <li>更正 kanseki.html 的版本标记为 10.2</li>
+          <li>网页版已同步批量查询、检索历史改版与介绍十二节</li>
+          <li>原站 CORS 与写盘类功能仅桌面版提供，非遗漏</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.2" data-date="2026-10-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.2</span><span class="cl-plat">桌面版 0.21.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>下载产物只留 PDF，任务文件完成后自动清理</li>
+          <li>修复断网后每本书只下一册，改为严格判定并复用任务清单</li>
+          <li>古籍类目新增「批量查询」，逐条给出命中数与判定分布</li>
+          <li>类目检索历史与纪年历史分开存储，互不污染</li>
+          <li>PDF 合并改按 xref 精确定位，残缺 PDF 不再混入</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.1" data-date="2026-10-06">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.1</span><span class="cl-plat">桌面版 0.20.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复详细检索浮层层级，收起后按钮恢复可点</li>
+          <li>使用介绍从三节扩为十二节，覆盖全部功能与快捷键</li>
+          <li>侧栏「分类表查询」新增「未调整」红色标记</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v10.0" data-date="2026-10-06">
+        <summary class="cl-sum">
+          <span class="cl-ver">v10.0</span><span class="cl-plat">桌面版 0.19.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>检索条更紧凑，「显示件数」改为浮层下拉</li>
+          <li>超过 50 页的册自动合并为完整 PDF，画质无损</li>
+          <li>批量下载支持导入索书号，候选多条时供人工核对</li>
+          <li>关闭窗口改为最小化到托盘，下载继续在后台</li>
+          <li>目录名、每册文件名、压缩包名三套命名各自记住</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.9" data-date="2026-10-06">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.9</span><span class="cl-plat">桌面版 0.18.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>下载位置可自选，并记住上次选择</li>
+          <li>标题栏新增「下载中心」，含实时进度与暂停、取消</li>
+          <li>完成或失败弹横幅与提示音，可一键打开文件夹</li>
+          <li>批量下载支持粘贴多条 ID 或索书号排队逐本下载</li>
+          <li>批量失败可重试、略过、暂停整批或取消整批</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.8" data-date="2026-10-06">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.8</span><span class="cl-plat">桌面版 0.17.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>国立公文书馆检索结果可一键下载整册 PDF</li>
+          <li>双通道：原站原生 PDF，失败自动降级 IIIF 逐页合成</li>
+          <li>零缺册：册清单冻结、逐册校验、打包前完整性门禁</li>
+          <li>全部写盘走临时文件原子替换，可只重试未完成册</li>
+          <li>三套命名模板加实时目录树预览，支持补零写法</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.7" data-date="2026-10-04">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.7</span><span class="cl-plat">桌面版 0.16.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-04</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「纪年小窗」，可缩放、置顶并支持多种查询</li>
+          <li>编目记录支持导入 Excel / CSV，按模板自动识别表头</li>
+          <li>编目记录新增卡片、表格、文字三种预览与两种导出</li>
+          <li>必填项不再拦截保存，可先编目再补全</li>
+          <li>国立公文书馆检索条压成一行，分类并入详细检索</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.6" data-date="2026-10-04">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.6</span><span class="cl-plat">桌面版 0.15.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-04</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>国立公文书馆补齐「详细检索」，条件标签全部中文</li>
+          <li>可按「簿册」与「件名·细目」筛选，实测计数准确</li>
+          <li>新增内閣文庫汉籍分类区，可直接限定资料群检索</li>
+          <li>分类改为下拉浮出菜单，检索与结果间距收紧</li>
+          <li>修复原站标题被拆成多段时读成「後 漢書」的问题</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.5" data-date="2026-10-03">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.5</span><span class="cl-plat">桌面版 0.14.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-03</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「国立公文书馆」检索面板，应用内直连原站</li>
+          <li>编目记录上线：14 字段著录，本机存储并接入 WebDAV 同步</li>
+          <li>可从检索结果一键「参考此记录新建编目记录」</li>
+          <li>Rust 检索桥新增白名单与退避重试</li>
+          <li>全站换用新 logo，修复构建资源 404 等问题</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.4.2" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.4.2</span><span class="cl-plat">桌面版 0.13.2</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复「日本藏本检索」检索后整页变窄</li>
+          <li>高级筛选改为浮窗，开合不影响页面布局</li>
+          <li>桌面版换用木刻印章风新 logo</li>
+          <li>测试分快跑与全量两档，加快日常迭代</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.4.1" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.4.1</span><span class="cl-plat">桌面版 0.13.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>「日本藏本检索」版面重做，以结果为主、筛选可折叠</li>
+          <li>结果与详情全宽切换，返回后保留选中行高亮</li>
+          <li>筛选开关带条件计数徽标，收起时显示条件摘要</li>
+          <li>摘要按提交瞬间的条件快照回显，避免与结果不符</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.4" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.4</span><span class="cl-plat">桌面版 0.13.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「日本藏本检索」，直连全國漢籍データベース</li>
+          <li>支持按書名、著者、刊年、出版者、子目与所藏机构检索</li>
+          <li>Rust 桥限定域名与路径，避免被当作任意代理</li>
+          <li>服务器掐断时保留部分结果并标注「不完整」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.3.1" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.3.1</span><span class="cl-plat">桌面版 0.12.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>设置窗口精简为同步设置与 API 管理</li>
+          <li>API 管理新增 Token 用量统计与图形化展示</li>
+          <li>古籍类目查询新增检索历史，最多记录 20 条</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.3" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.3</span><span class="cl-plat">桌面版 0.12.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复模型名与 token 预算，不再返回空内容</li>
+          <li>AI 复检会先自行联网查证，并附带来源链接</li>
+          <li>提示词不再把本表当标准答案，要求说明依据</li>
+          <li>输出首行固定给一致性结论，不一致标红</li>
+          <li>导出改为右下角通知栏，可直接打开文件与文件夹</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.2.1" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.2.1</span><span class="cl-plat">桌面版 0.11.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复设置窗口只能打开一次，关闭改为隐藏</li>
+          <li>设置窗口改自绘标题栏并显示版本号</li>
+          <li>删除个人中心里重复的 API 管理</li>
+          <li>桌面版侧栏精简，统一以设置窗口为准</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.2" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.2</span><span class="cl-plat">桌面版 0.11.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「设置」独立窗口，内含三个分区</li>
+          <li>AI 复检改为单条为主，长按可整页复检或提问</li>
+          <li>复检结论与本表不一致时标红并提示反馈</li>
+          <li>表头「合璧对应类目」等更名，CSV 同步更正</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.1" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.1</span><span class="cl-plat">桌面版 0.10.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「AI 复检」，可把筛选结果交 DeepSeek 逐条复核</li>
+          <li>API Key 只保存在本机，设置页可一键清除</li>
+          <li>桌面版隐藏页内导出、简繁、主题三个重复入口</li>
+          <li>网页版不显示 AI 复检，保留原有三项功能</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v9.0" data-date="2026-10-02">
+        <summary class="cl-sum">
+          <span class="cl-ver">v9.0</span><span class="cl-plat">桌面版 0.9.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「古籍类目查询」，收录 177,107 条著录</li>
+          <li>支持模糊、多词、字段限定与错字容错检索</li>
+          <li>结果同时给出《总目》与合璧工程类目的对应判定</li>
+          <li>支持繁简显示与 CSV 导出</li>
+          <li>修复「干支」误转「幹支」等简繁映射缺陷</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.9" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.9</span><span class="cl-plat">桌面版 0.8.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复最大化按钮两个图标重叠，新增标题栏一键简繁</li>
+          <li>全站记住上次简繁选择，重启后仍保持</li>
+          <li>登录后点「账号」直达个人中心，登录成功自动跳转</li>
+          <li>修复窗口最大化间歇失灵与启动初期点击无响应</li>
+          <li>发布安装版与免安装版，附使用说明与 SHA256 校验值</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.8" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.8</span><span class="cl-plat">桌面版 0.8.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复窗口最大化等多数窗口操作无反应</li>
+          <li>移除标题栏重复显示的程序名</li>
+          <li>修复登录与注册不可用，自动切换本地账号模式</li>
+          <li>本地账号严格校验密码与邮箱，注册成功有提示</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.7" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.7</span><span class="cl-plat">桌面版 0.8.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复打开后白屏与状态不保存，解除内核子进程拦截</li>
+          <li>增加单实例保护，重复点击唤起已开窗口</li>
+          <li>完整恢复侧栏品牌区，窗口按钮移入自绘标题栏</li>
+          <li>编目规范三项导览改为浮层弹窗</li>
+          <li>程序图标改为黑底白「漢」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.6" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.6</span><span class="cl-plat">桌面版 0.7.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>左上角改为「收起侧栏」加「窗口」菜单</li>
+          <li>侧栏底部新增登录区，可与网页版共用账号</li>
+          <li>编目记录、同步设置、关于三页视觉统一</li>
+          <li>导航重排，侧栏由 10 项增至 11 项</li>
+          <li>矮窗口适配，最小窗口下导航一屏可见</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.5" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.5</span><span class="cl-plat">桌面版 0.6.4</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>桌面版品牌与网页版统一为「古代史及汉籍研究工具」</li>
+          <li>版本号 4 处同步更新，避免关于页与实际不一致</li>
+          <li>账号类页面保留 Juvenile 品牌，属预期设计</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.4" data-date="2026-09-29">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.4</span><span class="cl-plat">桌面版 0.6.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>首个可直接运行的 Windows 程序（kanseki-app.exe）</li>
+          <li>修复 4 处阻断构建的问题，打包流程可重复执行</li>
+          <li>顶部导航全部并入左侧栏，内嵌页不再重复顶栏</li>
+          <li>编目规范侧栏合并进主侧栏，内容改为实时同步</li>
+          <li>补齐账号页面，矮窗口下侧栏完整可见</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.3" data-date="2026-08-22">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-22</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>卡片视图改横向网格，默认 4 列、可切 6 列</li>
+          <li>卡片视图按年号独立复制</li>
+          <li>快捷筛选支持整朝筛选与一键全选本朝年号</li>
+          <li>支持汉字加拼音、汉字加数字的组合搜索</li>
+          <li>新增干支错写「猜你想搜」提醒</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.2" data-date="2026-08-21">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-21</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>全站 11 页手机端适配，汉堡按钮加抽屉导航</li>
+          <li>纪年查询新增表格与卡片双视图</li>
+          <li>移动端快捷筛选改为底部全屏抽屉</li>
+          <li>新增 overlay.js 数据覆盖层与管理端大事记</li>
+          <li>管理员工作台移动端适配</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.1" data-date="2026-08-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复登录后重新进入时头像与登录态丢失</li>
+          <li>新增本地账号兜底，无需邮箱验证即可登录</li>
+          <li>登录失败提示按是否存在本地账号区分</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v8.0" data-date="2026-08-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v8.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>日本部分扩展为「其他朝代」，新增 19 个周边政权</li>
+          <li>快捷筛选支持单独筛选朝鲜、越南等周边政权</li>
+          <li>全站品牌更名为「古代史及汉籍研究工具」</li>
+          <li>无年号时期改为友好显示，不再生成复制按钮</li>
+          <li>年号重名提醒范围扩大到周边政权</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v7.2" data-date="2026-08-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v7.2</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复头像裁剪预览与最终结果不一致</li>
+          <li>裁剪改为以图片中心为锚点，拖拽范围限制在图片内</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v7.1" data-date="2026-08-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v7.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>头像上传支持拖动缩放裁剪，输出 256px 圆形头像</li>
+          <li>全站标签页图标统一为「J」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v7.0" data-date="2026-08-17">
+        <summary class="cl-sum">
+          <span class="cl-ver">v7.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增个人中心，可自定义头像与昵称</li>
+          <li>登录后表头显示头像加昵称下拉</li>
+          <li>昵称、头像修改后全站同步生效</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v6.4" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v6.4</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>管理员判定改为角色优先、白名单兜底</li>
+          <li>线上部署无需本地配置文件即可启用管理员</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v6.3" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v6.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>管理员登录升级为 Supabase 认证</li>
+          <li>白名单与角色双重校验，非管理员登录被拒</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v6.2" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v6.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>Supabase 真实接入，登录注册切换为真实邮箱认证</li>
+          <li>管理员工作台用户列表同步为 Supabase 用户</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v6.1" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v6.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>管理员入口改为隐藏触发：连点品牌 5 次进入</li>
+          <li>管理员凭据去敏，仅由部署方配置</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v6.0" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v6.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>深浅色模式全站同步，主题偏好共用一份设置</li>
+          <li>Supabase 接入预留，未配置时进入演示模式</li>
+          <li>新增管理员工作台</li>
+          <li>登录注册表单接入认证，条款与隐私页支持深色</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v5.1" data-date="2026-08-16">
+        <summary class="cl-sum">
+          <span class="cl-ver">v5.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>快捷筛选改为两栏浮窗，年号按皇帝分组</li>
+          <li>已选条件以圆角框排列，可单个移除或一键清空</li>
+          <li>登录入口右置并加下拉菜单</li>
+          <li>登录注册页新增「游客访问」</li>
+          <li>全站交互界面统一为简体</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v5.0" data-date="2026-08-15">
+        <summary class="cl-sum">
+          <span class="cl-ver">v5.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增登录与注册页，黑白极简卡片式设计</li>
+          <li>新增服务条款与隐私政策页</li>
+          <li>全站导航加入「登录」入口</li>
+          <li>预留 Supabase 接入口</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.3.2" data-date="2026-08-15">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.3.2</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>精准结果横线下方新增小字标题「该年号下的所有年份」</li>
+          <li>小字标题的简繁随界面语言切换</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.3.1" data-date="2026-08-15">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.3.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>精准命中行去除描边，与正常行视觉一致</li>
+          <li>精准结果分隔横线加大上下间距</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.3" data-date="2026-08-15">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.3</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>删除「常用年号」快捷区，复核补全全部朝代年号</li>
+          <li>修正辽、西夏年号缺失与年份错误</li>
+          <li>精准查询改为横线分隔，展示年号全部年份</li>
+          <li>修复回车跳转定位与跨朝代年号归属错误</li>
+          <li>搜索后自动关闭建议浮层，滚动时补偿固定栏</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.2" data-date="2026-08-15">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>精准查询自动展示前后各 2 年临近年份</li>
+          <li>精准行与临近行做视觉区分，避免看错</li>
+          <li>日本年号命中时单元格闪烁提醒</li>
+          <li>相同年号多朝代或中日复用时高亮提醒</li>
+          <li>新增「常用年号」快捷标签 80 余个</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.1" data-date="2026-08-14">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>快速跳转页移除浮动侧边栏，改为标签网格</li>
+          <li>删除页头说明与输入框占位提示</li>
+          <li>标签卡片改为等宽等高正方形网格</li>
+          <li>新增自定义标签（名称加网址），可随时删除</li>
+          <li>自定义标签自动保存在本地</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v4.0" data-date="2026-08-14">
+        <summary class="cl-sum">
+          <span class="cl-ver">v4.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>「嵌入」页重做为「快速跳转」页，直接跳转目标网站</li>
+          <li>右上角新增一体化搜索栏，可输入网址直达</li>
+          <li>内置 7 个常用网站快捷入口</li>
+          <li>新增快捷网站卡片网格与跳转提示</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v3.2.1" data-date="2026-08-14">
+        <summary class="cl-sum">
+          <span class="cl-ver">v3.2.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>修复嵌入页 iframe 高度塌陷、只显示顶部一小条</li>
+          <li>嵌入内容改为绝对定位铺满，可完整显示并正常滚动</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v3.2" data-date="2026-08-14">
+        <summary class="cl-sum">
+          <span class="cl-ver">v3.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「嵌入」入口，可在站内打开任意网址</li>
+          <li>自动检测 X-Frame-Options 与 CSP，不允许时提示新窗口</li>
+          <li>内置 GitHub Pages、工作手册 PDF 等快捷入口</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v3.1" data-date="2026-08-13">
+        <summary class="cl-sum">
+          <span class="cl-ver">v3.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-13</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>2025 新版细则全文转为简体</li>
+          <li>分类表与工作手册内容区自动扩展填满</li>
+          <li>卷数计算器改为居中弹窗，并显示计算过程</li>
+          <li>修复计算器按钮遮挡「回到顶部」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v3.0" data-date="2026-08-13">
+        <summary class="cl-sum">
+          <span class="cl-ver">v3.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-13</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>「使用介绍」与「更新日志」合并为「说明文档」下拉</li>
+          <li>编目规范页改为三栏文档站布局</li>
+          <li>新增章节锚点导航与右侧「在本页」目录</li>
+          <li>三栏布局响应式，窄屏转为单列</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v2.2" data-date="2026-08-12">
+        <summary class="cl-sum">
+          <span class="cl-ver">v2.2</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>全站改为黑白极简风格</li>
+          <li>顶栏与筛选栏改为毛玻璃效果</li>
+          <li>新增页面进入、搜索建议、对话框等微动效</li>
+          <li>顶部新增滚动进度条，主题切换平滑过渡</li>
+          <li>表格视觉优化，可读性提升</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v2.1" data-date="2026-08-12">
+        <summary class="cl-sum">
+          <span class="cl-ver">v2.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>支持年份拼音全拼与首字母检索</li>
+          <li>支持干支拼音检索，60 组全拼缩写均可查</li>
+          <li>搜索框记录最近 10 条搜索历史</li>
+          <li>新增卷数计算器，可随时做卷册加减</li>
+          <li>新增功能在繁体模式下同样可用</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v2.0" data-date="2026-08-12">
+        <summary class="cl-sum">
+          <span class="cl-ver">v2.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>支持年号拼音与首字母检索，输入即有候选</li>
+          <li>候选按年号顺序聚合，并带朝代前缀</li>
+          <li>候选同步收录帝王与天皇名</li>
+          <li>新增拼音数据 1392 词条，繁简均可用</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.5" data-date="2026-08-08">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.5</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-08</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增「工作手册」标签页，可在线浏览 PDF 原版</li>
+          <li>工作手册 PDF 更新为最新修订版</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.4" data-date="2026-08-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.4</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>2023 旧版细则替换为完整原文（十章）</li>
+          <li>2025 新版细则替换为完整原文（八章）</li>
+          <li>两版细则大标题居中，引号统一为全角双引号</li>
+          <li>正文新增引用示例与著录格式等排版增强</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.3" data-date="2026-08-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>新增独立「使用介绍」页，说明各功能用法</li>
+          <li>顶部导航在「纪年查询」左侧新增入口</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.2" data-date="2026-08-07">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>搜索建议支持「年号加片段」的模糊补全</li>
+          <li>回车或点查找时自动启用模糊匹配直达结果</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.1.1" data-date="2026-08-06">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.1.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>进入纪年查询默认显示繁体，可随时切换简体</li>
+          <li>表头、筛选、搜索提示与复制导出内容一并随字形变化</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.1" data-date="2026-08-05">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-05</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>CSV 导出可勾选导出列与范围（全部或当前页）</li>
+          <li>新增页面底部「更新日志」入口</li>
+          <li>删除首页与「跳转年份」按钮，直接进入纪年查询</li>
+          <li>标题条宽度统一，标题更名为「古代史及汉籍研究工具」</li>
+        </ul>
+      </details>
+      <details class="cl-item" data-ver="v1.0" data-date="2026-08-01">
+        <summary class="cl-sum">
+          <span class="cl-ver">v1.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-01</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <ul class="cl-points">
+          <li>中日历史纪年对照查询工具上线</li>
+          <li>支持全局检索、搜索建议与跳转高亮</li>
+          <li>支持多维筛选、排序、分页与 CSV 导出</li>
+          <li>编目规范查阅页上线（2023 / 2025 细则与四部分类表）</li>
+        </ul>
+      </details>
   </div>
 </main>
-
-<footer class="app-footer">
-  <div class="footer-inner">古代史及汉籍研究工具 · 学术参考工具</div>
-</footer>
-
-<script src="overlay.js"></script>
-<script src="mobile-nav.js"></script>
 <script>
 (function(){
-  function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
-  initTheme();
-  var tb=document.getElementById('themeToggle');
-  tb.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☾':'☀';
-  tb.addEventListener('click',function(){
-    var c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';
-    document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);
-    tb.textContent=n==='dark'?'☾':'☀';
+  document.getElementById('btnExpand').addEventListener('click',function(){
+    document.querySelectorAll('.cl-item').forEach(function(d){d.open=true;});
+  });
+  document.getElementById('btnCollapse').addEventListener('click',function(){
+    document.querySelectorAll('.cl-item').forEach(function(d){d.open=false;});
   });
 })();
 </script>
-<script src="user-state.js"></script>
 </body>
 </html>

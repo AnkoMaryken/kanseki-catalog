@@ -34,6 +34,7 @@ import { initRecordsView, refreshRecordsView } from './ui/records.js';
 import { initKansekiDbView } from './ui/kanseki-db.js';
 import { initNajDbView } from './ui/naj-db.js';
 import { initWorkbench } from './ui/workbench.js';
+import { initDownloadsView } from './ui/downloads-view.js';
 // V9.9：下载中心（标题栏按钮 + 右侧抽屉 + 完成/失败提醒）——开机即挂，切视图不丢
 import { initDownloadCenter } from './ui/naj-dl-center.js';
 
@@ -215,6 +216,9 @@ function logoutUser() {
   try { localStorage.removeItem(USER_KEY); } catch (_) { /* 忽略 */ }
   // 保留 kanseki_profile（头像等资料），仅清登录态——与网页版 user-state.js 行为一致
   renderUserBox();
+  // V1.1：按本机偏好套用全局字形（外壳 + 已加载的内嵌页）
+  langCurrent = langPref();
+  applyGlobalLang(langCurrent);
   closeUserMenu();
   showToast('已退出登录', 'ok');
   // 退出后个人中心不再可访问（该页有登录门禁，留着会跳回登录页），
@@ -260,6 +264,10 @@ function applyCollapse(collapsed) {
   const shell = $('#app');
   if (!shell) return;
   shell.classList.toggle('sb-collapsed', !!collapsed);
+  const fabWrap = document.getElementById('fabWrap');
+  if (fabWrap) fabWrap.hidden = !collapsed;
+  const fabPop = document.getElementById('fabPop');
+  if (fabPop && !collapsed) fabPop.hidden = true;
   // 收起/展开按钮位于自绘标题栏，收起后仍在原位，可直接反向切回
   const btn = $('#collapseBtn');
   if (btn) {
@@ -644,7 +652,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -657,7 +665,7 @@ function refreshAboutInfo() {
 
 // ---------- 视图切换 ----------
 // 11 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['wb', 'query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+const VIEWS = ['wb', 'downloads', 'query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
@@ -721,6 +729,7 @@ function navigate() {
 
   // 视图进入钩子
   if (target === 'wb') initWorkbench();   // V3：工作台（每日推荐 + 今日概览）
+  if (target === 'downloads') initDownloadsView();   // V1.1：下载中心（视图形态）
   if (target === 'sync') initSyncView();
   if (target === 'about') refreshAboutInfo();
   // V9.4：日本藏本检索面板（首次进入时初始化表单与机构列表）
@@ -758,9 +767,130 @@ function navigate() {
     // 让注入的主题与 APP 保持一致
     applyThemeToFrame(frame);
   }
+  // V1.1：新进入的 iframe 也要跟随当前全局字形
+  if (frame) {
+    whenFrameReady(frame, () => { applyGlobalLangToFrame(target, langCurrent); });
+  }
 }
 
 window.addEventListener('hashchange', navigate);
+
+// ---------- V1.1 全局简繁：整个界面（外壳 + 所有内嵌页） ----------
+// V1.0 之前只有纪年/类目两页各自实现 KansekiLang，切换只影响那两页。
+// 现在改为外壳统一驱动：
+//   · 外壳自身 + 未实现 KansekiLang 的内嵌页（细则/分类表/手册/使用介绍/更新日志/快速跳转）
+//     由 DOM 文本节点转换（原文存 WeakMap，切回简体即还原，不做二次转换）；
+//   · 纪年查询 / 古籍类目查询两页继续走它们自己的 KansekiLang（数据量大、且要保命繁体原始数据）。
+// 转换表来自 pages/conv_tables.js（S2T_MAP / T2S_MAP，脚本在 index.html 里已引入）。
+
+const LANG_STORE_KEY = 'kanseki_lang';
+const langTextOrig = new WeakMap();   // Text -> 原文
+const langAttrOrig = new WeakMap();   // Element -> { attr: 原文 }
+let langCurrent = 's';
+
+function langPref() {
+  try {
+    const v = localStorage.getItem(LANG_STORE_KEY);
+    return (v === 's' || v === 't') ? v : 's';
+  } catch (_) { return 's'; }
+}
+
+function langMap(dir) {
+  try {
+    if (dir === 't' && typeof S2T_MAP !== 'undefined') return S2T_MAP;
+    if (dir === 's' && typeof T2S_MAP !== 'undefined') return T2S_MAP;
+  } catch (_) { /* 表未加载 */ }
+  return null;
+}
+
+const LANG_SKIP_CHARS = /^[\s\d\p{P}\p{S}]*$/u;
+
+function langConvert(str, dir) {
+  const map = langMap(dir);
+  if (!map || !str) return str;
+  if (LANG_SKIP_CHARS.test(str)) return str;
+  let out = '';
+  for (let i = 0; i < str.length;) {
+    const maxLen = Math.min(8, str.length - i);
+    let hit = null;
+    for (let len = maxLen; len >= 1; len--) {
+      const seg = str.substr(i, len);
+      if (Object.prototype.hasOwnProperty.call(map, seg)) { hit = [seg, map[seg]]; break; }
+    }
+    if (hit) { out += hit[1]; i += hit[0].length; } else { out += str[i]; i++; }
+  }
+  return out;
+}
+
+function langTextNodes(doc, root, cb) {
+  if (!root) return;
+  let w;
+  try {
+    w = doc.createTreeWalker(root, 4 /* SHOW_TEXT */, {
+      acceptNode(node) {
+        const p = node.parentElement;
+        if (!p) return 2;
+        const tag = p.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'CODE' || tag === 'PRE') return 2;
+        if (p.closest('[data-no-lang]')) return 2;
+        if (!node.nodeValue || !node.nodeValue.trim()) return 2;
+        return 1;
+      },
+    });
+  } catch (_) { return; }
+  let node;
+  while ((node = w.nextNode())) cb(node);
+}
+
+function langApplyToDoc(doc, root, lang) {
+  if (!doc || !root) return;
+  langTextNodes(doc, root, (node) => {
+    if (!langTextOrig.has(node)) langTextOrig.set(node, node.nodeValue);
+    const orig = langTextOrig.get(node);
+    const next = lang === 't' ? langConvert(orig, 't') : orig;
+    if (node.nodeValue !== next) node.nodeValue = next;
+  });
+  // 常见提示属性
+  try {
+    root.querySelectorAll('[placeholder],[title],[aria-label]').forEach((el) => {
+      let store = langAttrOrig.get(el);
+      if (!store) { store = {}; langAttrOrig.set(el, store); }
+      ['placeholder', 'title', 'aria-label'].forEach((attr) => {
+        if (!el.hasAttribute(attr)) return;
+        if (store[attr] == null) store[attr] = el.getAttribute(attr);
+        const orig = store[attr];
+        const next = lang === 't' ? langConvert(orig, 't') : orig;
+        if (el.getAttribute(attr) !== next) el.setAttribute(attr, next);
+      });
+    });
+  } catch (_) { /* 忽略 */ }
+}
+
+function langSyncSeg() {
+  document.querySelectorAll('#langSeg button[data-lang]').forEach((b) => {
+    b.classList.toggle('on', b.dataset.lang === langCurrent);
+  });
+}
+
+function applyGlobalLangToFrame(view, lang) {
+  const id = FRAMES[view];
+  const frame = id ? document.getElementById(id) : null;
+  if (!frame) return;
+  const api = frameLang(frame);
+  if (api) {
+    try { api.set(lang); return; } catch (_) { /* 落到 DOM 转换 */ }
+  }
+  const doc = frameDoc(frame);
+  if (doc && doc.body) langApplyToDoc(doc, doc.body, lang);
+}
+
+function applyGlobalLang(lang) {
+  langCurrent = (lang === 't') ? 't' : 's';
+  try { localStorage.setItem(LANG_STORE_KEY, langCurrent); } catch (_) { /* 忽略 */ }
+  langApplyToDoc(document, document.getElementById('app'), langCurrent);
+  Object.keys(FRAMES).forEach((v) => applyGlobalLangToFrame(v, langCurrent));
+  langSyncSeg();
+}
 
 // ---------- 登录成功通知钩子（V0.8.2） ----------
 // 登录页在 iframe 内，登录成功后若照常 location.href 回首页，
@@ -770,7 +900,10 @@ let loginWatchTimer = null;
 
 window.kansekiOnLoggedIn = function () {
   if (loginWatchTimer) { clearInterval(loginWatchTimer); loginWatchTimer = null; }
-  renderUserBox();                              // 侧栏头像/昵称 +「账号」项路由一并刷新
+  renderUserBox();
+  // V1.1：按本机偏好套用全局字形（外壳 + 已加载的内嵌页）
+  langCurrent = langPref();
+  applyGlobalLang(langCurrent);                              // 侧栏头像/昵称 +「账号」项路由一并刷新
   if (currentView === 'login') location.hash = '#/account';
   showToast('登录成功', 'ok');
 };
@@ -970,8 +1103,17 @@ function currentTheme() {
 
 // 外壳自身也挂 data-theme —— 这样编目记录/同步设置/关于三视图的
 // CSS 变量能跟随明暗切换（V0.7 新增；此前外壳恒为亮色）
+function syncThemeButton() {
+  const dark = (document.documentElement.getAttribute('data-theme') || '') === 'dark';
+  const sun = document.querySelector('#themeBtn .tb-ico-sun');
+  const moon = document.querySelector('#themeBtn .tb-ico-moon');
+  if (sun) sun.hidden = dark;
+  if (moon) moon.hidden = !dark;
+}
+
 function applyThemeToShell() {
   document.documentElement.setAttribute('data-theme', currentTheme());
+  syncThemeButton();
 }
 
 function applyThemeToFrame(frame) {
@@ -1097,6 +1239,44 @@ async function init() {
     else showToast('下载中心仅在桌面版可用');
   });
 
+  // ---------- V1.1 标题栏：简繁分段 / GitHub / 主题 / 下载情况 ----------
+  $('#langSeg')?.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-lang]');
+    if (!b) return;
+    applyGlobalLang(b.dataset.lang);
+  });
+  $('#githubBtn')?.addEventListener('click', () => {
+    const url = 'https://github.com/AnkoMaryken';
+    if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
+    else window.open(url, '_blank');
+  });
+  $('#themeBtn')?.addEventListener('click', toggleAppTheme);
+  $('#tbDl')?.addEventListener('click', () => { location.hash = '#/downloads'; });
+  $('#navSettings')?.addEventListener('click', () => {
+    if (isTauri) tauriInvoke('open_settings_window', {}).catch(() => showToast('设置窗口打开失败'));
+    else showToast('设置仅在桌面版可用');
+  });
+
+  // ---------- V1.1 收起侧栏后的 FAB ----------
+  $('#fab')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const pop = $('#fabPop');
+    if (pop) pop.hidden = !pop.hidden;
+  });
+  $('#fabExpand')?.addEventListener('click', () => { toggleSidebar(); });
+  document.getElementById('fabPop')?.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-fab]');
+    if (!b) return;
+    const v = b.dataset.fab;
+    if (v === '__settings') { $('#navSettings')?.click(); }
+    else if (v) location.hash = v;
+    const pop = $('#fabPop'); if (pop) pop.hidden = true;
+  });
+  document.addEventListener('click', (e) => {
+    const pop = $('#fabPop');
+    if (pop && !pop.hidden && !e.target.closest('#fabWrap')) pop.hidden = true;
+  });
+
   // ---------- 侧栏收起 / 展开 ----------
   applyCollapse(localStorage.getItem(COLLAPSE_KEY) === '1');
   $('#collapseBtn')?.addEventListener('click', toggleSidebar);
@@ -1185,6 +1365,9 @@ async function init() {
 
   // ---------- 侧栏用户区 ----------
   renderUserBox();
+  // V1.1：按本机偏好套用全局字形（外壳 + 已加载的内嵌页）
+  langCurrent = langPref();
+  applyGlobalLang(langCurrent);
   // 账号项路由随登录态变化（未登录→登录页，已登录→个人中心）
   refreshAccountNav();
   $('#sideUserBtn')?.addEventListener('click', (e) => {

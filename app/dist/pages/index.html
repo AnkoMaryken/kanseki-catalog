@@ -6,6 +6,19 @@
 <meta name="description" content="古代史及汉籍研究工具 — 东亚历史纪年对照查询，以公历年份为基准轴，同步展示中国与日本、朝鲜、越南等周边政权朝代、年号、君主、干支、生肖等完整纪年信息">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <title>古代史及汉籍研究工具 — 纪年查询</title>
+<script>
+/* 桌面版用 iframe 承载本页（dist/pages/index.html）：检测到被嵌入时，
+   隐藏与外壳重复的站点顶栏 / 页脚（网页版 standalone 打开时保留）。 */
+(function () {
+  try {
+    if (window.self !== window.top) {
+      document.documentElement.classList.add('is-embed');
+    }
+  } catch (e) {
+    document.documentElement.classList.add('is-embed');
+  }
+})();
+</script>
 <style>
 /* ============================================
    CSS Custom Properties / Design Tokens
@@ -1955,12 +1968,330 @@ body.ft-all-loaded .ft-load-all{ display:none !important; }
   .table-wrapper{ border-radius:var(--v3-r-mid); }
 }
 
+/* ============================================================
+   v3 版式 —— 纪年查询（query 视图）
+   依据 设计原型\桌面版-v3.html：灰底白卡 / 圆角 24·18 / 字阶 20·13.5·12.5·11.5
+   —— 卡片白底无描边 + 轻阴影；分段控件浅灰底 pill + 白色选中
+   ============================================================ */
+:root{
+  --v3-pad-card:20px; --v3-gap-card:16px;
+}
+[data-theme="dark"]{
+  --v3-hover2:#33363C;
+}
+
+/* ---- 桌面内嵌：站点顶栏 / 页脚完全不出现（网页版可保留） ---- */
+html.is-embed .app-header{ display:none !important; }
+html.is-embed .app-footer{ display:none !important; }
+
+/* ---- 网页版精简顶栏：仅品牌 + 简繁（导航/登录/主题已移除） ---- */
+.app-header{
+  background:var(--v3-card); border-bottom:1px solid var(--v3-divider);
+  padding:0; backdrop-filter:none; -webkit-backdrop-filter:none; animation:none;
+}
+.header-inner{ max-width:none; padding:0 28px; height:56px; display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
+.header-brand{ display:flex; align-items:center; gap:10px; flex-shrink:0; text-decoration:none; color:inherit; }
+.header-brand .brand-icon{ width:28px; height:28px; border-radius:8px; }
+.header-brand h1{ font-family:var(--font-body); font-size:13.5px; font-weight:600; color:var(--v3-t1); letter-spacing:-.01em; }
+.web-topbar-sep{ width:1px; height:16px; background:var(--v3-divider); flex:0 0 1px; }
+.web-topbar-page{ font-size:12px; color:var(--v3-t3); white-space:nowrap; }
+.header-inner .lang-switch{ margin-left:auto; display:inline-flex; align-items:center; gap:0; padding:3px; border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge); overflow:visible; }
+.header-inner .lang-switch button{ border:0; background:none; color:var(--v3-t2); border-radius:var(--v3-r-pill); font-family:var(--font-body); font-size:11.5px; font-weight:500; padding:4px 11px; line-height:1.2; cursor:pointer; }
+.header-inner .lang-switch button.active{ background:var(--v3-card); color:var(--v3-t1); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+
+/* ---- 页头（v3 phead） ---- */
+.app-container{ max-width:1400px; padding:0 28px 24px; }
+.page-head{ display:flex; align-items:flex-start; gap:16px; padding:24px 2px 18px; margin:0; flex-wrap:wrap; }
+.page-head .ph-text{ flex:1 1 320px; min-width:0; }
+.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; }
+.page-head p{ font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:880px; margin:0; }
+.page-head p b{ color:var(--v3-t2); font-weight:600; }
+.page-head .ph-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; flex:0 0 auto; }
+
+/* ---- v3 按钮 / 分段控件 ---- */
+.btn{
+  height:36px; padding:0 16px; border:0; border-radius:var(--v3-r-pill);
+  background:var(--v3-badge); color:var(--v3-t1); font-family:var(--font-body);
+  font-size:13.5px; font-weight:500; display:inline-flex; align-items:center;
+  justify-content:center; gap:7px; cursor:pointer; white-space:nowrap;
+  transition:background var(--transition-fast);
+}
+.btn:hover{ background:#E2E4E8; border:0; transform:none; }
+.btn:active{ transform:none; background:#DDE0E4; }
+.btn.primary{ background:var(--v3-t1); color:var(--v3-bg-page); font-weight:600; }
+.btn.primary:hover{ background:var(--v3-t2); }
+.btn.ghost{ background:var(--v3-badge); }
+.btn.sm{ height:30px; padding:0 12px; font-size:12px; }
+[data-theme="dark"] .btn{ background:var(--v3-badge); color:var(--v3-t1); }
+[data-theme="dark"] .btn:hover{ background:var(--v3-hover2); }
+[data-theme="dark"] .btn.primary{ background:var(--v3-t1); color:#0A0A0A; }
+
+.seg{ display:inline-flex; align-items:center; padding:3px; border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge); }
+.seg > button, .view-mode-switch button{
+  height:30px; padding:0 14px; border:0; background:none; border-radius:var(--v3-r-pill);
+  font-family:var(--font-body); font-size:12px; font-weight:500; color:var(--v3-t2);
+  cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:6px;
+}
+.seg > button.on, .seg > button.active, .view-mode-switch button.active{
+  background:var(--v3-card); color:var(--v3-t1); font-weight:600;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.view-mode-switch{ margin:0; gap:0; border:0; background:var(--v3-badge); }
+.view-mode-switch svg{ width:13px; height:13px; }
+.card-cols-switch{ display:inline-flex; align-items:center; gap:2px; margin:0; padding:0 0 0 8px; border-left:1px solid var(--v3-divider); }
+.card-cols-btn{
+  height:24px; padding:0 8px; border:0; background:none; border-radius:var(--v3-r-pill);
+  font-family:var(--font-body); font-size:11px; color:var(--v3-t3); cursor:pointer;
+}
+.card-cols-btn.active{ background:var(--v3-card); color:var(--v3-t1); box-shadow:0 1px 3px rgba(0,0,0,.08); }
+
+/* ---- 搜索行（v3 searchrow：圆角大输入框 + 检索 + 今年） ---- */
+.searchrow{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--v3-card); border-radius:var(--v3-r-card);
+  box-shadow:var(--v3-shadow-card); padding:14px 16px; margin-bottom:var(--v3-gap-card);
+}
+.searchrow .field{
+  position:relative; display:flex; align-items:center; gap:9px;
+  height:40px; flex:1 1 300px; min-width:0; padding:0 14px;
+  background:var(--v3-fill); border-radius:var(--v3-r-mid);
+}
+.searchrow .field .field-ic{ width:16px; height:16px; flex:0 0 16px; fill:none; stroke:var(--v3-t3); stroke-width:1.9; }
+.searchrow .field input{
+  flex:1 1 auto; min-width:0; width:100%; border:0; outline:none; background:none;
+  font-family:var(--font-body); font-size:13.5px; color:var(--v3-t1); padding:0;
+}
+.searchrow .field input::placeholder{ color:var(--v3-t3); }
+.searchrow .btn{ height:40px; padding:0 20px; }
+.searchrow .qf-wrap{ margin-left:auto; }
+.searchrow .qf-btn{
+  height:36px; padding:0 14px; border:0; border-radius:var(--v3-r-pill);
+  background:var(--v3-badge); color:var(--v3-t1); font-family:var(--font-body);
+  font-size:12.5px; font-weight:500; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  white-space:nowrap;
+}
+.searchrow .qf-btn:hover{ background:#E2E4E8; border:0; transform:none; }
+.searchrow .qf-clear{ background:var(--v3-badge); border:0; border-radius:var(--v3-r-pill); }
+[data-theme="dark"] .searchrow .field{ background:#1F1F1F; }
+[data-theme="dark"] .searchrow .qf-btn:hover{ background:var(--v3-hover2); }
+[data-theme="dark"] .qf-clear{ background:var(--v3-badge); color:var(--v3-t2); }
+/* 桌面端筛选浮窗右对齐到按钮，避免溢出页面右侧 */
+@media (min-width: 769px){
+  .searchrow .qf-panel{ left:auto; right:0; }
+}
+/* 筛选浮窗的 v3 外观 */
+.searchrow .qf-panel{ border:0; border-radius:var(--v3-r-mid); background:var(--v3-card); box-shadow:var(--v3-shadow-float); }
+.searchrow .qf-col-dyn{ background:var(--v3-fill); border-right:1px solid var(--v3-divider); }
+.searchrow .qf-dyn-label{ color:var(--v3-t3); }
+.searchrow .qf-dyn-item{ color:var(--v3-t2); border-radius:8px; }
+.searchrow .qf-dyn-item:hover{ background:var(--v3-hover); color:var(--v3-t1); }
+.searchrow .qf-dyn-item.viewing{ background:var(--v3-card); color:var(--v3-t1); }
+.searchrow .qf-era-empty, .searchrow .qf-era-label{ color:var(--v3-t3); }
+.searchrow .qf-era-tag{ border:0; background:var(--v3-fill); color:var(--v3-t2); border-radius:var(--v3-r-pill); }
+.searchrow .qf-era-tag:hover{ background:var(--v3-badge); color:var(--v3-t1); }
+.searchrow .qf-era-tag.selected{ background:var(--v3-t1); color:var(--v3-bg-page); }
+.searchrow .qf-act-btn{ border:0; background:var(--v3-fill); color:var(--v3-t2); border-radius:var(--v3-r-pill); }
+.searchrow .qf-act-btn.active{ background:var(--v3-t1); color:var(--v3-bg-page); }
+.searchrow .qf-emperor-name{ color:var(--v3-t1); }
+.searchrow .qf-chip{ border:0; border-radius:var(--v3-r-pill); font-size:11.5px; padding:5px 11px; }
+.searchrow .qf-chip.qf-chip-dyn{ background:var(--v3-badge); color:var(--v3-t1); }
+.searchrow .qf-chip.qf-chip-era{ background:var(--v3-fill); color:var(--v3-t2); }
+.searchrow .qf-clear{ width:32px; height:32px; border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge); color:var(--v3-t3); }
+.searchrow .qf-clear:hover{ background:#FBE3E4; color:#C0392B; }
+
+/* 搜索建议：挂在输入框下方 */
+.search-suggestions{
+  top:calc(100% + 8px); left:0; right:0; margin-top:0;
+  border:0; border-radius:var(--v3-r-mid); background:var(--v3-card);
+  box-shadow:var(--v3-shadow-float); z-index:260;
+}
+.search-suggestion-item{ font-size:13px; border-bottom:1px solid var(--v3-divider); }
+.search-suggestion-item:hover, .search-suggestion-item.focused{ background:var(--v3-hover); }
+.search-suggestion-item mark{ background:var(--v3-badge); color:var(--v3-t1); }
+
+/* ---- 结果白卡 + 卡头（「1600 年 · 4 条」/ 排序说明） ---- */
+.result-card{
+  background:var(--v3-card); border-radius:var(--v3-r-card);
+  box-shadow:var(--v3-shadow-card); padding:var(--v3-pad-card);
+  margin-bottom:var(--v3-gap-card);
+}
+.result-card .card-h{ display:flex; align-items:baseline; justify-content:space-between; gap:10px 16px; margin-bottom:12px; flex-wrap:wrap; }
+.result-card .ch-left{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; min-width:0; }
+.result-card .card-title{ font-size:15px; font-weight:600; color:var(--v3-t1); }
+.result-card .card-title b{ font-weight:600; font-variant-numeric:tabular-nums; }
+.result-card .card-sub{ font-size:11.5px; color:var(--v3-t3); }
+.result-card .ch-right{ display:flex; align-items:center; gap:10px; font-size:11.5px; color:var(--v3-t3); min-height:18px; }
+.result-card .ch-right #ftHint:empty{ display:none; }
+body.is-full-table .result-card .ch-right #ftHint,
+body.is-full-table .result-card .ch-right #fullTableBadge{ display:none !important; }
+.result-card #statsInfo[hidden]{ display:none !important; }
+
+/* 卡片内表格：去掉旧的双层卡片外框 */
+.result-card .table-wrapper{
+  border:0; border-radius:0; box-shadow:none; background:transparent;
+  animation:none; overflow-x:auto; margin:0;
+}
+.result-card .table-wrapper th{
+  background:var(--v3-card); color:var(--v3-t3); font-size:11.5px; font-weight:500;
+  padding:14px 12px 10px; border-bottom:1px solid var(--v3-divider); letter-spacing:0;
+}
+.result-card .table-wrapper th:first-child, .result-card .table-wrapper td:first-child{ padding-left:2px; }
+.result-card .table-wrapper td{
+  padding:11px 12px; font-size:12.5px; line-height:1.6;
+  border-bottom:1px solid var(--v3-divider); color:var(--v3-t1); vertical-align:middle;
+}
+.result-card .table-wrapper tbody tr:nth-child(even) td{ background:transparent; }
+.result-card .table-wrapper tbody tr:nth-child(even) td.cell-year{ background:transparent; }
+.result-card .table-wrapper tbody tr:hover td,
+.result-card .table-wrapper tbody tr:hover td.cell-year{ background:var(--v3-hover); }
+.result-card .table-wrapper tbody tr:last-child td{ border-bottom:0; }
+.result-card .table-wrapper th.sortable:hover{ background:var(--v3-hover); color:var(--v3-t1); }
+.result-card td.cell-year{ background:transparent; }
+.result-card td.cell-cn-era, .result-card td.cell-jp-era{ font-weight:600; }
+.result-card td.cell-cn-dynasty, .result-card td.cell-jp-period{ color:var(--v3-t3); }
+.result-card td.cell-notes{ font-size:11.5px; color:var(--v3-t2); }
+.result-card .card-view{ padding:0; }
+
+/* 年号重复提醒 */
+.era-alert{ margin:0 0 12px; border:0; border-radius:var(--v3-r-mid); background:var(--v3-fill); color:var(--v3-t2); font-size:11.5px; padding:10px 14px; }
+
+/* ---- v3 单年区域表（搜索单一年份时使用：区域/朝代·幕府/年号/君主/干支/公元起止） ---- */
+.v3-tbl-wrap{ overflow-x:auto; }
+.v3-tbl{ width:100%; border-collapse:collapse; font-size:12.5px; }
+.v3-tbl th{
+  font-weight:500; color:var(--v3-t3); text-align:left; font-size:11.5px;
+  padding:0 12px 10px; white-space:nowrap; border-bottom:1px solid var(--v3-divider);
+}
+.v3-tbl th:first-child, .v3-tbl td:first-child{ padding-left:2px; }
+.v3-tbl td{
+  padding:11px 12px; border-bottom:1px solid var(--v3-divider);
+  color:var(--v3-t1); vertical-align:middle;
+}
+.v3-tbl tbody tr:last-child td{ border-bottom:0; }
+.v3-tbl tbody tr:hover td{ background:var(--v3-hover); }
+.v3-tbl .c-area{ color:var(--v3-t3); white-space:nowrap; }
+.v3-tbl .c-era{ font-weight:600; }
+.v3-tbl .c-muted{ color:var(--v3-t2); }
+.v3-tbl .num{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+.v3-pager{
+  display:flex; align-items:center; gap:6px; margin-top:12px; padding-top:12px;
+  border-top:1px solid var(--v3-divider); font-size:11.5px; color:var(--v3-t3);
+}
+.v3-pager .sp{ flex:1; }
+.v3-pager b{ color:var(--v3-t2); font-weight:600; font-variant-numeric:tabular-nums; }
+.v3-pager button{
+  height:26px; padding:0 10px; border:0; background:var(--v3-fill); color:var(--v3-t2);
+  border-radius:7px; font-family:var(--font-body); font-size:11.5px; cursor:pointer;
+}
+.v3-pager button:disabled{ opacity:.45; cursor:default; }
+[data-theme="dark"] .v3-pager button{ background:#262626; color:var(--v3-t2); }
+.v3-note{
+  display:none; gap:9px; margin-top:0; padding:11px 14px;
+  background:var(--v3-badge); border-radius:var(--v3-r-mid);
+  font-size:11.5px; color:var(--v3-t2); line-height:1.65;
+}
+body.v3-year .v3-note{ display:flex; }
+body.v3-year .v3-note svg{ width:16px; height:16px; flex:0 0 16px; fill:none; stroke:var(--v3-t2); stroke-width:1.8; margin-top:1px; }
+.v3-note p{ margin:0; }
+
+/* ---- 分页条 / 每页选择（放在白卡底部） ---- */
+.result-card .pager-row{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding-top:12px; margin-top:4px; border-top:1px solid var(--v3-divider); flex-wrap:wrap;
+}
+.result-card .pager-row[hidden]{ display:none !important; }
+body.is-full-table .result-card .pager-row,
+body.v3-year .result-card .pager-row{ display:none !important; }
+.result-card .pagination{ padding:0; margin:0; border:0; gap:6px; display:flex; align-items:center; flex-wrap:wrap; }
+.result-card .pagination .page-btn{
+  min-width:28px; height:28px; border:0; border-radius:8px;
+  background:var(--v3-fill); color:var(--v3-t2); font-size:11.5px; padding:0 8px;
+}
+.result-card .pagination .page-btn:hover:not(:disabled):not(.active){ background:var(--v3-badge); color:var(--v3-t1); }
+.result-card .pagination .page-btn.active{ background:var(--v3-t1); color:var(--v3-bg-page); font-weight:600; }
+.result-card .pagination .page-ellipsis{ width:28px; color:var(--v3-t3); text-align:center; }
+.result-card .per-page-wrap{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--v3-t3); }
+.result-card .pager-summary{ margin-left:auto; font-size:11.5px; color:var(--v3-t3); font-variant-numeric:tabular-nums; }
+.result-card .per-page-select{
+  border:0; background:var(--v3-badge); border-radius:var(--v3-r-pill);
+  padding:4px 10px; font-size:11.5px; color:var(--v3-t2); font-family:var(--font-body); cursor:pointer;
+}
+
+/* 空状态 */
+.result-card .empty-state{ background:transparent; box-shadow:none; margin:0; }
+.result-card .loading-overlay{ border-radius:var(--v3-r-mid); }
+
+/* 浮动常识 / 卷数入口：白底轻阴影胶囊，避免黑块压住表格 */
+.knowledge-btn{
+  background:var(--v3-card); color:var(--v3-t2);
+  border:1px solid var(--v3-divider); box-shadow:var(--v3-shadow-card);
+}
+.knowledge-btn:hover{ background:var(--v3-card); color:var(--v3-t1); border-color:var(--v3-t4); }
+.knowledge-btn.locked{ background:var(--v3-t1); color:var(--v3-card); border-color:var(--v3-t1); }
+[data-theme="dark"] .knowledge-btn{ background:var(--v3-card); color:var(--v3-t2); border-color:#2A2D33; }
+[data-theme="dark"] .knowledge-btn:hover{ background:#222; color:var(--v3-t1); }
+[data-theme="dark"] .knowledge-btn.locked{ background:var(--v3-t1); color:#0A0A0A; }
+
+/* ---- 卡片视图 → v3 白卡（移动端强制卡片时也统一） ---- */
+.card-view .year-card{
+  background:var(--v3-card); border:0; border-radius:var(--v3-r-mid);
+  box-shadow:var(--v3-shadow-card); padding:15px 16px 13px;
+}
+.card-view .year-card:hover{ box-shadow:var(--v3-shadow-card); }
+.card-view .yc-year{ font-size:20px; font-weight:700; color:var(--v3-t1); }
+.card-view .yc-ganzhi{ color:var(--v3-t2); }
+.card-view .yc-zodiac{ color:var(--v3-t3); }
+.card-view .yc-block{ border:0; background:var(--v3-fill); border-radius:12px; padding:9px 12px; }
+.card-view .yc-block.jp{ border:0; }
+.card-view .yc-block-label{ color:var(--v3-t3); }
+.card-view .yc-era-name{ font-size:13px; font-weight:600; color:var(--v3-t1); }
+.card-view .yc-meta{ color:var(--v3-t3); }
+.card-view .yc-notes{ border-top:1px solid var(--v3-divider); color:var(--v3-t2); }
+.card-view .yc-copy{ border:0; background:var(--v3-badge); color:var(--v3-t2); border-radius:var(--v3-r-pill); }
+.card-view .yc-empty{ color:var(--v3-t3); }
+[data-theme="dark"] .card-view .year-card{ background:var(--v3-card); }
+[data-theme="dark"] .card-view .yc-block{ background:#1F1F1F; }
+
+/* ---- 窄屏：390px 不溢出 ---- */
+@media (max-width: 768px){
+  .header-inner{ padding:0 16px; height:52px; }
+  .app-container{ padding:0 16px 16px; }
+  .page-head{ padding:16px 0 14px; gap:10px; }
+  .page-head h1{ font-size:18px; }
+  .page-head p{ font-size:11.5px; }
+  .page-head .ph-actions{ width:100%; justify-content:flex-start; }
+  .searchrow{ padding:12px; border-radius:var(--v3-r-mid); }
+  .searchrow .field{ flex:1 1 100%; }
+  .searchrow .btn{ height:36px; padding:0 14px; }
+  .searchrow .qf-wrap{ margin-left:0; }
+  .result-card{ padding:14px; border-radius:var(--v3-r-mid); }
+  .result-card .card-title{ font-size:14px; }
+  .result-card .table-wrapper table{ min-width:900px; }
+  .result-card .table-wrapper th, .result-card .table-wrapper td{ padding:9px 10px; }
+  .v3-tbl{ min-width:620px; }
+  .v3-tbl th, .v3-tbl td{ padding:9px 10px; }
+  /* 移动端浮动入口收成圆钮，避免压住卡片正文 */
+  .knowledge-btn{ width:42px; min-width:42px; max-width:42px; padding:0; }
+  .knowledge-btn:hover{ width:42px; min-width:42px; padding:0; }
+  .knowledge-btn .kb-text{ max-width:0; opacity:0; }
+  .result-card .pager-row{ align-items:center; }
+  .result-card .pager-summary{ margin-left:0; order:3; width:100%; }
+}
+
+  /* V1.1：网页版站点导航条 */
+  .web-nav-strip { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    max-width: 1240px; margin: 12px auto 0; padding: 0 20px; }
+  .web-nav-strip a { color: var(--text-sec, var(--color-text-muted)); text-decoration: none;
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px; }
+  .web-nav-strip a:hover { background: var(--bg-badge, var(--color-surface-hover)); color: var(--text, var(--color-text)); }
+  html.is-embed .web-nav-strip { display: none !important; }
 </style>
 <style id="kanseki-app-embed">/* kanseki-app-embed */
 .app-header .header-nav{display:none !important}
 .app-header .header-brand{display:none !important}
 .filter-bar{top:0 !important}
 .doc-toolbar,.cat-toolbar{top:0 !important}
+.web-nav-strip{display:none !important}
 .m-hamburger{display:none !important}
 .drawer,.drawer-overlay{display:none !important}
 </style>
@@ -1968,252 +2299,167 @@ body.ft-all-loaded .ft-load-all{ display:none !important; }
 <body>
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 <!-- ============================================
-     Header / Top Bar
+     Web 顶栏（仅网页版 standalone 显示；桌面版 iframe 承载时
+     由 html.is-embed 整条隐藏。站点导航 / 登录注册 / 主题切换
+     已由桌面外壳承担，页内不再重复）
      ============================================ -->
 <header class="app-header" role="banner">
   <div class="header-inner">
-    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <div class="header-brand">
-      <img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block">
+    <a class="header-brand" href="index.html" aria-label="古代史及汉籍研究工具 · 纪年查询">
+      <img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:28px;height:28px;object-fit:contain;display:block">
       <h1>古代史及汉籍研究工具</h1>
-    </div>
-    <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-link nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html" class="nav-link active">纪年查询</a><a href="catalog.html" class="nav-link">编目规范</a><a href="kanseki.html" class="nav-link">古籍类目查询</a><a href="embed.html" class="nav-link">快速跳转</a>
-    </nav>
-    <div class="header-search" role="search">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-      </svg>
-      <input type="text" id="globalSearch" data-placeholder-cn="搜索：公历年份、干支、年号、君主名……" placeholder="搜索：公曆年份、干支、年號、君主名……" aria-label="全局检索" autocomplete="off">
-      <button class="search-btn" id="searchBtn" aria-label="执行搜索" title="搜索并跳转">查找</button>
-      <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="搜索建议"></div>
-    </div>
-    <div class="header-actions">
-      <button class="btn-icon" id="themeToggle" aria-label="切换暗色模式" title="切换暗色/亮色模式">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-      <div class="nav-dropdown user-dropdown">
-        <button class="nav-link nav-dropdown-btn user-btn" type="button" aria-haspopup="true" id="userMenuBtn">
-          <a href="login.html" class="user-login-link" id="userLoginLink" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="nav-dropdown-menu user-menu" role="menu">
-          <div class="user-menu-section">
-            <span class="user-menu-label">显示字形</span>
-            <div class="lang-switch" role="group" aria-label="显示字形切换">
-              <button id="langBtnS" type="button" title="显示简体字">简</button>
-              <button id="langBtnT" class="active" type="button" title="显示繁体字">繁</button>
-            </div>
-          </div>
-          <a href="settings.html#api" role="menuitem" class="user-menu-settings">设置</a><a href="login.html" role="menuitem" class="user-menu-login">登录 / 注册</a>
-        </div>
-      </div>
+    </a>
+    <span class="web-topbar-sep" aria-hidden="true"></span>
+    <span class="web-topbar-page">纪年查询</span>
+    <div class="lang-switch" role="group" aria-label="显示字形切换">
+      <button id="langBtnS" type="button" title="显示简体字">简</button>
+      <button id="langBtnT" class="active" type="button" title="显示繁体字">繁</button>
     </div>
   </div>
 </header>
-
-<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示, 桌面 .header-nav 原样保留) -->
-<div class="drawer-overlay" id="mDrawerOverlay"></div>
-<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
-  <div class="drawer-brand">
-    <img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block">
-    <h2>古代史及汉籍研究工具</h2>
-  </div>
-  <nav class="drawer-nav">
-    <div class="drawer-nav-group">导航</div>
-    <a href="index.html" class="drawer-link active">纪年查询</a>
-    <a href="catalog.html" class="drawer-link">编目规范</a>
-    <a href="kanseki.html" class="drawer-link">古籍类目查询</a>
-    <a href="embed.html" class="drawer-link">快速跳转</a>
-    <div class="drawer-nav-group">说明文档</div>
-    <a href="guide.html" class="drawer-link">使用介绍</a>
-    <a href="changelog.html" class="drawer-link">更新日志</a>
+  <!-- V1.1：网页版站点导航（桌面内嵌时由构建注入的 CSS 隐藏） -->
+  <nav class="web-nav-strip" aria-label="站点导航">
+    <a href="index.html">纪年查询</a>
+    <a href="catalog.html?tab=0">细则查阅</a>
+    <a href="catalog.html?tab=1">分类表</a>
+    <a href="catalog.html?tab=2">工作手册</a>
+    <a href="kanseki.html">古籍类目</a>
+    <a href="embed.html">快速跳转</a>
+    <a href="guide.html">使用介绍</a>
+    <a href="changelog.html">更新日志</a>
   </nav>
-  <div class="drawer-user">
-    <span style="font-size:0.74rem;color:var(--color-text-muted);">显示字形</span>
-    <div class="lang-switch" role="group" aria-label="显示字形切换">
-      <button id="mLangBtnS" type="button" title="显示简体字">简</button>
-      <button id="mLangBtnT" class="active" type="button" title="显示繁体字">繁</button>
-    </div>
-    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
-  </div>
-</aside>
 
-<!-- ============================================
-     Filter Bar (Desktop) — V5.1 起改为 stats-bar 内快捷筛选浮窗
-     ============================================ -->
-
-<!-- ============================================
-     Mobile Filter Toggle
-     ============================================ -->
-<div class="filter-bar" style="display:none" id="mobileFilterBar">
-  <div class="filter-inner">
-    <button class="filter-toggle-mobile" id="filterToggleMobile" aria-label="打开筛选面板">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
-      筛选条件
-    </button>
-    <button class="filter-clear" id="filterClearBtnMobile" aria-label="清空所有筛选">清空</button>
-  </div>
-</div>
-
-<!-- Mobile filter overlay & panel -->
-<div class="filter-panel-overlay" id="filterPanelOverlay"></div>
-<div class="filter-panel-mobile" id="filterPanelMobile" role="dialog" aria-label="筛选面板">
-  <div class="filter-panel-header">
-    <h3>筛选条件</h3>
-    <button class="btn-icon" id="filterPanelClose" aria-label="关闭筛选面板" style="color:var(--color-text);border-color:var(--color-border);background:var(--color-btn-bg);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="filter-panel-section">
-    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-china-accent);">中国朝代</h4>
-    <div class="filter-tags" id="chinaFilterTagsMobile"></div>
-  </div>
-  <div class="filter-panel-section" id="cnEraSubFilterMobile" style="display:none;">
-    <h4 style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--color-accent);">年号筛选</h4>
-    <div class="filter-tags" id="chinaEraTagsMobile"></div>
-  </div>
-  <div class="filter-panel-section">
-    <h4 style="font-size:0.85rem;margin-bottom:0.6rem;color:var(--color-japan-accent);">其他朝代</h4>
-    <div class="filter-tags" id="japanFilterTagsMobile"></div>
-  </div>
-  <button class="btn" id="filterApplyMobile" style="width:100%;margin-top:1rem;justify-content:center;font-weight:600;">应用筛选</button>
-</div>
 
 <!-- ============================================
      Main Content
      ============================================ -->
 <main class="app-container" role="main">
-  <!-- v3 页头：标题 + 当前浏览模式 + 全表加载 -->
+  <!-- v3 页头：标题 + 一行说明 + 右侧动作区（置顶小窗 / 导出 CSV / 表格-卡片） -->
   <div class="page-head" id="pageHead">
     <div class="ph-text">
       <h1 id="pageTitle">纪年查询</h1>
-      <p>公历年 ↔ 中国、日本及其他地区年号 · 打开即见<b>全部年份</b>表（共 2,868 年，分段渲染不卡顿）；输入年份 / 年号 / 干支即定位。</p>
+      <p>公历年 ↔ 中国、日本及其他地区年号 · 打开即见<b>全部年份</b>表（2,868 年，分段渲染）；输入年份 / 年号 / 干支即定位。</p>
     </div>
     <div class="ph-actions">
-      <span class="ph-chip" id="modeChip">全表</span>
-      <button class="btn ft-load-all" id="ftLoadAllBtn" type="button" hidden>加载全部年份</button>
+      <button class="btn ghost" id="tinyWinBtn" type="button" title="在桌面版打开纪年置顶小窗">置顶小窗</button>
+      <button class="btn ghost" id="exportBtn" type="button" aria-label="导出为 CSV">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出 CSV
+      </button>
+      <div class="seg view-mode-switch" id="viewModeSwitch" role="group" aria-label="视图切换">
+        <button type="button" id="viewModeTable" class="active" aria-pressed="true">表格</button>
+        <button type="button" id="viewModeCard" aria-pressed="false">卡片</button>
+      </div>
+      <span class="card-cols-switch" id="cardColsSwitch" role="group" aria-label="卡片列数" style="display:none;">
+        <button type="button" class="card-cols-btn active" data-cols="4" aria-pressed="true">4列</button>
+        <button type="button" class="card-cols-btn" data-cols="6" aria-pressed="false">6列</button>
+      </span>
     </div>
   </div>
 
-  <!-- Stats Bar -->
-  <div class="stats-bar" id="statsBar">
-    <div class="stats-left">
-      <div class="stats-info" id="statsInfo">
-        共 <strong id="totalCount">0</strong> 条记录<span class="ft-badge" id="fullTableBadge" hidden>全表 · 全部年份</span><span class="ft-hint" id="ftHint"></span>
-      </div>
-      <!-- V8.2 表格/卡片视图切换 (桌面端) -->
-      <div class="view-mode-switch" id="viewModeSwitch" role="group" aria-label="视图切换">
-        <button type="button" id="viewModeTable" class="active" aria-pressed="true">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          表格
-        </button>
-        <button type="button" id="viewModeCard" aria-pressed="false">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-          卡片
-        </button>
-        <!-- V8.3: 卡片列数切换 (4列/6列, 仅卡片视图显示) -->
-        <span class="card-cols-switch" id="cardColsSwitch" role="group" aria-label="卡片列数" style="display:none;">
-          <button type="button" class="card-cols-btn active" data-cols="4" aria-pressed="true">4列</button>
-          <button type="button" class="card-cols-btn" data-cols="6" aria-pressed="false">6列</button>
-        </span>
-      </div>
-      <!-- 快捷筛选 (V5.1 浮窗式) -->
-      <div class="qf-wrap" id="qfWrap">
-        <button class="qf-btn" id="qfBtn" aria-haspopup="true" aria-expanded="false">
-          快捷筛选
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="qf-chips" id="qfChips"></div>
-        <button class="qf-clear" id="qfClear" title="清除筛选" aria-label="清除筛选" style="display:none;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-        </button>
-        <!-- 浮窗面板 -->
-        <div class="qf-panel" id="qfPanel" role="dialog" aria-label="快捷筛选">
-          <div class="qf-col qf-col-dyn" id="qfDynCol"></div>
-          <div class="qf-col qf-col-era" id="qfEraCol">
-            <div class="qf-era-empty" id="qfEraEmpty">← 选择朝代查看年号</div>
-            <div class="qf-era-body" id="qfEraBody"></div>
-          </div>
+  <!-- v3 搜索行：圆角大输入框 + 检索 + 今年（快捷筛选收敛为一枚按钮） -->
+  <div class="searchrow" id="searchRow">
+    <div class="field" role="search">
+      <svg class="field-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="globalSearch" data-placeholder-cn="输入公历年、年号、干支或君主名，如 1600" placeholder="输入公曆年、年號、干支或君主名，如 1600" aria-label="全局检索" autocomplete="off">
+      <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="搜索建议"></div>
+    </div>
+    <button class="btn primary" id="searchBtn" type="button" aria-label="执行搜索">检索</button>
+    <button class="btn ghost" id="thisYearBtn" type="button" title="跳到今年">今年</button>
+    <!-- 快捷筛选（朝代 / 年号，浮窗式；桌面与移动端共用） -->
+    <div class="qf-wrap" id="qfWrap">
+      <button class="qf-btn" id="qfBtn" aria-haspopup="true" aria-expanded="false">
+        快捷筛选
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="qf-chips" id="qfChips"></div>
+      <button class="qf-clear" id="qfClear" title="清除筛选" aria-label="清除筛选" style="display:none;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+      <div class="qf-panel" id="qfPanel" role="dialog" aria-label="快捷筛选">
+        <div class="qf-col qf-col-dyn" id="qfDynCol"></div>
+        <div class="qf-col qf-col-era" id="qfEraCol">
+          <div class="qf-era-empty" id="qfEraEmpty">← 选择朝代查看年号</div>
+          <div class="qf-era-body" id="qfEraBody"></div>
         </div>
       </div>
     </div>
-    <div class="stats-actions">
-      <span class="per-page-wrap"><span class="per-page-label" style="font-size:0.8rem;color:var(--color-text-secondary);">每页</span>
-      <select class="per-page-select" id="perPageSelect" aria-label="每页显示条数">
-        <option value="20">20条</option>
-        <option value="50" selected>50条</option>
-        <option value="100">100条</option>
-      </select></span>
-      <button class="btn" id="exportBtn" aria-label="导出为 CSV">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        导出CSV
-      </button>
+  </div>
+
+  <!-- v3 结果白卡：卡头（「1600 年 · 4 条」+ 排序说明）/ 表格 / 分页 -->
+  <div class="result-card" id="resultCard">
+    <div class="card-h">
+      <div class="ch-left">
+        <span class="card-title" id="resultTitle">全部年份 · <b>2,868</b> 年</span>
+        <span class="card-sub" id="resultSub">排序：公历年份升序</span>
+      </div>
+      <div class="ch-right">
+        <span id="fullTableBadge" hidden></span>
+        <span id="ftHint"></span>
+        <span id="statsInfo" hidden>共 <strong id="totalCount">0</strong> 条记录</span>
+      </div>
+    </div>
+
+    <!-- 相同年号高亮提醒框 -->
+    <div class="era-alert" id="eraAlert" role="alert" aria-live="polite"></div>
+
+    <!-- 单一年份搜索：v3 区域对照表（区域 / 朝代·幕府 / 年号 / 君主 / 干支 / 公元起止） -->
+    <div id="v3Result" hidden></div>
+    <div class="v3-note" id="v3Note" role="note">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+      <p>排序固定为<b>中国 → 日本 → 其他地区</b>；同一公历年可能对应多个年号，以农历正月初一为界。</p>
+    </div>
+
+    <!-- 全表 / 多行结果：年份表格 -->
+    <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
+      <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+      <table role="table" aria-label="古代东亚历史纪年对照表">
+        <thead id="tableHead">
+          <tr role="row">
+            <th class="col-year sortable" data-sort="year" scope="col" aria-sort="ascending">
+              公历年份 <span class="sort-arrow active">▲</span>
+            </th>
+            <th class="col-ganzhi" scope="col">干支</th>
+            <th class="col-cn-era" scope="col">中国年号</th>
+            <th class="col-cn-dynasty" scope="col">中国朝代</th>
+            <th class="col-cn-ruler" scope="col">在位皇帝</th>
+            <th class="col-jp-period" scope="col">其他朝代</th>
+            <th class="col-jp-era" scope="col">年号</th>
+            <th class="col-jp-ruler" scope="col">在位君主</th>
+            <th class="col-notes" scope="col">备注</th>
+            <th class="col-zodiac" scope="col">生肖</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 卡片视图容器（表格/卡片双视图 + 移动端强制卡片） -->
+    <div class="card-view" id="cardView" role="region" aria-label="纪年对照数据卡片"></div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon" aria-hidden="true">&#x1F50D;</div>
+      <h3>未找到匹配的记录</h3>
+      <p id="emptyStateMsg">请尝试调整搜索关键词或放宽筛选条件</p>
+    </div>
+
+    <!-- 分页条 + 每页 -->
+    <div class="pager-row" id="pagerRow" hidden>
+      <span class="per-page-wrap"><span class="per-page-label">每页</span>
+        <select class="per-page-select" id="perPageSelect" aria-label="每页显示条数">
+          <option value="20">20条</option>
+          <option value="50" selected>50条</option>
+          <option value="100">100条</option>
+        </select>
+      </span>
+      <span class="pager-summary" id="pagerSummary"></span>
+      <nav class="pagination" id="pagination" aria-label="分页导航"></nav>
     </div>
   </div>
-
-  <!-- 相同年号高亮提醒框 (V4.2, 表头上方) -->
-  <div class="era-alert" id="eraAlert" role="alert" aria-live="polite"></div>
-
-  <!-- Table -->
-  <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
-    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
-    <table role="table" aria-label="古代东亚历史纪年对照表">
-      <thead id="tableHead">
-        <tr role="row">
-          <th class="col-year sortable" data-sort="year" scope="col" aria-sort="ascending">
-            公历年份 <span class="sort-arrow active">▲</span>
-          </th>
-          <th class="col-ganzhi" scope="col">干支</th>
-          <th class="col-cn-era" scope="col">中国年号</th>
-          <th class="col-cn-dynasty" scope="col">中国朝代</th>
-          <th class="col-cn-ruler" scope="col">在位皇帝</th>
-          <th class="col-jp-period" scope="col">其他朝代</th>
-          <th class="col-jp-era" scope="col">年号</th>
-          <th class="col-jp-ruler" scope="col">在位君主</th>
-          <th class="col-notes" scope="col">备注</th>
-          <th class="col-zodiac" scope="col">生肖</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
-
-  <!-- V8.2 卡片视图容器 (表格/卡片双视图 + 移动端强制卡片) -->
-  <div class="card-view" id="cardView" role="region" aria-label="纪年对照数据卡片"></div>
-
-  <!-- Empty State -->
-  <div class="empty-state" id="emptyState">
-    <div class="empty-icon" aria-hidden="true">&#x1F50D;</div>
-    <h3>未找到匹配的记录</h3>
-    <p id="emptyStateMsg">请尝试调整搜索关键词或放宽筛选条件</p>
-  </div>
-
-  <!-- Pagination -->
-  <nav class="pagination" id="pagination" aria-label="分页导航"></nav>
 </main>
 
-<!-- ============================================
-     Footer
-     ============================================ -->
-<footer class="app-footer" role="contentinfo">
-  <div class="footer-inner">
-    <div class="footer-notes">
-      数据覆盖：中国自西周共和元年（公元前841年）至清朝灭亡（公元1912年）；
-      周边政权含日本（飞鸟时代大化年间645年至令和时代）、朝鲜半岛（高句丽/新罗/高丽/朝鲜王朝等）、渤海、南诏、大理与越南（李朝/陈朝/后黎朝/阮朝等）。
-      干支与生肖依农历推算，具体年份可能有±1年偏差。
-      并立政权年号均已尽可能完整罗列。
-    </div>
-    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-      <a href="changelog.html" class="footer-changelog-btn" aria-label="查看更新日志">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-        更新日志
-      </a>
-      <span style="white-space:nowrap;">v8.0 · 学术参考工具</span>
-    </div>
-  </div>
-</footer>
+
 
 <!-- Export Dialog -->
 <div class="modal-overlay" id="exportDialog" role="dialog" aria-modal="true" aria-label="导出 CSV">
@@ -2299,11 +2545,15 @@ function convertText(text, mapObj) {
   if (!text || !mapObj) return text;
   const isS2T = (mapObj === getConvTables().s2t);
   let buckets;
+  // 注意：主逻辑 IIFE 在 conv_tables.js 之前执行，顶部构建 FULL_DATA 时若先调用过
+  // toSimplified()，会用空表缓存出空桶，导致此后简繁转换恒等（繁体查询失效）。
+  // 这里在「缓存为空但映射表已有内容」时重建一次，兼容脚本加载顺序。
+  const hasMapKeys = Object.keys(mapObj).length > 0;
   if (isS2T) {
-    if (!_s2tBuckets) _s2tBuckets = getBuckets(mapObj);
+    if (!_s2tBuckets || (_s2tBuckets.size === 0 && hasMapKeys)) _s2tBuckets = getBuckets(mapObj);
     buckets = _s2tBuckets;
   } else {
-    if (!_t2sBuckets) _t2sBuckets = getBuckets(mapObj);
+    if (!_t2sBuckets || (_t2sBuckets.size === 0 && hasMapKeys)) _t2sBuckets = getBuckets(mapObj);
     buckets = _t2sBuckets;
   }
   if (!buckets || buckets.size === 0) return text;
@@ -2408,9 +2658,11 @@ function setDisplayLang(lang, force) {
   // V8.9: 记住用户选择 (此前每次打开都被重置为繁体)
   try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* 隐私模式等场景忽略 */ }
   
-  // 更新切换按钮高亮
-  document.getElementById('langBtnS').classList.toggle('active', lang === 's');
-  document.getElementById('langBtnT').classList.toggle('active', lang === 't');
+  // 更新切换按钮高亮（桌面版页内入口已收敛到网页版顶栏，可能不存在）
+  const langS = document.getElementById('langBtnS');
+  const langT = document.getElementById('langBtnT');
+  if (langS) langS.classList.toggle('active', lang === 's');
+  if (langT) langT.classList.toggle('active', lang === 't');
   
   // 表头 (只处理文本节点, 保留 sort-arrow)
   document.querySelectorAll('#tableHead th').forEach(th => {
@@ -2798,7 +3050,11 @@ function buildFullDataset() {
       jpPeriod: jpPeriodRealArr.length > 0 ? jpPeriodRealArr.join('、') : '—',
       jpEra: jpEraLines,
       jpRuler: jpRulerArr.length > 0 ? jpRulerArr.join('、') : '—',
-      notes: allNotes.join('；')
+      notes: allNotes.join('；'),
+      // v3 单年区域表用的结构化条目（中国 / 日本 / 其他政权，互不合并）
+      _v3cn: cnEntries.map(e => ({ dynasty: e.dynasty, era: e.eraFull, ruler: e.ruler })),
+      _v3jp: jpEntries.filter(e => e.kind === 'jp').map(e => ({ period: e.period, era: e.eraFull, ruler: e.ruler })),
+      _v3ot: jpEntries.filter(e => e.kind === 'ot').map(e => ({ state: e.period, era: e.eraFull, ruler: e.ruler }))
     });
   }
   
@@ -3351,7 +3607,9 @@ function qfRenderDynCol() {
   col.querySelectorAll('.qf-dyn-item').forEach(el => {
     el.addEventListener('mouseenter', () => {
       qfViewingKey = el.dataset.key;
-      qfRenderDynCol();
+      // 只切换 viewing 高亮，不重建整列：重建会让 hover 中的节点被替换，
+      // 真实点击/自动化点击都可能落空（history: 点击朝代无反应）。
+      col.querySelectorAll('.qf-dyn-item').forEach(x => x.classList.toggle('viewing', x === el));
       qfRenderEraPanel();
     });
     el.addEventListener('click', () => {
@@ -4521,8 +4779,159 @@ function effectiveMode() {
   return (window.innerWidth <= 768) ? 'card' : viewMode;
 }
 
+// ============================================================
+// v3 单年区域对照表（对齐 设计原型\桌面版-v3.html 的 query 视图）
+// ------------------------------------------------------------
+// 当检索/筛选后只剩 1 个年份、且处于桌面表格视图时，把该年展开成
+// 「中国 → 日本 → 其他地区」的区域行：区域 / 朝代·幕府 / 年号 / 君主 / 干支 / 公元起止。
+// 全表（2,868 年）与多行结果仍用年份表格，避免把全表撑成上万行。
+// ============================================================
+const V3_KR_STATES = ['高句丽', '新罗', '泰封', '后百济', '高丽', '朝鲜王朝', '渤海'];
+const V3_VN_STATES = ['前李朝', '丁朝', '前黎朝', '李朝', '陈朝', '胡朝', '后黎朝', '莫朝', '后黎朝(后期)', '阮朝'];
+
+function v3Uniq(arr) {
+  return [...new Set(arr.filter(v => v !== null && v !== undefined && String(v).trim() !== ''))];
+}
+function v3EraText(list) {
+  return v3Uniq(list.map(e => (e.era && !/^[—-]/.test(e.era)) ? e.era : '无年号')).join('、');
+}
+function v3RulerText(list) {
+  const parts = v3Uniq(list.map(e => e.ruler));
+  return parts.length ? parts.join('、') : '—';
+}
+
+// 单一年份 → 区域行数组
+function v3AreaRowsForYear(row) {
+  if (!row) return [];
+  const out = [];
+  const yearStr = toDisplay(row.yearStr);
+  const span = yearStr + toDisplay(' 全年');
+  const gz = toDisplay(row.ganzhi || '—');
+
+  if (row._v3cn && row._v3cn.length) {
+    out.push({
+      area: toDisplay('中国'),
+      dyn: toDisplay(v3Uniq(row._v3cn.map(e => e.dynasty)).join('、') || '—'),
+      era: toDisplay(v3EraText(row._v3cn) || '—'),
+      ruler: toDisplay(v3RulerText(row._v3cn)),
+      gz, span
+    });
+  }
+  if (row._v3jp && row._v3jp.length) {
+    out.push({
+      area: toDisplay('日本'),
+      dyn: toDisplay(v3Uniq(row._v3jp.map(e => e.period)).join('、') || '—'),
+      era: toDisplay(v3EraText(row._v3jp) || '—'),
+      ruler: toDisplay(v3RulerText(row._v3jp)),
+      gz, span
+    });
+  }
+  // 其他政权：按政权（state）归并，“朝鲜 / 越南”单独标区域
+  if (row._v3ot && row._v3ot.length) {
+    const byState = new Map();
+    for (const e of row._v3ot) {
+      const k = e.state || '其他地区';
+      if (!byState.has(k)) byState.set(k, []);
+      byState.get(k).push(e);
+    }
+    for (const [state, list] of byState) {
+      let area = '其他地区';
+      if (V3_KR_STATES.indexOf(state) >= 0) area = '朝鲜';
+      else if (V3_VN_STATES.indexOf(state) >= 0) area = '越南';
+      out.push({
+        area: toDisplay(area),
+        dyn: toDisplay(state),
+        era: toDisplay(v3EraText(list) || '—'),
+        ruler: toDisplay(v3RulerText(list)),
+        gz, span
+      });
+    }
+  }
+  return out;
+}
+
+// 当前是否应使用 v3 单年区域表；返回目标 row 或 null
+function v3ResultRow() {
+  if (typeof effectiveMode === 'function' && effectiveMode() !== 'table') return null;
+  if (typeof isFullTableMode === 'function' && isFullTableMode()) return null;
+  const real = realFilteredRows();
+  return real.length === 1 ? real[0] : null;
+}
+
+// 主题标签：排序说明（中国 → 日本 → 其他地区）
+function v3SortLabel() {
+  return toDisplay('排序：中国 → 日本 → 其他地区');
+}
+
+function setV3YearMode(on) {
+  document.body.classList.toggle('v3-year', !!on);
+  const box = document.getElementById('v3Result');
+  if (box) {
+    box.hidden = !on;
+    if (!on) box.innerHTML = '';
+  }
+  if (!on) {
+    // 退出单年区域表：清掉渲染时加的行内 display，交回年份表/卡片渲染器接管
+    const tw = document.getElementById('tableWrapper');
+    const cv = document.getElementById('cardView');
+    if (cv) cv.style.display = '';
+    if (tw && !document.body.classList.contains('view-card')) tw.style.display = '';
+  }
+}
+
+// 渲染 v3 单年区域表
+function renderV3YearResult(row) {
+  const box = document.getElementById('v3Result');
+  if (!box) return;
+  const areas = v3AreaRowsForYear(row);
+  const body = areas.map(a => (
+    '<tr>' +
+      '<td class="c-area">' + a.area + '</td>' +
+      '<td>' + a.dyn + '</td>' +
+      '<td class="c-era">' + a.era + '</td>' +
+      '<td class="c-muted">' + a.ruler + '</td>' +
+      '<td class="num">' + a.gz + '</td>' +
+      '<td class="num c-muted">' + a.span + '</td>' +
+    '</tr>'
+  )).join('');
+  box.innerHTML =
+    '<div class="v3-tbl-wrap"><table class="v3-tbl" aria-label="' + toDisplay(row.yearStr) + ' 年纪年对照">' +
+      '<thead><tr>' +
+        '<th>' + toDisplay('区域') + '</th>' +
+        '<th>' + toDisplay('朝代 / 幕府') + '</th>' +
+        '<th>' + toDisplay('年号') + '</th>' +
+        '<th>' + toDisplay('君主') + '</th>' +
+        '<th>' + toDisplay('干支') + '</th>' +
+        '<th>' + toDisplay('公元起止') + '</th>' +
+      '</tr></thead>' +
+      '<tbody>' + body + '</tbody>' +
+    '</table></div>' +
+    '<div class="v3-pager">' +
+      '<span>' + toDisplay('共') + ' <b>' + areas.length + '</b> ' + toDisplay('条') +
+        ' · ' + toDisplay('第') + ' <b>1 / 1</b> ' + toDisplay('页') + '</span>' +
+      '<span class="sp"></span>' +
+      '<button type="button" disabled>' + toDisplay('上一页') + '</button>' +
+      '<button type="button" disabled>' + toDisplay('下一页') + '</button>' +
+    '</div>';
+  // 区域表接管后隐藏年份表 / 卡片 / 旧分页
+  const tw = document.getElementById('tableWrapper');
+  const cv = document.getElementById('cardView');
+  if (tw) tw.style.display = 'none';
+  if (cv) cv.style.display = 'none';
+  const pag = document.getElementById('pagination');
+  if (pag) { pag.innerHTML = ''; pag.style.display = ''; }
+  const es = document.getElementById('emptyState');
+  if (es) es.classList.remove('active');
+}
+
 // 视图分发渲染
 function renderByViewMode() {
+  const v3row = v3ResultRow();
+  setV3YearMode(!!v3row);
+  if (v3row) {
+    renderV3YearResult(v3row);
+    return;
+  }
   if (effectiveMode() === 'card') {
     renderCardView();
   } else if (isFullTableMode()) {
@@ -4706,17 +5115,30 @@ function highlightHtml(html, query) {
 // ========================================
 function renderPagination() {
   const container = document.getElementById('pagination');
+  const pagerRow = document.getElementById('pagerRow');
+  const summary = document.getElementById('pagerSummary');
+  const v3 = document.body.classList.contains('v3-year');
+  const full = isFullTableMode();
+  const n = realFilteredRows().length;
 
-  // V10.0: 全表浏览模式下无分页（全部年份连续展示）
-  if (isFullTableMode()) {
+  // v3 单年区域表自带页脚；全表连续展示不需要分页条
+  if (v3 || full || n === 0) {
+    if (pagerRow) pagerRow.hidden = true;
     container.innerHTML = '';
-    container.style.display = 'none';
+    container.style.display = '';
+    if (summary) summary.textContent = '';
     return;
   }
-  container.style.display = '';
 
-  const totalPages = Math.ceil(filteredData.length / perPage);
-  
+  const totalPages = Math.max(1, Math.ceil(n / perPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (pagerRow) pagerRow.hidden = false;
+  container.style.display = '';
+  if (summary) {
+    summary.textContent = toDisplay('共') + ' ' + n.toLocaleString() + ' ' + toDisplay('条') +
+      ' · ' + toDisplay('第') + ' ' + currentPage + ' / ' + totalPages + ' ' + toDisplay('页');
+  }
+
   if (totalPages <= 1) {
     container.innerHTML = '';
     return;
@@ -4762,7 +5184,8 @@ function renderPagination() {
         currentPage = page;
         renderByViewMode();
         renderPagination();
-        document.getElementById('tableWrapper').scrollIntoView({behavior:'smooth',block:'start'});
+        const target = document.getElementById('resultCard') || document.getElementById('tableWrapper');
+        if (target) target.scrollIntoView({behavior:'smooth',block:'start'});
       }
     });
   });
@@ -4770,50 +5193,52 @@ function renderPagination() {
 
 function updateStats() {
   // V4.2: 统计排除临近行/分隔行
-  const n = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r)).length;
-  document.getElementById('totalCount').textContent = n.toLocaleString();
+  const n = realFilteredRows().length;
+  const totalCountEl = document.getElementById('totalCount');
+  if (totalCountEl) totalCountEl.textContent = n.toLocaleString();
 
-  // V10.0: 全表浏览状态 —— 徽章 / 页头模式胶囊 / body 类 / 加载进度
+  // V10.0: 全表浏览状态 —— body 类 / 加载进度
   const full = isFullTableMode();
   document.body.classList.toggle('is-full-table', full);
   document.body.classList.toggle('ft-all-loaded', full && (fullTableRange === 'all' || n <= FULL_TABLE_DEFAULT_SPAN));
 
   const stats = window.__fullTableStats;
-  const shown = Math.min(FULL_TABLE_DEFAULT_SPAN, n);
-  const isAllShown = fullTableRange === 'all' || n <= FULL_TABLE_DEFAULT_SPAN;
 
+  // 旧徽章保留节点但不再显示（卡头本身已表达「全部年份 · N 年」）
   const badge = document.getElementById('fullTableBadge');
-  if (badge) {
-    badge.hidden = !full;
-    if (full) {
-      badge.textContent = isAllShown
-        ? toDisplay('全表') + ' · ' + toDisplay('全部年份')
-        : toDisplay('全表') + ' · ' + toDisplay('最近') + ' ' + shown + ' ' + toDisplay('年');
-    }
-  }
+  if (badge) { badge.hidden = true; badge.textContent = ''; }
 
+  // 全表分段展开进度 → 卡头右侧小字
   const hint = document.getElementById('ftHint');
   if (hint) {
-    if (!full) {
-      hint.textContent = '';
-    } else if (stats && !stats.done) {
-      hint.textContent = ' · ' + toDisplay('正在展开全部年份') + ' … ' + stats.chunks * stats.chunk + ' / ' + stats.total;
-    } else if (isAllShown) {
-      hint.textContent = ' · ' + toDisplay('按公历年份升序') + '，' + toDisplay('共') + ' ' + n.toLocaleString() + ' ' + toDisplay('年');
+    if (full && stats && !stats.done) {
+      hint.textContent = toDisplay('正在展开全部年份') + ' … ' + stats.chunks * stats.chunk + ' / ' + stats.total;
     } else {
-      const first = stats && stats.firstYear ? stats.firstYear : '—';
-      const last = stats && stats.lastYear ? stats.lastYear : '—';
-      hint.textContent = ' · ' + toDisplay('已显示') + ' ' + first + '–' + last + '（' + shown + ' / ' + n.toLocaleString() + ' ' + toDisplay('年') + '）';
+      hint.textContent = '';
     }
   }
 
-  const chip = document.getElementById('modeChip');
-  if (chip) {
-    const num = '<b>' + n.toLocaleString() + '</b>';
-    if (full && isAllShown) chip.innerHTML = toDisplay('全表') + ' · ' + num + ' ' + toDisplay('年');
-    else if (full) chip.innerHTML = toDisplay('最近') + ' <b>' + shown + '</b> / ' + num + ' ' + toDisplay('年');
-    else if (searchQuery && searchQuery.trim()) chip.innerHTML = toDisplay('检索') + ' · ' + num + ' ' + toDisplay('条');
-    else chip.innerHTML = toDisplay('筛选') + ' · ' + num + ' ' + toDisplay('条');
+  // v3 卡头：标题（如「1600 年 · 4 条」）+ 排序说明
+  const titleEl = document.getElementById('resultTitle');
+  const subEl = document.getElementById('resultSub');
+  const v3row = v3ResultRow();
+  const browseAll = !(searchQuery && searchQuery.trim()) &&
+    selectedChinaFilters.size === 0 && selectedChinaEras.size === 0 && selectedJapanFilters.size === 0;
+  if (titleEl && subEl) {
+    if (v3row) {
+      const areas = v3AreaRowsForYear(v3row);
+      titleEl.innerHTML = toDisplay(v3row.yearStr) + ' ' + toDisplay('年') + ' · <b>' + areas.length + '</b> ' + toDisplay('条');
+      subEl.textContent = v3SortLabel();
+    } else if (browseAll) {
+      titleEl.innerHTML = toDisplay('全部年份') + ' · <b>' + n.toLocaleString() + '</b> ' + toDisplay('年');
+      subEl.textContent = toDisplay('排序：公历年份升序');
+    } else if (searchQuery && searchQuery.trim()) {
+      titleEl.innerHTML = '“' + escapeHtml(toDisplay(searchQuery.trim())) + '” · <b>' + n.toLocaleString() + '</b> ' + toDisplay('条');
+      subEl.textContent = toDisplay('排序：公历年份升序');
+    } else {
+      titleEl.innerHTML = toDisplay('筛选结果') + ' · <b>' + n.toLocaleString() + '</b> ' + toDisplay('条');
+      subEl.textContent = toDisplay('排序：公历年份升序');
+    }
   }
 
   updateFullTableControls();
@@ -5219,11 +5644,15 @@ function jumpToYear(year) {
     currentPage = Math.floor(idx / perPage) + 1;
     renderByViewMode();
     renderPagination();
-    // V4.3: 滚到表格顶部并补偿 sticky header + filter-bar 高度, 避免精准行被遮挡
+    // V4.3: 滚到结果区顶部并补偿 sticky 顶栏高度, 避免精准行被遮挡
     var _hdr = document.querySelector('.app-header');
     var _fbar = document.querySelector('.filter-bar.filter-desktop');
-    var _stickyH = (_hdr ? _hdr.offsetHeight : 0) + (_fbar ? _fbar.offsetHeight : 0);
-    var _wrapTop = document.getElementById('tableWrapper').getBoundingClientRect().top + window.scrollY;
+    var _stickyH = (_hdr && getComputedStyle(_hdr).display !== 'none' ? _hdr.offsetHeight : 0) + (_fbar ? _fbar.offsetHeight : 0);
+    // v3：单年区域表时滚到结果白卡（年份表格已隐藏）
+    var _target = document.body.classList.contains('v3-year')
+      ? document.getElementById('resultCard')
+      : document.getElementById('tableWrapper');
+    var _wrapTop = _target ? (_target.getBoundingClientRect().top + window.scrollY) : 0;
     window.scrollTo({ top: Math.max(0, _wrapTop - _stickyH), behavior: 'smooth' });
     
     // After render, highlight the row briefly
@@ -5413,6 +5842,8 @@ function initMobileFilter() {
   const toggleBtn = document.getElementById('filterToggleMobile');
   const closeBtn = document.getElementById('filterPanelClose');
   const applyBtn = document.getElementById('filterApplyMobile');
+  // 旧版移动端筛选面板已移除（移动端沿用 v3 快捷筛选浮层），无节点时直接跳过
+  if (!panel) return;
   
   function open() {
     panel.classList.add('open');
@@ -5602,9 +6033,9 @@ function init() {
     setTimeout(() => document.getElementById('searchSuggestions').classList.remove('active'), 200);
   });
   
-  // Close suggestions on click outside
+  // Close suggestions on click outside（建议浮层现在挂在 v3 搜索行内）
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.header-search')) {
+    if (!e.target.closest('.searchrow')) {
       document.getElementById('searchSuggestions').classList.remove('active');
     }
   });
@@ -5641,14 +6072,38 @@ function init() {
     }
   });
   
-  // Theme toggle
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  
-  // 简繁切换
-  document.getElementById('langBtnS').addEventListener('click', function() { setDisplayLang('s'); });
-  document.getElementById('langBtnT').addEventListener('click', function() { setDisplayLang('t'); });
+  // 主题切换已移到桌面外壳；页内不再保留按钮（initTheme 仍读外壳同步的 theme）
+  // 简繁切换（网页版顶栏保留；桌面版由外壳标题栏按钮经 KansekiLang 驱动）
+  const langBtnS = document.getElementById('langBtnS');
+  const langBtnT = document.getElementById('langBtnT');
+  if (langBtnS) langBtnS.addEventListener('click', function() { setDisplayLang('s'); });
+  if (langBtnT) langBtnT.addEventListener('click', function() { setDisplayLang('t'); });
   // 将搜索框的简体 placeholder 存到 data 属性 (供切换用)
-  document.getElementById('globalSearch').dataset.placeholderCn = '搜索：公历年份、干支、年号、君主名……';
+  document.getElementById('globalSearch').dataset.placeholderCn = '输入公历年、年号、干支或君主名，如 1600';
+
+  // v3 页头动作：置顶小窗（桌面版交给外壳的纪年小窗按钮；网页版给出提示）
+  const tinyWinBtn = document.getElementById('tinyWinBtn');
+  if (tinyWinBtn) {
+    tinyWinBtn.addEventListener('click', function() {
+      try {
+        var topDoc = window.top && window.top.document;
+        var shellBtn = topDoc && topDoc.getElementById('miniYearBtn');
+        if (shellBtn) { shellBtn.click(); return; }
+      } catch (e) { /* 跨域/非桌面环境 */ }
+      showToast('置顶小窗仅在桌面版可用（Ctrl+Shift+T）');
+    });
+  }
+
+  // v3 搜索行「今年」：直接跳到今年
+  const thisYearBtn = document.getElementById('thisYearBtn');
+  if (thisYearBtn) {
+    thisYearBtn.addEventListener('click', function() {
+      const y = new Date().getFullYear();
+      const inp = document.getElementById('globalSearch');
+      inp.value = String(y);
+      performSearchAndJump();
+    });
+  }
   
   // Filter clear — 桌面 filter-bar 已移除 (V5.1), 改用快捷筛选浮窗的垃圾桶
   qfInitPanel();
@@ -5709,9 +6164,12 @@ function init() {
       document.getElementById('globalSearch').focus();
     }
     if (e.key === 'Escape') {
-      document.getElementById('searchSuggestions').classList.remove('active');
-      document.getElementById('filterPanelMobile').classList.remove('open');
-      document.getElementById('filterPanelOverlay').classList.remove('open');
+      const sug = document.getElementById('searchSuggestions');
+      if (sug) sug.classList.remove('active');
+      const fp = document.getElementById('filterPanelMobile');
+      const fo = document.getElementById('filterPanelOverlay');
+      if (fp) fp.classList.remove('open');
+      if (fo) fo.classList.remove('open');
       document.body.style.overflow = '';
     }
   });

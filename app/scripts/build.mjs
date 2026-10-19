@@ -155,6 +155,8 @@ function embedStyleFor(rule) {
     css.push('.docs-layout{grid-template-columns:minmax(0,1fr) !important;max-width:1400px;padding-top:.9rem}');
     css.push('@media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}');
   }
+  // V1.1：网页版站点导航条在 APP 内不显示（侧栏已有同名入口）
+  css.push('.web-nav-strip{display:none !important}');
   // 视口高度校正：页面内若干 calc(100vh - Npx) 是按「顶栏(约 60px) + 页脚/内边距」估的，
   // 嵌入 APP 后顶栏已被隐藏，需把这部分高度还给内容区，否则底部会留下大片空白。
   if (rule.hideHeaderAll) {

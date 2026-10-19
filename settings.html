@@ -26,7 +26,24 @@
     --c-text:#fafafa; --c-text-secondary:#d4d4d4; --c-text-muted:#a3a3a3;
     --c-border:rgba(255,255,255,.12);
   }
-</style>
+
+    /* V1.1：外观与快捷键 / 关于 */
+    .seg-lite { display: inline-flex; background: var(--c-bg-alt); border-radius: 999px; padding: 2px; gap: 1px; }
+    .seg-lite button { border: 0; background: none; height: 26px; padding: 0 12px; border-radius: 999px;
+      font-family: inherit; font-size: 12.5px; color: var(--c-text-secondary); cursor: pointer; }
+    .seg-lite button.on { background: var(--c-surface); color: var(--c-text); font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .set-h3 { font-size: 13px; font-weight: 600; margin: 1.2rem 0 .5rem; color: var(--c-text); }
+    .kb-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+    .kb-list li { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--c-text-secondary); }
+    .kb-list kbd { background: var(--c-bg-alt); border-radius: 6px; padding: 1px 7px;
+      font-family: inherit; font-size: 11px; color: var(--c-text); }
+    .kb-list span { margin-left: 8px; }
+    .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: .7rem; }
+    .about-grid > div { background: var(--c-bg-alt); border-radius: 10px; padding: 10px 12px; }
+    .about-grid span { display: block; font-size: 11.5px; color: var(--c-text-muted); margin-bottom: 2px; }
+    .about-grid b { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  </style>
 <style>
   html,body{height:100%;margin:0}
   body{display:flex;flex-direction:column;background:var(--c-bg);color:var(--c-text);
@@ -145,10 +162,25 @@
   .tk-empty{font-size:.76rem;color:var(--c-text-muted);padding:.35rem 0}
   .set-h code,.set-note code{background:var(--c-bg-alt);border:1px solid var(--c-border);
                              border-radius:4px;padding:.05rem .3rem;font-size:.9em}
-</style>
-<link rel="manifest" href="manifest.webmanifest">
+
+    /* V1.1：外观与快捷键 / 关于 */
+    .seg-lite { display: inline-flex; background: var(--c-bg-alt); border-radius: 999px; padding: 2px; gap: 1px; }
+    .seg-lite button { border: 0; background: none; height: 26px; padding: 0 12px; border-radius: 999px;
+      font-family: inherit; font-size: 12.5px; color: var(--c-text-secondary); cursor: pointer; }
+    .seg-lite button.on { background: var(--c-surface); color: var(--c-text); font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+    .set-h3 { font-size: 13px; font-weight: 600; margin: 1.2rem 0 .5rem; color: var(--c-text); }
+    .kb-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+    .kb-list li { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--c-text-secondary); }
+    .kb-list kbd { background: var(--c-bg-alt); border-radius: 6px; padding: 1px 7px;
+      font-family: inherit; font-size: 11px; color: var(--c-text); }
+    .kb-list span { margin-left: 8px; }
+    .about-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: .7rem; }
+    .about-grid > div { background: var(--c-bg-alt); border-radius: 10px; padding: 10px 12px; }
+    .about-grid span { display: block; font-size: 11.5px; color: var(--c-text-muted); margin-bottom: 2px; }
+    .about-grid b { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  </style>
 <meta name="theme-color" content="#fafafa">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="汉籍工具">
@@ -180,6 +212,8 @@
     <a class="set-back" id="setBack" href="index.html" hidden>← 返回主页</a>
     <button class="set-tab active" id="tab-sync" type="button" data-pane="sync">同步设置</button>
     <button class="set-tab" id="tab-api" type="button" data-pane="api">API 管理</button>
+    <button class="set-tab" id="tab-ui" type="button" data-pane="ui">外观与快捷键</button>
+    <button class="set-tab" id="tab-about" type="button" data-pane="about">关于</button>
     <div class="set-foot" id="setFoot" hidden>
       <span class="sf-name">古代史及汉籍研究工具</span>
       <span>桌面版 <b id="setVer">—</b></span>
@@ -291,10 +325,107 @@
       </p>
     </section>
 
+    <!-- ---------- 外观与快捷键 ---------- -->
+    <section class="set-pane" id="pane-ui">
+      <h2 class="set-h">外观与快捷键</h2>
+      <p class="set-sub">外观改动立即生效，并与主窗口同步。</p>
+
+      <div class="set-row">
+        <label>明暗主题</label>
+        <div class="seg-lite" id="uiThemeSeg">
+          <button type="button" data-theme="light">浅色</button>
+          <button type="button" data-theme="dark">深色</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <label>界面字形</label>
+        <div class="seg-lite" id="uiLangSeg">
+          <button type="button" data-lang="s">简体</button>
+          <button type="button" data-lang="t">繁体</button>
+        </div>
+      </div>
+
+      <h3 class="set-h3">快捷键</h3>
+      <ul class="kb-list">
+        <li><kbd>Ctrl</kbd><kbd>,</kbd><span>打开设置</span></li>
+        <li><kbd>Ctrl</kbd><kbd>K</kbd><span>聚焦检索框</span></li>
+        <li><kbd>F5</kbd><span>刷新当前页</span></li>
+        <li><kbd>F11</kbd><span>全屏</span></li>
+        <li><kbd>Esc</kbd><span>关闭浮层 / 抽屉</span></li>
+      </ul>
+    </section>
+
+    <!-- ---------- 关于 ---------- -->
+    <section class="set-pane" id="pane-about">
+      <h2 class="set-h">关于</h2>
+      <p class="set-sub">古代史及汉籍研究工具 · Windows 桌面版</p>
+      <div class="about-grid">
+        <div><span>程序版本</span><b id="aboutVer">—</b></div>
+        <div><span>数据存储</span><b>本机 IndexedDB，不上传</b></div>
+        <div><span>古籍类目</span><b>177,107 条</b></div>
+        <div><span>纪年数据</span><b>2,868 年</b></div>
+      </div>
+      <div class="set-row" style="margin-top:.9rem">
+        <button class="set-btn" id="aboutGithub" type="button">打开 GitHub</button>
+        <button class="set-btn" id="aboutWeb" type="button">打开网页版</button>
+      </div>
+      <p class="set-note">
+        目录元数据来源：国立公文書館デジタルアーカイブ（CC0）、全國漢籍データベース、
+        《中國古籍總目》。本工具仅做本地整理与检索，索引数据不上传服务器。
+      </p>
+    </section>
   </main>
 </div>
 
-<script src="ai-config.js"></script>
+<script src="ai-config.js">
+// ---------- V1.1：外观与快捷键 / 关于 ----------
+(function initUiAbout() {
+  var THEME_KEY = "theme";
+  var LANG_KEY = "kanseki_lang";
+  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 忽略 */ } }
+  function paintTheme() {
+    var cur = ls(THEME_KEY) === "dark" ? "dark" : "light";
+    document.querySelectorAll("#uiThemeSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-theme") === cur);
+    });
+  }
+  function paintLang() {
+    var cur = ls(LANG_KEY) === "t" ? "t" : "s";
+    document.querySelectorAll("#uiLangSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-lang") === cur);
+    });
+  }
+  var seg = document.getElementById("uiThemeSeg");
+  if (seg) seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-theme]");
+    if (!b) return;
+    ss(THEME_KEY, b.getAttribute("data-theme"));
+    document.documentElement.setAttribute("data-theme", b.getAttribute("data-theme"));
+    paintTheme();
+  });
+  var seg2 = document.getElementById("uiLangSeg");
+  if (seg2) seg2.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lang]");
+    if (!b) return;
+    ss(LANG_KEY, b.getAttribute("data-lang"));
+    paintLang();
+  });
+  paintTheme(); paintLang();
+  var gh = document.getElementById("aboutGithub");
+  if (gh) gh.addEventListener("click", function () {
+    var url = "https://github.com/AnkoMaryken";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+  var web = document.getElementById("aboutWeb");
+  if (web) web.addEventListener("click", function () {
+    var url = "https://ankomaryken.github.io/kanseki-catalog/";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+})();
+</script>
 <script>
 /* 主题跟随（localStorage['theme']，与主窗口/网页共用） */
 function applyTheme() {
@@ -319,6 +450,7 @@ if (IS_TAURI) {
   document.getElementById('setFoot').hidden = false;
   window.__TAURI_INTERNALS__.invoke('app_version', {}).then(function (v) {
     document.getElementById('setVer').textContent = v;
+    var av = document.getElementById('aboutVer'); if (av) av.textContent = v;
   }).catch(function () { });
 } else {
   // 网页版没有独立窗口，也没有 dist 里的同步模块 —— 隐去「同步设置」
@@ -617,7 +749,103 @@ if (IS_TAURI) (async function initSync() {
   // 与主窗口一致：同步一次最大化状态
   winCmd('is_maximized').then(swapMaxIcon).catch(function () { });
 })();
+
+// ---------- V1.1：外观与快捷键 / 关于 ----------
+(function initUiAbout() {
+  var THEME_KEY = "theme";
+  var LANG_KEY = "kanseki_lang";
+  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 忽略 */ } }
+  function paintTheme() {
+    var cur = ls(THEME_KEY) === "dark" ? "dark" : "light";
+    document.querySelectorAll("#uiThemeSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-theme") === cur);
+    });
+  }
+  function paintLang() {
+    var cur = ls(LANG_KEY) === "t" ? "t" : "s";
+    document.querySelectorAll("#uiLangSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-lang") === cur);
+    });
+  }
+  var seg = document.getElementById("uiThemeSeg");
+  if (seg) seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-theme]");
+    if (!b) return;
+    ss(THEME_KEY, b.getAttribute("data-theme"));
+    document.documentElement.setAttribute("data-theme", b.getAttribute("data-theme"));
+    paintTheme();
+  });
+  var seg2 = document.getElementById("uiLangSeg");
+  if (seg2) seg2.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lang]");
+    if (!b) return;
+    ss(LANG_KEY, b.getAttribute("data-lang"));
+    paintLang();
+  });
+  paintTheme(); paintLang();
+  var gh = document.getElementById("aboutGithub");
+  if (gh) gh.addEventListener("click", function () {
+    var url = "https://github.com/AnkoMaryken";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+  var web = document.getElementById("aboutWeb");
+  if (web) web.addEventListener("click", function () {
+    var url = "https://ankomaryken.github.io/kanseki-catalog/";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+})();
 </script>
-<script defer src="pwa.js"></script>
+<script>
+// ---------- V1.1：外观与快捷键 / 关于 ----------
+(function initUiAbout() {
+  var THEME_KEY = "theme";
+  var LANG_KEY = "kanseki_lang";
+  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 忽略 */ } }
+  function paintTheme() {
+    var cur = ls(THEME_KEY) === "dark" ? "dark" : "light";
+    document.querySelectorAll("#uiThemeSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-theme") === cur);
+    });
+  }
+  function paintLang() {
+    var cur = ls(LANG_KEY) === "t" ? "t" : "s";
+    document.querySelectorAll("#uiLangSeg button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-lang") === cur);
+    });
+  }
+  var seg = document.getElementById("uiThemeSeg");
+  if (seg) seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-theme]");
+    if (!b) return;
+    ss(THEME_KEY, b.getAttribute("data-theme"));
+    document.documentElement.setAttribute("data-theme", b.getAttribute("data-theme"));
+    paintTheme();
+  });
+  var seg2 = document.getElementById("uiLangSeg");
+  if (seg2) seg2.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lang]");
+    if (!b) return;
+    ss(LANG_KEY, b.getAttribute("data-lang"));
+    paintLang();
+  });
+  paintTheme(); paintLang();
+  var gh = document.getElementById("aboutGithub");
+  if (gh) gh.addEventListener("click", function () {
+    var url = "https://github.com/AnkoMaryken";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+  var web = document.getElementById("aboutWeb");
+  if (web) web.addEventListener("click", function () {
+    var url = "https://ankomaryken.github.io/kanseki-catalog/";
+    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
+    else window.open(url, "_blank");
+  });
+})();
+</script>
 </body>
 </html>

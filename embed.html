@@ -1,419 +1,449 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <title>快速跳转 — 古代史及汉籍研究工具</title>
+<script>
+/* 主题：桌面外壳会把 data-theme 直接写到本页 documentElement；网页版读 localStorage 'theme' */
+(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}
+window.addEventListener('storage',function(e){if(e.key==='theme'&&(e.newValue==='dark'||e.newValue==='light'))document.documentElement.setAttribute('data-theme',e.newValue);});})();
+</script>
 <style>
-:root{--color-bg:#fafafa;--color-bg-alt:#f5f5f5;--color-surface:#fff;--color-surface-hover:#f5f5f5;--color-primary:#171717;--color-primary-light:#404040;--color-accent:#171717;--color-accent-light:#404040;--color-text:#0a0a0a;--color-text-secondary:#525252;--color-text-muted:#737373;--color-border:#e5e5e5;--color-border-light:#eee;--color-divider:#f0f0f0;--color-highlight:#f5f5f5;--color-highlight-text:#0a0a0a;--color-shadow:rgba(0,0,0,.05);--color-shadow-lg:rgba(0,0,0,.09);--font-display:'Noto Serif SC','SimSun','STSong',serif;--font-body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--transition-fast:150ms cubic-bezier(.16,1,.3,1);--ease-spring:cubic-bezier(.16,1,.3,1);--radius-sm:6px;--radius-md:8px;--radius-lg:10px;--radius-xl:12px;--shadow-sm:0 1px 2px var(--color-shadow);--shadow-md:0 2px 8px -2px var(--color-shadow),0 1px 3px rgba(0,0,0,.04);--shadow-lg:0 8px 30px -6px var(--color-shadow-lg),0 2px 8px rgba(0,0,0,.04)}
-[data-theme="dark"]{--color-bg:#0a0a0a;--color-bg-alt:#141414;--color-surface:#171717;--color-surface-hover:#262626;--color-primary:#e5e5e5;--color-primary-light:#fafafa;--color-accent:#fafafa;--color-accent-light:#fff;--color-text:#fafafa;--color-text-secondary:#d4d4d4;--color-text-muted:#a3a3a3;--color-border:rgba(255,255,255,.1);--color-border-light:rgba(255,255,255,.07);--color-divider:rgba(255,255,255,.07);--color-highlight:#262626;--color-highlight-text:#fafafa}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;-webkit-text-size-adjust:100%}
-body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(--color-text);background:var(--color-bg);min-height:100dvh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;transition:background-color .3s ease,color .3s ease}
-::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--color-text-muted);border-radius:4px}
-:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
-
-/* Header (四页一致) */
-.app-header{background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--color-text);padding:.8rem 0;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--color-border-light);animation:hdrIn .5s var(--ease-spring)}
-@keyframes hdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.header-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.header-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;flex-shrink:0}
-.header-brand .bi{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;color:var(--color-bg);font-weight:700}
-.header-brand h1{font-family:var(--font-display);font-size:1.1rem;color:var(--color-text);white-space:nowrap}
-.header-nav{display:flex;gap:.25rem;flex-shrink:0}
-.header-nav a{color:var(--color-text-muted);text-decoration:none;font-size:.85rem;font-weight:500;padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap}
-.header-nav a:hover{color:var(--color-text);background:var(--color-surface-hover)}
-.header-nav a.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
-.header-actions{margin-left:auto;display:flex;gap:.5rem}
-.btn-icon{width:34px;height:34px;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);font-size:1rem}
-.btn-icon:hover{background:var(--color-surface-hover);color:var(--color-text)}
-
-/* 导航下拉 (说明文档) */
-.nav-dropdown{position:relative;flex-shrink:0}
-.nav-dropdown-btn{display:inline-flex;align-items:center;gap:.1rem;color:var(--color-text-muted);font-size:.85rem;font-weight:500;font-family:var(--font-body);padding:.35rem .75rem;border-radius:var(--radius-sm);transition:all var(--transition-fast);white-space:nowrap;border:none;background:none;cursor:pointer}
-.nav-dropdown-btn:hover{color:var(--color-text);background:var(--color-surface-hover)}
-.nav-dropdown-btn.active{color:var(--color-text);background:var(--color-bg-alt);font-weight:600}
-.nav-dropdown-btn svg{transition:transform var(--transition-fast)}
-.nav-dropdown:hover .nav-dropdown-btn svg,.nav-dropdown:focus-within .nav-dropdown-btn svg{transform:rotate(180deg)}
-.nav-dropdown-menu{position:absolute;top:100%;left:0;margin-top:6px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:132px;padding:.3rem;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s var(--ease-spring),visibility .18s var(--ease-spring),transform .18s var(--ease-spring);z-index:210}
-.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.nav-dropdown-menu a{display:block;padding:.45rem .75rem;border-radius:var(--radius-sm);color:var(--color-text-secondary);font-size:.85rem;text-decoration:none;transition:all var(--transition-fast);white-space:nowrap}
-.nav-dropdown-menu a:hover{background:var(--color-surface-hover);color:var(--color-text)}
-.user-dropdown{position:relative}
-.user-btn{display:inline-flex;align-items:center}
-.user-login-link{color:inherit;text-decoration:none}
-.user-menu{right:0;left:auto;min-width:120px}
-.user-menu-settings{border-top:1px solid var(--color-border);margin-top:.25rem;padding-top:.5rem !important;border-radius:0 0 var(--radius-sm) var(--radius-sm) !important}
-.nav-dropdown-menu a.active{color:var(--color-text);font-weight:600;background:var(--color-bg-alt)}
-
-/* ===== 快速跳转页 ===== */
-.page{max-width:1400px;margin:0 auto;padding:1.5rem 1.5rem 2.5rem;width:100%;flex:1;animation:pageIn .45s var(--ease-spring) .08s backwards}
-@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.page-head{display:flex;align-items:center;margin-bottom:1.2rem}
-.page-head h2{font-family:var(--font-display);font-size:1.3rem;color:var(--color-primary)}
-
-/* ---- 右上角浮动搜索栏 (自定义页面跳转, ButtonGroup 一体化样式) ---- */
-.jump-bar{position:fixed;top:76px;right:24px;z-index:95;animation:barIn .5s var(--ease-spring) .2s backwards}
-@keyframes barIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.jump-bar .button-group{display:inline-flex;align-items:stretch;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:box-shadow var(--transition-fast)}
-.jump-bar .button-group:focus-within{box-shadow:var(--shadow-lg),0 0 0 3px color-mix(in srgb,var(--color-primary) 12%,transparent);border-color:var(--color-primary)}
-.jump-input{width:260px;padding:.55rem .9rem;border:none;background:transparent;color:var(--color-text);font-family:var(--font-body);font-size:.86rem;outline:none}
-.jump-go{padding:.55rem 1.2rem;border:none;border-left:1px solid var(--color-border);background:var(--color-primary);color:var(--color-bg);font-family:var(--font-body);font-size:.86rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast);white-space:nowrap}
-.jump-go:hover{background:var(--color-primary-light)}
-.jump-hint{position:fixed;top:122px;right:24px;z-index:95;font-size:.78rem;color:var(--color-text-secondary);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.4rem .75rem;box-shadow:var(--shadow-md);opacity:0;transform:translateY(-4px);transition:all .2s var(--ease-spring);pointer-events:none}
-.jump-hint.show{opacity:1;transform:translateY(0)}
-.jump-hint.err{color:#b91c1c;border-color:color-mix(in srgb,#dc2626 35%,transparent)}
-[data-theme="dark"] .jump-hint.err{color:#fca5a5}
-
-/* ---- 快捷网站标签网格 (等宽等高) ---- */
-.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.85rem;max-width:900px}
-.jump-card{position:relative;aspect-ratio:1;border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface);transition:all .2s var(--ease-spring);animation:cardIn .4s var(--ease-spring) backwards;overflow:hidden}
-@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.jump-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--color-primary)}
-.jump-card:hover .jc-del{opacity:1}
-.jc-link{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;text-decoration:none;color:var(--color-text);padding:.6rem;z-index:1}
-.jc-icon{width:44px;height:44px;border-radius:var(--radius-md);background:var(--color-primary);color:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1rem;font-weight:700}
-.jc-name{font-size:.84rem;font-weight:600;text-align:center;line-height:1.4;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
-.jc-url{font-size:.68rem;color:var(--color-text-muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.jc-del{position:absolute;top:6px;right:6px;z-index:2;width:22px;height:22px;border-radius:var(--radius-sm);border:none;background:color-mix(in srgb,var(--color-text-muted) 15%,transparent);color:var(--color-text-secondary);font-size:.8rem;line-height:1;cursor:pointer;opacity:0;transition:all var(--transition-fast);display:flex;align-items:center;justify-content:center;padding:0}
-.jc-del:hover{background:color-mix(in srgb,#dc2626 18%,transparent);color:#b91c1c}
-[data-theme="dark"] .jc-del:hover{color:#fca5a5}
-
-/* 添加标签卡片 */
-.jump-card.add-card{border-style:dashed;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;color:var(--color-text-muted);border-color:var(--color-border);transition:all .2s var(--ease-spring);text-decoration:none}
-.jump-card.add-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--color-primary);color:var(--color-text)}
-.add-card .ac-plus{width:44px;height:44px;border-radius:var(--radius-md);border:1.5px dashed var(--color-text-muted);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:300;transition:all var(--transition-fast)}
-.add-card:hover .ac-plus{border-color:var(--color-primary);color:var(--color-primary)}
-.add-card .ac-label{font-size:.84rem;font-weight:500}
-
-/* ---- 添加标签弹窗 ---- */
-.add-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem}
-.add-overlay.show{display:flex}
-.add-panel{width:380px;max-width:92vw;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);padding:1.2rem 1.3rem;animation:panelIn .25s var(--ease-spring)}
-@keyframes panelIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.add-panel h3{font-family:var(--font-display);font-size:1.05rem;color:var(--color-primary);margin-bottom:1rem}
-.add-field{margin-bottom:.85rem}
-.add-field label{display:block;font-size:.78rem;color:var(--color-text-secondary);margin-bottom:.3rem}
-.add-field input{width:100%;padding:.5rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:.86rem;outline:none;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
-.add-field input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--color-primary) 12%,transparent)}
-.add-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1.1rem}
-.btn{border:none;border-radius:var(--radius-md);padding:.5rem 1.1rem;font-family:var(--font-body);font-size:.84rem;font-weight:500;cursor:pointer;transition:all var(--transition-fast)}
-.btn-cancel{background:var(--color-bg-alt);color:var(--color-text-secondary)}
-.btn-cancel:hover{background:var(--color-surface-hover);color:var(--color-text)}
-.btn-save{background:var(--color-primary);color:var(--color-bg)}
-.btn-save:hover{background:var(--color-primary-light)}
-
-/* ---- 跳转成功提示 (toast 简化版) ---- */
-.jump-toast{position:fixed;bottom:24px;right:24px;z-index:120;display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:var(--radius-md);background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-lg);font-size:.84rem;color:var(--color-text);opacity:0;transform:translateY(8px);transition:all .25s var(--ease-spring);pointer-events:none}
-.jump-toast.show{opacity:1;transform:translateY(0)}
-.jump-toast .jt-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;flex:0 0 7px}
-
-.app-footer{background:var(--color-bg-alt);border-top:1px solid var(--color-border-light);padding:1rem 0;margin-top:auto}
-.footer-inner{max-width:1400px;margin:0 auto;padding:0 1.5rem;text-align:center;font-size:.78rem;color:var(--color-text-muted)}
-
-@media(max-width:900px){
-  .jump-bar{right:12px}
-  .jump-grid{max-width:none}
+:root{
+  --brand:#171A1F; --brand-fg:#FFFFFF;
+  --bg-page:#F2F3F5; --bg-card:#FFFFFF; --bg-fill:#F2F3F5; --bg-hover:#F7F8F9; --bg-badge:#EDEEF0; --bg-badge-hover:#E2E4E8;
+  --t1:#171A1F; --t2:#5F6672; --t3:#8F959E; --t4:#C2C6CC; --divider:#F0F1F3;
+  --r-card:24px; --r-mid:18px; --r-pill:999px;
+  --pad-card:20px; --gap-page:28px; --gap-card:16px;
+  --shadow-card:0 6px 20px rgba(0,0,0,.06); --shadow-float:0 8px 28px rgba(0,0,0,.08); --shadow-brand:0 6px 16px rgba(23,26,31,.18);
+  --font:-apple-system,"PingFang SC","HarmonyOS Sans","Microsoft YaHei",Roboto,sans-serif;
+  --font-serif:"Songti SC","STSong","SimSun","Noto Serif CJK SC",serif;
+  --ease:cubic-bezier(.2,0,0,1);
 }
-@media(max-width:768px){
-  .header-inner{padding:0 1rem}.header-brand h1{font-size:.85rem}.header-nav a{font-size:.75rem;padding:.3rem .5rem}
-  .page{padding:1rem .9rem 2rem}
-  .jump-bar{position:fixed;top:auto;bottom:14px;left:12px;right:12px;z-index:95}
-  .jump-bar .button-group{display:flex;width:100%}
-  .jump-input{flex:1;width:auto;min-width:0}
-  .jump-hint{top:auto;bottom:60px;right:12px}
-  .jump-toast{bottom:70px}
-  .jump-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+html[data-theme="dark"]{
+  --brand:#F2F3F5; --brand-fg:#171A1F;
+  --bg-page:#0E1013; --bg-card:#171A1F; --bg-fill:#22262C; --bg-hover:#1D2126; --bg-badge:#2A2E36; --bg-badge-hover:#343941;
+  --t1:#F2F3F5; --t2:#B4BAC3; --t3:#8A919B; --t4:#5C636D; --divider:#262A31;
+  --shadow-card:0 6px 20px rgba(0,0,0,.35); --shadow-float:0 10px 30px rgba(0,0,0,.45); --shadow-brand:0 6px 16px rgba(0,0,0,.5);
 }
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;color-scheme:light dark}
+body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-family:var(--font);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background-color .25s ease,color .25s ease}
+.page{max-width:1080px;margin:0 auto;padding:26px var(--gap-page) 44px}
+.phead{display:flex;align-items:flex-start;gap:16px;padding:2px 2px 18px}
+.phead .pt{flex:1;min-width:0}
+.phead h1{font-size:20px;font-weight:700;line-height:1.3;margin:0 0 4px;letter-spacing:-.01em}
+.phead .pd{font-size:12px;color:var(--t3);line-height:1.6;margin:0}
+.phead .pa{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px}
+.btn{height:36px;padding:0 16px;border:0;border-radius:var(--r-pill);background:var(--brand);color:var(--brand-fg);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
+.btn:hover{box-shadow:var(--shadow-brand)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--bg-badge);color:var(--t1);font-weight:500}
+.btn.ghost:hover{background:var(--bg-badge-hover);box-shadow:none}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 
-/* ===== V8.2 移动端适配 ===== */
-.m-hamburger {
-  display: none; width: 40px; height: 40px; flex-shrink: 0;
-  background: var(--color-surface); border: 1px solid var(--color-border);
-  border-radius: var(--radius-md); cursor: pointer;
-  align-items: center; justify-content: center; color: var(--color-text);
+/* 工具条：筛选 + 计数 */
+.toolbar{display:flex;align-items:center;gap:12px;background:var(--bg-card);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:12px 14px;margin-bottom:var(--gap-card)}
+.field{display:flex;align-items:center;gap:9px;height:36px;background:var(--bg-fill);border-radius:var(--r-pill);padding:0 14px;flex:1;min-width:0;transition:box-shadow .18s var(--ease)}
+.field:focus-within{box-shadow:0 0 0 3px rgba(127,127,127,.16)}
+.field svg{width:15px;height:15px;fill:none;stroke:var(--t3);stroke-width:2;flex:0 0 15px}
+.field input{border:0;background:none;outline:none;font-family:inherit;font-size:13px;color:var(--t1);width:100%;min-width:0;height:100%}
+.field input::placeholder{color:var(--t3)}
+.tb-count{font-size:11.5px;color:var(--t3);white-space:nowrap;font-variant-numeric:tabular-nums;padding-right:2px}
+
+/* 快捷链接网格 */
+.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+.jump-grid[hidden]{display:none}
+.jump-card{position:relative;display:flex;align-items:center;background:var(--bg-card);border-radius:var(--r-mid);box-shadow:var(--shadow-card);padding:14px 34px 14px 16px;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
+.jump-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-float)}
+.jc-link{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:inherit;text-decoration:none;border-radius:12px;outline-offset:4px}
+.jump-ic{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--bg-fill);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--t2);font-family:var(--font-serif);letter-spacing:-.02em}
+.jump-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.jump-tx b{font-size:12.5px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45}
+.jump-tx span{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.jump-card .ra{color:var(--t4);font-size:12px;flex:0 0 auto;margin-left:8px;transition:color .18s var(--ease),transform .18s var(--ease)}
+.jump-card:hover .ra{color:var(--t2);transform:translate(1px,-1px)}
+
+/* 自定义卡片的编辑 / 删除（悬停或键盘聚焦时出现） */
+.jc-acts{position:absolute;top:7px;right:7px;display:flex;gap:2px;opacity:0;transition:opacity .16s var(--ease)}
+.jump-card:hover .jc-acts,.jump-card:focus-within .jc-acts{opacity:1}
+.ic-act{width:23px;height:23px;border:0;border-radius:8px;background:var(--bg-badge);color:var(--t2);font-family:inherit;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .16s var(--ease),color .16s var(--ease)}
+.ic-act:hover{background:var(--bg-badge-hover);color:var(--t1)}
+.ic-act.del{font-size:15px}
+.ic-act.del:hover{background:rgba(229,72,77,.14);color:#D93A3F}
+html[data-theme="dark"] .ic-act.del:hover{color:#FF8A8E}
+@media (hover:none){.jc-acts{opacity:1}}
+
+/* 添加卡片 */
+.jump-add{justify-content:center;border:1.5px dashed var(--bg-badge);background:none;box-shadow:none;color:var(--t3);font-family:inherit;font-size:12.5px;font-weight:500;padding:14px 16px;cursor:pointer;gap:8px;min-height:74px}
+.jump-add:hover{transform:none;box-shadow:none;background:var(--bg-card);color:var(--t1);border-color:var(--t4)}
+.jump-add svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* 空状态 */
+.empty{display:flex;flex-direction:column;align-items:center;gap:7px;padding:44px 0 36px;color:var(--t3)}
+.empty svg{width:34px;height:34px;fill:none;stroke:var(--t4);stroke-width:1.5}
+.empty b{font-size:12.5px;font-weight:500;color:var(--t2)}
+.empty span{font-size:11.5px;color:var(--t3)}
+.empty[hidden]{display:none}
+
+/* 弹窗 */
+.mask{position:fixed;inset:0;z-index:120;background:rgba(20,22,26,.32);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px)}
+.mask[hidden]{display:none}
+.panel{width:400px;max-width:100%;background:var(--bg-card);border-radius:var(--r-card);box-shadow:0 30px 70px -18px rgba(0,0,0,.42);padding:22px;animation:panelIn .22s var(--ease)}
+@keyframes panelIn{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.panel-h{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.panel-h h3{margin:0;font-size:15px;font-weight:700;flex:1}
+.panel-x{width:28px;height:28px;border:0;border-radius:8px;background:none;color:var(--t3);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.panel-x:hover{background:var(--bg-fill);color:var(--t1)}
+.form-row{margin-bottom:13px}
+.form-row label{display:block;font-size:11.5px;color:var(--t3);margin-bottom:5px}
+.form-row input{width:100%;height:38px;border:0;border-radius:12px;background:var(--bg-fill);color:var(--t1);font-family:inherit;font-size:13px;padding:0 13px;outline:none;transition:box-shadow .18s var(--ease)}
+.form-row input:focus{box-shadow:0 0 0 3px rgba(127,127,127,.18)}
+.form-row input::placeholder{color:var(--t3)}
+.panel-err{font-size:11.5px;color:#D93A3F;margin:0 0 10px}
+html[data-theme="dark"] .panel-err{color:#FF8A8E}
+.panel-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+/* 轻提示 */
+.toast{position:fixed;right:24px;bottom:24px;z-index:130;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--r-pill);background:var(--bg-card);box-shadow:var(--shadow-float);font-size:12px;color:var(--t1);opacity:0;transform:translateY(8px);transition:opacity .22s var(--ease),transform .22s var(--ease);pointer-events:none;max-width:calc(100vw - 48px)}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast .dot{width:6px;height:6px;border-radius:50%;background:#16A34A;flex:0 0 6px}
+
+@media (max-width:720px){
+  .page{padding:18px 14px 32px}
+  .phead{flex-wrap:wrap;gap:10px}
+  .phead .pa{padding-top:0}
+  .toolbar{flex-wrap:wrap;padding:10px 12px}
+  .field{flex:1 1 100%;order:1}
+  .tb-count{order:2}
+  .jump-grid{grid-template-columns:1fr;gap:10px}
+  .jump-card{padding:13px 36px 13px 14px}
+  .toast{right:14px;bottom:14px}
 }
-.drawer-overlay {
-  display: none; position: fixed; inset: 0; z-index: 900;
-  background: rgba(0,0,0,0.45); opacity: 0; visibility: hidden;
-  transition: opacity 250ms cubic-bezier(.16,1,.3,1), visibility 250ms cubic-bezier(.16,1,.3,1);
-}
-.drawer-overlay.open { opacity: 1; visibility: visible; }
-.drawer {
-  display: none; position: fixed; top: 0; right: 0; bottom: 0; z-index: 950;
-  width: min(78vw, 320px); background: var(--color-surface);
-  border-left: 1px solid var(--color-border); box-shadow: var(--shadow-lg);
-  transform: translateX(105%); transition: transform 250ms cubic-bezier(.16,1,.3,1);
-  overflow-y: auto; padding: 1rem 0.9rem 2rem; flex-direction: column;
-}
-.drawer.open { transform: translateX(0); }
-.drawer-brand { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.4rem 1rem; border-bottom: 1px solid var(--color-border); margin-bottom: 0.8rem; }
-.drawer-brand .brand-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-bg); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.95rem; }
-.drawer-brand h2 { font-size: 0.92rem; font-weight: 600; margin: 0; }
-.drawer-nav { display: flex; flex-direction: column; gap: 0.1rem; }
-.drawer-nav-group { font-size: 0.72rem; color: var(--color-text-muted); padding: 0.8rem 0.4rem 0.3rem; letter-spacing: 0.03em; }
-.drawer-link { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.6rem; border-radius: var(--radius-md); font-size: 0.92rem; color: var(--color-text); text-decoration: none; transition: all var(--transition-fast); }
-.drawer-link:hover { background: var(--color-surface-hover); }
-.drawer-link.active { background: var(--color-bg-alt); font-weight: 600; }
-.drawer-user { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid var(--color-border); }
-@media (max-width: 768px) {
-  .m-hamburger { display: inline-flex; }
-  .drawer-overlay, .drawer { display: block; }
-  .header-inner .header-nav { display: none !important; }
-  .header-actions { display: none !important; }
-}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}}
+
+  /* V1.1：网页版站点导航条 */
+  .web-nav-strip { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    max-width: 1240px; margin: 12px auto 0; padding: 0 20px; }
+  .web-nav-strip a { color: var(--text-sec, var(--t2, var(--color-text-muted))); text-decoration: none;
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px; }
+  .web-nav-strip a:hover { background: var(--bg-badge, var(--color-surface-hover)); color: var(--text, var(--t1, var(--color-text))); }
+  html.is-embed .web-nav-strip { display: none !important; }
 </style>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#fafafa">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="汉籍工具">
 </head>
 <body>
-
-<header class="app-header">
-  <div class="header-inner">
-    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <a href="index.html" class="header-brand"><img class="bi" src="assets/logo.png" alt="" style="width:32px;height:32px;object-fit:contain;display:block"><h1>古代史及汉籍研究工具</h1></a>
-    <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="kanseki.html">古籍类目查询</a><a href="embed.html" class="active">快速跳转</a>
-    </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
-      <div class="nav-dropdown user-dropdown">
-        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
-          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="nav-dropdown-menu user-menu" role="menu">
-          <a href="login.html" role="menuitem">登录</a>
-          <a href="signup.html" role="menuitem">注册</a><a href="settings.html#api" role="menuitem" class="user-menu-settings">设置</a>
-        </div>
-      </div></div>
-  </div>
-</header>
-
-<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
-<div class="drawer-overlay" id="mDrawerOverlay"></div>
-<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
-  <div class="drawer-brand"><img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block"><h2>古代史及汉籍研究工具</h2></div>
-  <nav class="drawer-nav">
-    <div class="drawer-nav-group">导航</div>
-    <a href="index.html" class="drawer-link">纪年查询</a>
-    <a href="catalog.html" class="drawer-link">编目规范</a>
-    <a href="kanseki.html" class="drawer-link">古籍类目查询</a>
-    <a href="embed.html" class="drawer-link active">快速跳转</a>
-    <div class="drawer-nav-group">说明文档</div>
-    <a href="guide.html" class="drawer-link">使用介绍</a>
-    <a href="changelog.html" class="drawer-link">更新日志</a>
+  <!-- V1.1：网页版站点导航（桌面内嵌时由构建注入的 CSS 隐藏） -->
+  <nav class="web-nav-strip" aria-label="站点导航">
+    <a href="index.html">纪年查询</a>
+    <a href="catalog.html?tab=0">细则查阅</a>
+    <a href="catalog.html?tab=1">分类表</a>
+    <a href="catalog.html?tab=2">工作手册</a>
+    <a href="kanseki.html">古籍类目</a>
+    <a href="embed.html">快速跳转</a>
+    <a href="guide.html">使用介绍</a>
+    <a href="changelog.html">更新日志</a>
   </nav>
-  <div class="drawer-user">
-    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
-  </div>
-</aside>
-
-<!-- 右上角浮动搜索栏: 自定义页面跳转 -->
-<div class="jump-bar" id="jumpBar">
-  <div class="button-group" role="group">
-    <input type="text" id="jumpInput" class="jump-input" autocomplete="off" spellcheck="false" aria-label="自定义页面跳转">
-    <button class="jump-go" id="jumpGo" type="button">跳转</button>
-  </div>
-</div>
-<div class="jump-hint" id="jumpHint" role="status"></div>
 
 <main class="page">
-  <div class="page-head">
-    <h2>快速跳转</h2>
+  <header class="phead">
+    <div class="pt">
+      <h1>快速跳转</h1>
+      <p class="pd">常用站点与检索入口 · 链接只保存在本机</p>
+    </div>
+    <div class="pa">
+      <button type="button" class="btn" id="btnAdd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>添加标签</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <label class="field">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+      <input type="text" id="filterInput" placeholder="筛选标签名或网址" autocomplete="off" spellcheck="false" aria-label="筛选标签名或网址">
+    </label>
+    <span class="tb-count" id="countText">共 0 个链接</span>
   </div>
-  <div class="jump-grid" id="jumpGrid"></div>
+
+  <div class="jump-grid" id="jumpGrid" aria-live="polite"></div>
+  <div class="empty" id="emptyState" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
+    <b>没有匹配的标签</b>
+    <span>换个关键词，或点右上角「添加标签」</span>
+  </div>
 </main>
 
-<footer class="app-footer">
-  <div class="footer-inner">古代史及汉籍研究工具 · 学术参考工具</div>
-</footer>
-
-<!-- 添加标签弹窗 -->
-<div class="add-overlay" id="addOverlay">
-  <div class="add-panel" role="dialog" aria-modal="true" aria-label="添加标签">
-    <h3>添加标签</h3>
-    <div class="add-field">
-      <label for="addName">标签名称（可选）</label>
-      <input type="text" id="addName" placeholder="如：维基百科" autocomplete="off">
+<div class="mask" id="modalMask" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="panel-h">
+      <h3 id="modalTitle">添加标签</h3>
+      <button type="button" class="panel-x" id="modalClose" aria-label="关闭">×</button>
     </div>
-    <div class="add-field">
-      <label for="addUrl">网址</label>
-      <input type="text" id="addUrl" placeholder="如：wikipedia.org" autocomplete="off">
+    <div class="form-row">
+      <label for="fName">标签名称（可选）</label>
+      <input type="text" id="fName" placeholder="如：维基百科" autocomplete="off">
     </div>
-    <div class="add-actions">
-      <button class="btn btn-cancel" id="addCancel" type="button">取消</button>
-      <button class="btn btn-save" id="addSave" type="button">保存</button>
+    <div class="form-row">
+      <label for="fUrl">网址</label>
+      <input type="text" id="fUrl" placeholder="如：wikipedia.org" autocomplete="off">
+    </div>
+    <p class="panel-err" id="modalErr" hidden></p>
+    <div class="panel-acts">
+      <button type="button" class="btn ghost" id="modalCancel">取消</button>
+      <button type="button" class="btn" id="modalSave">保存</button>
     </div>
   </div>
 </div>
 
-<div class="jump-toast" id="jumpToast" role="status" aria-live="polite"><span class="jt-dot"></span><span id="jumpToastText">已在新标签页打开</span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="dot"></span><span id="toastText"></span></div>
 
-<script src="overlay.js"></script>
-<script src="mobile-nav.js"></script>
+<script src="user-state.js"></script>
 <script>
-(function(){
-  // ===== 主题 =====
-  function initTheme(){document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light')}
-  initTheme();
-  document.getElementById('themeToggle').addEventListener('click',()=>{
-    const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';
-    document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);
-  });
+(function () {
+  'use strict';
 
-  // ===== 预置快捷网站 =====
-  const QUICK_LINKS=[
-    {name:'典津全球汉籍影像开放集成系统',url:'https://guji.cckb.cn/',icon:'典'},
-    {name:'国学大全',url:'https://www.gxdq.com/',icon:'国'},
-    {name:'日本所藏中文古籍数据库',url:'https://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=',icon:'漢'},
-    {name:'日本国立公文书馆检索页面',url:'https://www.digital.archives.go.jp/',icon:'文'},
-    {name:'古籍觅宝',url:'https://guji99.com/',icon:'觅'},
-    {name:'PaddleOCR',url:'https://aistudio.baidu.com/paddleocr',icon:'OCR'},
-    {name:'GitHub',url:'https://github.com/',icon:'Gh'}
+  // ===== 预置快捷网站（与旧版完全一致） =====
+  var PRESET_LINKS = [
+    { name: '典津全球汉籍影像开放集成系统', url: 'https://guji.cckb.cn/', icon: '典' },
+    { name: '国学大全', url: 'https://www.gxdq.com/', icon: '国' },
+    { name: '日本所藏中文古籍数据库', url: 'https://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=', icon: '漢' },
+    { name: '日本国立公文书馆检索页面', url: 'https://www.digital.archives.go.jp/', icon: '文' },
+    { name: '古籍觅宝', url: 'https://guji99.com/', icon: '觅' },
+    { name: 'PaddleOCR', url: 'https://aistudio.baidu.com/paddleocr', icon: 'OCR' },
+    { name: 'GitHub', url: 'https://github.com/', icon: 'Gh' }
   ];
 
-  // ===== 用户自定义标签 (localStorage 持久化) =====
-  const CUSTOM_KEY='quickLinksCustom';
-  let customLinks=[];
-  try{customLinks=JSON.parse(localStorage.getItem(CUSTOM_KEY)||'[]')}catch(e){customLinks=[]}
-  function saveCustom(){localStorage.setItem(CUSTOM_KEY,JSON.stringify(customLinks))}
+  // ===== 用户自定义标签：沿用 localStorage 'quickLinksCustom'（数组，元素 {name,url,icon}） =====
+  var CUSTOM_KEY = 'quickLinksCustom';
+  var customLinks = [];
+  try {
+    var raw = JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]');
+    customLinks = Array.isArray(raw) ? raw.filter(function (x) { return x && typeof x === 'object' && typeof x.url === 'string' && x.url; }) : [];
+  } catch (e) { customLinks = []; }
+  function saveCustom() {
+    try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(customLinks)); } catch (e) { /* 忽略配额错误 */ }
+  }
 
-  // ===== 跳转核心 =====
-  function normalizeUrl(raw){
-    let u=(raw||'').trim();
-    if(!u)return null;
-    // 相对路径 (本站文件, 含子目录如 docs/manual.pdf)
-    if(/^\.?\//.test(u)||/^[^/]+(\.html?|\.pdf|\.txt)$/i.test(u)||/^[\w-]+\/[\w.\/-]+\.(html?|pdf|txt)$/i.test(u))return u;
-    if(!/^https?:\/\//i.test(u))u='https://'+u;
+  // ===== 工具函数 =====
+  function normalizeUrl(raw) {
+    var u = (raw || '').trim();
+    if (!u) return null;
+    // 相对路径（本站文件，含子目录如 docs/manual.pdf）
+    if (/^\.?\//.test(u) || /^[^/]+(\.html?|\.pdf|\.txt)$/i.test(u) || /^[\w-]+\/[\w.\/-]+\.(html?|pdf|txt)$/i.test(u)) return u;
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
     return u;
   }
-  function hostOf(url){
-    try{const h=new URL(url).hostname;return h.replace(/^www\./,'')}catch(e){return url.replace(/^https?:\/\//,'').split(/[/?#]/)[0]}
+  function hostOf(url) {
+    try { var h = new URL(url).hostname; return h.replace(/^www\./, ''); } catch (e) { return String(url).replace(/^https?:\/\//i, '').split(/[/?#]/)[0]; }
   }
-  function iconOf(name,url){
-    const n=(name||'').trim();
-    if(n)return n.slice(0,2);
-    const h=hostOf(url);
-    return h?h.charAt(0).toUpperCase():'网';
+  function iconOf(name, url) {
+    var n = (name || '').trim();
+    if (n) return n.slice(0, 2);
+    var h = hostOf(url);
+    return h ? h.charAt(0).toUpperCase() : '网';
   }
-  function showHint(msg,isErr){
-    const h=document.getElementById('jumpHint');
-    h.textContent=msg;h.className='jump-hint show'+(isErr?' err':'');
-    clearTimeout(showHint._t);
-    showHint._t=setTimeout(()=>{h.className='jump-hint'},2600);
-  }
-  function showToast(msg){
-    const t=document.getElementById('jumpToast');
-    document.getElementById('jumpToastText').textContent=msg;
-    t.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t=setTimeout(()=>{t.classList.remove('show')},2400);
-  }
-  function openUrl(url){
-    if(!url)return;
-    // 用 <a target="_blank"> 编程点击: 与真实点击链接行为一致, 弹窗拦截规则统一
-    const a=document.createElement('a');
-    a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-    a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    showToast('已打开：'+url);
+  function displayUrl(url) {
+    return String(url).replace(/^https?:\/\//i, '').replace(/\/$/, '');
   }
 
-  // ===== 渲染标签网格 (预置 + 自定义 + 添加按钮, 全部等宽等高) =====
-  const jumpGrid=document.getElementById('jumpGrid');
-  function renderGrid(){
-    jumpGrid.innerHTML='';
-    const links=QUICK_LINKS.concat(customLinks.map((l,i)=>({...l,_custom:i})));
-    links.forEach((link,i)=>{
-      const card=document.createElement('div');
-      card.className='jump-card'+(link._custom!==undefined?' custom':'');
-      card.style.animationDelay=(i*0.04)+'s';
-      card.innerHTML='<a class="jc-link" href="'+link.url+'" target="_blank" rel="noopener noreferrer" title="'+link.name+'">'+
-        '<span class="jc-icon" aria-hidden="true">'+link.icon+'</span>'+
-        '<span class="jc-name">'+link.name+'</span>'+
-        '<span class="jc-url">'+hostOf(link.url)+'</span></a>';
-      if(link._custom!==undefined){
-        const del=document.createElement('button');
-        del.className='jc-del';del.type='button';del.setAttribute('aria-label','删除标签');
-        del.textContent='×';
-        del.addEventListener('click',(e)=>{e.stopPropagation();removeCustom(link._custom)});
-        card.appendChild(del);
-      }
-      jumpGrid.appendChild(card);
-    });
-    // 添加按钮卡片
-    const add=document.createElement('a');
-    add.className='jump-card add-card';
-    add.href='javascript:void(0)';
-    add.style.animationDelay=(links.length*0.04)+'s';
-    add.innerHTML='<span class="ac-plus" aria-hidden="true">+</span><span class="ac-label">添加标签</span>';
-    add.addEventListener('click',(e)=>{e.preventDefault();openAddModal()});
-    jumpGrid.appendChild(add);
-  }
-  function removeCustom(idx){
-    customLinks.splice(idx,1);
-    saveCustom();
-    renderGrid();
-    showToast('已删除标签');
+  // ===== DOM =====
+  var grid = document.getElementById('jumpGrid');
+  var emptyState = document.getElementById('emptyState');
+  var countText = document.getElementById('countText');
+  var filterInput = document.getElementById('filterInput');
+
+  var toast = document.getElementById('toast');
+  var toastText = document.getElementById('toastText');
+  var toastTimer = null;
+  function showToast(msg) {
+    toastText.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
   }
 
-  // ===== 添加标签弹窗 =====
-  const addOverlay=document.getElementById('addOverlay');
-  const addName=document.getElementById('addName');
-  const addUrl=document.getElementById('addUrl');
-  function openAddModal(){
-    addName.value='';addUrl.value='';
-    addOverlay.classList.add('show');
-    addUrl.focus();
-  }
-  function closeAddModal(){addOverlay.classList.remove('show')}
-  function saveAdd(){
-    const url=normalizeUrl(addUrl.value);
-    if(!url){showHint('请输入有效网址',true);return}
-    let name=(addName.value||'').trim();
-    if(!name)name=hostOf(url);
-    customLinks.push({name:name,url:url,icon:iconOf(name,url)});
-    saveCustom();
-    closeAddModal();
-    renderGrid();
-    showToast('已添加标签：'+name);
-  }
-  document.getElementById('addSave').addEventListener('click',saveAdd);
-  document.getElementById('addCancel').addEventListener('click',closeAddModal);
-  addOverlay.addEventListener('click',e=>{if(e.target===addOverlay)closeAddModal()});
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'&&addOverlay.classList.contains('show'))closeAddModal();
-  });
-  addUrl.addEventListener('keydown',e=>{if(e.key==='Enter')saveAdd()});
+  // ===== 渲染（预置 + 自定义 + 添加卡片） =====
+  function buildLinkItem(l, kind, idx) {
+    var item = document.createElement('div');
+    item.className = 'jump-card';
+    if (kind === 'custom') item.setAttribute('data-custom-index', String(idx));
 
-  // ===== 搜索栏跳转 =====
-  const input=document.getElementById('jumpInput');
-  document.getElementById('jumpGo').addEventListener('click',()=>{
-    const u=normalizeUrl(input.value);
-    if(!u){showHint('请输入有效网址',true);return}
-    openUrl(u);
-  });
-  input.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      const u=normalizeUrl(input.value);
-      if(!u){showHint('请输入有效网址',true);return}
-      openUrl(u);
+    var a = document.createElement('a');
+    a.className = 'jc-link';
+    a.href = l.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.title = (l.name || '') + '\n' + l.url;
+
+    var ic = document.createElement('span');
+    ic.className = 'jump-ic';
+    ic.setAttribute('aria-hidden', 'true');
+    ic.textContent = l.icon || iconOf(l.name, l.url);
+
+    var tx = document.createElement('span');
+    tx.className = 'jump-tx';
+    var b = document.createElement('b');
+    b.textContent = l.name || hostOf(l.url);
+    var sp = document.createElement('span');
+    sp.className = 'jc-url';
+    sp.textContent = displayUrl(l.url);
+    tx.appendChild(b);
+    tx.appendChild(sp);
+
+    var ra = document.createElement('span');
+    ra.className = 'ra';
+    ra.setAttribute('aria-hidden', 'true');
+    ra.textContent = '↗';
+
+    a.appendChild(ic);
+    a.appendChild(tx);
+    a.appendChild(ra);
+    item.appendChild(a);
+
+    if (kind === 'custom') {
+      var acts = document.createElement('span');
+      acts.className = 'jc-acts';
+      var edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'ic-act';
+      edit.setAttribute('data-act', 'edit');
+      edit.setAttribute('aria-label', '编辑 ' + (l.name || l.url));
+      edit.title = '编辑';
+      edit.textContent = '✎';
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'ic-act del';
+      del.setAttribute('data-act', 'del');
+      del.setAttribute('aria-label', '删除 ' + (l.name || l.url));
+      del.title = '删除';
+      del.textContent = '×';
+      acts.appendChild(edit);
+      acts.appendChild(del);
+      item.appendChild(acts);
     }
+    return item;
+  }
+
+  function render() {
+    var q = (filterInput.value || '').trim().toLowerCase();
+    var all = [];
+    PRESET_LINKS.forEach(function (l) { all.push({ link: l, kind: 'preset', idx: -1 }); });
+    customLinks.forEach(function (l, i) {
+      all.push({ link: { name: l.name || hostOf(l.url), url: l.url, icon: l.icon || iconOf(l.name, l.url) }, kind: 'custom', idx: i });
+    });
+    var shown = all.filter(function (x) {
+      if (!q) return true;
+      return String(x.link.name || '').toLowerCase().indexOf(q) >= 0 || String(x.link.url).toLowerCase().indexOf(q) >= 0;
+    });
+
+    grid.innerHTML = '';
+    shown.forEach(function (x) { grid.appendChild(buildLinkItem(x.link, x.kind, x.idx)); });
+
+    // 末尾虚线「添加标签」卡片
+    var add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'jump-card jump-add';
+    add.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>添加标签</span>';
+    add.addEventListener('click', openAdd);
+    grid.appendChild(add);
+
+    var total = all.length;
+    countText.textContent = q ? ('筛选 ' + shown.length + ' / 共 ' + total + ' 个') : ('共 ' + total + ' 个链接');
+    var noResult = shown.length === 0;
+    grid.hidden = noResult;
+    emptyState.hidden = !noResult;
+  }
+
+  grid.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.ic-act') : null;
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var card = btn.closest('.jump-card');
+    var idx = parseInt(card.getAttribute('data-custom-index'), 10);
+    if (isNaN(idx) || !customLinks[idx]) return;
+    if (btn.getAttribute('data-act') === 'del') removeCustom(idx);
+    else openEdit(idx);
   });
 
-  renderGrid();
+  // ===== 增 / 删 / 改 =====
+  function removeCustom(idx) {
+    var name = customLinks[idx] && (customLinks[idx].name || customLinks[idx].url) || '';
+    customLinks.splice(idx, 1);
+    saveCustom();
+    render();
+    showToast('已删除：' + name);
+  }
+
+  var modalMask = document.getElementById('modalMask');
+  var modalTitle = document.getElementById('modalTitle');
+  var fName = document.getElementById('fName');
+  var fUrl = document.getElementById('fUrl');
+  var modalErr = document.getElementById('modalErr');
+  var editingIndex = -1;
+
+  function openModal(title, name, url, idx) {
+    editingIndex = typeof idx === 'number' ? idx : -1;
+    modalTitle.textContent = title;
+    fName.value = name || '';
+    fUrl.value = url || '';
+    modalErr.hidden = true;
+    modalMask.hidden = false;
+    setTimeout(function () { (url ? fName : fUrl).focus(); }, 30);
+  }
+  function openAdd() { openModal('添加标签', '', '', -1); }
+  function openEdit(idx) {
+    var l = customLinks[idx];
+    if (!l) return;
+    openModal('编辑标签', l.name || '', l.url || '', idx);
+  }
+  function closeModal() {
+    modalMask.hidden = true;
+    editingIndex = -1;
+  }
+  function showModalError(msg) {
+    modalErr.textContent = msg;
+    modalErr.hidden = false;
+  }
+
+  function saveModal() {
+    var url = normalizeUrl(fUrl.value);
+    if (!url) { showModalError('请输入有效网址'); fUrl.focus(); return; }
+    var name = (fName.value || '').trim() || hostOf(url);
+    if (editingIndex >= 0) {
+      var l = customLinks[editingIndex];
+      if (!l) { closeModal(); return; }
+      l.name = name;
+      l.url = url;
+      l.icon = iconOf(name, url);
+      saveCustom();
+      closeModal();
+      render();
+      showToast('已保存：' + name);
+    } else {
+      customLinks.push({ name: name, url: url, icon: iconOf(name, url) });
+      saveCustom();
+      closeModal();
+      render();
+      showToast('已添加：' + name);
+    }
+  }
+
+  document.getElementById('btnAdd').addEventListener('click', openAdd);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  document.getElementById('modalSave').addEventListener('click', saveModal);
+  modalMask.addEventListener('click', function (e) { if (e.target === modalMask) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modalMask.hidden) closeModal();
+  });
+  fUrl.addEventListener('keydown', function (e) { if (e.key === 'Enter') saveModal(); });
+  fName.addEventListener('keydown', function (e) { if (e.key === 'Enter') fUrl.focus(); });
+
+  filterInput.addEventListener('input', render);
+
+  render();
 })();
 </script>
-<script src="user-state.js"></script>
-<script defer src="pwa.js"></script>
 </body>
 </html>

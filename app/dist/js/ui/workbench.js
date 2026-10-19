@@ -89,10 +89,14 @@ async function readRecentVersions() {
     if (!resp.ok) return [];
     const html = await resp.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    return [...doc.querySelectorAll('.cl-entry')].slice(0, 3).map((e) => ({
-      ver: ((e.querySelector('.cl-ver') || {}).textContent || '').trim(),
-      date: ((e.querySelector('.cl-date') || {}).textContent || '').trim(),
-    })).filter((v) => v.ver);
+    // V1.1：更新日志页改为 <details class="cl-item" data-ver data-date> 结构；
+    // 这里以 data-* 为准（同时兼容旧的 .cl-entry/.cl-ver 写法）。
+    const items = [...doc.querySelectorAll('.cl-item[data-ver], .cl-entry')].slice(0, 3);
+    return items.map((e) => {
+      const ver = (e.getAttribute('data-ver') || ((e.querySelector('.cl-ver') || {}).textContent || '')).trim();
+      const date = (e.getAttribute('data-date') || ((e.querySelector('.cl-date, .cl-dat') || {}).textContent || '')).trim();
+      return { ver, date };
+    }).filter((v) => v.ver);
   } catch (_) { return []; }
 }
 

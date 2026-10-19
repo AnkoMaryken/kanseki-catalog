@@ -116,7 +116,10 @@ async function pickAppPage(ctx, deadline) {
       title: document.title,
       app: q('#app'), titlebar: q('.app-titlebar'),
       tbMin: q('#tbMin'), tbMax: q('#tbMax'), tbClose: q('#tbClose'),
-      langBtn: q('#langToggleBtn'),
+      langBtn: q('#langSeg'),
+    themeBtn: q('#themeBtn'),
+    dlBtn: q('#tbDl'),
+    githubBtn: q('#githubBtn'),
       sidebar: q('#sidebar'),
       // 最大化按钮只应有一个图标可见（本轮修复项，发布前再确认一次）
       maxVisibleIcons: t ? [...t.querySelectorAll('svg')].filter(s => {
@@ -129,7 +132,8 @@ async function pickAppPage(ctx, deadline) {
   ok('页面标题正确', /古代史及汉籍研究工具/.test(shell.title), shell.title);
   ok('外壳与标题栏已渲染', shell.app && shell.titlebar);
   ok('标题栏三键齐全', shell.tbMin && shell.tbMax && shell.tbClose);
-  ok('一键简繁按钮存在', shell.langBtn === true);
+  ok('简繁分段按钮存在', shell.langBtn === true);
+  ok('主题 / 下载情况 / GitHub 按钮存在', shell.themeBtn === true && shell.dlBtn === true && shell.githubBtn === true);
   ok('侧栏已渲染', shell.sidebar === true);
   ok('最大化按钮仅 1 个图标可见', shell.maxVisibleIcons === 1, 'visible=' + shell.maxVisibleIcons);
 

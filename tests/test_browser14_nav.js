@@ -1,61 +1,67 @@
-// v3.0 导航下拉菜单验证
+// V1.1 站点导航验证：六页统一「站点导航条」，不再有顶部下拉菜单
+// 桌面版里这条导航由 app/scripts/build.mjs 注入的 CSS 隐藏（侧栏已有同名入口）。
 const { chromium } = require('playwright-core');
 const CHROME_PATH = 'C://Users//华为//.agent-browser//browsers//chrome-151.0.7922.76//chrome.exe';
+const BASE = 'http://localhost:8765';
+const PAGES = ['index.html', 'catalog.html?tab=0', 'kanseki.html', 'guide.html', 'changelog.html', 'embed.html'];
+const EXPECT = 8;
+
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROME_PATH, headless: true, args: ['--no-sandbox', '--disable-gpu'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
+  page.on('pageerror', (e) => errors.push(e.message));
   let pass = 0, fail = 0;
   const check = (name, cond, extra) => {
     if (cond) { pass++; console.log('PASS ' + name); }
     else { fail++; console.log('FAIL ' + name + (extra ? ' | ' + extra : '')); }
   };
 
-  // index 页
-  await page.goto('http://localhost:8765/index.html', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForTimeout(700);
-  let links = await page.locator('.header-nav > a.nav-link').allTextContents();
-  check('index 导航直链无「使用介绍」', !links.some(t => t.trim() === '使用介绍') && links.some(t => t.includes('纪年查询')), JSON.stringify(links));
-  check('index 导航含「快速跳转」', links.some(t => t.trim() === '快速跳转'), JSON.stringify(links));
-  let btnText = await page.locator('.header-nav .nav-dropdown-btn').textContent();
-  check('index 有「说明文档」按钮', btnText.includes('说明文档'), btnText);
-  // hover 展开
-  await page.hover('.header-nav .nav-dropdown-btn');
+  // 1) 六页都有导航条，且入口数为 8
+  for (const p of PAGES) {
+    await page.goto(`${BASE}/${p}`, { waitUntil: 'load', timeout: 30000 });
+    await page.waitForTimeout(500);
+    const strip = await page.locator('.web-nav-strip a').evaluateAll((as) => as.map((a) => ({ href: a.getAttribute('href'), text: a.textContent.trim() })));
+    check(`${p} 有站点导航条（${EXPECT} 项）`, strip.length === EXPECT, strip.length + '');
+    const hrefs = strip.map((x) => x.href || '');
+    check(`${p} 导航含纪年/类目/更新日志`,
+      hrefs.includes('index.html') && hrefs.includes('kanseki.html') && hrefs.includes('changelog.html'),
+      hrefs.join(','));
+  }
+
+  // 2) 旧的顶部下拉菜单已移除
+  await page.goto(`${BASE}/index.html`, { waitUntil: 'load' });
   await page.waitForTimeout(400);
-  let visible = await page.locator('.header-nav .nav-dropdown-menu').isVisible();
-  check('hover 展开下拉菜单', visible);
-  let items = await page.locator('.header-nav .nav-dropdown-menu a').allTextContents();
-  check('下拉含使用介绍+更新日志', items.some(t => t.includes('使用介绍')) && items.some(t => t.includes('更新日志')), JSON.stringify(items));
-  await page.screenshot({ path: '.workbuddy/v3_nav_dropdown.png' });
-
-  // 点击跳转 guide
-  await page.click('.header-nav .nav-dropdown-menu a[href="guide.html"]');
-  await page.waitForTimeout(800);
-  check('点击跳转 guide.html', page.url().includes('guide.html'), page.url());
-  // guide 页: 说明文档 active, 菜单内使用介绍 active
-  let btnCls = await page.locator('.header-nav .nav-dropdown-btn').getAttribute('class');
-  check('guide 页说明文档 active', btnCls.includes('active'), btnCls);
-  let menuActive = await page.locator('.nav-dropdown-menu a.active').textContent();
-  check('guide 页菜单内「使用介绍」active', menuActive.includes('使用介绍'), menuActive);
-
-  // changelog 页
-  await page.goto('http://localhost:8765/changelog.html', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForTimeout(600);
-  menuActive = await page.locator('.nav-dropdown-menu a.active').textContent();
-  check('changelog 页菜单内「更新日志」active', menuActive.includes('更新日志'), menuActive);
-
-  // catalog 页 (V5.1 起简体)
-  await page.goto('http://localhost:8765/catalog.html', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForTimeout(600);
-  btnText = await page.locator('.header-nav .nav-dropdown-btn').textContent();
-  check('catalog 简体「说明文档」', btnText.includes('说明文档'), btnText);
-  await page.hover('.header-nav .nav-dropdown-btn');
+  check('index 已无下拉菜单', (await page.locator('.nav-dropdown, .header-nav .nav-dropdown-btn').count()) === 0);
+  await page.goto(`${BASE}/kanseki.html`, { waitUntil: 'load' });
   await page.waitForTimeout(400);
-  items = await page.locator('.header-nav .nav-dropdown-menu a').allTextContents();
-  check('catalog 下拉简体项', items.some(t => t.includes('使用介绍')) && items.some(t => t.includes('更新日志')), JSON.stringify(items));
-  await page.screenshot({ path: '.workbuddy/v3_nav_dropdown_catalog.png' });
+  check('kanseki 已无下拉菜单', (await page.locator('.nav-dropdown, .header-nav .nav-dropdown-btn').count()) === 0);
 
+  // 3) 点导航可跨页跳转
+  await page.goto(`${BASE}/index.html`, { waitUntil: 'load' });
+  await page.waitForTimeout(400);
+  await page.click('.web-nav-strip a[href="kanseki.html"]');
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(600);
+  check('点「古籍类目」跳到 kanseki.html', page.url().includes('kanseki.html'), page.url());
+  await page.goto(`${BASE}/index.html`, { waitUntil: 'load' });
+  await page.waitForTimeout(300);
+  await page.click('.web-nav-strip a[href="changelog.html"]');
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(500);
+  check('点「更新日志」跳到 changelog.html', page.url().includes('changelog.html'), page.url());
+
+  // 4) 桌面内嵌模拟：html.is-embed 时导航条隐藏（index/kanseki 用该标记）
+  await page.goto(`${BASE}/index.html`, { waitUntil: 'load' });
+  await page.waitForTimeout(300);
+  const hidden = await page.evaluate(() => {
+    document.documentElement.classList.add('is-embed');
+    const el = document.querySelector('.web-nav-strip');
+    return el ? getComputedStyle(el).display === 'none' : false;
+  });
+  check('内嵌标记下导航条隐藏', hidden === true);
+
+  await page.screenshot({ path: '.workbuddy/v11_site_nav.png' });
   console.log(`\n结果: ${pass} 通过, ${fail} 失败`);
   console.log('JS错误:', errors.length ? errors.join(';') : '无');
   await browser.close().catch(() => {});

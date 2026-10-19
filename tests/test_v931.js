@@ -37,12 +37,12 @@ function check(name, cond, extra) {
     active: (document.querySelector('.set-pane.active') || {}).id || '',
     paneIds: [...document.querySelectorAll('.set-pane')].map(s => s.id)
   }));
-  check('设置页只剩两个页签', panes.tabs.length === 2, panes.tabs.join('/'));
+  check('设置页共四个页签', panes.tabs.length === 4, panes.tabs.join('/'));
   check('页签为「同步设置 / API 管理」',
-    panes.tabs.join('|') === '同步设置|API 管理', panes.tabs.join('|'));
+    panes.tabs.join('|') === '同步设置|API 管理|外观与快捷键|关于', panes.tabs.join('|'));
   check('已无「个人中心」页签', panes.hasProfileTab === false);
   check('已无「个人中心」面板与内嵌页', panes.hasProfilePane === false && panes.hasProfileFrame === false);
-  check('面板只剩 sync / api', panes.paneIds.join('|') === 'pane-sync|pane-api', panes.paneIds.join('|'));
+  check('面板为 sync/api/ui/about', panes.paneIds.join('|') === 'pane-sync|pane-api|pane-ui|pane-about', panes.paneIds.join('|'));
   check('网页版默认进 API 管理（无同步能力）', panes.active === 'pane-api', panes.active);
   await sp.goto('http://localhost:8765/settings.html#profile', { waitUntil: 'load', timeout: 60000 });
   await sp.waitForTimeout(900);
@@ -193,7 +193,7 @@ function check(name, cond, extra) {
     };
   });
   check('点历史项回填搜索框', recall.input === '周易', recall.input);
-  check('点历史项会重新检索', /共/.test(recall.total), recall.total);
+  check('点历史项会重新检索', /共|命中/.test(recall.total), recall.total);
   check('点历史项后该项置顶', recall.first === '周易', recall.first);
   check('选完后自动收起面板', recall.panelClosed === true);
 

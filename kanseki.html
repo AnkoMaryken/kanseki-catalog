@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <title>古籍类目查询 — 古代史及汉籍研究工具</title>
+<script>
+/* 桌面版用 iframe 承载本页（dist/pages/kanseki.html）：检测到被嵌入时，
+   隐藏与外壳重复的站点顶栏（网页版 standalone 打开时保留）。 */
+(function () {
+  try {
+    if (window.self !== window.top) {
+      document.documentElement.classList.add('is-embed');
+    }
+  } catch (e) {
+    document.documentElement.classList.add('is-embed');
+  }
+})();
+</script>
 <style>
 /* ============================================================
    V9.0 古籍类目查询
@@ -323,6 +336,226 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
   .ks-aio-warn,.ks-aio-fb{margin-left:.8rem;margin-right:.8rem}
   .ks-aio-body{max-height:none}
 }
+
+/* ============================================================
+   v3 版式 —— 古籍类目查询（kanseki 视图）
+   依据 设计原型\桌面版-v3.html：灰底白卡 / 圆角 24·18 / 字阶 20·13.5·12.5·11.5
+   —— 判定三态色标保留（完全相同=绿 / 可对应=黄 / 无对应=橙）
+   ============================================================ */
+:root{
+  --v3-bg-page:#F2F3F5; --v3-card:#FFFFFF; --v3-fill:#F2F3F5; --v3-hover:#F7F8F9; --v3-badge:#EDEEF0;
+  --v3-t1:#171A1F; --v3-t2:#5F6672; --v3-t3:#8F959E; --v3-t4:#C2C6CC; --v3-divider:#F0F1F3;
+  --v3-r-card:24px; --v3-r-mid:18px; --v3-r-pill:999px;
+  --v3-shadow-card:0 6px 20px rgba(0,0,0,.06);
+  --v3-shadow-float:0 20px 50px rgba(0,0,0,.18);
+}
+[data-theme="dark"]{
+  --v3-bg-page:#0A0A0A; --v3-card:#171717; --v3-fill:#1F1F1F; --v3-hover:#262626; --v3-badge:#262626;
+  --v3-t1:#FAFAFA; --v3-t2:#D4D4D4; --v3-t3:#A3A3A3; --v3-t4:#737373; --v3-divider:rgba(255,255,255,.08);
+  --v3-shadow-card:0 6px 20px rgba(0,0,0,.5);
+  --v3-shadow-float:0 20px 50px rgba(0,0,0,.65);
+}
+body{ background:var(--v3-bg-page); }
+
+/* ---- 桌面内嵌：站点顶栏完全不出现（网页版保留） ---- */
+html.is-embed .app-header{ display:none !important; }
+
+/* ---- 网页版精简顶栏：仅品牌 + 简繁（导航/登录/主题已移除） ---- */
+.app-header{ background:var(--v3-card); border-bottom:1px solid var(--v3-divider); padding:0; backdrop-filter:none; -webkit-backdrop-filter:none; animation:none; }
+.header-inner{ max-width:none; padding:0 28px; height:56px; display:flex; align-items:center; gap:12px; flex-wrap:nowrap; }
+.header-brand{ display:flex; align-items:center; gap:10px; flex-shrink:0; text-decoration:none; color:inherit; }
+.header-brand .bi{ width:28px; height:28px; border-radius:8px; background:transparent; }
+.header-brand h1{ font-family:var(--font-body); font-size:13.5px; font-weight:600; color:var(--v3-t1); letter-spacing:-.01em; margin:0; }
+.web-topbar-sep{ width:1px; height:16px; background:var(--v3-divider); flex:0 0 1px; }
+.web-topbar-page{ font-size:12px; color:var(--v3-t3); white-space:nowrap; }
+.header-inner .ks-lang{ margin-left:auto; display:inline-flex; align-items:center; gap:0; padding:3px; border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge); overflow:visible; }
+.header-inner .ks-lang button{ border:0; background:none; color:var(--v3-t2); border-radius:var(--v3-r-pill); font-family:var(--font-body); font-size:11.5px; font-weight:500; padding:4px 11px; line-height:1.2; cursor:pointer; }
+.header-inner .ks-lang button.active{ background:var(--v3-card); color:var(--v3-t1); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+
+/* ---- 页头（v3 phead） ---- */
+.ks-main{ max-width:1400px; padding:0 28px 24px; gap:16px; animation:none; }
+.page-head{ display:flex; align-items:flex-start; gap:16px; padding:24px 2px 18px; margin:0; flex-wrap:wrap; }
+.page-head .ph-text{ flex:1 1 320px; min-width:0; }
+.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; font-family:var(--font-body); }
+.page-head p{ font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:880px; margin:0; }
+.page-head .ph-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; flex:0 0 auto; }
+
+/* ---- v3 按钮 / 选择器 ---- */
+.ks-btn{
+  height:36px; padding:0 16px; border:0; border-radius:var(--v3-r-pill);
+  background:var(--v3-badge); color:var(--v3-t1); font-family:var(--font-body);
+  font-size:13.5px; font-weight:500; cursor:pointer; white-space:nowrap;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  transition:background .18s var(--ease-spring);
+}
+.ks-btn:hover{ background:#E2E4E8; border:0; }
+.ks-btn.primary{ background:var(--v3-t1); color:var(--v3-bg-page); font-weight:600; }
+.ks-btn.primary:hover{ background:var(--v3-t2); border:0; }
+.ks-btn-tiny{ height:28px; padding:0 11px; font-size:11.5px; font-weight:500; }
+[data-theme="dark"] .ks-btn{ background:var(--v3-badge); color:var(--v3-t1); }
+[data-theme="dark"] .ks-btn:hover{ background:#33363C; }
+[data-theme="dark"] .ks-btn.primary{ background:var(--v3-t1); color:#0A0A0A; }
+.ks-sel{
+  height:32px; padding:0 12px; border:0; border-radius:var(--v3-r-pill);
+  background:var(--v3-fill); color:var(--v3-t2); font-family:var(--font-body);
+  font-size:12px; cursor:pointer; max-width:200px;
+}
+.ks-sel:focus{ outline:none; box-shadow:0 0 0 2px var(--v3-t4); }
+[data-theme="dark"] .ks-sel{ background:#1F1F1F; color:var(--v3-t2); }
+
+/* ---- 检索行（v3 searchrow） ---- */
+.ks-searchrow{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--v3-card); border-radius:var(--v3-r-card);
+  box-shadow:var(--v3-shadow-card); padding:14px 16px;
+}
+.ks-field{
+  position:relative; display:flex; align-items:center; gap:9px;
+  height:40px; flex:1 1 300px; min-width:0; padding:0 14px;
+  background:var(--v3-fill); border-radius:var(--v3-r-mid);
+}
+.ks-field-ic{ width:16px; height:16px; flex:0 0 16px; fill:none; stroke:var(--v3-t3); stroke-width:1.9; }
+.ks-field .ks-search-wrap{ position:relative; flex:1 1 auto; min-width:0; display:flex; }
+.ks-field .ks-search{
+  flex:1 1 auto; width:100%; min-width:0; height:100%; padding:0;
+  border:0; background:none; outline:none;
+  font-family:var(--font-body); font-size:13.5px; color:var(--v3-t1);
+}
+.ks-field .ks-search::placeholder{ color:var(--v3-t3); }
+.ks-field .ks-search:focus{ border:0; background:none; }
+.ks-searchrow .ks-btn{ height:40px; padding:0 20px; }
+[data-theme="dark"] .ks-field{ background:#1F1F1F; }
+
+/* 检索历史浮层 → v3 卡片 */
+.ks-hist{ border:0; border-radius:var(--v3-r-mid); background:var(--v3-card); box-shadow:var(--v3-shadow-float); }
+.ks-hist-head{ border-bottom:1px solid var(--v3-divider); color:var(--v3-t3); }
+.ks-hist-clear{ color:var(--v3-t3); }
+.ks-hist-item{ color:var(--v3-t1); }
+.ks-hist-item:hover{ background:var(--v3-hover); }
+.ks-hist-empty{ color:var(--v3-t3); }
+
+/* ---- 结果白卡 + 卡头（命中 N 条 + 三态分布） ---- */
+.ks-card{
+  background:var(--v3-card); border:0; border-radius:var(--v3-r-card);
+  box-shadow:var(--v3-shadow-card); padding:20px; overflow:visible;
+}
+.ks-card .card-h{ display:flex; align-items:baseline; justify-content:space-between; gap:10px 16px; margin-bottom:12px; flex-wrap:wrap; }
+.ks-card .ch-left{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; min-width:0; }
+.ks-card .card-title{ font-size:15px; font-weight:600; color:var(--v3-t1); }
+.ks-card .card-sub{ font-size:11.5px; color:var(--v3-t3); }
+.ks-card .ch-right{ display:flex; align-items:center; gap:10px; font-size:11.5px; color:var(--v3-t3); }
+.ks-card .ks-badge{ background:var(--v3-fill); border:0; border-radius:6px; color:var(--v3-t2); font-size:11px; padding:2px 8px; }
+.ks-card .ks-time{ font-size:11px; color:var(--v3-t4); }
+
+/* ---- 筛选行 ---- */
+.ks-filters{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:0 0 12px; border-bottom:1px solid var(--v3-divider); background:transparent;
+}
+.ks-flabel{ font-size:11.5px; color:var(--v3-t3); font-weight:400; }
+
+/* ---- 提示 / 降级提示 ---- */
+.ks-hint{
+  padding:10px 14px; font-size:11.5px; color:var(--v3-t2);
+  background:var(--v3-fill); border:0; border-radius:var(--v3-r-mid);
+  margin:12px 0 0;
+}
+.ks-hint.show{ display:block; }
+.ks-hint:not(.show){ display:none; }
+
+/* ---- 结果表（v3 表格规范：12.5 / 表头 11.5 t3 / 细线分隔） ---- */
+.ks-tablewrap{ overflow-x:auto; margin-top:12px; }
+.ks-tbl{ width:100%; border-collapse:collapse; font-size:12.5px; }
+.ks-tbl th{
+  background:var(--v3-card); color:var(--v3-t3); padding:0 12px 10px;
+  text-align:left; font-weight:500; font-size:11.5px; white-space:nowrap;
+  border-bottom:1px solid var(--v3-divider); position:static;
+}
+.ks-tbl th:first-child, .ks-tbl td:first-child{ padding-left:2px; }
+.ks-tbl td{
+  padding:11px 12px; border-bottom:1px solid var(--v3-divider);
+  vertical-align:middle; line-height:1.6; color:var(--v3-t1);
+}
+.ks-tbl tbody tr:last-child td{ border-bottom:0; }
+.ks-tbl tbody tr:hover td{ background:var(--v3-hover); }
+.ks-tbl tbody tr.sel td{ background:var(--v3-hover); box-shadow:inset 3px 0 0 var(--v3-t1); }
+.ks-tbl tbody tr.sel td:first-child{ font-weight:700; }
+.ks-tbl .c-book{ font-weight:600; color:var(--v3-t1); min-width:200px; }
+.ks-tbl .c-author{ color:var(--v3-t2); white-space:nowrap; }
+.ks-tbl .c-path{ color:var(--v3-t2); white-space:nowrap; font-size:12px; }
+.ks-tbl .c-vd{ white-space:nowrap; }
+.ks-tbl .ks-dash{ color:var(--v3-t3); }
+/* 判定三态色标（保留原色，只统一圆角与字重） */
+.ks-tbl .vd{ display:inline-block; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:600; border:1px solid transparent; line-height:1.6; }
+
+/* ---- 分页条 ---- */
+.ks-pager{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding-top:12px; margin-top:4px; border-top:1px solid var(--v3-divider);
+  font-size:11.5px; color:var(--v3-t3);
+}
+.ks-pager-summary{ font-size:11.5px; color:var(--v3-t3); font-variant-numeric:tabular-nums; }
+.ks-range{ margin-left:0; font-size:11.5px; color:var(--v3-t4); font-variant-numeric:tabular-nums; }
+.ks-pager-sp{ flex:1; }
+.ks-pgbtn{
+  min-width:28px; height:28px; padding:0 9px; border:0; border-radius:8px;
+  background:var(--v3-fill); color:var(--v3-t2); font-family:var(--font-body);
+  font-size:11.5px; cursor:pointer;
+}
+.ks-pgbtn:hover:not(:disabled){ background:var(--v3-badge); color:var(--v3-t1); }
+.ks-pgbtn:disabled{ opacity:.45; cursor:default; }
+[data-theme="dark"] .ks-pgbtn{ background:#262626; color:var(--v3-t2); }
+
+/* ---- 空态 / 加载态 ---- */
+.ks-empty{ color:var(--v3-t3); font-size:12.5px; padding:2.2rem 1rem; }
+.ks-loading{ color:var(--v3-t3); gap:1rem; }
+.ks-spinner{ border-color:var(--v3-divider); border-top-color:var(--v3-t1); }
+
+/* ---- 说明条（三态 / 检索语法） ---- */
+.v3-note{
+  padding:11px 14px; margin-top:0; border-radius:var(--v3-r-mid);
+  background:var(--v3-badge); color:var(--v3-t2); font-size:11.5px; line-height:1.7;
+}
+
+/* ---- 批量查询 / AI 复检面板 → v3 卡片内嵌块 ---- */
+.ks-batch{
+  margin:0 0 14px; padding:14px 16px; border:0; border-radius:var(--v3-r-mid);
+  background:var(--v3-fill); box-shadow:none;
+}
+.ks-batch-input{ border:0; border-radius:12px; background:var(--v3-card); color:var(--v3-t1); }
+.ks-batch-input:focus{ border:0; box-shadow:0 0 0 2px var(--v3-t4); background:var(--v3-card); }
+.ks-batch-table th{ background:var(--v3-card); color:var(--v3-t2); }
+.ks-batch-title{ color:var(--v3-t1); }
+.ks-batch-hint, .ks-batch-status, .ks-batch-sample{ color:var(--v3-t3); }
+.ks-aio{ border-bottom:1px solid var(--v3-divider); background:var(--v3-fill); border-radius:var(--v3-r-mid); margin-bottom:14px; overflow:hidden; }
+.ks-aio-head{ border-bottom:1px solid var(--v3-divider); }
+.ks-aio-title{ color:var(--v3-t1); }
+.ks-aio-body{ color:var(--v3-t1); }
+
+/* ---- 窄屏（390px 不溢出） ---- */
+@media (max-width: 768px){
+  .header-inner{ padding:0 16px; height:52px; }
+  .ks-main{ padding:0 16px 16px; }
+  .page-head{ padding:16px 0 14px; gap:10px; }
+  .page-head h1{ font-size:18px; }
+  .page-head p{ font-size:11.5px; }
+  .page-head .ph-actions{ width:100%; justify-content:flex-start; }
+  .ks-searchrow{ padding:12px; border-radius:var(--v3-r-mid); }
+  .ks-field{ flex:1 1 100%; }
+  .ks-searchrow .ks-btn{ height:36px; padding:0 14px; }
+  .ks-card{ padding:14px; border-radius:var(--v3-r-mid); }
+  .ks-tbl{ min-width:660px; }
+  .ks-tbl th, .ks-tbl td{ padding:9px 10px; }
+  .ks-card .card-title{ font-size:14px; }
+}
+
+  /* V1.1：网页版站点导航条 */
+  .web-nav-strip { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    max-width: 1240px; margin: 12px auto 0; padding: 0 20px; }
+  .web-nav-strip a { color: var(--text-sec, var(--color-text-muted)); text-decoration: none;
+    font-size: 12.5px; padding: 5px 11px; border-radius: 999px; }
+  .web-nav-strip a:hover { background: var(--bg-badge, var(--color-surface-hover)); color: var(--text, var(--color-text)); }
+  html.is-embed .web-nav-strip { display: none !important; }
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#fafafa">
@@ -333,47 +566,40 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 </head>
 <body>
 
-<header class="app-header">
+<!-- ============================================================
+     Web 顶栏（仅网页版 standalone 显示；桌面版 iframe 承载时
+     由 html.is-embed 整条隐藏。站点导航 / 登录注册 / 主题切换
+     已由桌面外壳承担，页内不再重复）
+     ============================================================ -->
+<header class="app-header" role="banner">
   <div class="header-inner">
-    <button class="m-hamburger" id="mHamburger" type="button" aria-label="打开菜单" aria-expanded="false" style="display:none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <a href="index.html" class="header-brand"><img class="bi" src="assets/logo.png" alt="" style="width:32px;height:32px;object-fit:contain;display:block"><h1>古代史及汉籍研究工具</h1></a>
-    <nav class="header-nav">
-      <div class="nav-dropdown"><button class="nav-dropdown-btn" type="button" aria-haspopup="true">说明文档<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg></button><div class="nav-dropdown-menu" role="menu"><a href="guide.html" role="menuitem">使用介绍</a><a href="changelog.html" role="menuitem">更新日志</a></div></div><a href="index.html">纪年查询</a><a href="catalog.html">编目规范</a><a href="kanseki.html" class="active">古籍类目查询</a><a href="embed.html">快速跳转</a>
-    </nav>
-    <div class="header-actions"><button class="btn-icon" id="themeToggle" title="暗色/亮色">☀</button>
-      <div class="nav-dropdown user-dropdown">
-        <button class="nav-dropdown-btn user-btn" type="button" aria-haspopup="true">
-          <a href="login.html" class="user-login-link" onclick="event.stopPropagation()">登录</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-left:2px;vertical-align:-1px;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="nav-dropdown-menu user-menu" role="menu">
-          <a href="login.html" role="menuitem">登录</a>
-          <a href="signup.html" role="menuitem">注册</a><a href="settings.html#api" role="menuitem" class="user-menu-settings">设置</a>
-        </div>
-      </div>
+    <a class="header-brand" href="index.html" aria-label="古代史及汉籍研究工具">
+      <img class="bi" src="assets/logo.png" alt="" aria-hidden="true" style="width:28px;height:28px;object-fit:contain;display:block">
+      <h1>古代史及汉籍研究工具</h1>
+    </a>
+    <span class="web-topbar-sep" aria-hidden="true"></span>
+    <span class="web-topbar-page">古籍类目查询</span>
+    <div class="ks-lang" role="group" aria-label="显示字形">
+      <button type="button" id="langBtnS" title="显示简体字" data-cn="简">简</button>
+      <button type="button" id="langBtnT" class="active" title="显示繁体字" data-cn="繁">繁</button>
     </div>
   </div>
 </header>
-
-<!-- V8.2 移动端抽屉导航 (仅 ≤768px 显示) -->
-<div class="drawer-overlay" id="mDrawerOverlay"></div>
-<aside class="drawer" id="mDrawer" aria-label="移动端导航菜单">
-  <div class="drawer-brand"><img class="brand-icon" src="assets/logo.png" alt="" aria-hidden="true" style="width:32px;height:32px;object-fit:contain;display:block"><h2>古代史及汉籍研究工具</h2></div>
-  <nav class="drawer-nav">
-    <div class="drawer-nav-group">导航</div>
-    <a href="index.html" class="drawer-link">纪年查询</a>
-    <a href="catalog.html" class="drawer-link">编目规范</a>
-    <a href="kanseki.html" class="drawer-link active">古籍类目查询</a>
-    <a href="embed.html" class="drawer-link">快速跳转</a>
-    <div class="drawer-nav-group">说明文档</div>
-    <a href="guide.html" class="drawer-link">使用介绍</a>
-    <a href="changelog.html" class="drawer-link">更新日志</a>
+  <!-- V1.1：网页版站点导航（桌面内嵌时由构建注入的 CSS 隐藏） -->
+  <nav class="web-nav-strip" aria-label="站点导航">
+    <a href="index.html">纪年查询</a>
+    <a href="catalog.html?tab=0">细则查阅</a>
+    <a href="catalog.html?tab=1">分类表</a>
+    <a href="catalog.html?tab=2">工作手册</a>
+    <a href="kanseki.html">古籍类目</a>
+    <a href="embed.html">快速跳转</a>
+    <a href="guide.html">使用介绍</a>
+    <a href="changelog.html">更新日志</a>
   </nav>
-  <div class="drawer-user">
-    <a href="login.html" class="drawer-link" style="padding-left:0.2rem;">登录 / 注册</a>
-  </div>
-</aside>
+
+
+
+
 
 <main class="ks-main">
 
@@ -385,14 +611,25 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 
   <div class="ks-app" id="ksApp" hidden>
 
-    <div class="ks-head">
-      <h2 data-cn="古籍类目查询">古籍类目查询</h2>
-      <p data-cn="检索《中国古籍总目》全量著录，并显示与全球汉籍合璧工程类目的对应与判定">检索《中国古籍总目》全量著录，并显示与全球汉籍合璧工程类目的对应与判定</p>
+    <!-- v3 页头：标题 + 一行说明 + 右侧动作区（导出 CSV / AI 复检 / 批量查询） -->
+    <div class="page-head" id="pageHead">
+      <div class="ph-text">
+        <h1 data-cn="古籍类目查询">古籍类目查询</h1>
+        <p data-cn="检索《中国古籍总目》全量著录，对照全球汉籍合璧工程类目，判定完全相同 / 可对应 / 无对应。">检索《中国古籍总目》全量著录，对照全球汉籍合璧工程类目，判定完全相同 / 可对应 / 无对应。</p>
+      </div>
+      <div class="ph-actions">
+        <button class="ks-btn" id="ksExportBtn" type="button" data-cn="导出 CSV">导出 CSV</button>
+        <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
+                title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
+        <button class="ks-btn primary" id="ksBatchBtn" type="button" aria-haspopup="true" aria-expanded="false"
+                title="一次查多条：每行一条书名/著者/类目">批量查询</button>
+      </div>
     </div>
 
-    <section class="ks-card" aria-label="检索区">
-      <div class="ks-toolbar">
-        <!-- V10.2：检索历史不再用按钮，改为**点击检索框**即显示（历史与「纪年查询」分开存储） -->
+    <!-- v3 检索行：圆角大输入框 + 检索（检索历史仍挂在输入框下方） -->
+    <div class="ks-searchrow" id="ksSearchRow">
+      <div class="ks-field" role="search">
+        <svg class="ks-field-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         <div class="ks-search-wrap" id="ksSearchWrap">
           <input type="text" id="ksSearch" class="ks-search" autocomplete="off" spellcheck="false"
                  data-cn-ph="输入书名 / 著者 / 分类 / 合璧类目，支持空格分词与错字容错"
@@ -406,19 +643,22 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
             <ul class="ks-hist-list" id="ksHistList"></ul>
           </div>
         </div>
-        <button class="ks-btn primary" id="ksGo" type="button" data-cn="检索">检索</button>
-        <!-- V10.2：批量查询（每行一条，逐条给命中数与示例） -->
-        <button class="ks-btn" id="ksBatchBtn" type="button" aria-haspopup="true" aria-expanded="false"
-                title="一次查多条：每行一条书名/著者/类目">批量查询</button>
-        <button class="ks-btn" id="ksClear" type="button" data-cn="清空全部">清空全部</button>
-        <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
-                title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
-        <button class="ks-btn" id="ksExport" type="button" data-cn="导出 CSV">导出 CSV</button>
-        <div class="ks-lang" role="group" aria-label="显示字形">
-          <button type="button" id="langBtnS" title="显示简体字" data-cn="简">简</button>
-          <button type="button" id="langBtnT" class="active" title="显示繁体字" data-cn="繁">繁</button>
+      </div>
+      <button class="ks-btn primary ks-go" id="ksGo" type="button" data-cn="检索">检索</button>
+      <button class="ks-btn" id="ksClear" type="button" data-cn="清空">清空</button>
+    </div>
+
+    <!-- v3 结果白卡：卡头（命中 N 条 + 三态分布）/ 筛选 / 结果表 / 分页条 -->
+    <div class="ks-card" role="region" aria-label="类目对照结果">
+      <div class="card-h">
+        <div class="ch-left">
+          <b class="card-title" id="ksTotal">正在载入…</b>
+          <span class="card-sub" id="ksCardSub"></span>
         </div>
-        <button class="btn-icon" id="themeToggleSide" type="button" title="切换主题">☀</button>
+        <div class="ch-right">
+          <span class="ks-badge" id="ksLevel" hidden></span>
+          <span class="ks-time" id="ksTime"></span>
+        </div>
       </div>
 
       <!-- ============================================================
@@ -477,7 +717,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
       </div>
 
       <div class="ks-filters">
-        <span class="ks-flabel" data-cn="筛选">筛选</span><span class="ks-flabel" data-cn="部">部</span>
+        <span class="ks-flabel" data-cn="部">部</span>
         <select id="ksBu" class="ks-sel" aria-label="部"></select>
         <span class="ks-flabel" data-cn="类">类</span>
         <select id="ksLei" class="ks-sel" aria-label="类"></select>
@@ -487,27 +727,17 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
         <select id="ksPerPage" class="ks-sel" aria-label="每页"></select>
       </div>
 
-      <div class="ks-stats">
-        <span id="ksTotal" data-cn="正在载入…">正在载入…</span>
-        <span class="ks-badge" id="ksLevel" hidden></span>
-        <span class="ks-time" id="ksTime"></span>
-      </div>
-
       <div class="ks-hint" id="ksHint"></div>
 
       <div class="ks-tablewrap">
         <table class="ks-tbl">
           <thead>
             <tr>
-              <th data-cn="序号">序号</th>
-              <th data-cn="部">部</th>
-              <th data-cn="类">类</th>
-              <th data-cn="属">属</th>
               <th data-cn="书名">书名</th>
               <th data-cn="著者">著者</th>
-              <th data-cn="分类路径">分类路径</th>
-              <th data-cn="合璧中是否有相同类目">合璧中是否有相同类目</th>
-              <th data-cn="是否一致">是否一致</th>
+              <th data-cn="总目分类">总目分类</th>
+              <th data-cn="合璧分类">合璧分类</th>
+              <th data-cn="判定">判定</th>
             </tr>
           </thead>
           <tbody id="ksBody"></tbody>
@@ -517,14 +747,15 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
       <div class="ks-empty" id="ksEmpty" hidden></div>
 
       <div class="ks-pager">
-        <button class="ks-pgbtn" id="ksPrev" type="button" aria-label="上一页">‹</button>
-        <span id="ksPageInfo"></span>
-        <button class="ks-pgbtn" id="ksNext" type="button" aria-label="下一页">›</button>
+        <span class="ks-pager-summary" id="ksPageInfo"></span>
         <span class="ks-range" id="ksRange"></span>
+        <span class="ks-pager-sp"></span>
+        <button class="ks-pgbtn" id="ksPrev" type="button" aria-label="上一页">‹</button>
+        <button class="ks-pgbtn" id="ksNext" type="button" aria-label="下一页">›</button>
       </div>
+    </div>
 
-      <div class="ks-tips" data-cn="提示：支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）">提示：支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）</div>
-    </section>
+    <div class="v3-note" id="ksNote" data-cn="三态判定：完全相同 / 可对应 / 无对应。支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）。">三态判定：完全相同 / 可对应 / 无对应。支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）。</div>
 
     <!-- ============================================================
          AI 弹窗（V9.2）—— 长按工具条上的「AI 复检」打开
@@ -600,8 +831,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 function initTheme(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);syncThemeIcons(t)}
 function syncThemeIcons(t){['themeToggle','themeToggleSide'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t==='dark'?'☾':'☀'})}
 function setTheme(){const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('theme',n);syncThemeIcons(n)}
-initTheme();document.getElementById('themeToggle').addEventListener('click',setTheme);
-document.getElementById('themeToggleSide').addEventListener('click',setTheme);
+initTheme(); // 主题由桌面外壳统一控制（localStorage 'theme' + 外壳 data-theme 同步）；页内不再保留切换按钮
 
 /* ============================================================
    调试/测试探针（页面逻辑不依赖）
@@ -1015,24 +1245,37 @@ function render(){
     var note = c[6] || '', vd = c[5] || '';
     // data-i = 记录索引；data-seq = 显示用序号。点击行即「选中」，供 AI 单条复检使用。
     html += '<tr data-i="' + i + '" data-seq="' + (i + 1) + '"' + (state.sel === i ? ' class="sel"' : '') + '>'
-      + '<td class="ks-seq">' + (i + 1) + '</td>'
-      + '<td>' + esc(fmtRec(c[0])) + '</td>'
-      + '<td>' + esc(fmtRec(c[1])) + '</td>'
-      + '<td>' + (c[2] ? esc(fmtRec(c[2])) : '<span class="ks-dash">—</span>') + '</td>'
       + '<td class="c-book">' + esc(fmtRec(books[i])) + '</td>'
       + '<td class="c-author">' + esc(fmtRec(authors[i])) + '</td>'
       + '<td class="c-path">' + esc(fmtRec(PATHS[ci])) + '</td>'
-      + '<td>' + esc(fmtRec(HEL[ci])) + '</td>'
-      + '<td><span class="vd ' + vdClass(vd) + '"' + (note ? ' title="' + esc(fmtRec(note)) + '"' : '') + '>' + esc(fmtRec(vd)) + '</span></td>'
+      + '<td class="c-path c-hel">' + esc(fmtRec(HEL[ci])) + '</td>'
+      + '<td class="c-vd"><span class="vd ' + vdClass(vd) + '"' + (note ? ' title="' + esc(fmtRec(note)) + '"' : '') + '>' + esc(fmtRec(vd)) + '</span></td>'
       + '</tr>';
   }
   $('ksBody').innerHTML = html;
 
-  // 统计
+  // 统计（v3 卡头：「命中 N 条」+ 判定三态分布）
   var all = META.total || N;
-  var totalText = toDisplay('共') + ' ' + fmtNum(total) + ' ' + toDisplay('条');
-  if (total !== N) totalText += '　·　' + toDisplay('全库') + ' ' + fmtNum(all) + ' ' + toDisplay('条');
+  var totalText = (state.raw && state.raw.trim() ? toDisplay('命中') + ' ' : toDisplay('共') + ' ') + fmtNum(total) + ' ' + toDisplay('条');
+  if (total !== N) totalText += ' · ' + toDisplay('全库') + ' ' + fmtNum(all) + ' ' + toDisplay('条');
   $('ksTotal').textContent = totalText;
+
+  var vdOrder = ['完全相同', '可对应', '无对应'], vdCount = {}, vk;
+  for (k = 0; k < rows.length; k++) {
+    vk = k2s((CATS[catIdx[rows[k]]] || [])[5] || '');
+    if (vk) vdCount[vk] = (vdCount[vk] || 0) + 1;
+  }
+  var vdParts = [];
+  for (var vo = 0; vo < vdOrder.length; vo++) {
+    if (vdCount[vdOrder[vo]]) vdParts.push(toDisplay(vdOrder[vo]) + ' ' + fmtNum(vdCount[vdOrder[vo]]));
+  }
+  for (vk in vdCount) {
+    if (Object.prototype.hasOwnProperty.call(vdCount, vk) && vdOrder.indexOf(vk) < 0) {
+      vdParts.push(toDisplay(vk) + ' ' + fmtNum(vdCount[vk]));
+    }
+  }
+  var subEl = $('ksCardSub');
+  if (subEl) subEl.textContent = vdParts.length ? (toDisplay('判定：') + vdParts.join(' · ')) : '';
 
   // 命中级别
   var badge = $('ksLevel');
@@ -1455,7 +1698,7 @@ function bindEvents(){
   });
   $('ksGo').addEventListener('click', function(){ commit(); runSearch(input.value); histPush(input.value); });
   $('ksClear').addEventListener('click', clearAll);
-  $('ksExport').addEventListener('click', exportCSV);
+  $('ksExportBtn').addEventListener('click', exportCSV);
   histInit();
   batchInit();
 
