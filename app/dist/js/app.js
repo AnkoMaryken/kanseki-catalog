@@ -33,6 +33,7 @@ import { WebDavProvider } from './core/sync/provider-webdav.js';
 import { initRecordsView, refreshRecordsView } from './ui/records.js';
 import { initKansekiDbView } from './ui/kanseki-db.js';
 import { initNajDbView } from './ui/naj-db.js';
+import { initWorkbench } from './ui/workbench.js';
 // V9.9：下载中心（标题栏按钮 + 右侧抽屉 + 完成/失败提醒）——开机即挂，切视图不丢
 import { initDownloadCenter } from './ui/naj-dl-center.js';
 
@@ -643,7 +644,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '0.22.0';
+const APP_VERSION = '1.0.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -656,7 +657,7 @@ function refreshAboutInfo() {
 
 // ---------- 视图切换 ----------
 // 11 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+const VIEWS = ['wb', 'query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
@@ -684,17 +685,17 @@ function ensureFrame(view) {
 
 // 解析 hash：'#/catalog?tab=1' -> { view:'catalog', tab:'1' }
 function parseHash() {
-  const raw = (location.hash || '#/query').replace(/^#\/?/, '');
+  const raw = (location.hash || '#/wb').replace(/^#\/?/, '');
   const [path, query = ''] = raw.split('?');
-  const view = (path || 'query').trim() || 'query';
+  const view = (path || 'wb').trim() || 'wb';
   const params = new URLSearchParams(query);
   return {
-    view: VIEWS.includes(view) ? view : 'query',
+    view: VIEWS.includes(view) ? view : 'wb',
     tab: params.get('tab'),
   };
 }
 
-let currentView = 'query';
+let currentView = 'wb';
 
 function navigate() {
   const { view: target, tab } = parseHash();
@@ -719,6 +720,7 @@ function navigate() {
   const frame = ensureFrame(target);
 
   // 视图进入钩子
+  if (target === 'wb') initWorkbench();   // V3：工作台（每日推荐 + 今日概览）
   if (target === 'sync') initSyncView();
   if (target === 'about') refreshAboutInfo();
   // V9.4：日本藏本检索面板（首次进入时初始化表单与机构列表）
@@ -1085,6 +1087,14 @@ async function init() {
       e.preventDefault();
       location.hash = href;
     });
+  });
+
+  // V3：侧栏「下载中心」是动作型按钮——不切视图，直接拉开下载中心抽屉
+  // （真实下载状态都在抽屉里：进度、暂停/取消、逐册明细、打开文件夹）
+  $('#navDownloads')?.addEventListener('click', () => {
+    const open = window.__najDlOpenDrawer;
+    if (typeof open === 'function') open();
+    else showToast('下载中心仅在桌面版可用');
   });
 
   // ---------- 侧栏收起 / 展开 ----------

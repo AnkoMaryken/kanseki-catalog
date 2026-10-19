@@ -115,7 +115,11 @@ const EMBED_CSS_MARK = '/* kanseki-app-embed */';
 //   gridTwoCol     — catalog 三栏 grid 改两栏（配合 hideDocsAside）
 const EMBED_RULES = {
   'index.html': { hideHeaderNav: true, hideBrand: true },
-  'catalog.html': { hideHeaderAll: true, hideDocsAside: true, gridTwoCol: true },
+  'catalog.html': {
+    hideHeaderAll: true, hideDocsAside: true, gridTwoCol: true,
+    // V1.0：页面已改为「浮出章节树 + 单栏正文」，网页版的返回链接/面包屑在 APP 内是多余的
+    hideSelectors: ['.back-link', '.phead-kicker', '.docs-toc', '#tocCol'],
+  },
   'kanseki.html': {
     hideHeaderAll: true,
     // V9.1：按用户要求，APP 内不显示页内的「导出 CSV / 简繁 / 切换主题」——
@@ -124,7 +128,10 @@ const EMBED_RULES = {
     hideSelectors: ['#ksExport', '.ks-lang', '#themeToggleSide'],
   },
   'embed.html': { hideHeaderAll: true, fixedOffset: true },
-  'guide.html': { hideHeaderAll: true },
+  'guide.html': {
+    hideHeaderAll: true,
+    hideSelectors: ['.back-link', '.phead-kicker'],
+  },
   'changelog.html': { hideHeaderAll: true },
 };
 
@@ -145,7 +152,7 @@ function embedStyleFor(rule) {
     css.push('.docs-sidebar{display:none !important}');
   }
   if (rule.gridTwoCol) {
-    css.push('.docs-layout{grid-template-columns:minmax(0,1fr) 216px !important;max-width:1400px;padding-top:.9rem}');
+    css.push('.docs-layout{grid-template-columns:minmax(0,1fr) !important;max-width:1400px;padding-top:.9rem}');
     css.push('@media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}');
   }
   // 视口高度校正：页面内若干 calc(100vh - Npx) 是按「顶栏(约 60px) + 页脚/内边距」估的，

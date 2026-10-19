@@ -6,6 +6,7 @@
 <title>古代史及汉籍研究工具</title>
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/v3.css">
 </head>
 <body>
 <div id="app" class="app-shell">
@@ -159,73 +160,75 @@
       </div>
     </div>
 
+    <div class="side-scroll">
     <div class="side-sec">
-      <div class="side-label">纪年查询</div>
+      <div class="side-label">查询</div>
       <nav class="side-nav">
+        <a href="#/wb" data-view="wb" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8Z"/></svg><span>工作台</span>
+        </a>
         <a href="#/query" data-view="query" class="nav-item active">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span>纪年查询</span>
-          <!-- V9.7：纪年小窗（独立小窗口，可置顶）。
-               做成行尾小按钮而非独立整行 —— 整行会让侧栏在 1280×800 下溢出
-               （实测溢出 21px，底部按钮被挤出可视区），行尾按钮不占高度。 -->
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 2.8v4M16 2.8v4"/></svg><span>纪年查询</span>
           <span class="nav-mini" id="miniYearBtn" role="button" tabindex="0"
-                title="以小窗口打开纪年查询：可缩放、可置顶在所有窗口之上、随手查年份并复制"
+                title="以小窗口打开纪年查询：可缩放、可置顶、随手查年份并复制"
                 aria-label="打开纪年小窗">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="11" width="7" height="5" rx="1" fill="currentColor" stroke="none"/></svg>
           </span>
         </a>
-      </nav>
-    </div>
-
-    <!-- 古籍类目查询（V9.1）：紧接「纪年查询」之下（用户要求） -->
-    <div class="side-sec">
-      <div class="side-label">古籍类目查询</div>
-      <nav class="side-nav">
         <a href="#/kanseki" data-view="kanseki" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><circle cx="10.5" cy="11" r="2.6"/><path d="M12.4 12.9 14.6 15.1"/></svg><span>古籍类目查询</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="5" rx="1.3"/><rect x="14.5" y="15.5" width="6" height="5" rx="1.3"/><path d="M6.5 8.5v6a2 2 0 0 0 2 2h6"/></svg><span>古籍类目</span>
         </a>
       </nav>
     </div>
 
-    <!-- 日本藏本检索（V9.4）：全國漢籍データベース（日本所藏中文古籍數據庫）。
-         该站不提供 CORS 头且仅有 http 服务，故只能由桌面版的 Rust 桥直连原站；
-         浏览器/网页版会在面板内明确说明不支持，不做静默失败。
-         V9.5 新增：国立公文書館デジタルアーカイブ（同一栏内，图标按要求用字母 DA）。 -->
     <div class="side-sec">
-      <div class="side-label">日本藏本检索</div>
+      <div class="side-label">检索</div>
       <nav class="side-nav">
         <a href="#/kansekidb" data-view="kansekidb" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><rect x="3" y="8" width="18" height="12" rx="1.5"/><path d="M9 20v-5h6v5"/></svg><span>汉籍检索（日本）</span>
         </a>
         <a href="#/najdb" data-view="najdb" class="nav-item">
-          <span class="nav-ico-da" aria-hidden="true">DA</span><span>国立公文书馆（日本）</span>
+          <span class="nav-ico-da" aria-hidden="true">DA</span><span>日本国立公文书馆</span>
         </a>
       </nav>
     </div>
 
     <div class="side-sec">
-      <div class="side-label">编目规范</div>
+      <div class="side-label">编目</div>
+      <nav class="side-nav">
+        <button type="button" class="nav-item" id="navDownloads" data-view="downloads"
+                title="打开下载中心（查看进度、暂停/取消、打开文件夹）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h4l1.5 3h5L16 13h4"/><path d="M5.5 4.5h13l1.5 8.5v5a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 18v-5l1.5-8.5Z"/></svg><span>下载中心</span>
+          <span class="nav-badge" id="navDlCount" hidden></span>
+        </button>
+        <a href="#/records" data-view="records" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span>
+          <span class="nav-badge soon" title="尚未正式上线，请暂勿使用，功能仍在完善中">未上线</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-sec">
+      <div class="side-label">资料</div>
       <nav class="side-nav">
         <a href="#/catalog?tab=0" data-view="catalog" data-tab="0" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>细则查阅</span>
-          <span class="nav-dir" data-dir-open="0" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>细则查阅</span><span class="nav-dir" data-dir-open="0" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
         <a href="#/catalog?tab=1" data-view="catalog" data-tab="1" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>分类表查询</span>
-          <!-- V10.4.1：分类表已按标准类目表重做，移除「未调整」红标 -->
-          <span class="nav-dir" data-dir-open="1" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>分类表</span><span class="nav-dir" data-dir-open="1" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
         <a href="#/catalog?tab=2" data-view="catalog" data-tab="2" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg><span>工作手册</span>
-          <span class="nav-dir" data-dir-open="2" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h2"/></svg><span>工作手册</span><span class="nav-dir" data-dir-open="2" role="button" tabindex="0" title="内容导览" aria-label="内容导览"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
       </nav>
     </div>
 
-    <div class="side-sec" id="sideAnchors" hidden></div>
-
     <div class="side-sec">
-      <div class="side-label">说明文档</div>
+      <div class="side-label">系统</div>
       <nav class="side-nav">
+        <a href="#/jump" data-view="jump" class="nav-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>快速跳转</span>
+        </a>
         <a href="#/guide" data-view="guide" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span>使用介绍</span>
         </a>
@@ -234,26 +237,6 @@
         </a>
       </nav>
     </div>
-
-    <div class="side-sec">
-      <div class="side-label">应用</div>
-      <nav class="side-nav">
-        <a href="#/jump" data-view="jump" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg><span>快速跳转</span>
-        </a>
-        <a href="#/records" data-view="records" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span>
-          <!-- 用户要求：右侧加红色「未上线」标记，提醒先不要使用，后续再逐步完善 -->
-          <span class="nav-badge soon" title="尚未正式上线，请暂勿使用，功能仍在完善中">未上线</span>
-        </a>
-        <!-- V9.2.1：原先的「同步设置 / 账号 / 关于」三项跳转已移除 ——
-             统一以「设置」独立窗口为准（侧栏左下角个人中心 → 设置）：
-               · 同步设置 → 设置窗口的「同步设置」
-               · 账号     → 设置窗口的「个人中心」（左下角用户框亦可直达）
-               · 关于     → 版本信息见设置窗口左栏底部
-             对应视图（#view-sync / #view-about / #view-login / #view-account）
-             仍保留，可由 hash 直达，同步状态指示仍显示在下方。 -->
-      </nav>
     </div>
     <div class="side-sec side-status">
       <div class="status-row">
@@ -288,6 +271,11 @@
   <!-- 主内容区 -->
   <main class="app-main">
     <!-- 查询视图：iframe 承载静态站 -->
+      <!-- V3 正式版 1.0：工作台（快捷入口 + 每日推荐 + 今日概览 + 资料磁贴）
+           内容由 js/ui/workbench.js 渲染；数据全部取本机真实状态，不写死。 -->
+      <section id="view-wb" class="view app-view">
+        <div class="wb" id="wbRoot"></div>
+      </section>
     <section id="view-query" class="view has-frame active">
       <iframe id="queryFrame" src="pages/index.html" title="纪年查询" class="page-frame"></iframe>
     </section>
@@ -661,13 +649,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 0.22.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.0.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">0.22.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.0.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

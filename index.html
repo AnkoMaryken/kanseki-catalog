@@ -1814,6 +1814,147 @@ body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(6, minmax(
   .yc-copy { padding: 0.28rem 0.7rem; font-size: 0.75rem; }
 }
 
+/* ============================================================
+   v3 视觉对齐（纪年查询区）
+   —— 令牌取自 设计原型\桌面版-v3.html :root
+   —— 白卡无描边 + 轻阴影 / 圆角四档 / 灰阶层级
+   ============================================================ */
+:root{
+  --v3-bg-page:#F2F3F5; --v3-card:#FFFFFF; --v3-fill:#F2F3F5; --v3-hover:#F7F8F9; --v3-badge:#EDEEF0;
+  --v3-t1:#171A1F; --v3-t2:#5F6672; --v3-t3:#8F959E; --v3-t4:#C2C6CC; --v3-divider:#F0F1F3;
+  --v3-r-card:24px; --v3-r-mid:18px; --v3-r-pill:999px;
+  --v3-shadow-card:0 6px 20px rgba(0,0,0,.06);
+  --v3-shadow-float:0 20px 50px rgba(0,0,0,.18);
+}
+[data-theme="dark"]{
+  --v3-bg-page:#0A0A0A; --v3-card:#171717; --v3-fill:#1F1F1F; --v3-hover:#262626; --v3-badge:#262626;
+  --v3-t1:#FAFAFA; --v3-t2:#D4D4D4; --v3-t3:#A3A3A3; --v3-t4:#737373; --v3-divider:rgba(255,255,255,.08);
+  --v3-shadow-card:0 6px 20px rgba(0,0,0,.5);
+  --v3-shadow-float:0 20px 50px rgba(0,0,0,.65);
+}
+body{ background: var(--v3-bg-page); }
+
+/* ===== 页头（v3 phead） ===== */
+.page-head{ display:flex; align-items:flex-start; gap:16px; margin:24px 0 16px; flex-wrap:wrap; }
+.page-head .ph-text{ flex:1; min-width:0; }
+.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; letter-spacing:-.01em; line-height:1.35; }
+.page-head p{ margin:0; font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:900px; }
+.page-head p b{ color:var(--v3-t2); font-weight:600; }
+.page-head .ph-actions{ display:flex; align-items:center; gap:8px; margin-left:auto; flex:0 0 auto; }
+.ph-chip{ display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 12px; border-radius:var(--v3-r-pill); background:var(--v3-badge); color:var(--v3-t2); font-size:11.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.ph-chip b{ color:var(--v3-t1); font-weight:600; }
+
+/* ===== 统计/工具条 → v3 白卡 ===== */
+.app-container{ padding:0 28px 12px; }
+.stats-bar{ background:var(--v3-card); border-radius:var(--v3-r-card); box-shadow:var(--v3-shadow-card); padding:12px 16px; margin-bottom:16px; }
+.stats-info{ font-size:12.5px; color:var(--v3-t2); }
+.stats-info strong{ color:var(--v3-t1); font-weight:600; font-variant-numeric:tabular-nums; }
+.ft-badge{ display:inline-block; margin-left:8px; padding:1px 8px; border-radius:6px; background:var(--v3-fill); color:var(--v3-t2); font-size:11px; font-weight:500; vertical-align:1px; }
+.ft-badge[hidden]{ display:none; }
+.view-mode-switch{ background:var(--v3-badge); border:0; border-radius:var(--v3-r-pill); }
+.view-mode-switch button{ color:var(--v3-t2); border-radius:var(--v3-r-pill); font-size:11.5px; }
+.view-mode-switch button.active{ background:var(--v3-card); color:var(--v3-t1); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.stats-actions > span{ font-size:11.5px; color:var(--v3-t3); }
+.per-page-select{ border:0; background:var(--v3-badge); border-radius:var(--v3-r-pill); padding:0.34rem 0.7rem; font-size:12px; color:var(--v3-t2); }
+.btn{ border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge); color:var(--v3-t1); font-size:12.5px; padding:0.42rem 0.95rem; }
+.btn:hover{ background:#E2E4E8; border:0; transform:none; }
+[data-theme="dark"] .btn:hover{ background:#33363C; }
+.qf-btn{ border-radius:var(--v3-r-pill); }
+.qf-chip{ border-radius:var(--v3-r-pill); }
+
+/* ===== 表格 → v3 白卡 + 轻表头 ===== */
+.table-wrapper{ border:0; border-radius:var(--v3-r-card); box-shadow:var(--v3-shadow-card); background:var(--v3-card); }
+.table-wrapper th{
+  background:var(--v3-card); color:var(--v3-t3);
+  font-size:11.5px; font-weight:500; padding:14px 12px 10px;
+  border-bottom:1px solid var(--v3-divider); letter-spacing:.02em;
+}
+.table-wrapper th.sortable:hover{ background:var(--v3-hover); color:var(--v3-t1); }
+.table-wrapper th.col-year{ background:var(--v3-card); }
+.table-wrapper td{
+  padding:9px 12px; font-size:12.5px; line-height:1.6;
+  border-bottom:1px solid var(--v3-divider); color:var(--v3-t1); vertical-align:middle;
+}
+.table-wrapper tbody tr:nth-child(even) td{ background:transparent; }
+.table-wrapper tbody tr:nth-child(even) td.cell-year{ background:var(--v3-card); }
+.table-wrapper tbody tr:hover td{ background:var(--v3-hover); }
+.table-wrapper tbody tr:hover td.cell-year{ background:var(--v3-hover); }
+.table-wrapper tbody tr:last-child td{ border-bottom:0; }
+td.cell-year{ background:var(--v3-card); color:var(--v3-t1); font-size:12.5px; }
+td.cell-ganzhi{ color:var(--v3-t2); }
+td.cell-notes{ font-size:11.5px; color:var(--v3-t2); }
+td.cell-cn-era,td.cell-jp-era{ color:var(--v3-t1); }
+tr.nearby-row td{ background:color-mix(in srgb,var(--v3-bg-page) 60%,transparent) !important; }
+tr.nearby-row td.cell-year{ background:color-mix(in srgb,var(--v3-bg-page) 60%,transparent) !important; }
+tr.typo-hit-row td{ background:color-mix(in srgb,var(--v3-t1) 6%,var(--v3-card)) !important; }
+.era-copy-btn:hover{ background:var(--v3-hover); border-color:var(--v3-divider); color:var(--v3-t1); }
+.ot-state-tag{ background:var(--v3-fill); color:var(--v3-t2); border-radius:6px; }
+
+/* ===== 分页 → v3 胶囊 ===== */
+.pagination{ padding:22px 0 28px; gap:6px; }
+.pagination .page-btn{ min-width:32px; height:32px; border:0; border-radius:10px; background:var(--v3-badge); color:var(--v3-t2); font-size:12px; padding:0 0.55rem; }
+.pagination .page-btn:hover:not(:disabled):not(.active){ background:#E2E4E8; border:0; color:var(--v3-t1); }
+[data-theme="dark"] .pagination .page-btn:hover:not(:disabled):not(.active){ background:#33363C; }
+.pagination .page-btn.active{ background:var(--v3-t1); color:var(--v3-bg-page); border:0; font-weight:600; }
+.pagination .page-btn:disabled{ opacity:.4; }
+.pagination .page-ellipsis{ width:32px; color:var(--v3-t3); }
+
+/* ===== 空状态 / 加载遮罩 ===== */
+.empty-state{ background:var(--v3-card); border-radius:var(--v3-r-card); box-shadow:var(--v3-shadow-card); margin-top:4px; }
+.loading-overlay{ border-radius:var(--v3-r-card); }
+
+/* ===== 顶部导航/搜索 → v3 圆角 ===== */
+.app-header{ background:color-mix(in srgb,var(--v3-bg-page) 82%,transparent); border-bottom:1px solid var(--v3-divider); }
+.header-inner{ padding:0 28px; }
+.header-brand h1{ font-family:var(--font-body); font-size:13.5px; font-weight:600; letter-spacing:-.01em; }
+.header-brand .brand-icon{ border-radius:9px; }
+.header-nav{ gap:.15rem; }
+.header-nav .nav-link{ border-radius:var(--v3-r-pill); font-size:12px; padding:0.38rem 0.7rem; }
+.header-nav .nav-link:hover{ background:var(--v3-badge); }
+.header-nav .nav-link.active{ background:var(--v3-badge); }
+.header-search input{
+  border:0; border-radius:var(--v3-r-pill); background:var(--v3-badge);
+  font-size:13px; padding:0.42rem 4.5rem 0.42rem 2.6rem; color:var(--v3-t1);
+}
+.header-search input::placeholder{ color:var(--v3-t3); }
+.header-search input:hover{ border:0; }
+.header-search input:focus{ background:var(--v3-card); box-shadow:0 0 0 1px var(--v3-t4),0 0 0 3px var(--v3-fill); }
+.header-search .search-btn{ border-radius:var(--v3-r-pill); background:var(--v3-t1); color:var(--v3-bg-page); font-size:12px; right:4px; }
+.header-search .search-btn:hover{ background:var(--v3-t1); opacity:.88; }
+.lang-switch{ border:0; background:var(--v3-badge); border-radius:var(--v3-r-pill); }
+.lang-switch button{ border-radius:var(--v3-r-pill); }
+.lang-switch button.active{ background:var(--v3-card); color:var(--v3-t1); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.btn-icon{ border:0; background:var(--v3-badge); border-radius:var(--v3-r-pill); color:var(--v3-t2); }
+.btn-icon:hover{ background:#E2E4E8; border:0; }
+[data-theme="dark"] .btn-icon:hover{ background:#33363C; }
+.search-suggestions{ border:0; border-radius:var(--v3-r-mid); box-shadow:var(--v3-shadow-float); }
+.nav-dropdown-menu{ border:0; border-radius:var(--v3-r-mid); box-shadow:var(--v3-shadow-float); }
+
+/* ===== 全表浏览模式（默认） ===== */
+body.is-full-table .per-page-wrap{ display:none; }
+body.is-full-table .pagination{ display:none !important; }
+.ft-hint{ display:none; font-size:11.5px; color:var(--v3-t3); }
+body.is-full-table .ft-hint{ display:inline; }
+/* 「加载全部年份」按钮：仅全表且尚未全量时显示 */
+.ft-load-all{ font-size:12px; }
+.ft-load-all[hidden]{ display:none !important; }
+.ft-load-all:disabled{ opacity:.65; cursor:default; }
+body.ft-all-loaded .ft-load-all{ display:none !important; }
+
+/* ===== 窄屏 ===== */
+@media (max-width: 768px){
+  .app-container{ padding:0 16px 8px; }
+  .header-inner{ padding:0 16px; }
+  .page-head{ margin:18px 0 12px; gap:10px; }
+  .page-head h1{ font-size:18px; }
+  .page-head p{ font-size:11.5px; }
+  .ph-chip{ display:none; }
+  .stats-bar{ padding:10px 12px; border-radius:var(--v3-r-mid); }
+  .stats-bar .stats-actions > span,
+  .stats-bar .per-page-wrap{ display:none; }
+  .table-wrapper{ border-radius:var(--v3-r-mid); }
+}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#fafafa">
@@ -1942,11 +2083,23 @@ body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(6, minmax(
      Main Content
      ============================================ -->
 <main class="app-container" role="main">
+  <!-- v3 页头：标题 + 当前浏览模式 + 全表加载 -->
+  <div class="page-head" id="pageHead">
+    <div class="ph-text">
+      <h1 id="pageTitle">纪年查询</h1>
+      <p>公历年 ↔ 中国、日本及其他地区年号 · 打开即见<b>全部年份</b>表（共 2,868 年，分段渲染不卡顿）；输入年份 / 年号 / 干支即定位。</p>
+    </div>
+    <div class="ph-actions">
+      <span class="ph-chip" id="modeChip">全表</span>
+      <button class="btn ft-load-all" id="ftLoadAllBtn" type="button" hidden>加载全部年份</button>
+    </div>
+  </div>
+
   <!-- Stats Bar -->
   <div class="stats-bar" id="statsBar">
     <div class="stats-left">
       <div class="stats-info" id="statsInfo">
-        共 <strong id="totalCount">0</strong> 条记录
+        共 <strong id="totalCount">0</strong> 条记录<span class="ft-badge" id="fullTableBadge" hidden>全表 · 全部年份</span><span class="ft-hint" id="ftHint"></span>
       </div>
       <!-- V8.2 表格/卡片视图切换 (桌面端) -->
       <div class="view-mode-switch" id="viewModeSwitch" role="group" aria-label="视图切换">
@@ -1985,12 +2138,12 @@ body.view-card.card-cols-6 .card-view { grid-template-columns: repeat(6, minmax(
       </div>
     </div>
     <div class="stats-actions">
-      <span style="font-size:0.8rem;color:var(--color-text-secondary);">每页</span>
+      <span class="per-page-wrap"><span class="per-page-label" style="font-size:0.8rem;color:var(--color-text-secondary);">每页</span>
       <select class="per-page-select" id="perPageSelect" aria-label="每页显示条数">
         <option value="20">20条</option>
         <option value="50" selected>50条</option>
         <option value="100">100条</option>
-      </select>
+      </select></span>
       <button class="btn" id="exportBtn" aria-label="导出为 CSV">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         导出CSV
@@ -2122,28 +2275,52 @@ function getKeys(mapObj) {
   return Object.keys(mapObj).sort((a, b) => b.length - a.length || a.localeCompare(b, 'zh'));
 }
 
+// V10.0 性能优化: 按「首字」分桶的转换表
+// 原实现每个字符都要扫全部键 (conv_tables.js 约 700 条约 3000 次 startsWith/字符)，
+// 默认繁体时全表 700+ 行渲染累计 >1s。分桶后每字符只比较「同首字」的少量键，
+// 匹配语义与「全局最长键优先」完全一致（不同首字的键本就不可能匹配），输出不变。
+let _s2tBuckets = null, _t2sBuckets = null;
+function getBuckets(mapObj) {
+  const buckets = new Map();
+  for (const k of Object.keys(mapObj)) {
+    const first = k[0];
+    let arr = buckets.get(first);
+    if (!arr) { arr = []; buckets.set(first, arr); }
+    arr.push(k);
+  }
+  for (const arr of buckets.values()) arr.sort((a, b) => b.length - a.length);
+  return buckets;
+}
+
 // 核心转换: 按最长键匹配替换
 function convertText(text, mapObj) {
   if (!text || !mapObj) return text;
-  if (mapObj === getConvTables().s2t) {
-    if (!_s2tKeys) _s2tKeys = getKeys(mapObj);
-  } else if (mapObj === getConvTables().t2s) {
-    if (!_t2sKeys) _t2sKeys = getKeys(mapObj);
+  const isS2T = (mapObj === getConvTables().s2t);
+  let buckets;
+  if (isS2T) {
+    if (!_s2tBuckets) _s2tBuckets = getBuckets(mapObj);
+    buckets = _s2tBuckets;
+  } else {
+    if (!_t2sBuckets) _t2sBuckets = getBuckets(mapObj);
+    buckets = _t2sBuckets;
   }
-  const keys = (mapObj === getConvTables().s2t) ? _s2tKeys : _t2sKeys;
-  if (!keys || keys.length === 0) return text;
-  
+  if (!buckets || buckets.size === 0) return text;
+
   let result = '';
   let i = 0;
   const n = text.length;
   while (i < n) {
+    const arr = buckets.get(text[i]);
     let matched = false;
-    for (const k of keys) {
-      if (text.startsWith(k, i)) {
-        result += mapObj[k];
-        i += k.length;
-        matched = true;
-        break;
+    if (arr) {
+      for (let j = 0; j < arr.length; j++) {
+        const k = arr[j];
+        if (text.startsWith(k, i)) {
+          result += mapObj[k];
+          i += k.length;
+          matched = true;
+          break;
+        }
       }
     }
     if (!matched) {
@@ -2267,9 +2444,16 @@ function setDisplayLang(lang, force) {
   if (statsInfo) {
     statsInfo.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent.trim(), lang); });
   }
-  document.querySelectorAll('.stats-actions span').forEach(el => {
+  document.querySelectorAll('.stats-actions .per-page-label').forEach(el => {
     el.textContent = toLang(el.textContent, lang);
   });
+  // V10.0: 页头说明文字（只翻译文本节点，保留 <b> 结构）
+  const pageHeadP = document.querySelector('.page-head .ph-text p');
+  if (pageHeadP) {
+    pageHeadP.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent, lang); });
+  }
+  // 「全表 · 全部年份 / 按公历年份升序」等文案由 updateStats() 按 toDisplay 重建
+  document.querySelectorAll('.page-head h1, #pageTitle').forEach(el => { el.textContent = toLang(el.textContent, lang); });
   document.querySelectorAll('#perPageSelect option').forEach(opt => {
     opt.textContent = toLang(opt.textContent, lang);
   });
@@ -2629,6 +2813,67 @@ let searchQuery = '';
 let selectedChinaFilters = new Set();
 let selectedChinaEras = new Set();
 let selectedJapanFilters = new Set();
+
+// ========================================
+// V10.0 全表浏览模式 (默认)
+// 打开页面即渲染「年份表格」，不需要先输入年份。
+// 为了避免一次把 2,800+ 行 × 10 列（约 9 万节点）插进 DOM 造成明显卡顿：
+//   · 默认先渲染「最近 700 年」（常用区间），首屏立刻可见；
+//   · 页头提供「加载全部年份」按钮，点击后分段插入其余年份；
+//   · 搜索 / 筛选 / 卡片视图仍走原有分页逻辑（既有能力不变）。
+// ========================================
+const FULL_TABLE_DEFAULT_SPAN = 700;   // 默认「最近/常用区间」年数
+const FULL_TABLE_CHUNK = 700;          // 常用区间一次插入完成（700 行 ≈ 2 万节点，实测构建+插入 ~130ms）
+const FULL_TABLE_CHUNK_ALL = 720;      // 加载全部年份时的分段大小（减少布局次数）
+let fullTableRange = 'all';            // 'recent' | 'all'（V1.0：默认就是全部年份）
+let wasFullTableMode = false;
+let fullTableSeq = 0;         // 递增令牌：重渲染时作废旧的分段任务
+let fullTableTimer = null;    // 分段插入定时器
+let lastEffectiveMode = null; // 断点变化时补一次重渲染
+
+// 是否处于「全表浏览」状态
+function isFullTableMode() {
+  if (effectiveMode() !== 'table') return false;
+  if (searchQuery && searchQuery.trim()) return false;
+  return selectedChinaFilters.size === 0 &&
+         selectedChinaEras.size === 0 &&
+         selectedJapanFilters.size === 0;
+}
+
+// 作废尚未完成的全表分段渲染 (切到搜索/筛选/卡片视图时调用)
+function cancelFullTableRender() {
+  fullTableSeq++;
+  if (fullTableTimer) { clearTimeout(fullTableTimer); fullTableTimer = null; }
+}
+
+// 全表「加载全部」按钮与进度文案
+function updateFullTableControls() {
+  const btn = document.getElementById('ftLoadAllBtn');
+  const full = isFullTableMode();
+  const nAll = filteredData.length;
+  const all = fullTableRange === 'all' || nAll <= FULL_TABLE_DEFAULT_SPAN;
+  document.body.classList.toggle('ft-all-loaded', full && all);
+  if (!btn) return;
+  const stats = window.__fullTableStats;
+  if (!full || all) { btn.hidden = true; return; }
+  btn.hidden = false;
+  if (stats && !stats.done) {
+    btn.disabled = true;
+    btn.textContent = toDisplay('正在展开') + ' …';
+  } else {
+    btn.disabled = false;
+    btn.textContent = toDisplay('加载全部') + ' ' + nAll.toLocaleString() + ' ' + toDisplay('年');
+  }
+}
+
+// 全表分段渲染进度（写回提示行）
+function updateFullTableProgress(loaded, total) {
+  const hint = document.getElementById('ftHint');
+  if (!hint) return;
+  if (loaded < total) {
+    hint.textContent = ' · ' + toDisplay('正在展开全部年份') + ' … ' + loaded.toLocaleString() + ' / ' + total.toLocaleString();
+  }
+}
 
 // ========================================
 // v2.0 候选索引: 按"年号/帝王名"聚合的去重候选, 供建议栏展示
@@ -3652,6 +3897,14 @@ function applyFilters() {
     filteredData = insertNearbyRows(filteredData, preciseHit);
   }
   
+  // V10.0: 从搜索/筛选回到全表时，回到「最近区间」默认视图
+  // （用户此前若点过「加载全部年份」，重新进入全表时仍以常用区间起步，避免每次都被全量拖慢）
+  const nowFullMode = !searchQuery.trim() &&
+    selectedChinaFilters.size === 0 && selectedChinaEras.size === 0 && selectedJapanFilters.size === 0 &&
+    effectiveMode() === 'table';
+  if (nowFullMode && !wasFullTableMode) fullTableRange = 'all';
+  wasFullTableMode = nowFullMode;
+
   // V8.2: 按视图模式渲染 (表格/卡片)
   renderByViewMode();
   renderPagination();
@@ -4004,7 +4257,165 @@ function renderPeriodTags(text, q) {
   return parts.map(p => `<span class="ot-state-tag">${highlightText(toDisplay(p), q)}</span>`).join('');
 }
 
+// ========================================
+// V10.0 单行表格 HTML 构建 (renderTable 分页模式 / renderFullTable 全表模式共用)
+// 从原 renderTable 的 map 回调原样抽出，行为不变
+// ========================================
+function buildTableRowHtml(row, q) {
+  // V4.3: 分隔行 (居中横线, 其下小字标题 + 年号全部年份)
+  if (isNearbySep(row)) {
+    return `<tr class="nearby-sep-row" role="row"><td colspan="10"><span class="nearby-sep" aria-hidden="true"></span><span class="nearby-label">${toDisplay('该年号下的所有年份')}</span></td></tr>`;
+  }
+  // V8.2: 大事记区块 (稀疏渲染, 无数据返回 '')
+  const evBlock = renderEventsBlock(row.year, q);
+  const evSub = evBlock ? `<tr class="event-subrow" role="row"><td colspan="10">${evBlock}</td></tr>` : '';
+  // V4.2: 临近行 (同一年号其他年份, 弱化)
+  if (isNearbyRow(row)) {
+    return `<tr class="nearby-row" role="row">
+      <td class="cell-year">${highlightText(toDisplay(row.yearStr), q)}</td>
+      <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
+      <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
+      <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
+      <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
+      <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
+      <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
+      <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
+      <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
+      <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
+    </tr>${evSub}`;
+  }
+  // V4.2: 精准命中行标记 (描边 + 日本闪烁)
+  const mark = preciseHitMark.get(row) || null;
+  const preciseCls = mark && mark.precise ? ' precise-hit-row' : '';
+  // V8.3: 干支错写修正命中行弱高亮
+  const typoCls = (window.__ganzhiTypoCorrected && row.ganzhi === window.__ganzhiTypoCorrected.corrected) ? ' typo-hit-row' : '';
+  let jpFlash = mark && mark.jpFlash ? ' jp-flash-cell' : '';
+  // 日本专属年号整体命中: 若行内日本年号含查询年号且非中国年号 → 闪烁
+  if (!jpFlash && searchQuery.trim()) {
+    const qq = toSimplified(searchQuery.trim()).toLowerCase();
+    const eraN = findEraNameInQuery(qq);
+    if (eraN && !ALL_CN_ERAS.has(eraN) && JP_ONLY_ERAS.has(eraN) &&
+        (row.jpEraNames || []).some(e => e === eraN)) {
+      jpFlash = ' jp-flash-cell';
+    }
+  }
+  const yearClass = row.year < 0 ? 'cell-year bc' : 'cell-year';
+  return `<tr role="row" class="${preciseCls.trim()}${typoCls}">
+    <td class="${yearClass}">${highlightText(toDisplay(row.yearStr), q)}</td>
+    <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
+    <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
+    <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
+    <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
+    <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
+    <td class="cell-jp-era${jpFlash}">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
+    <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
+    <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
+    <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
+  </tr>${evSub}`;
+}
+
+// ========================================
+// V10.0 全表渲染 (默认视图)
+// 打开页面 / 清空搜索与筛选后，渲染「年份表格」。
+//   · V1.0：默认就是「全部年份」，仍分段渲染（首段同步出内容，其余逐帧补）；
+//   · 点击「加载全部年份」后 fullTableRange='all'，从头分段插入全部年份；
+//   · 分段插入：首段同步出内容，其余逐段补，避免一次性插入上万节点卡死；
+//   · 完成时写入 window.__fullTableStats，便于自检/诊断。
+// ========================================
+function renderFullTable() {
+  const tbody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const tableWrapper = document.getElementById('tableWrapper');
+  const pagination = document.getElementById('pagination');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+
+  // 重名年号提醒框 (全表无查询词 → 清空)
+  updateEraAlert('');
+
+  if (!filteredData || filteredData.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.classList.add('active');
+    tableWrapper.style.display = 'none';
+    if (pagination) pagination.style.display = 'none';
+    document.getElementById('emptyStateMsg').textContent = '暂无数据';
+    return;
+  }
+
+  emptyState.classList.remove('active');
+  tableWrapper.style.display = '';
+  if (pagination) { pagination.innerHTML = ''; pagination.style.display = 'none'; }
+  document.body.classList.add('is-full-table');
+
+  // 作废上一次尚未完成的分段任务
+  fullTableSeq++;
+  const seq = fullTableSeq;
+  if (fullTableTimer) { clearTimeout(fullTableTimer); fullTableTimer = null; }
+
+  const nAll = filteredData.length;
+  const isAll = fullTableRange === 'all' || nAll <= FULL_TABLE_DEFAULT_SPAN;
+  const startIdx = isAll ? 0 : Math.max(0, nAll - FULL_TABLE_DEFAULT_SPAN);
+  const rows = isAll ? filteredData : filteredData.slice(startIdx);
+  const total = rows.length;
+  const chunk = isAll ? FULL_TABLE_CHUNK_ALL : FULL_TABLE_CHUNK;
+  const q = queryForDisplay('');
+  const stats = window.__fullTableStats = {
+    total: total, allTotal: nAll, startIdx: startIdx, isAll: isAll,
+    firstYear: total ? rows[0].yearStr : null,
+    lastYear: total ? rows[total - 1].yearStr : null,
+    seq: seq, chunk: chunk,
+    startedAt: performance.now(), firstChunkMs: null, totalMs: null, done: false, chunks: 0, chunkTimings: []
+  };
+  document.body.classList.toggle('ft-all-loaded', isAll);
+  updateFullTableControls();
+
+  tbody.innerHTML = '';
+  loadingOverlay.classList.add('active');
+
+  let idx = 0;
+  const pushChunk = () => {
+    const c0 = performance.now();
+    const end = Math.min(idx + chunk, total);
+    const parts = new Array(end - idx);
+    let k = 0;
+    for (; idx < end; idx++) parts[k++] = buildTableRowHtml(rows[idx], q);
+    const buildMs = performance.now() - c0;
+    tbody.insertAdjacentHTML('beforeend', parts.join(''));
+    stats.chunks++;
+    stats.chunkTimings.push(+(performance.now() - c0).toFixed(1));
+    if (!stats.buildTimings) stats.buildTimings = [];
+    stats.buildTimings.push(+buildMs.toFixed(1));
+    return idx >= total;
+  };
+
+  // 首段同步插入 (立即出内容)，随后隐藏 loading，剩余分段逐帧补
+  const finishedFirst = pushChunk();
+  stats.firstChunkMs = performance.now() - stats.startedAt;
+  loadingOverlay.classList.remove('active');
+  if (!finishedFirst) {
+    const tick = () => {
+      if (seq !== fullTableSeq) return; // 已被新的渲染取代
+      const done = pushChunk();
+      updateFullTableProgress(idx, total);
+      if (!done) {
+        fullTableTimer = setTimeout(tick, 0);
+      } else {
+        fullTableTimer = null;
+        stats.totalMs = performance.now() - stats.startedAt;
+        stats.done = true;
+        updateStats();
+      }
+    };
+    fullTableTimer = setTimeout(tick, 0);
+  } else {
+    stats.totalMs = stats.firstChunkMs;
+    stats.done = true;
+    updateStats();
+  }
+}
+
 function renderTable() {
+  // V10.0: 早先的全表分段任务若未结束，先作废，避免旧行被追加进本次分页结果
+  cancelFullTableRender();
   const tbody = document.getElementById('tableBody');
   const emptyState = document.getElementById('emptyState');
   const tableWrapper = document.getElementById('tableWrapper');
@@ -4042,58 +4453,7 @@ function renderTable() {
   // Each row now maps to exactly one year — eras merged in cells, no multi-row
   requestAnimationFrame(() => {
     const q = queryForDisplay(searchQuery);
-    const fragments = finalPage.map(row => {
-      // V4.3: 分隔行 (居中横线, 其下小字标题 + 年号全部年份)
-      if (isNearbySep(row)) {
-        return `<tr class="nearby-sep-row" role="row"><td colspan="10"><span class="nearby-sep" aria-hidden="true"></span><span class="nearby-label">${toDisplay('该年号下的所有年份')}</span></td></tr>`;
-      }
-      // V8.2: 大事记区块 (稀疏渲染, 无数据返回 '')
-      const evBlock = renderEventsBlock(row.year, q);
-      const evSub = evBlock ? `<tr class="event-subrow" role="row"><td colspan="10">${evBlock}</td></tr>` : '';
-      // V4.2: 临近行 (同一年号其他年份, 弱化)
-      if (isNearbyRow(row)) {
-        return `<tr class="nearby-row" role="row">
-          <td class="cell-year">${highlightText(toDisplay(row.yearStr), q)}</td>
-          <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
-          <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
-          <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
-          <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
-          <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
-          <td class="cell-jp-era">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
-          <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
-          <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
-          <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
-        </tr>${evSub}`;
-      }
-      // V4.2: 精准命中行标记 (描边 + 日本闪烁)
-      const mark = preciseHitMark.get(row) || null;
-      const preciseCls = mark && mark.precise ? ' precise-hit-row' : '';
-      // V8.3: 干支错写修正命中行弱高亮
-      const typoCls = (window.__ganzhiTypoCorrected && row.ganzhi === window.__ganzhiTypoCorrected.corrected) ? ' typo-hit-row' : '';
-      let jpFlash = mark && mark.jpFlash ? ' jp-flash-cell' : '';
-      // 日本专属年号整体命中: 若行内日本年号含查询年号且非中国年号 → 闪烁
-      if (!jpFlash && searchQuery.trim()) {
-        const qq = toSimplified(searchQuery.trim()).toLowerCase();
-        const eraN = findEraNameInQuery(qq);
-        if (eraN && !ALL_CN_ERAS.has(eraN) && JP_ONLY_ERAS.has(eraN) &&
-            (row.jpEraNames || []).some(e => e === eraN)) {
-          jpFlash = ' jp-flash-cell';
-        }
-      }
-      const yearClass = row.year < 0 ? 'cell-year bc' : 'cell-year';
-      return `<tr role="row" class="${preciseCls.trim()}${typoCls}">
-        <td class="${yearClass}">${highlightText(toDisplay(row.yearStr), q)}</td>
-        <td class="cell-ganzhi">${highlightText(toDisplay(row.ganzhi), q)}</td>
-        <td class="cell-cn-era">${highlightHtml(toDisplayHtml(row.cnEra), q)}</td>
-        <td class="cell-cn-dynasty">${highlightText(toDisplay(row.cnDynasty), q)}</td>
-        <td class="cell-cn-ruler">${highlightText(toDisplay(row.cnRuler), q)}</td>
-        <td class="cell-jp-period">${renderPeriodTags(row.jpPeriod, q)}</td>
-        <td class="cell-jp-era${jpFlash}">${highlightHtml(toDisplayHtml(row.jpEra), q)}</td>
-        <td class="cell-jp-ruler">${renderRulerHover(row.jpRuler)}</td>
-        <td class="cell-notes">${highlightText(toDisplay(row.notes), q)}</td>
-        <td class="cell-zodiac">${highlightText(toDisplay(row.zodiac), q)}</td>
-      </tr>${evSub}`;
-    });
+    const fragments = finalPage.map(row => buildTableRowHtml(row, q));
     
     tbody.innerHTML = fragments.join('');
     loadingOverlay.classList.remove('active');
@@ -4123,6 +4483,9 @@ function setViewMode(mode) {
   const colsSwitch = document.getElementById('cardColsSwitch');
   if (colsSwitch) colsSwitch.style.display = (viewMode === 'card' && window.innerWidth > 768) ? '' : 'none';
   renderByViewMode();
+  // V10.0: 视图切换可能进出「全表浏览」，分页与统计胶囊同步刷新
+  renderPagination();
+  updateStats();
 }
 
 // V8.3: 卡片列数 (4/6), 持久化; 应用为 body 类
@@ -4160,6 +4523,9 @@ function effectiveMode() {
 function renderByViewMode() {
   if (effectiveMode() === 'card') {
     renderCardView();
+  } else if (isFullTableMode()) {
+    // V10.0: 默认全表 —— 无搜索/筛选时直接渲染全部年份（分段插入）
+    renderFullTable();
   } else {
     renderTable();
   }
@@ -4212,6 +4578,8 @@ function renderEventsBlock(year, q) {
 
 // 渲染卡片视图 (输入分页窗口与 renderTable 相同来源)
 function renderCardView() {
+  // V10.0: 作废尚未完成的全表分段任务
+  cancelFullTableRender();
   const cardView = document.getElementById('cardView');
   const emptyState = document.getElementById('emptyState');
   const tableWrapper = document.getElementById('tableWrapper');
@@ -4336,6 +4704,15 @@ function highlightHtml(html, query) {
 // ========================================
 function renderPagination() {
   const container = document.getElementById('pagination');
+
+  // V10.0: 全表浏览模式下无分页（全部年份连续展示）
+  if (isFullTableMode()) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = '';
+
   const totalPages = Math.ceil(filteredData.length / perPage);
   
   if (totalPages <= 1) {
@@ -4393,6 +4770,51 @@ function updateStats() {
   // V4.2: 统计排除临近行/分隔行
   const n = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r)).length;
   document.getElementById('totalCount').textContent = n.toLocaleString();
+
+  // V10.0: 全表浏览状态 —— 徽章 / 页头模式胶囊 / body 类 / 加载进度
+  const full = isFullTableMode();
+  document.body.classList.toggle('is-full-table', full);
+  document.body.classList.toggle('ft-all-loaded', full && (fullTableRange === 'all' || n <= FULL_TABLE_DEFAULT_SPAN));
+
+  const stats = window.__fullTableStats;
+  const shown = Math.min(FULL_TABLE_DEFAULT_SPAN, n);
+  const isAllShown = fullTableRange === 'all' || n <= FULL_TABLE_DEFAULT_SPAN;
+
+  const badge = document.getElementById('fullTableBadge');
+  if (badge) {
+    badge.hidden = !full;
+    if (full) {
+      badge.textContent = isAllShown
+        ? toDisplay('全表') + ' · ' + toDisplay('全部年份')
+        : toDisplay('全表') + ' · ' + toDisplay('最近') + ' ' + shown + ' ' + toDisplay('年');
+    }
+  }
+
+  const hint = document.getElementById('ftHint');
+  if (hint) {
+    if (!full) {
+      hint.textContent = '';
+    } else if (stats && !stats.done) {
+      hint.textContent = ' · ' + toDisplay('正在展开全部年份') + ' … ' + stats.chunks * stats.chunk + ' / ' + stats.total;
+    } else if (isAllShown) {
+      hint.textContent = ' · ' + toDisplay('按公历年份升序') + '，' + toDisplay('共') + ' ' + n.toLocaleString() + ' ' + toDisplay('年');
+    } else {
+      const first = stats && stats.firstYear ? stats.firstYear : '—';
+      const last = stats && stats.lastYear ? stats.lastYear : '—';
+      hint.textContent = ' · ' + toDisplay('已显示') + ' ' + first + '–' + last + '（' + shown + ' / ' + n.toLocaleString() + ' ' + toDisplay('年') + '）';
+    }
+  }
+
+  const chip = document.getElementById('modeChip');
+  if (chip) {
+    const num = '<b>' + n.toLocaleString() + '</b>';
+    if (full && isAllShown) chip.innerHTML = toDisplay('全表') + ' · ' + num + ' ' + toDisplay('年');
+    else if (full) chip.innerHTML = toDisplay('最近') + ' <b>' + shown + '</b> / ' + num + ' ' + toDisplay('年');
+    else if (searchQuery && searchQuery.trim()) chip.innerHTML = toDisplay('检索') + ' · ' + num + ' ' + toDisplay('条');
+    else chip.innerHTML = toDisplay('筛选') + ' · ' + num + ' ' + toDisplay('条');
+  }
+
+  updateFullTableControls();
 }
 
 // ========================================
@@ -4880,6 +5302,8 @@ function exportCSV() {
 
 // 当前页行数 (按当前分页状态计算)
 function renderTableRowsCount() {
+  // V10.0: 全表浏览模式下「当前页」即全表
+  if (isFullTableMode()) return realFilteredCount();
   const start = (currentPage - 1) * perPage;
   return Math.min(perPage, Math.max(0, filteredData.length - start));
 }
@@ -4918,9 +5342,14 @@ function doExportCSV() {
   // 取数 (V4.2: 排除临近行/分隔行)
   let dataRows;
   if (exportRange === 'page') {
-    const real = realFilteredRows();
-    const start = (currentPage - 1) * perPage;
-    dataRows = real.slice(start, start + perPage);
+    if (isFullTableMode()) {
+      // V10.0: 全表模式下「仅当前页」= 当前展示的全部年份
+      dataRows = realFilteredRows();
+    } else {
+      const real = realFilteredRows();
+      const start = (currentPage - 1) * perPage;
+      dataRows = real.slice(start, start + perPage);
+    }
   } else {
     dataRows = realFilteredRows();
   }
@@ -5038,6 +5467,17 @@ function adjustForMobile() {
   if (colsSwitch) {
     colsSwitch.style.display = (!isMobile && viewMode === 'card') ? '' : 'none';
   }
+
+  // V10.0: 视口跨过 768 断点（表格 ↔ 卡片 / 全表 ↔ 分页）时补一次重渲染
+  const mode = effectiveMode();
+  if (lastEffectiveMode !== null && lastEffectiveMode !== mode) {
+    lastEffectiveMode = mode;
+    renderByViewMode();
+    renderPagination();
+    updateStats();
+  } else {
+    lastEffectiveMode = mode;
+  }
 }
 
 // ========================================
@@ -5100,6 +5540,17 @@ function init() {
   // V8.3: 卡片列数初始化 + 切换
   setCardColumns(getCardColumns());
   initCardColsSwitch();
+  // V10.0: 全表「加载全部年份」—— 用户主动请求时才插入全部 2,800+ 行
+  const ftLoadAllBtn = document.getElementById('ftLoadAllBtn');
+  if (ftLoadAllBtn) {
+    ftLoadAllBtn.addEventListener('click', function() {
+      if (fullTableRange === 'all') return;
+      fullTableRange = 'all';
+      renderByViewMode();
+      renderPagination();
+      updateStats();
+    });
+  }
   const colsSwitch = document.getElementById('cardColsSwitch');
   if (colsSwitch) colsSwitch.style.display = (viewMode === 'card' && window.innerWidth > 768) ? '' : 'none';
   
