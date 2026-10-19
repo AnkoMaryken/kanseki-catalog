@@ -38,6 +38,67 @@
   var DEFAULT_MODEL = 'deepseek-flash';
   var DEFAULT_MAX_TOKENS = 8000;
 
+  /* ---------- V2：多品牌（均为 OpenAI 兼容接口，换 base 即可） ---------- */
+  var K_PROVIDER = 'kanseki_ai_provider';
+  var PROVIDERS = {
+    deepseek: {
+      name: 'DeepSeek',
+      endpoint: 'https://api.deepseek.com/chat/completions',
+      models: [
+        { id: 'deepseek-flash', label: 'deepseek-flash（快）' },
+        { id: 'deepseek-v4-pro', label: 'deepseek-v4-pro（更强）' }
+      ],
+      keyHint: 'sk-…'
+    },
+    openai: {
+      name: 'OpenAI',
+      endpoint: 'https://api.openai.com/v1/chat/completions',
+      models: [
+        { id: 'gpt-4o-mini', label: 'gpt-4o-mini' },
+        { id: 'gpt-4o', label: 'gpt-4o' },
+        { id: 'o4-mini', label: 'o4-mini' }
+      ],
+      keyHint: 'sk-…'
+    },
+    zhipu: {
+      name: '智谱 GLM',
+      endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+      models: [
+        { id: 'glm-4.6', label: 'glm-4.6' },
+        { id: 'glm-4-flash', label: 'glm-4-flash' }
+      ],
+      keyHint: '填入智谱开放平台的 API Key'
+    },
+    moonshot: {
+      name: 'Moonshot Kimi',
+      endpoint: 'https://api.moonshot.cn/v1/chat/completions',
+      models: [
+        { id: 'kimi-k2-0905-preview', label: 'kimi-k2' },
+        { id: 'moonshot-v1-8k', label: 'moonshot-v1-8k' }
+      ],
+      keyHint: 'sk-…'
+    },
+    qwen: {
+      name: '通义千问（DashScope 兼容）',
+      endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+      models: [
+        { id: 'qwen-plus', label: 'qwen-plus' },
+        { id: 'qwen-turbo', label: 'qwen-turbo' }
+      ],
+      keyHint: 'sk-…'
+    },
+    custom: {
+      name: '自定义（OpenAI 兼容）',
+      endpoint: '',
+      models: [],
+      keyHint: '任意兼容 /chat/completions 的服务'
+    }
+  };
+
+  function providerDef(id) {
+    return PROVIDERS[id] || PROVIDERS.deepseek;
+  }
+
   /* 兜底候选（真实列表由 listModels() 从接口拉取后覆盖） */
   var MODELS = [
     { id: 'deepseek-flash', label: 'deepseek-flash（现行主力，快）' },
@@ -63,10 +124,15 @@
 
   function getConfig() {
     var mt = parseInt(ls(true, K_MAXTOK), 10);
+    var provider = ls(true, K_PROVIDER) || 'deepseek';
+    var pdef = providerDef(provider);
+    var fallbackModel = (pdef.models && pdef.models[0] && pdef.models[0].id) || DEFAULT_MODEL;
     return {
+      provider: provider,
+      providerName: pdef.name,
       key: ls(true, K_KEY),
-      model: ls(true, K_MODEL) || DEFAULT_MODEL,
-      endpoint: ls(true, K_ENDPOINT) || DEFAULT_ENDPOINT,
+      model: ls(true, K_MODEL) || fallbackModel,
+      endpoint: ls(true, K_ENDPOINT) || pdef.endpoint || DEFAULT_ENDPOINT,
       email: ls(true, K_EMAIL),
       maxTokens: (isFinite(mt) && mt >= 256) ? mt : DEFAULT_MAX_TOKENS,
       hasKey: !!ls(true, K_KEY),
@@ -76,6 +142,7 @@
 
   function setConfig(c) {
     c = c || {};
+    if ('provider' in c) ls(false, K_PROVIDER, String(c.provider || '').trim());
     if ('key' in c) ls(false, K_KEY, String(c.key || '').trim());
     if ('model' in c) ls(false, K_MODEL, String(c.model || '').trim());
     if ('endpoint' in c) ls(false, K_ENDPOINT, String(c.endpoint || '').trim());
@@ -410,7 +477,9 @@
     DEFAULT_ENDPOINT: DEFAULT_ENDPOINT,
     DEFAULT_MODEL: DEFAULT_MODEL,
     DEFAULT_MAX_TOKENS: DEFAULT_MAX_TOKENS,
-    KEYS: { KEY: K_KEY, MODEL: K_MODEL, ENDPOINT: K_ENDPOINT, EMAIL: K_EMAIL, MAXTOK: K_MAXTOK, USAGE: K_USAGE },
+    KEYS: { KEY: K_KEY, MODEL: K_MODEL, ENDPOINT: K_ENDPOINT, EMAIL: K_EMAIL, MAXTOK: K_MAXTOK, USAGE: K_USAGE, PROVIDER: K_PROVIDER },
+    PROVIDERS: PROVIDERS,
+    providerDef: providerDef,
     isDesktop: isDesktop,
     getConfig: getConfig,
     setConfig: setConfig,

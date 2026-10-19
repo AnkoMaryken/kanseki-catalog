@@ -39,8 +39,8 @@ const PAGES = ['index.html', 'guide.html', 'catalog.html', 'changelog.html', 'em
   }
   
   console.log('\n[2] 模拟登录 → index 表头渲染头像+昵称');
-  // V1.1：index.html 已按需求删除站点顶栏/登录区，登录态渲染改在仍有表头的 guide.html 验证
-  await page.goto(`${BASE}/guide.html`);
+  // V1.2：仅 catalog.html 保留站点表头（index/guide/changelog/embed 已简化）
+  await page.goto(`${BASE}/catalog.html`);
   await page.evaluate(() => {
     localStorage.setItem('kanseki_user', JSON.stringify({ email: 'test@example.com', id: 'u1', name: '测试用户' }));
   });
@@ -104,7 +104,7 @@ const PAGES = ['index.html', 'guide.html', 'catalog.html', 'changelog.html', 'em
   ok('恢复默认后 avatar 为 null', av2 === null, JSON.stringify(av2));
 
   console.log('\n[9] 登录后表头同步颜色头像 (guide)');
-  await page.goto(`${BASE}/guide.html`);
+  await page.goto(`${BASE}/catalog.html`);
   await page.evaluate(() => {
     window.UserState.setAvatarData({ type: 'color', bg: '#10b981', char: '逐', fg: '#ffffff' });
   });
@@ -121,8 +121,8 @@ const PAGES = ['index.html', 'guide.html', 'catalog.html', 'changelog.html', 'em
   await page.waitForTimeout(300);
   await page.click('.user-dropdown .user-menu-logout');
   await page.waitForTimeout(1200);
-  // V1.1：退出后会跳回首页（index.html 已无站点顶栏），回到 guide.html 校验表头
-  if (!page.url().includes('guide.html')) { await page.goto(`${BASE}/guide.html`); await page.waitForTimeout(700); }
+  // V1.2：退出后会跳回首页，回到 catalog.html 校验表头
+  if (!page.url().includes('guide.html')) { await page.goto(`${BASE}/catalog.html`); await page.waitForTimeout(700); }
   const userAfter = await page.evaluate(() => localStorage.getItem('kanseki_user'));
   ok('退出后 kanseki_user 已清除', userAfter === null, String(userAfter));
   const stillAvatar = await page.$('.user-dropdown .user-avatar');
@@ -137,14 +137,14 @@ const PAGES = ['index.html', 'guide.html', 'catalog.html', 'changelog.html', 'em
   await demoPage.fill('#password', 'demo12345');
   await demoPage.click('#loginBtn');
   await demoPage.waitForURL('**/index.html', { timeout: 8000 });
-  // V1.1：index.html 已按需求删除站点顶栏/登录区，改到 guide.html 验证表头头像
-  await demoPage.goto(`${BASE}/guide.html`);
+  // V1.2：改到仍有表头的 catalog.html 验证表头头像
+  await demoPage.goto(`${BASE}/catalog.html`);
   await demoPage.waitForSelector('.user-dropdown .user-avatar');
   const demoName = (await demoPage.textContent('.user-dropdown .user-btn-name')).trim();
   ok('演示登录后表头显示邮箱前缀昵称', demoName === 'demo', demoName);
 
   console.log('\n[12] 其余四页登录态渲染');
-  await demoPage.goto(`${BASE}/guide.html`);
+  await demoPage.goto(`${BASE}/catalog.html`);
   await demoPage.waitForSelector('.user-dropdown .user-avatar');
   await demoPage.hover('.user-dropdown .user-btn');
   await demoPage.waitForSelector('.user-dropdown .user-menu .user-menu-profile');

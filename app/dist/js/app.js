@@ -652,7 +652,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -1246,11 +1246,41 @@ async function init() {
     applyGlobalLang(b.dataset.lang);
   });
   $('#githubBtn')?.addEventListener('click', () => {
-    const url = 'https://github.com/AnkoMaryken';
+    const url = 'https://github.com/AnkoMaryken/kanseki-catalog';
     if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
     else window.open(url, '_blank');
   });
   $('#themeBtn')?.addEventListener('click', toggleAppTheme);
+
+  // ---------- V2：全局快捷键（可在设置→外观与快捷键关闭） ----------
+  document.addEventListener('keydown', (e) => {
+    try { if (localStorage.getItem('kanseki_hotkeys') === '0') return; } catch (_) { }
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    const k = String(e.key || '').toLowerCase();
+    if (k === ',') {
+      e.preventDefault();
+      $('#sideSettingsBtn')?.click();
+    } else if (k === 'b') {
+      e.preventDefault();
+      toggleSidebar();
+    } else if (k === 'k') {
+      e.preventDefault();
+      location.hash = '#/query';
+      setTimeout(() => {
+        const f = document.getElementById(FRAMES.query);
+        try {
+          const inp = f && f.contentWindow && f.contentWindow.document.querySelector('#searchInput, #kw, input[type="text"]');
+          if (inp) { inp.focus(); inp.select && inp.select(); }
+        } catch (_) { }
+      }, 900);
+    }
+  });
+  // V2：日藏检索页「KD」→ 打开原站
+  $('#kdbSrcBtn')?.addEventListener('click', () => {
+    const url = 'https://kanji.zinbun.kyoto-u.ac.jp/kanseki/';
+    if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
+    else window.open(url, '_blank');
+  });
   $('#tbDl')?.addEventListener('click', () => { location.hash = '#/downloads'; });
   $('#navSettings')?.addEventListener('click', () => {
     if (isTauri) tauriInvoke('open_settings_window', {}).catch(() => showToast('设置窗口打开失败'));

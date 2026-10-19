@@ -187,13 +187,13 @@ function check(name, cond, extra) {
     await new Promise(r => setTimeout(r, 900));
     return {
       input: document.getElementById('ksSearch').value,
-      total: document.getElementById('ksTotal').textContent.trim(),
+      total: String(document.querySelectorAll('#ksBody tr').length),
       first: window.KansekiAIPage.hist.load()[0],
       panelClosed: document.getElementById('ksHistPanel').hidden
     };
   });
   check('点历史项回填搜索框', recall.input === '周易', recall.input);
-  check('点历史项会重新检索', /共|命中/.test(recall.total), recall.total);
+  check('点历史项会重新检索', parseInt(recall.total, 10) > 0, recall.total + ' 行');
   check('点历史项后该项置顶', recall.first === '周易', recall.first);
   check('选完后自动收起面板', recall.panelClosed === true);
 

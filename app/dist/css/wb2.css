@@ -1,0 +1,988 @@
+/* ================================================================================
+   css/wb2.css — 工作台 v2（问候 / 每日推荐 / 问问 AI / 工作日历）
+   --------------------------------------------------------------------------------
+   · 参考 Permitly 风格：大留白、大圆角、白卡 + 一张黑色主卡、荧光绿强调
+   · 全部规则以 #wbRoot 限定作用域，不污染外壳与其它视图
+   · 颜色/圆角/阴影/字阶复用 v3.css 令牌；强调色读取全局 --accent（荧光绿）
+   ================================================================================ */
+
+#wbRoot {
+  /* 局部令牌：黑色主卡 + 荧光绿强调 */
+  --wb-card: var(--surface, #FFFFFF);
+  --wb-fill: var(--bg-fill, #F2F3F5);
+  --wb-line: var(--divider, #F0F1F3);
+  --wb-text: var(--text, #171A1F);
+  --wb-sec: var(--text-sec, #5F6672);
+  --wb-muted: var(--text-muted, #8F959E);
+  --wb-ink: #14171C;
+  --wb-on-ink: #F7F8F9;
+  --wb-accent: var(--accent, #C8F169);
+  --wb-accent-ink: #14171C;
+  --wb-radius: var(--radius-xl, 24px);
+  --wb-radius-sm: var(--radius, 12px);
+  --wb-shadow: var(--shadow, 0 6px 20px rgba(0, 0, 0, .06));
+  --wb-shadow-lg: var(--shadow-lg, 0 10px 28px rgba(0, 0, 0, .10));
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 2px 2px 28px;
+  color: var(--wb-text);
+  font-size: var(--fs-body, 13.5px);
+  line-height: 1.6;
+  min-width: 0;
+}
+
+[data-theme="dark"] #wbRoot {
+  --wb-ink: #07090C;
+  --wb-on-ink: #F2F3F5;
+  --wb-line: rgba(255, 255, 255, .08);
+  --wb-shadow: 0 6px 20px rgba(0, 0, 0, .45);
+  --wb-shadow-lg: 0 10px 28px rgba(0, 0, 0, .55);
+}
+
+#wbRoot *,
+#wbRoot *::before,
+#wbRoot *::after { box-sizing: border-box; }
+
+#wbRoot button { font-family: inherit; }
+
+/* ================================================================
+   1. 页头：时段问候
+   ================================================================ */
+#wbRoot .wb2-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 8px 4px 0;
+}
+
+#wbRoot .wb2-head-tx { flex: 1; min-width: 0; }
+
+#wbRoot .wb2-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-caption, 11.5px);
+  letter-spacing: .16em;
+  color: var(--wb-muted);
+  margin-bottom: 8px;
+}
+
+#wbRoot .wb2-kicker .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--wb-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wb-accent) 22%, transparent);
+}
+
+#wbRoot .wb2-greet {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.28;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--wb-text);
+}
+
+#wbRoot .wb2-greet .nm { position: relative; }
+
+#wbRoot .wb2-greet .nm::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 2px;
+  bottom: 2px;
+  height: 7px;
+  border-radius: 3px;
+  background: var(--wb-accent);
+  z-index: -1;
+  opacity: .9;
+}
+
+#wbRoot .wb2-greet .nm { z-index: 1; }
+
+#wbRoot .wb2-sub {
+  margin: 7px 0 0;
+  font-size: var(--fs-sub, 12px);
+  color: var(--wb-muted);
+  line-height: 1.6;
+}
+
+#wbRoot .wb2-head-side {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#wbRoot .wb2-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--wb-card);
+  box-shadow: var(--wb-shadow);
+  font-size: var(--fs-sub, 12px);
+  color: var(--wb-sec);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#wbRoot .wb2-date .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--wb-accent);
+}
+
+/* ================================================================
+   2. 通用卡片
+   ================================================================ */
+#wbRoot .wb2-card {
+  background: var(--wb-card);
+  border-radius: var(--wb-radius);
+  box-shadow: var(--wb-shadow);
+  padding: 20px 22px;
+  min-width: 0;
+}
+
+#wbRoot .wb2-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+#wbRoot .wb2-card-head h3 {
+  margin: 0;
+  font-size: var(--fs-sec, 15px);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+#wbRoot .wb2-card-sub {
+  font-size: var(--fs-caption, 11.5px);
+  color: var(--wb-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#wbRoot .wb2-card-head .wb2-head-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* 主栅格 */
+#wbRoot .wb2-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+#wbRoot .wb2-lower-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+#wbRoot .wb2-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ================================================================
+   3. 黑色主卡：每日推荐
+   ================================================================ */
+#wbRoot .wb2-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 306px;
+  padding: 24px 26px 22px;
+  border-radius: 28px;
+  background: var(--wb-ink);
+  color: var(--wb-on-ink);
+  box-shadow: 0 18px 42px -18px rgba(0, 0, 0, .45), var(--wb-shadow);
+}
+
+#wbRoot .wb2-hero::before {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -140px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--wb-accent) 46%, transparent) 0%, transparent 68%);
+  opacity: .55;
+  pointer-events: none;
+}
+
+#wbRoot .wb2-hero::after {
+  content: "";
+  position: absolute;
+  left: -120px;
+  bottom: -180px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, .07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+#wbRoot .wb2-hero-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  z-index: 1;
+}
+
+#wbRoot .wb2-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wb-accent) 18%, transparent);
+  color: var(--wb-accent);
+  font-size: var(--fs-caption, 11.5px);
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+#wbRoot .wb2-hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+#wbRoot .wb2-hero-date {
+  font-size: var(--fs-caption, 11.5px);
+  color: rgba(255, 255, 255, .45);
+  font-variant-numeric: tabular-nums;
+}
+
+#wbRoot .wb2-refresh {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .82);
+  font-size: var(--fs-caption, 11.5px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 180ms, color 180ms, border-color 180ms, transform 180ms;
+}
+
+#wbRoot .wb2-refresh:hover {
+  background: var(--wb-accent);
+  border-color: var(--wb-accent);
+  color: var(--wb-accent-ink);
+}
+
+#wbRoot .wb2-refresh:active { transform: scale(.97); }
+
+#wbRoot .wb2-refresh svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-hero-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: 16px;
+  min-width: 0;
+}
+
+#wbRoot .wb2-quote {
+  margin: 0;
+  font-family: var(--font-serif, "Songti SC", "STSong", "SimSun", serif);
+  font-size: 24px;
+  line-height: 1.72;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--wb-on-ink);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-quote-src {
+  margin-top: 14px;
+  font-size: var(--fs-sub, 12px);
+  color: color-mix(in srgb, var(--wb-on-ink) 62%, transparent);
+  text-align: right;
+}
+
+#wbRoot .wb2-hero-note {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  font-size: var(--fs-sub, 12px);
+  line-height: 1.85;
+  color: color-mix(in srgb, var(--wb-on-ink) 74%, transparent);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-tip-title {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--wb-on-ink);
+}
+
+#wbRoot .wb2-tip-body {
+  margin: 0;
+  font-size: var(--fs-body, 13.5px);
+  line-height: 1.9;
+  color: color-mix(in srgb, var(--wb-on-ink) 82%, transparent);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-tip-src {
+  margin-top: 14px;
+  align-self: flex-end;
+  font-size: var(--fs-caption, 11.5px);
+  color: var(--wb-accent);
+  letter-spacing: .02em;
+}
+
+#wbRoot .wb2-hero-body.swap { animation: wb2Swap 260ms ease; }
+
+@keyframes wb2Swap {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   4. 问问 AI
+   ================================================================ */
+#wbRoot .wb2-ai {
+  display: flex;
+  flex-direction: column;
+  min-height: 306px;
+  padding: 20px 20px 18px;
+}
+
+#wbRoot .wb2-ai-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#wbRoot .wb2-ai-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+}
+
+#wbRoot .wb2-ai-ico svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+#wbRoot .wb2-ai-title { min-width: 0; }
+#wbRoot .wb2-ai-title b { display: block; font-size: var(--fs-sec, 15px); font-weight: 600; letter-spacing: -.01em; }
+#wbRoot .wb2-ai-title span { display: block; margin-top: 1px; font-size: var(--fs-caption, 11.5px); color: var(--wb-muted); }
+
+#wbRoot .wb2-ai-model {
+  margin-left: auto;
+  max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  color: var(--wb-muted);
+  background: var(--wb-fill);
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+
+/* 无 Key 提示 */
+#wbRoot .wb2-ai-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+  padding: 10px 2px 4px;
+}
+
+#wbRoot .wb2-ai-hint {
+  margin: 0;
+  font-size: var(--fs-sub, 12px);
+  line-height: 1.7;
+  color: var(--wb-sec);
+}
+
+#wbRoot .wb2-ai-hint .kw { color: var(--wb-text); font-weight: 600; }
+
+#wbRoot .wb2-ai-empty-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+#wbRoot .wb2-ai-set {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  font-size: var(--fs-caption, 11.5px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 160ms, transform 160ms;
+}
+
+#wbRoot .wb2-ai-set:hover { filter: brightness(.95); }
+#wbRoot .wb2-ai-set:active { transform: scale(.97); }
+#wbRoot .wb2-ai-set svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-ai-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--wb-muted);
+  line-height: 1.65;
+}
+
+/* 有 Key：输入区 */
+#wbRoot .wb2-ai-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  background: var(--wb-fill);
+  border-radius: 16px;
+  transition: box-shadow 160ms;
+}
+
+#wbRoot .wb2-ai-field:focus-within { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wb-accent) 70%, var(--wb-line)); }
+
+#wbRoot .wb2-ai-field textarea {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  max-height: 96px;
+  padding: 9px 0;
+  border: 0;
+  background: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: var(--fs-body, 13.5px);
+  line-height: 1.55;
+  color: var(--wb-text);
+}
+
+#wbRoot .wb2-ai-field textarea::placeholder { color: var(--wb-muted); }
+
+#wbRoot .wb2-ai-send {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: filter 160ms, transform 160ms, opacity 160ms;
+}
+
+#wbRoot .wb2-ai-send:hover { filter: brightness(.95); }
+#wbRoot .wb2-ai-send:active { transform: scale(.95); }
+#wbRoot .wb2-ai-send:disabled { opacity: .45; cursor: default; }
+#wbRoot .wb2-ai-send svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-ai-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+#wbRoot .wb2-chip {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wb-fill);
+  color: var(--wb-sec);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 160ms, color 160ms;
+}
+
+#wbRoot .wb2-chip:hover { background: color-mix(in srgb, var(--wb-accent) 32%, var(--wb-fill)); color: var(--wb-text); }
+
+#wbRoot .wb2-ai-answer {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--wb-fill);
+  font-size: var(--fs-sub, 12px);
+  line-height: 1.82;
+  color: var(--wb-text);
+  overflow: auto;
+  max-height: 208px;
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-ai-answer:empty { display: none; }
+#wbRoot .wb2-ai-answer p { margin: 0 0 6px; }
+#wbRoot .wb2-ai-answer p:last-child { margin-bottom: 0; }
+#wbRoot .wb2-ai-answer ul { margin: 4px 0 6px; padding-left: 1.15em; }
+#wbRoot .wb2-ai-answer li { margin: 2px 0; }
+#wbRoot .wb2-ai-answer code {
+  background: var(--wb-card);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: ui-monospace, Consolas, monospace;
+}
+#wbRoot .wb2-ai-answer .err { color: var(--danger, #E5484D); }
+#wbRoot .wb2-ai-answer .busy { color: var(--wb-muted); }
+
+#wbRoot .wb2-spin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border: 2px solid color-mix(in srgb, var(--wb-accent) 55%, transparent);
+  border-top-color: var(--wb-accent);
+  border-radius: 50%;
+  vertical-align: -2px;
+  animation: wb2Spin .8s linear infinite;
+}
+
+@keyframes wb2Spin { to { transform: rotate(360deg); } }
+
+/* ================================================================
+   5. 快捷入口
+   ================================================================ */
+#wbRoot .wb2-quick {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#wbRoot .wb2-qcard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 15px 15px 14px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--wb-card);
+  box-shadow: var(--wb-shadow);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 180ms, box-shadow 180ms;
+  min-width: 0;
+}
+
+#wbRoot .wb2-qcard:hover { transform: translateY(-2px); box-shadow: var(--wb-shadow-lg); }
+#wbRoot .wb2-qcard:active { transform: translateY(0); }
+
+#wbRoot .wb2-qcard .qi {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--wb-fill);
+  color: var(--wb-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 180ms, color 180ms;
+}
+
+#wbRoot .wb2-qcard:hover .qi { background: var(--wb-accent); color: var(--wb-accent-ink); }
+#wbRoot .wb2-qcard .qi svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+#wbRoot .wb2-qcard b { font-size: var(--fs-body, 13.5px); font-weight: 600; letter-spacing: -.01em; white-space: nowrap; }
+#wbRoot .wb2-qcard span { font-size: var(--fs-caption, 11.5px); color: var(--wb-muted); line-height: 1.5; }
+
+/* ================================================================
+   6. 工作日历 / 待办
+   ================================================================ */
+#wbRoot .wb2-cal { padding: 20px 22px 18px; }
+
+#wbRoot .wb2-cal-nav { display: flex; align-items: center; gap: 6px; }
+
+#wbRoot .wb2-icon-btn {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--wb-fill);
+  color: var(--wb-sec);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 160ms, color 160ms;
+}
+
+#wbRoot .wb2-icon-btn:hover { background: color-mix(in srgb, var(--wb-accent) 32%, var(--wb-fill)); color: var(--wb-text); }
+#wbRoot .wb2-icon-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-cal-month {
+  min-width: 96px;
+  text-align: center;
+  font-size: var(--fs-sub, 12px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--wb-text);
+}
+
+#wbRoot .wb2-today-btn {
+  height: 28px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wb-fill);
+  color: var(--wb-sec);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#wbRoot .wb2-today-btn:hover { background: color-mix(in srgb, var(--wb-accent) 32%, var(--wb-fill)); color: var(--wb-text); }
+
+#wbRoot .wb2-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 6px;
+}
+
+#wbRoot .wb2-cal-wd {
+  padding: 6px 0 4px;
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: var(--wb-muted);
+}
+
+#wbRoot .wb2-day {
+  position: relative;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--wb-sec);
+  font-family: inherit;
+  font-size: var(--fs-sub, 12px);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: background 150ms, color 150ms;
+  min-width: 0;
+}
+
+#wbRoot .wb2-day:hover { background: var(--wb-fill); color: var(--wb-text); }
+#wbRoot .wb2-day.blank { visibility: hidden; cursor: default; }
+#wbRoot .wb2-day.other { color: var(--wb-muted); opacity: .45; }
+
+#wbRoot .wb2-day.today::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1.5px var(--wb-accent);
+  pointer-events: none;
+}
+
+#wbRoot .wb2-day.sel,
+#wbRoot .wb2-day.sel:hover {
+  background: var(--wb-ink);
+  color: var(--wb-on-ink);
+  font-weight: 600;
+}
+
+#wbRoot .wb2-day.sel::before { display: none; }
+
+#wbRoot .wb2-day .dots {
+  display: flex;
+  gap: 2.5px;
+  height: 4px;
+  align-items: center;
+}
+
+#wbRoot .wb2-day .dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--wb-accent);
+}
+
+#wbRoot .wb2-day.sel .dots i { background: var(--wb-on-ink); }
+
+#wbRoot .wb2-todo {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--wb-line);
+}
+
+#wbRoot .wb2-todo-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+#wbRoot .wb2-todo-head b { font-size: var(--fs-sub, 12px); font-weight: 600; }
+#wbRoot .wb2-todo-head span { font-size: var(--fs-caption, 11.5px); color: var(--wb-muted); }
+
+#wbRoot .wb2-todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 176px;
+  overflow: auto;
+}
+
+#wbRoot .wb2-todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--wb-fill);
+  min-width: 0;
+}
+
+#wbRoot .wb2-check {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 1.5px solid color-mix(in srgb, var(--wb-sec) 45%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 150ms, border-color 150ms;
+}
+
+#wbRoot .wb2-check svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.6; }
+#wbRoot .wb2-todo-item.done .wb2-check { background: var(--wb-accent); border-color: var(--wb-accent); color: var(--wb-accent-ink); }
+
+#wbRoot .wb2-todo-text {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sub, 12px);
+  line-height: 1.6;
+  color: var(--wb-text);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-todo-item.done .wb2-todo-text { color: var(--wb-muted); text-decoration: line-through; }
+
+#wbRoot .wb2-todo-del {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--wb-muted);
+  cursor: pointer;
+  opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 140ms, background 140ms, color 140ms;
+}
+
+#wbRoot .wb2-todo-item:hover .wb2-todo-del { opacity: 1; }
+#wbRoot .wb2-todo-del:hover { background: color-mix(in srgb, var(--danger, #E5484D) 14%, transparent); color: var(--danger, #E5484D); }
+#wbRoot .wb2-todo-del svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-todo-empty {
+  padding: 8px 2px;
+  font-size: var(--fs-caption, 11.5px);
+  color: var(--wb-muted);
+}
+
+#wbRoot .wb2-todo-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#wbRoot .wb2-todo-input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--wb-fill);
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: var(--fs-sub, 12px);
+  color: var(--wb-text);
+  outline: none;
+  transition: box-shadow 160ms;
+}
+
+#wbRoot .wb2-todo-input::placeholder { color: var(--wb-muted); }
+#wbRoot .wb2-todo-input:focus { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wb-accent) 75%, var(--wb-line)); }
+
+#wbRoot .wb2-todo-submit {
+  flex: 0 0 auto;
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  font-size: var(--fs-caption, 11.5px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 160ms, transform 160ms;
+}
+
+#wbRoot .wb2-todo-submit:hover { filter: brightness(.95); }
+#wbRoot .wb2-todo-submit:active { transform: scale(.97); }
+
+/* ================================================================
+   7. 资料磁贴 / 最近更新（右栏）
+   ================================================================ */
+#wbRoot .wb2-tiles { padding: 8px; }
+
+#wbRoot .wb2-tiles .wb2-card-head { padding: 6px 8px 2px; margin-bottom: 4px; }
+
+#wbRoot .wb2-tile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--wb-text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms;
+}
+
+#wbRoot .wb2-tile:hover { background: var(--wb-fill); }
+#wbRoot .wb2-tile b { font-size: var(--fs-sub, 12px); font-weight: 600; }
+
+#wbRoot .wb2-tile .ti {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 9px;
+  background: var(--wb-fill);
+  color: var(--wb-sec);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 160ms, color 160ms;
+}
+
+#wbRoot .wb2-tile:hover .ti { background: var(--wb-accent); color: var(--wb-accent-ink); }
+#wbRoot .wb2-tile .ti svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+#wbRoot .wb2-tile .sub {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--wb-muted);
+  white-space: nowrap;
+}
+
+#wbRoot .wb2-tile .arw {
+  margin-left: 4px;
+  color: var(--wb-muted);
+  display: inline-flex;
+  align-items: center;
+}
+
+#wbRoot .wb2-tile .arw svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-recent { padding: 16px 18px; }
+#wbRoot .wb2-recent .wb2-recent-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: var(--fs-caption, 11.5px);
+  color: var(--wb-sec);
+  min-width: 0;
+}
+#wbRoot .wb2-recent .wb2-recent-row b { font-weight: 600; color: var(--wb-text); font-variant-numeric: tabular-nums; }
+#wbRoot .wb2-recent .wb2-recent-row span { margin-left: auto; color: var(--wb-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#wbRoot .wb2-recent .wb2-recent-empty { font-size: var(--fs-caption, 11.5px); color: var(--wb-muted); padding: 4px 0; }
+
+/* ================================================================
+   8. 动效 / 响应式 / 暗色补丁
+   ================================================================ */
+#wbRoot .wb2-card,
+#wbRoot .wb2-qcard { animation: wb2In 320ms ease backwards; }
+
+@keyframes wb2In {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #wbRoot *,
+  #wbRoot *::before,
+  #wbRoot *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 1180px) {
+  #wbRoot .wb2-hero-grid,
+  #wbRoot .wb2-lower-grid { grid-template-columns: minmax(0, 1fr); }
+  #wbRoot .wb2-hero,
+  #wbRoot .wb2-ai { min-height: 0; }
+  #wbRoot .wb2-quick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  #wbRoot .wb2-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #wbRoot .wb2-greet { font-size: 22px; }
+  #wbRoot .wb2-card { padding: 16px 16px; }
+  #wbRoot .wb2-hero { padding: 20px 18px 18px; border-radius: 22px; min-height: 0; }
+  #wbRoot .wb2-quote { font-size: 20px; }
+  #wbRoot .wb2-head-side { margin-left: 0; }
+  #wbRoot .wb2-ai-answer { max-height: 180px; }
+}
+
+[data-theme="dark"] #wbRoot .wb2-hero {
+  background: var(--wb-ink);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07), 0 18px 42px -20px rgba(0, 0, 0, .8);
+}
+
+[data-theme="dark"] #wbRoot .wb2-day.sel { background: var(--wb-accent); color: var(--wb-accent-ink); }
+[data-theme="dark"] #wbRoot .wb2-day.sel .dots i { background: var(--wb-accent-ink); }
+[data-theme="dark"] #wbRoot .wb2-day.today::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wb-accent) 65%, transparent); }
+[data-theme="dark"] #wbRoot .wb2-ai-answer code { background: var(--wb-card); }
+[data-theme="dark"] #wbRoot .wb2-ai-model { background: var(--wb-fill); }

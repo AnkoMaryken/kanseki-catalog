@@ -250,10 +250,15 @@
         <h2 class="set-h">API 管理</h2>
         <a class="set-btn set-home" id="setHome" href="index.html" hidden>← 返回主页</a>
       </div>
-      <p class="set-sub">配置「古籍类目查询 → AI 复检」所用的 DeepSeek 连接。配置只存在本机。</p>
+      <p class="set-sub">配置「AI 复检」与工作台「问问 AI」所用的大模型连接，支持多家 OpenAI 兼容服务；配置只存在本机。</p>
 
       <div class="set-row">
-        <label for="aiKey">DeepSeek API Key</label>
+        <label for="aiProvider">服务商</label>
+        <select class="set-in" id="aiProvider"></select>
+        <button class="set-btn" id="aiProviderHelp" type="button" title="填写所选服务商的 API Key 即可">?</button>
+      </div>
+      <div class="set-row">
+        <label for="aiKey">API Key</label>
         <input class="set-in" type="password" id="aiKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
         <button class="set-btn" id="aiEye" type="button">显示</button>
       </div>
@@ -281,7 +286,7 @@
       </div>
       <div class="set-msg" id="aiMsg"></div>
       <p class="set-note">
-        API Key 只保存在本机，不会上传到任何第三方；调用时仅作为请求头发送给 DeepSeek。<br>
+        API Key 只保存在本机，不会上传到任何第三方；调用时仅作为请求头发送给所选服务商。<br>
         桌面版与网页版共用同一份配置（存在浏览器/程序本机的 localStorage 中）。
       </p>
 
@@ -341,12 +346,27 @@
         </div>
       </div>
 
+      <div class="set-row">
+        <label>侧栏默认</label>
+        <div class="seg-lite" id="uiSideSeg">
+          <button type="button" data-side="0">展开</button>
+          <button type="button" data-side="1">收起</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <label>键盘快捷键</label>
+        <div class="seg-lite" id="uiHotkeySeg">
+          <button type="button" data-hot="1">开启</button>
+          <button type="button" data-hot="0">关闭</button>
+        </div>
+      </div>
+
       <h3 class="set-h3">快捷键</h3>
       <ul class="kb-list">
         <li><kbd>Ctrl</kbd><kbd>,</kbd><span>打开设置</span></li>
-        <li><kbd>Ctrl</kbd><kbd>K</kbd><span>聚焦检索框</span></li>
-        <li><kbd>F5</kbd><span>刷新当前页</span></li>
-        <li><kbd>F11</kbd><span>全屏</span></li>
+        <li><kbd>Ctrl</kbd><kbd>B</kbd><span>收起 / 展开侧栏</span></li>
+        <li><kbd>Ctrl</kbd><kbd>K</kbd><span>跳到纪年查询并聚焦搜索框</span></li>
+        <li><kbd>F11</kbd><span>全屏（桌面版）</span></li>
         <li><kbd>Esc</kbd><span>关闭浮层 / 抽屉</span></li>
       </ul>
     </section>
@@ -361,9 +381,14 @@
         <div><span>古籍类目</span><b>177,107 条</b></div>
         <div><span>纪年数据</span><b>2,868 年</b></div>
       </div>
+      <div class="about-grid" style="margin-top:.7rem">
+        <div><span>应用版本</span><b id="aboutVer2">—</b></div>
+        <div><span>AI 服务商</span><b id="aboutProvider">—</b></div>
+      </div>
       <div class="set-row" style="margin-top:.9rem">
         <button class="set-btn" id="aboutGithub" type="button">打开 GitHub</button>
         <button class="set-btn" id="aboutWeb" type="button">打开网页版</button>
+        <button class="set-btn" id="aboutDiag" type="button">复制诊断信息</button>
       </div>
       <p class="set-note">
         目录元数据来源：国立公文書館デジタルアーカイブ（CC0）、全國漢籍データベース、
@@ -373,55 +398,7 @@
   </main>
 </div>
 
-<script src="ai-config.js">
-// ---------- V1.1：外观与快捷键 / 关于 ----------
-(function initUiAbout() {
-  var THEME_KEY = "theme";
-  var LANG_KEY = "kanseki_lang";
-  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 忽略 */ } }
-  function paintTheme() {
-    var cur = ls(THEME_KEY) === "dark" ? "dark" : "light";
-    document.querySelectorAll("#uiThemeSeg button").forEach(function (b) {
-      b.classList.toggle("on", b.getAttribute("data-theme") === cur);
-    });
-  }
-  function paintLang() {
-    var cur = ls(LANG_KEY) === "t" ? "t" : "s";
-    document.querySelectorAll("#uiLangSeg button").forEach(function (b) {
-      b.classList.toggle("on", b.getAttribute("data-lang") === cur);
-    });
-  }
-  var seg = document.getElementById("uiThemeSeg");
-  if (seg) seg.addEventListener("click", function (e) {
-    var b = e.target.closest("button[data-theme]");
-    if (!b) return;
-    ss(THEME_KEY, b.getAttribute("data-theme"));
-    document.documentElement.setAttribute("data-theme", b.getAttribute("data-theme"));
-    paintTheme();
-  });
-  var seg2 = document.getElementById("uiLangSeg");
-  if (seg2) seg2.addEventListener("click", function (e) {
-    var b = e.target.closest("button[data-lang]");
-    if (!b) return;
-    ss(LANG_KEY, b.getAttribute("data-lang"));
-    paintLang();
-  });
-  paintTheme(); paintLang();
-  var gh = document.getElementById("aboutGithub");
-  if (gh) gh.addEventListener("click", function () {
-    var url = "https://github.com/AnkoMaryken";
-    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
-    else window.open(url, "_blank");
-  });
-  var web = document.getElementById("aboutWeb");
-  if (web) web.addEventListener("click", function () {
-    var url = "https://ankomaryken.github.io/kanseki-catalog/";
-    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
-    else window.open(url, "_blank");
-  });
-})();
-</script>
+<script src="ai-config.js"></script>
 <script>
 /* 主题跟随（localStorage['theme']，与主窗口/网页共用） */
 function applyTheme() {
@@ -493,6 +470,25 @@ function msg(id, text, kind) {
   var AI = window.KansekiAI;
   if (!AI) { msg('aiMsg', 'ai-config.js 未加载', 'err'); return; }
   var sel = document.getElementById('aiModel');
+  var provSel = document.getElementById('aiProvider');
+
+  function fillProviders(cur) {
+    var P = AI.PROVIDERS || {};
+    provSel.innerHTML = '';
+    Object.keys(P).forEach(function (id) {
+      var o = document.createElement('option');
+      o.value = id; o.textContent = P[id].name;
+      provSel.appendChild(o);
+    });
+    provSel.value = (cur && P[cur]) ? cur : 'deepseek';
+  }
+
+  function onProviderChange() {
+    var def = AI.providerDef ? AI.providerDef(provSel.value) : { models: [], endpoint: '', keyHint: '' };
+    document.getElementById('aiEndpoint').placeholder = def.endpoint || 'https://…/chat/completions';
+    document.getElementById('aiKey').placeholder = def.keyHint || 'sk-…';
+    fillModels(def.models || [], '');
+  }
 
   /* 先把内置候选填进去，再用接口返回的真实列表覆盖 —— 这样即使没联网/没填 Key，
      下拉也不会是空的，而填了 Key 之后列出的就是账号**确实可用**的模型。 */
@@ -519,6 +515,8 @@ function msg(id, text, kind) {
   fillModels(AI.MODELS, '');
 
   var c = AI.getConfig();
+  fillProviders(c.provider);
+  onProviderChange();
   document.getElementById('aiKey').value = c.key;
   document.getElementById('aiEmail').value = c.email;
   document.getElementById('aiEndpoint').value = c.endpoint;
@@ -527,7 +525,7 @@ function msg(id, text, kind) {
 
   function reloadModels(showMsg) {
     if (showMsg) msg('aiMsg', '正在向 DeepSeek 拉取可用模型…');
-    AI.setConfig({ key: document.getElementById('aiKey').value, endpoint: document.getElementById('aiEndpoint').value });
+    AI.setConfig({ provider: document.getElementById("aiProvider").value, key: document.getElementById('aiKey').value, endpoint: document.getElementById('aiEndpoint').value });
     AI.listModels().then(function (r) {
       if (r.ok && r.models.length) {
         fillModels(r.models, sel.value);
@@ -539,10 +537,18 @@ function msg(id, text, kind) {
       if (showMsg) msg('aiMsg', '未能获取模型列表：' + ((e && e.message) || e), 'err');
     });
   }
+  provSel.addEventListener('change', function () {
+    document.getElementById('aiEndpoint').value = '';
+    onProviderChange();
+  });
   document.getElementById('aiReloadModels').addEventListener('click', function () { reloadModels(true); });
   // 已填 Key 时自动拉一次（静默，失败不打扰）
   if (c.hasKey) reloadModels(false);
 
+  var helpBtn = document.getElementById('aiProviderHelp');
+  if (helpBtn) helpBtn.addEventListener('click', function () {
+    msg('aiMsg', '选择服务商后，填写该服务商控制台生成的 API Key 即可；「自定义」可填任意 OpenAI 兼容地址。');
+  });
   document.getElementById('aiEye').addEventListener('click', function () {
     var k = document.getElementById('aiKey');
     var show = k.type === 'password';
@@ -551,6 +557,7 @@ function msg(id, text, kind) {
   });
   document.getElementById('aiSave').addEventListener('click', function () {
     AI.setConfig({
+      provider: document.getElementById("aiProvider").value,
       key: document.getElementById('aiKey').value,
       model: document.getElementById('aiModel').value,
       endpoint: document.getElementById('aiEndpoint').value,
@@ -566,6 +573,7 @@ function msg(id, text, kind) {
   });
   document.getElementById('aiTest').addEventListener('click', function () {
     AI.setConfig({
+      provider: document.getElementById("aiProvider").value,
       key: document.getElementById('aiKey').value,
       model: document.getElementById('aiModel').value,
       endpoint: document.getElementById('aiEndpoint').value,
@@ -779,10 +787,71 @@ if (IS_TAURI) (async function initSync() {
     ss(LANG_KEY, b.getAttribute("data-lang"));
     paintLang();
   });
+  // ---- V2：侧栏默认收起 / 快捷键开关 ----
+  var SIDE_KEY = "kanseki_app_sidebar_collapsed";
+  var HOT_KEY = "kanseki_hotkeys";
+  function paintSide() {
+    var on = ls(SIDE_KEY) === "1";
+    document.querySelectorAll("#uiSideSeg button").forEach(function (b) {
+      b.classList.toggle("on", (b.getAttribute("data-side") === "1") === on);
+    });
+  }
+  function paintHot() {
+    var on = ls(HOT_KEY) !== "0";
+    document.querySelectorAll("#uiHotkeySeg button").forEach(function (b) {
+      b.classList.toggle("on", (b.getAttribute("data-hot") === "1") === on);
+    });
+  }
+  var sideSeg = document.getElementById("uiSideSeg");
+  if (sideSeg) sideSeg.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-side]");
+    if (!b) return;
+    ss(SIDE_KEY, b.getAttribute("data-side") === "1" ? "1" : "0");
+    paintSide();
+  });
+  var hotSeg = document.getElementById("uiHotkeySeg");
+  if (hotSeg) hotSeg.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-hot]");
+    if (!b) return;
+    ss(HOT_KEY, b.getAttribute("data-hot") === "1" ? "1" : "0");
+    paintHot();
+  });
+  paintSide(); paintHot();
+
   paintTheme(); paintLang();
+  // ---- V2：关于页版本/服务商/诊断 ----
+  function fillAbout() {
+    var AI = window.KansekiAI;
+    var v = (document.getElementById('aboutVer') || {}).textContent || '—';
+    var av2 = document.getElementById('aboutVer2'); if (av2) av2.textContent = v;
+    var ap = document.getElementById('aboutProvider');
+    if (ap) {
+      if (AI && AI.getConfig) {
+        var c = AI.getConfig();
+        ap.textContent = (c.providerName || c.provider || '—') + (c.hasKey ? '' : '（未配置 Key）');
+      } else ap.textContent = '未加载';
+    }
+  }
+  setTimeout(fillAbout, 400);
+  var diagBtn = document.getElementById('aboutDiag');
+  if (diagBtn) diagBtn.addEventListener('click', function () {
+    var AI = window.KansekiAI;
+    var c = AI && AI.getConfig ? AI.getConfig() : {};
+    var txt = [
+      '古代史及汉籍研究工具 · 诊断信息',
+      '版本: ' + ((document.getElementById('aboutVer') || {}).textContent || '—'),
+      '平台: ' + (window.__TAURI_INTERNALS__ ? 'Windows 桌面版' : '浏览器网页版'),
+      'AI 服务商: ' + (c.providerName || c.provider || '—') + ' / 模型: ' + (c.model || '—'),
+      'UA: ' + navigator.userAgent
+    ].join('\n');
+    function done() { alert('诊断信息已复制\n\n' + txt); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, done);
+    else done();
+  });
+
   var gh = document.getElementById("aboutGithub");
   if (gh) gh.addEventListener("click", function () {
-    var url = "https://github.com/AnkoMaryken";
+    var url = "https://github.com/AnkoMaryken/kanseki-catalog";
     if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
     else window.open(url, "_blank");
   });
@@ -794,54 +863,6 @@ if (IS_TAURI) (async function initSync() {
   });
 })();
 </script>
-<script>
-// ---------- V1.1：外观与快捷键 / 关于 ----------
-(function initUiAbout() {
-  var THEME_KEY = "theme";
-  var LANG_KEY = "kanseki_lang";
-  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 忽略 */ } }
-  function paintTheme() {
-    var cur = ls(THEME_KEY) === "dark" ? "dark" : "light";
-    document.querySelectorAll("#uiThemeSeg button").forEach(function (b) {
-      b.classList.toggle("on", b.getAttribute("data-theme") === cur);
-    });
-  }
-  function paintLang() {
-    var cur = ls(LANG_KEY) === "t" ? "t" : "s";
-    document.querySelectorAll("#uiLangSeg button").forEach(function (b) {
-      b.classList.toggle("on", b.getAttribute("data-lang") === cur);
-    });
-  }
-  var seg = document.getElementById("uiThemeSeg");
-  if (seg) seg.addEventListener("click", function (e) {
-    var b = e.target.closest("button[data-theme]");
-    if (!b) return;
-    ss(THEME_KEY, b.getAttribute("data-theme"));
-    document.documentElement.setAttribute("data-theme", b.getAttribute("data-theme"));
-    paintTheme();
-  });
-  var seg2 = document.getElementById("uiLangSeg");
-  if (seg2) seg2.addEventListener("click", function (e) {
-    var b = e.target.closest("button[data-lang]");
-    if (!b) return;
-    ss(LANG_KEY, b.getAttribute("data-lang"));
-    paintLang();
-  });
-  paintTheme(); paintLang();
-  var gh = document.getElementById("aboutGithub");
-  if (gh) gh.addEventListener("click", function () {
-    var url = "https://github.com/AnkoMaryken";
-    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
-    else window.open(url, "_blank");
-  });
-  var web = document.getElementById("aboutWeb");
-  if (web) web.addEventListener("click", function () {
-    var url = "https://ankomaryken.github.io/kanseki-catalog/";
-    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
-    else window.open(url, "_blank");
-  });
-})();
-</script>
+
 </body>
 </html>

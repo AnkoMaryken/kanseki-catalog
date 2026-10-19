@@ -201,7 +201,7 @@ body{font-family:var(--font-body);font-size:.9375rem;line-height:1.65;color:var(
 /* 表格行选中态（AI 单条复检的目标） */
 .ks-tbl tbody tr{cursor:pointer}
 .ks-tbl tbody tr:hover{background:var(--color-surface-hover)}
-.ks-tbl tbody tr.sel{background:var(--color-highlight);box-shadow:inset 3px 0 0 var(--color-primary)}
+.ks-tbl tbody tr.sel{background:var(--color-highlight)}
 .ks-tbl tbody tr.sel td:first-child{font-weight:700}
 
 /* 结果区：紧贴搜索栏下方 */
@@ -376,7 +376,7 @@ html.is-embed .app-header{ display:none !important; }
 .ks-main{ max-width:1400px; padding:0 28px 24px; gap:16px; animation:none; }
 .page-head{ display:flex; align-items:flex-start; gap:16px; padding:24px 2px 18px; margin:0; flex-wrap:wrap; }
 .page-head .ph-text{ flex:1 1 320px; min-width:0; }
-.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; font-family:var(--font-body); }
+.page-head h2{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; font-family:var(--font-display); }
 .page-head p{ font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:880px; margin:0; }
 .page-head .ph-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; flex:0 0 auto; }
 
@@ -408,6 +408,7 @@ html.is-embed .app-header{ display:none !important; }
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   background:var(--v3-card); border-radius:var(--v3-r-card);
   box-shadow:var(--v3-shadow-card); padding:14px 16px;
+  margin-bottom:16px; /* V2a：与下方结果白卡留一小段缝隙 */
 }
 .ks-field{
   position:relative; display:flex; align-items:center; gap:9px;
@@ -478,7 +479,9 @@ html.is-embed .app-header{ display:none !important; }
 }
 .ks-tbl tbody tr:last-child td{ border-bottom:0; }
 .ks-tbl tbody tr:hover td{ background:var(--v3-hover); }
-.ks-tbl tbody tr.sel td{ background:var(--v3-hover); box-shadow:inset 3px 0 0 var(--v3-t1); }
+.ks-tbl tbody tr.sel td{ background:var(--v3-hover); }
+/* V2a：AI 复检点击条目时不再出现焦点/选中粗线条 */
+.ks-tbl tbody tr.sel, .ks-tbl tbody tr.sel td{ box-shadow:none; outline:none; }
 .ks-tbl tbody tr.sel td:first-child{ font-weight:700; }
 .ks-tbl .c-book{ font-weight:600; color:var(--v3-t1); min-width:200px; }
 .ks-tbl .c-author{ color:var(--v3-t2); white-space:nowrap; }
@@ -537,7 +540,7 @@ html.is-embed .app-header{ display:none !important; }
   .header-inner{ padding:0 16px; height:52px; }
   .ks-main{ padding:0 16px 16px; }
   .page-head{ padding:16px 0 14px; gap:10px; }
-  .page-head h1{ font-size:18px; }
+  .page-head h2{ font-size:18px; }
   .page-head p{ font-size:11.5px; }
   .page-head .ph-actions{ width:100%; justify-content:flex-start; }
   .ks-searchrow{ padding:12px; border-radius:var(--v3-r-mid); }
@@ -556,11 +559,22 @@ html.is-embed .app-header{ display:none !important; }
     font-size: 12.5px; padding: 5px 11px; border-radius: 999px; }
   .web-nav-strip a:hover { background: var(--bg-badge, var(--color-surface-hover)); color: var(--text, var(--color-text)); }
   html.is-embed .web-nav-strip { display: none !important; }
+
+/* V2：点选行去掉焦点粗线（AI 复检点条目时不再出现粗线条） */
+.ks-tbl tbody tr:focus, .ks-tbl tbody tr:focus-visible,
+.ks-tbl tbody td:focus, .ks-tbl tbody td:focus-visible,
+#ksBody tr:focus, #ksBody tr:focus-visible,
+#ksBody td:focus, #ksBody td:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.ks-tbl tbody tr:focus-visible td { background: var(--color-surface-hover); }
 </style>
 <style id="kanseki-app-embed">/* kanseki-app-embed */
 .app-header{display:none !important}
 .filter-bar{top:0 !important}
 .doc-toolbar,.cat-toolbar{top:0 !important}
+.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead .pt h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}
 .web-nav-strip{display:none !important}
 .doc-body{max-height:calc(100vh - 132px) !important}
 .cat-scroll{max-height:calc(100vh - 132px) !important}
@@ -621,14 +635,12 @@ html.is-embed .app-header{ display:none !important; }
 
   <div class="ks-app" id="ksApp" hidden>
 
-    <!-- v3 页头：标题 + 一行说明 + 右侧动作区（导出 CSV / AI 复检 / 批量查询） -->
+    <!-- v3 页头：标题 + 右侧动作区（AI 复检 / 批量查询）。小字说明与导出入口按 V2a 要求移除。 -->
     <div class="page-head" id="pageHead">
       <div class="ph-text">
-        <h1 data-cn="古籍类目查询">古籍类目查询</h1>
-        <p data-cn="检索《中国古籍总目》全量著录，对照全球汉籍合璧工程类目，判定完全相同 / 可对应 / 无对应。">检索《中国古籍总目》全量著录，对照全球汉籍合璧工程类目，判定完全相同 / 可对应 / 无对应。</p>
+        <h2 data-cn="古籍类目查询">古籍类目查询</h2>
       </div>
       <div class="ph-actions">
-        <button class="ks-btn" id="ksExportBtn" type="button" data-cn="导出 CSV">导出 CSV</button>
         <button class="ks-btn" id="ksAiBtn" type="button" data-cn="AI 复检"
                 title="单击＝复检选中的那一条；未选中则复检搜索框内容。长按＝整页复检 / 提问">AI 复检</button>
         <button class="ks-btn primary" id="ksBatchBtn" type="button" aria-haspopup="true" aria-expanded="false"
@@ -658,29 +670,17 @@ html.is-embed .app-header{ display:none !important; }
       <button class="ks-btn" id="ksClear" type="button" data-cn="清空">清空</button>
     </div>
 
-    <!-- v3 结果白卡：卡头（命中 N 条 + 三态分布）/ 筛选 / 结果表 / 分页条 -->
+    <!-- v3 结果白卡：筛选 / 结果表 / 分页条（卡头统计按 V2a 要求移除） -->
     <div class="ks-card" role="region" aria-label="类目对照结果">
-      <div class="card-h">
-        <div class="ch-left">
-          <b class="card-title" id="ksTotal">正在载入…</b>
-          <span class="card-sub" id="ksCardSub"></span>
-        </div>
-        <div class="ch-right">
-          <span class="ks-badge" id="ksLevel" hidden></span>
-          <span class="ks-time" id="ksTime"></span>
-        </div>
-      </div>
-
       <!-- ============================================================
            批量查询（V10.2）
-           每行一条查询词，逐条给出命中数、判定分布与前几条示例，可导出 CSV。
+           每行一条查询词，逐条给出命中数、判定分布与前几条示例。
            ============================================================ -->
       <div class="ks-batch" id="ksBatchPanel" hidden>
         <div class="ks-batch-head">
           <span class="ks-batch-title" data-cn="批量查询">批量查询</span>
           <span class="ks-batch-hint" data-cn="每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条">每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条</span>
           <span class="ks-batch-spacer"></span>
-          <button class="ks-btn ks-btn-tiny" id="ksBatchExport" type="button" data-cn="导出结果 CSV">导出结果 CSV</button>
           <button class="ks-btn ks-btn-tiny" id="ksBatchClose" type="button" data-cn="收起">收起</button>
         </div>
         <textarea class="ks-batch-input" id="ksBatchInput" spellcheck="false"
@@ -764,8 +764,6 @@ html.is-embed .app-header{ display:none !important; }
         <button class="ks-pgbtn" id="ksNext" type="button" aria-label="下一页">›</button>
       </div>
     </div>
-
-    <div class="v3-note" id="ksNote" data-cn="三态判定：完全相同 / 可对应 / 无对应。支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）。">三态判定：完全相同 / 可对应 / 无对应。支持空格分词与错字容错；字段限定：书: 著: 类: 合: 判:（例：书:唐開成 判:无对应）。</div>
 
     <!-- ============================================================
          AI 弹窗（V9.2）—— 长按工具条上的「AI 复检」打开
@@ -1264,38 +1262,7 @@ function render(){
   }
   $('ksBody').innerHTML = html;
 
-  // 统计（v3 卡头：「命中 N 条」+ 判定三态分布）
-  var all = META.total || N;
-  var totalText = (state.raw && state.raw.trim() ? toDisplay('命中') + ' ' : toDisplay('共') + ' ') + fmtNum(total) + ' ' + toDisplay('条');
-  if (total !== N) totalText += ' · ' + toDisplay('全库') + ' ' + fmtNum(all) + ' ' + toDisplay('条');
-  $('ksTotal').textContent = totalText;
-
-  var vdOrder = ['完全相同', '可对应', '无对应'], vdCount = {}, vk;
-  for (k = 0; k < rows.length; k++) {
-    vk = k2s((CATS[catIdx[rows[k]]] || [])[5] || '');
-    if (vk) vdCount[vk] = (vdCount[vk] || 0) + 1;
-  }
-  var vdParts = [];
-  for (var vo = 0; vo < vdOrder.length; vo++) {
-    if (vdCount[vdOrder[vo]]) vdParts.push(toDisplay(vdOrder[vo]) + ' ' + fmtNum(vdCount[vdOrder[vo]]));
-  }
-  for (vk in vdCount) {
-    if (Object.prototype.hasOwnProperty.call(vdCount, vk) && vdOrder.indexOf(vk) < 0) {
-      vdParts.push(toDisplay(vk) + ' ' + fmtNum(vdCount[vk]));
-    }
-  }
-  var subEl = $('ksCardSub');
-  if (subEl) subEl.textContent = vdParts.length ? (toDisplay('判定：') + vdParts.join(' · ')) : '';
-
-  // 命中级别
-  var badge = $('ksLevel');
-  if (state.terms.length && state.level) {
-    badge.hidden = false;
-    badge.textContent = toDisplay(LEVEL_TEXT[state.level] || '');
-  } else {
-    badge.hidden = true;
-    badge.textContent = '';
-  }
+  // V2a：结果卡头统计行已移除（命中数 / 判定分布 / 级别 / 耗时不再展示）
 
   // 降级提示
   var hintEl = $('ksHint');
@@ -1312,7 +1279,6 @@ function render(){
   $('ksRange').textContent = total ? (toDisplay('显示') + ' ' + (start + 1) + '-' + end + ' / ' + fmtNum(total)) : '';
   $('ksPrev').disabled = state.page <= 1;
   $('ksNext').disabled = state.page >= pages;
-  $('ksTime').textContent = state.ms ? (state.ms.toFixed(0) + ' ms') : '';
 }
 
 /* ============================================================
@@ -1397,53 +1363,6 @@ function setDisplayLang(lang, force, fromStorage){
     try { langListeners[i](next); } catch (e) { /* 订阅者异常不影响主流程 */ }
   }
   return displayLang;
-}
-
-/* ============================================================
-   导出 CSV（当前筛选的全部结果，非仅本页）
-   ============================================================ */
-function glyph(text){ return displayLang === 't' ? String(text == null ? '' : text) : k2s(String(text == null ? '' : text)); }
-function stamp(){
-  var d = new Date(), p = function(n){ return (n < 10 ? '0' : '') + n; };
-  return '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
-}
-function buildCSV(){
-  var heads = ['序號','部','類','屬','書名','著者','分類路徑','合璧中是否有相同類目','是否一致','合璧備註'];
-  var out = [heads.map(function(h){ return '"' + glyph(h).replace(/"/g, '""') + '"'; }).join(',')];
-  var rows = state.rows || [];
-  for (var k = 0; k < rows.length; k++) {
-    var i = rows[k], ci = catIdx[i], c = CATS[ci] || [];
-    var cells = [String(i + 1), c[0] || '', c[1] || '', c[2] || '', books[i], authors[i], PATHS[ci], HEL[ci], c[5] || '', c[6] || ''];
-    out.push(cells.map(function(v){ return '"' + glyph(v).replace(/"/g, '""') + '"'; }).join(','));
-  }
-  return '\uFEFF' + out.join('\r\n') + '\r\n';
-}
-/* 导出 CSV（V9.3）：
-   桌面版由 Rust 写到系统下载目录并回传**绝对路径**，再交给 APP 外壳在主界面
-   右下角弹通知栏（可「打开文件 / 打开所在文件夹」）—— 不再是「不知道下哪了」。
-   网页版没有外壳，退回浏览器下载 + 页内右下角轻提示。 */
-function exportCSV(){
-  var csv = buildCSV();
-  var name = '古籍类目查询_' + stamp() + '.csv';
-  if (window.KansekiAI && window.KansekiAI.saveExport) {
-    window.KansekiAI.saveExport(name, csv).then(function (r) {
-      if (!r.ok) { aiLocalToast('导出失败：' + (r.error || ''), true); return; }
-      if (!window.KansekiAI.notifyExport({ name: r.name, path: r.path, kind: 'CSV', size: csv.length })) {
-        aiLocalToast('已导出 CSV：' + r.name + '（请查看浏览器下载）', false);
-      }
-    });
-    return;
-  }
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
-  aiLocalToast('已导出 CSV：' + name + '（请查看浏览器下载）', false);
 }
 
 /* ============================================================
@@ -1546,7 +1465,7 @@ function histInit(){
    批量查询（V10.2）
    ------------------------------------------------------------
    每行一条查询词，复用与「检索」完全相同的匹配逻辑（runSearch），
-   逐条给出命中数、判定分布与前几条示例，可导出 CSV。
+   逐条给出命中数、判定分布与前几条示例。
    实现要点：批量期间把 render() 短路（batchMode），跑完再按原状态重绘一次，
    因此批量查询不会打乱当前列表/筛选/分页。
    ============================================================ */
@@ -1631,29 +1550,6 @@ function renderBatch(){
   body.innerHTML = html;
 }
 
-function exportBatch(){
-  if (!batchResults.length) { return; }
-  var lines = ['序号,查询词,命中数,判定分布,示例1,示例2,示例3'];
-  for (var i = 0; i < batchResults.length; i++) {
-    var r = batchResults[i];
-    var dist = Object.keys(r.counts).map(function(k){ return fmtRec(k) + ' ' + r.counts[k]; }).join(' ');
-    var cells = [String(i + 1), r.q, String(r.n), dist, r.sample[0] || '', r.sample[1] || '', r.sample[2] || ''];
-    lines.push(cells.map(function(s){ return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }).join(','));
-  }
-  var csv = '\ufeff' + lines.join('\r\n') + '\r\n';
-  var name = '古籍类目_批量查询结果_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.csv';
-  if (window.KansekiAI && window.KansekiAI.saveExport) {
-    window.KansekiAI.saveExport(name, csv).then(function(r){
-      if (window.KansekiAI.notifyExport) window.KansekiAI.notifyExport({ name: r.name, path: r.path, kind: 'CSV', size: csv.length });
-    }).catch(function(){});
-  } else {
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = name; a.click();
-    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
-  }
-}
-
 function batchPanel(open){
   var p = $('ksBatchPanel'), b = $('ksBatchBtn');
   if (!p) return;
@@ -1672,7 +1568,6 @@ function batchInit(){
     batchResults = []; renderBatch();
     var st = $('ksBatchStatus'); if (st) st.textContent = '';
   });
-  var ex = $('ksBatchExport'); if (ex) ex.addEventListener('click', exportBatch);
   var cl = $('ksBatchClose'); if (cl) cl.addEventListener('click', function(){ batchPanel(false); });
   panel.addEventListener('click', function(e){ e.stopPropagation(); });
 }
@@ -1708,7 +1603,6 @@ function bindEvents(){
   });
   $('ksGo').addEventListener('click', function(){ commit(); runSearch(input.value); histPush(input.value); });
   $('ksClear').addEventListener('click', clearAll);
-  $('ksExportBtn').addEventListener('click', exportCSV);
   histInit();
   batchInit();
 

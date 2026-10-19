@@ -31,11 +31,11 @@ html[data-theme="dark"]{
 html{-webkit-text-size-adjust:100%;color-scheme:light dark}
 body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-family:var(--font);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background-color .25s ease,color .25s ease}
 .page{max-width:1080px;margin:0 auto;padding:26px var(--gap-page) 44px}
-.phead{display:flex;align-items:flex-start;gap:16px;padding:2px 2px 18px}
-.phead .pt{flex:1;min-width:0}
-.phead h1{font-size:20px;font-weight:700;line-height:1.3;margin:0 0 4px;letter-spacing:-.01em}
-.phead .pd{font-size:12px;color:var(--t3);line-height:1.6;margin:0}
-.phead .pa{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px}
+.page-head{display:flex;align-items:center;gap:16px;padding:2px 2px 18px;flex-wrap:wrap}
+.page-head .phead-text{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.page-head h2{font-size:20px;font-weight:700;line-height:1.35;margin:0;letter-spacing:-.01em}
+.page-head .cur-ver{font-size:12px;font-weight:600;color:var(--t3);font-variant-numeric:tabular-nums;letter-spacing:0}
+.page-head .ph-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px;margin-left:auto}
 .tool-btn{height:32px;padding:0 14px;border:0;border-radius:var(--r-pill);background:var(--bg-badge);color:var(--t1);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:background .18s var(--ease)}
 .tool-btn:hover{background:var(--bg-badge-hover)}
 .tool-btn:active{transform:scale(.98)}
@@ -62,8 +62,8 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 .cl-points li + li{margin-top:1px}
 @media (max-width:720px){
   .page{padding:18px 14px 32px}
-  .phead{flex-wrap:wrap;gap:10px}
-  .phead .pa{width:100%;padding-top:0}
+  .page-head{flex-wrap:wrap;gap:10px}
+  .page-head .ph-actions{width:100%;padding-top:0}
   .cl-sum{flex-wrap:wrap;row-gap:5px;padding:12px 14px}
   .cl-points{margin:0 14px}
 }
@@ -92,20 +92,33 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
   </nav>
 
 <main class="page">
-  <header class="phead">
-    <div class="pt">
-      <h1>更新日志</h1>
-      <p class="pd">共 70 个版本 · 当前 v1.1.0（桌面版）· 默认展开最近 2 个版本</p>
+  <header class="page-head">
+    <div class="phead-text">
+      <h2>更新日志 <span class="cur-ver">v1.2.0</span></h2>
     </div>
-    <div class="pa">
+    <div class="ph-actions">
       <button type="button" class="tool-btn" id="btnExpand">展开全部</button>
       <button type="button" class="tool-btn" id="btnCollapse">收起全部</button>
     </div>
   </header>
   <div class="cl-list" id="clList">
-      <details class="cl-item" data-ver="v1.1.0" data-date="2026-10-19" open>
+      <details class="cl-item" data-ver="v1.2.0" data-date="2026-10-19" open>
   <summary class="cl-sum">
-    <span class="cl-ver">v1.1.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">交互重做</span><span class="cl-date">2026-10-19</span>
+    <span class="cl-ver">v1.2.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">界面与工作台</span><span class="cl-date">2026-10-19</span>
+  </summary>
+  <ul class="cl-points">
+    <li>全站统一页面大标题；标题栏按钮尺寸对齐并留出边框间距，GitHub 指向项目仓库，窗口菜单移除「宽广」</li>
+    <li>工作台重做：时段问候语、每日推荐（752 条，可刷新）、问问 AI、工作日历待办；新增荧光绿点缀</li>
+    <li>侧栏移除「设置」，改由左下角用户信息栏进入；个人中心去掉右上角首页/主题按钮</li>
+    <li>纪年查询：删置顶小窗与导出 CSV，「今年」改为「清除」，全部年份每页 50 年</li>
+    <li>类目查询：删统计行与说明、去掉导出，修复点选条目出现粗线；日藏检索新增 KD 源站按钮、左右分栏、筛选加宽</li>
+    <li>公文书馆：删分类浏览框与页头小字，命中/分页移到结果下方；细则章节树吸顶；使用介绍重写为整篇文章</li>
+    <li>设置窗口完善「外观与快捷键」「关于」，API 管理支持 DeepSeek / OpenAI / 智谱 / Kimi / 通义 / 自定义</li>
+  </ul>
+</details>
+  <details class="cl-item" data-ver="v1.1.0" data-date="2026-10-19" open>
+  <summary class="cl-sum">
+    <span class="cl-ver">v1.1.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">交互重做</span><span class="cl-date">2026-10-19</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
   </summary>
   <ul class="cl-points">
     <li>标题栏重做：简/繁、GitHub、明暗主题、下载情况集中到右上角，移除左侧旧简繁按钮</li>
@@ -115,7 +128,7 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
     <li>设置窗口新增「外观与快捷键」「关于」；各页面删除页内重复切换条与冗余说明</li>
   </ul>
 </details>
-  <details class="cl-item" data-ver="v1.0.0" data-date="2026-10-18">
+  <details class="cl-item" data-ver="v1.0.0" data-date="2026-10-18" open>
         <summary class="cl-sum">
           <span class="cl-ver">v1.0.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">正式版</span><span class="cl-date">2026-10-18</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
@@ -127,7 +140,7 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
           <li>分类表精简为部类介绍与代表古籍，工作手册 PDF 直接内嵌</li>
         </ul>
       </details>
-      <details class="cl-item" data-ver="v10.6.0" data-date="2026-10-17" open>
+      <details class="cl-item" data-ver="v10.6.0" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.6.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>

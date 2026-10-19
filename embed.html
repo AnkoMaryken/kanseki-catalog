@@ -32,11 +32,10 @@ html[data-theme="dark"]{
 html{-webkit-text-size-adjust:100%;color-scheme:light dark}
 body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-family:var(--font);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background-color .25s ease,color .25s ease}
 .page{max-width:1080px;margin:0 auto;padding:26px var(--gap-page) 44px}
-.phead{display:flex;align-items:flex-start;gap:16px;padding:2px 2px 18px}
-.phead .pt{flex:1;min-width:0}
-.phead h1{font-size:20px;font-weight:700;line-height:1.3;margin:0 0 4px;letter-spacing:-.01em}
-.phead .pd{font-size:12px;color:var(--t3);line-height:1.6;margin:0}
-.phead .pa{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px}
+.page-head{display:flex;align-items:center;gap:16px;padding:2px 2px 18px;flex-wrap:wrap}
+.page-head .phead-text{flex:1;min-width:0}
+.page-head h2{font-size:20px;font-weight:700;line-height:1.35;margin:0;letter-spacing:-.01em}
+.page-head .ph-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto;padding-top:2px;margin-left:auto}
 .btn{height:36px;padding:0 16px;border:0;border-radius:var(--r-pill);background:var(--brand);color:var(--brand-fg);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
 .btn:hover{box-shadow:var(--shadow-brand)}
 .btn:active{transform:scale(.98)}
@@ -56,14 +55,15 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 /* 快捷链接网格 */
 .jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
 .jump-grid[hidden]{display:none}
-.jump-card{position:relative;display:flex;align-items:center;background:var(--bg-card);border-radius:var(--r-mid);box-shadow:var(--shadow-card);padding:14px 34px 14px 16px;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
+.jump-card{position:relative;display:flex;align-items:center;background:var(--bg-card);border-radius:var(--r-mid);box-shadow:var(--shadow-card);padding:13px 30px 13px 14px;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}
 .jump-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-float)}
-.jc-link{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:inherit;text-decoration:none;border-radius:12px;outline-offset:4px}
-.jump-ic{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--bg-fill);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--t2);font-family:var(--font-serif);letter-spacing:-.02em}
+.jc-link{display:flex;align-items:center;gap:10px;flex:1;min-width:0;color:inherit;text-decoration:none;border-radius:12px;outline-offset:4px}
+.jump-ic{width:36px;height:36px;flex:0 0 36px;border-radius:12px;background:var(--bg-fill);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--t2);font-family:var(--font-serif);letter-spacing:-.02em}
 .jump-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .jump-tx b{font-size:12.5px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45}
-.jump-tx span{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
-.jump-card .ra{color:var(--t4);font-size:12px;flex:0 0 auto;margin-left:8px;transition:color .18s var(--ease),transform .18s var(--ease)}
+.jump-tx .jc-url{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.jump-tx .jc-note{font-size:10.5px;color:var(--t3);line-height:1.35;margin-top:1px;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-width:100%}
+.jump-card .ra{color:var(--t4);font-size:12px;flex:0 0 auto;margin-left:6px;transition:color .18s var(--ease),transform .18s var(--ease)}
 .jump-card:hover .ra{color:var(--t2);transform:translate(1px,-1px)}
 
 /* 自定义卡片的编辑 / 删除（悬停或键盘聚焦时出现） */
@@ -113,8 +113,8 @@ html[data-theme="dark"] .panel-err{color:#FF8A8E}
 
 @media (max-width:720px){
   .page{padding:18px 14px 32px}
-  .phead{flex-wrap:wrap;gap:10px}
-  .phead .pa{padding-top:0}
+  .page-head{flex-wrap:wrap;gap:10px}
+  .page-head .ph-actions{padding-top:0;width:100%}
   .toolbar{flex-wrap:wrap;padding:10px 12px}
   .field{flex:1 1 100%;order:1}
   .tb-count{order:2}
@@ -147,12 +147,11 @@ html[data-theme="dark"] .panel-err{color:#FF8A8E}
   </nav>
 
 <main class="page">
-  <header class="phead">
-    <div class="pt">
-      <h1>快速跳转</h1>
-      <p class="pd">常用站点与检索入口 · 链接只保存在本机</p>
+  <header class="page-head">
+    <div class="phead-text">
+      <h2>快速跳转</h2>
     </div>
-    <div class="pa">
+    <div class="ph-actions">
       <button type="button" class="btn" id="btnAdd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>添加标签</button>
     </div>
   </header>
@@ -202,15 +201,19 @@ html[data-theme="dark"] .panel-err{color:#FF8A8E}
 (function () {
   'use strict';
 
-  // ===== 预置快捷网站（与旧版完全一致） =====
+  // ===== 预置快捷网站（原 7 条 + 新增 4 条；note 为可选备注，仅用于卡片显示） =====
   var PRESET_LINKS = [
     { name: '典津全球汉籍影像开放集成系统', url: 'https://guji.cckb.cn/', icon: '典' },
+    { name: '识典古籍', url: 'https://www.shidianguji.com/', icon: '识', note: '古籍在线阅读平台' },
     { name: '国学大全', url: 'https://www.gxdq.com/', icon: '国' },
     { name: '日本所藏中文古籍数据库', url: 'https://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=', icon: '漢' },
     { name: '日本国立公文书馆检索页面', url: 'https://www.digital.archives.go.jp/', icon: '文' },
     { name: '古籍觅宝', url: 'https://guji99.com/', icon: '觅' },
+    { name: '读秀学术搜索', url: 'https://new.duxiu.com/login.jsp', icon: '读', note: '可使用 CARSI 烟台大学账号登录' },
     { name: 'PaddleOCR', url: 'https://aistudio.baidu.com/paddleocr', icon: 'OCR' },
-    { name: 'GitHub', url: 'https://github.com/', icon: 'Gh' }
+    { name: 'GitHub', url: 'https://github.com/', icon: 'Gh' },
+    { name: 'DeepSeek 网页版', url: 'https://chat.deepseek.com/', icon: 'DS' },
+    { name: 'DeepSeek 桌面版下载', url: 'https://www.deepseek.com/harness/', icon: 'DS' }
   ];
 
   // ===== 用户自定义标签：沿用 localStorage 'quickLinksCustom'（数组，元素 {name,url,icon}） =====
@@ -289,6 +292,12 @@ html[data-theme="dark"] .panel-err{color:#FF8A8E}
     sp.textContent = displayUrl(l.url);
     tx.appendChild(b);
     tx.appendChild(sp);
+    if (l.note) {
+      var nt = document.createElement('span');
+      nt.className = 'jc-note';
+      nt.textContent = l.note;
+      tx.appendChild(nt);
+    }
 
     var ra = document.createElement('span');
     ra.className = 'ra';
@@ -329,7 +338,7 @@ html[data-theme="dark"] .panel-err{color:#FF8A8E}
     var all = [];
     PRESET_LINKS.forEach(function (l) { all.push({ link: l, kind: 'preset', idx: -1 }); });
     customLinks.forEach(function (l, i) {
-      all.push({ link: { name: l.name || hostOf(l.url), url: l.url, icon: l.icon || iconOf(l.name, l.url) }, kind: 'custom', idx: i });
+      all.push({ link: { name: l.name || hostOf(l.url), url: l.url, icon: l.icon || iconOf(l.name, l.url), note: l.note || '' }, kind: 'custom', idx: i });
     });
     var shown = all.filter(function (x) {
       if (!q) return true;

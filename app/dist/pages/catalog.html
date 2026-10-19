@@ -94,7 +94,17 @@ a{color:inherit}
 .phead-text{flex:1;min-width:0}
 .page-head h2{font-family:var(--font);font-size:var(--fs-page);font-weight:700;color:var(--t1);margin:0 0 4px;letter-spacing:-.01em;line-height:1.35}
 .page-head p{margin:0;font-size:var(--fs-sub);color:var(--t3);line-height:1.6}
+.page-head p:empty{display:none}
 .ph-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto;flex-wrap:wrap}
+
+/* 细则查阅：页头吸顶（版本切换 / 章节树随时可点）。
+   top 由 JS 按站点顶栏实际高度写入 --ph-sticky-top：网页版约 56px，桌面内嵌（无顶栏）为 0；
+   z-index 90 低于站点顶栏 100、高于正文，浮出面板 220 不受影响 */
+.page-head.is-sticky{position:sticky;top:var(--ph-sticky-top,0px);z-index:90;background:var(--bg-page);padding-top:10px;padding-bottom:14px;transition:box-shadow .18s var(--ease)}
+.page-head.is-sticky.is-stuck{box-shadow:0 10px 20px -16px rgba(0,0,0,.35)}
+[data-theme="dark"] .page-head.is-sticky.is-stuck{box-shadow:0 10px 20px -16px rgba(0,0,0,.9)}
+/* 工作手册：说明放在标题右侧同一行 */
+.page-head.is-inline-desc .phead-text{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 
 /* ===== 浮出式章节树（与 v3 原型 .float-host / .tool-btn / .float-panel 同款） ===== */
 .float-host{position:relative;display:inline-block}
@@ -245,11 +255,13 @@ a{color:inherit}
   .header-inner .header-nav{display:none !important}
   .header-actions{display:none !important}
   .page{padding:20px 16px 48px}
-  .page-head{gap:12px;padding-bottom:14px}
-  .ph-actions{width:100%;margin-left:0}
-  .ph-actions .float-host{width:100%}
-  .ph-actions .tool-btn{width:100%;justify-content:center}
+  .page-head{gap:8px;padding-bottom:12px}
+  .page-head.is-sticky{padding-top:8px;padding-bottom:10px}
+  .ph-actions{width:100%;margin-left:0;gap:6px}
+  .ph-actions .float-host{width:auto}
+  .ph-actions .tool-btn{width:auto}
   .ph-actions .float-panel{left:auto;right:0;width:min(360px,calc(100vw - 32px));min-width:0}
+  #exportPdfBtn{display:none}
   .rule-toolbar{padding:10px 12px;gap:10px}
   .doc-search{min-width:0;width:100%}
   .doc-card{padding:18px 16px 24px;border-radius:var(--r-mid)}
@@ -295,6 +307,7 @@ a{color:inherit}
 .docs-sidebar{display:none !important}
 .docs-layout{grid-template-columns:minmax(0,1fr) !important;max-width:1400px;padding-top:.9rem}
 @media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}
+.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead .pt h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}
 .web-nav-strip{display:none !important}
 .doc-body{max-height:calc(100vh - 132px) !important}
 .cat-scroll{max-height:calc(100vh - 132px) !important}
@@ -424,19 +437,19 @@ var ICON_TREE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9M4 1
 var ICON_CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var ICON_PDF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8.5 17v-4h1.6a1.5 1.5 0 0 1 0 3H8.5"/></svg>';
 
-/* 页头说明：每 tab 只留一行 12px 灰字（v3 rules 视图的 .pd） */
+/* 页头说明：每 tab 只留一行 12px 灰字；细则/分类表按 V2c 要求不再显示说明 */
 var TAB_META = [
   {
     title: '细则查阅',
-    desc: '全球汉籍合璧工程境外汉籍编目工作细则 · 含 2025.10 / 2023.09 两版，支持全文检索'
+    desc: ''
   },
   {
     title: '分类表查询',
-    desc: '标准四部分类（经、史、子、集）加类丛部与附新学类 · 66 类 188 属，含收录说明与代表古籍'
+    desc: ''
   },
   {
     title: '工作手册',
-    desc: '《全球汉籍合璧工程精华编》整理工作手册（修订）· 2023 修订版 · 约 1.79 MB · 内嵌预览'
+    desc: '全球汉籍合璧工程精华编整理工作手册（2023修订版）'
   }
 ];
 
@@ -492,10 +505,18 @@ function treeOf(doc){
   }
   return out;
 }
+/* 副标题规范化（V2c）：2025 →（2025.10修订）；2023 →（2023.09修订）
+   数据文件不动，只在渲染时去掉「，征求意见稿」「修订稿」等字样 */
+function cleanDocSubtitle(t){
+  var s = String(t == null ? '' : t);
+  s = s.replace(/[，,、]\s*征求意见稿/g, '').replace(/\s*征求意见稿/g, '');
+  s = s.replace(/修订稿/g, '修订');
+  return s;
+}
 function docHtml(doc){
   var h = '';
   if (doc[0] && doc[0].title) h += '<div class="doc-title" id="docTitle">' + sc(doc[0].title) + '</div>';
-  if (doc[1] && doc[1].title) h += '<div class="doc-subtitle">' + sc(doc[1].title) + '</div>';
+  if (doc[1] && doc[1].title) h += '<div class="doc-subtitle" id="docSubtitle">' + sc(cleanDocSubtitle(doc[1].title)) + '</div>';
   for (var i = 2; i < doc.length; i++) {
     var sec = doc[i] || {};
     var lv = sectionLevel(sec.title);
@@ -506,12 +527,23 @@ function docHtml(doc){
 }
 
 /* ============================================================
- * 通用：滚动定位 / 章节高亮
+ * 通用：滚动定位 / 章节高亮 / 吸顶页头
  * ============================================================ */
+/* 吸顶页头（含站点顶栏偏移）让出的实际高度；非细则 tab 返回 0 */
+function stickyHeadClearance(){
+  var head = document.querySelector('.page-head.is-sticky');
+  if (!head) return 0;
+  var cs = window.getComputedStyle(head);
+  if (cs.position !== 'sticky' && cs.position !== '-webkit-sticky') return 0;
+  var top = parseFloat(cs.top) || 0;
+  return Math.round(head.getBoundingClientRect().height + top);
+}
 function scrollToSection(id){
   var el = document.getElementById('sec-' + id);
   if (!el) return;
-  var top = el.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - 84;
+  var clearance = stickyHeadClearance();
+  var offset = clearance ? clearance + 12 : 84;
+  var top = el.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - offset;
   window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 function setActiveChapter(id){
@@ -528,15 +560,18 @@ function syncSpy(){
   if (!db) return;
   var secs = db.querySelectorAll('.stitle[id^="sec-"]');
   if (!secs.length) return;
+  var line = 130;
+  var head = document.querySelector('.page-head.is-sticky');
+  if (head) line = Math.max(90, head.getBoundingClientRect().bottom + 40);
   var current = secs[0];
   for (var i = 0; i < secs.length; i++) {
-    if (secs[i].getBoundingClientRect().top <= 130) current = secs[i]; else break;
+    if (secs[i].getBoundingClientRect().top <= line) current = secs[i]; else break;
   }
   setActiveChapter(current.id.slice(4));
 }
 window.addEventListener('scroll', function(){
   if (spyRaf) return;
-  spyRaf = window.requestAnimationFrame(function(){ spyRaf = null; syncSpy(); });
+  spyRaf = window.requestAnimationFrame(function(){ spyRaf = null; syncSpy(); updateStuckState(); });
 }, { passive: true });
 
 /* ============================================================
@@ -1225,12 +1260,42 @@ function renderPdf(){
 /* ============================================================
  * 页头 / tab 切换 / 深链
  * ============================================================ */
+/* 站点顶栏实际高度（网页版 sticky 顶栏；桌面内嵌由构建隐藏 → 0） */
+function stickyTopOffset(){
+  var hdr = document.querySelector('.app-header');
+  if (!hdr) return 0;
+  var cs = window.getComputedStyle(hdr);
+  if (cs.display === 'none' || cs.visibility === 'hidden') return 0;
+  var h = hdr.getBoundingClientRect().height;
+  return h > 0 ? Math.round(h) : 0;
+}
+/* 细则查阅吸顶：tab 0 时 .page-head 固定在顶栏下方；tab 2 说明与标题同一行 */
+function refreshPageHeadSticky(){
+  var head = document.querySelector('.page-head');
+  if (!head) return;
+  document.documentElement.style.setProperty('--ph-sticky-top', stickyTopOffset() + 'px');
+  head.classList.toggle('is-sticky', tab === 0);
+  head.classList.toggle('is-inline-desc', tab === 2);
+  updateStuckState();
+}
+function updateStuckState(){
+  var head = document.querySelector('.page-head');
+  if (!head || !head.classList.contains('is-sticky')) { if (head) head.classList.remove('is-stuck'); return; }
+  var top = stickyTopOffset();
+  head.classList.toggle('is-stuck', head.getBoundingClientRect().top <= top + 0.5);
+}
+window.addEventListener('resize', function(){
+  if (refreshPageHeadSticky._t) clearTimeout(refreshPageHeadSticky._t);
+  refreshPageHeadSticky._t = setTimeout(function(){ refreshPageHeadSticky._t = null; refreshPageHeadSticky(); }, 120);
+});
+
 function updatePageHead(){
   var meta = TAB_META[tab] || TAB_META[0];
   var title = document.getElementById('pageTitle');
   var desc = document.getElementById('pageDesc');
   if (title) title.textContent = meta.title;
   if (desc) desc.textContent = meta.desc;
+  refreshPageHeadSticky();
 }
 
 function clearPageHeadActions(){

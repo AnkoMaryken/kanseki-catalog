@@ -84,7 +84,7 @@ function ensurePanel() {
   d.innerHTML = `
     <div class="dl-modal dlb-modal" role="dialog" aria-modal="true">
       <div class="dl-head">
-        <h3>批量下载 — 先核对书目，再排队下载</h3>
+        <h3>批量下载</h3>
         <button class="dl-x" type="button" data-dlb-close title="关闭">×</button>
       </div>
       <div class="dl-body">
@@ -106,8 +106,7 @@ function ensurePanel() {
               </span></label>
             <div class="dlb-tpl">
               <div class="dl-tpl-head"><span>命名方式</span>
-                <select id="dlbPreset" class="dl-preset"></select>
-                <span class="dlb-tpl-hint">三套各自独立；点 ▾ 选要拼进去的字段</span></div>
+                <select id="dlbPreset" class="dl-preset"></select></div>
               <div class="dlb-tpl-row">
                 <label class="dl-field"><span>目录名</span>
                   <span class="dlb-tpl-input"><input id="dlbTplFolder" type="text" spellcheck="false"><button class="dlb-tok-btn" type="button" data-dlb-tok="dlbTplFolder" title="插入字段">▾</button></span></label>
@@ -126,9 +125,6 @@ function ensurePanel() {
                 <input id="dlbDelay" type="number" min="0" step="100" value="1200"></label>
             </div>
             <label class="dl-check"><input type="checkbox" id="dlbZip" checked> 每本完成后打包为 ZIP</label>
-            <div class="dlb-tip">提示：先点「读取书目信息」，核对书名与册数无误后再「加入队列并开始」。
-              队列进度会写进输出目录的 <code>_批量队列.json</code>（整批完成后自动删除，便于中断续跑）；
-              每本书的目录里最终只留 PDF 与压缩包。</div>
           </div>
         </div>
 

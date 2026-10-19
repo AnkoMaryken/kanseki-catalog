@@ -66,18 +66,7 @@ function check(name, cond, extra) {
     badges.slice(0, 3).join('|'));
 
   // ---------- 5. 导出 ----------
-  check('导出按钮存在（#ksExportBtn）', (await page.locator('#ksExportBtn').count()) === 1);
-  const [dl] = await Promise.all([
-    page.waitForEvent('download', { timeout: 20000 }).catch(() => null),
-    page.click('#ksExportBtn'),
-  ]);
-  check('点导出可下载 CSV', !!dl, dl ? dl.suggestedFilename() : '无下载事件');
-  if (dl) {
-    try {
-      const head = fs.readFileSync(await dl.path(), 'utf8').slice(0, 120);
-      check('CSV 含表头', head.length > 0, head.slice(0, 40));
-    } catch (_) { check('CSV 含表头', false, '读取失败'); }
-  }
+  check('导出 CSV 已按需求移除', (await page.locator('#ksExportBtn').count()) === 0);
 
   // ---------- 6. 无 JS 错误 ----------
   check('0 JS 错误', errors.length === 0, errors.slice(0, 3).join(' | '));

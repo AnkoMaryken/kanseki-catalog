@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/v3.css">
+  <link rel="stylesheet" href="css/wb2.css">
 </head>
 <body>
 <div id="app" class="app-shell">
@@ -44,7 +45,6 @@
           <div class="st-menu-label">窗口尺寸</div>
           <div class="st-menu-group">
             <button class="st-menu-item" data-size="1280x800" type="button" role="menuitem"><span>标准</span><kbd>1280×800</kbd></button>
-            <button class="st-menu-item" data-size="1600x1000" type="button" role="menuitem"><span>宽广</span><kbd>1600×1000</kbd></button>
             <button class="st-menu-item" data-size="1100x720" type="button" role="menuitem"><span>紧凑</span><kbd>1100×720</kbd></button>
           </div>
         </div>
@@ -212,7 +212,7 @@
       <div class="side-label">检索</div>
       <nav class="side-nav">
         <a href="#/kansekidb" data-view="kansekidb" class="nav-item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><rect x="3" y="8" width="18" height="12" rx="1.5"/><path d="M9 20v-5h6v5"/></svg><span>汉籍检索（日本）</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><rect x="3" y="8" width="18" height="12" rx="1.5"/><path d="M9 20v-5h6v5"/></svg><span>日本所藏汉籍检索</span>
         </a>
         <a href="#/najdb" data-view="najdb" class="nav-item">
           <span class="nav-ico-da" aria-hidden="true">DA</span><span>日本国立公文书馆</span>
@@ -257,10 +257,6 @@
         <a href="#/changelog" data-view="changelog" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg><span>更新日志</span>
         </a>
-        <button type="button" class="nav-item" id="navSettings" data-view="settings"
-                title="打开设置窗口（API / 同步 / 外观与快捷键 / 关于）">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg><span>设置</span>
-        </button>
       </nav>
     </div>
     </div>
@@ -324,7 +320,9 @@
         <header class="av-head kdb-head">
           <div class="av-head-tx">
             <h2>日本所藏汉籍检索</h2>
-            <p>全國漢籍データベース · 京都大学人文科学研究所 · 76 家机构 · 约 92.5 万条记录</p>
+          </div>
+          <div class="av-head-act">
+            <button type="button" class="av-head-kd" id="kdbSrcBtn" title="查看源站：全國漢籍データベース">KD</button>
           </div>
         </header>
         <form class="av-card kdb-card" id="kdbForm">
@@ -353,7 +351,7 @@
                 <input id="kdbPb" type="text" placeholder="如 商務印書館" autocomplete="off"></label>
               <label class="kdb-field"><span>子目</span>
                 <input id="kdbKo" type="text" placeholder="丛书内子目书名" autocomplete="off"></label>
-              <label class="kdb-field"><span>keyword</span>
+              <label class="kdb-field"><span>关键词</span>
                 <input id="kdbFr" type="text" placeholder="关键词（原站未说明取值）" autocomplete="off"></label>
               <label class="kdb-field"><span>超时</span>
                 <select id="kdbTimeout" class="kdb-select">
@@ -400,7 +398,6 @@
         <header class="av-head kdb-head naj-head">
           <div class="av-head-tx">
             <h2>国立公文书馆数字档案</h2>
-            <p>国立公文書館デジタルアーカイブ · 目録元数据 CC0 · 详细检索</p>
           </div>
         </header>
         <form class="av-card kdb-card" id="najForm">
@@ -418,7 +415,7 @@
             <button type="button" class="av-btn" id="najReset">清空</button>
           </div>
 
-          <!-- 详细检索（浮层，交互与「汉籍检索（日本）」的筛选一致） -->
+          <!-- 详细检索（浮层，交互与「日本所藏汉籍检索」的筛选一致） -->
           <div class="kdb-adv naj-adv" id="najAdv" hidden>
             <div class="naj-adv-grid">
               <div class="naj-adv-block">
@@ -456,7 +453,7 @@
             <div class="naj-naikaku-sec">
               <div class="naj-naikaku-head">
                 <span class="naj-naikaku-title">内閣文庫 汉籍分类</span>
-                <span class="naj-naikaku-hint">原站层级：内閣文庫 → 漢書（中文典籍） → 經／史／子／集／叢書／新書。点分类即把检索限定在该资料群；关键词留空时可点 ↗ 到原站分类页浏览。</span>
+                <span class="naj-naikaku-hint">关键词留空时可点 ↗ 到原站分类页浏览。</span>
               </div>
               <div class="naj-chips" id="najNaikakuChips"></div>
               <div class="naj-naikaku-active" id="najNaikakuActive" hidden></div>
@@ -468,25 +465,14 @@
           </div>
 
           <p class="av-hint">关键词按原站字形输入（日文／繁体）；多词请分批检索。</p>
-        </form>
-
-        <!-- V10.5.1：内閣文庫 漢籍 分類瀏覽
-             与原站 fonds 层级同序：内閣文庫 › 漢籍 › 經／史／子／集／叢書／新書 › 簿册一覧。
-             占地很小（一行工具栏 + 一行分类 chips）；点某部即在其下方列出该部簿册，可导出 CSV。 -->
-        <div class="av-card naj-browse" id="najBrowse">
-          <div class="naj-browse-head">
-            <span class="naj-browse-title">内閣文庫 漢籍 分類瀏覽</span>
-            <span class="naj-browse-path" id="najBrowsePath">内閣文庫 › 漢籍</span>
-            <span class="naj-browse-prog" id="najBrowseProg"></span>
-            <button type="button" class="av-btn naj-browse-mini" id="najBrowseRefresh"
-                    title="重新向原站统计各部簿册数">刷新件数</button>
-            <button type="button" class="av-btn naj-browse-mini" id="najBrowseCsv"
-                    disabled title="先点一个分类，再导出该部簿册清单">导出 CSV</button>
+        </form><div class="kdb-split view-results" id="najSplit">
+          <div class="av-card kdb-panel kdb-results" id="najResults">
+            <p class="kdb-empty">输入关键词后点「检索」。</p>
           </div>
-          <div class="naj-browse-chips" id="najBrowseChips"></div>
+          <div class="av-card kdb-panel kdb-detail" id="najDetail"></div>
         </div>
 
-        <div class="kdb-statusbar">
+<div class="kdb-statusbar">
           <div class="kdb-status" id="najStatus"></div>
           <div class="kdb-sumline naj-cond" id="najCondSummary" hidden></div>
           <!-- 显示件数：放在检索栏与结果栏之间的空隙处、分页按钮左侧；
@@ -503,13 +489,6 @@
             <span id="najPageInfo" class="naj-page-info"></span>
             <button class="av-btn naj-page-btn" id="najNext" type="button">下一页 →</button>
           </div>
-        </div>
-
-        <div class="kdb-split view-results" id="najSplit">
-          <div class="av-card kdb-panel kdb-results" id="najResults">
-            <p class="kdb-empty">输入关键词后点「检索」；也可直接点上方分类浏览该部簿册。</p>
-          </div>
-          <div class="av-card kdb-panel kdb-detail" id="najDetail"></div>
         </div>
       </div>
     </section>
@@ -545,7 +524,6 @@
         <header class="av-head rec-head">
           <div class="av-head-tx">
             <h2>汉籍编目记录</h2>
-            <p>按「全球汉籍合璧工程」编目表格模板著录 · 可导入 Excel/CSV · 表格或文字两种预览与导出</p>
           </div>
           <div class="rec-head-actions">
             <button class="av-btn" id="recordsImportBtn" type="button" title="导入 Excel(.xlsx) 或 CSV/TSV 表格，按模板表头自动对应字段">导入表格</button>
@@ -676,13 +654,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 1.1.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.2.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.1.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.2.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

@@ -10,6 +10,11 @@
    ================================================================================ */
 
 :root {
+  /* V2：荧光绿强调（参考 Permitly 设计） */
+  --accent: #C8F169;
+  --accent-strong: #B4E84A;
+  --accent-ink: #171A1F;
+  --accent-soft: rgba(200, 241, 105, .18);
   /* ---- 品牌与灰阶（V3：冷调灰，正文不用纯黑） ---- */
   --brand: #171A1F;
   --brand-2: #2A2E36;
@@ -112,8 +117,13 @@ body {
   flex: 0 0 42px !important;
   background: var(--bg) !important;
   border-bottom: 0 !important;
-  padding: 0 8px 0 18px !important;
+  /* V2：右侧按钮与窗口边框留缝 */
+  padding: 0 14px 0 18px !important;
   gap: 12px;
+}
+
+.app-titlebar .tb-right {
+  gap: 8px !important;
 }
 
 .tb-left,
@@ -123,8 +133,8 @@ body {
 
 .tb-iconbtn {
   height: 28px;
-  min-width: 30px;
-  padding: 0 8px;
+  min-width: 28px;
+  padding: 0 6px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -143,8 +153,8 @@ body {
 }
 
 .tb-win {
-  width: 30px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border: 0;
   border-radius: 7px;
   background: transparent;
@@ -1505,4 +1515,228 @@ table.tbl tbody tr:hover {
   font-size: var(--fs-sub);
   line-height: 1.9;
   padding: 28px 6px;
+}
+
+
+/* ================================================================
+   V2：全站页面大标题统一（基准 = 「日本所藏汉籍检索」页标题）
+   ================================================================ */
+.av-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 2px 2px 14px;
+}
+
+.av-head-tx h2,
+.av-head h2 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.01em !important;
+  margin: 0 !important;
+  color: var(--text) !important;
+}
+
+.av-head p {
+  margin: 4px 0 0;
+  font-size: var(--fs-sub);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.av-head-act {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 源站小按钮（日藏检索 KD） */
+.av-head-kd {
+  border: 0 !important;
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms;
+}
+
+.av-head-kd:hover { background: var(--accent-strong) !important; }
+
+[data-theme="dark"] .av-head-kd {
+  background: var(--accent);
+  color: #14161A;
+}
+
+
+/* V2：日藏/公文书馆 左右分栏留缝 */
+.kdb-split {
+  gap: 14px !important;
+}
+
+
+/* ================================================================
+   V2：日藏检索 / 公文书馆 —— 间距、筛选框、结果下方状态行
+   ================================================================ */
+/* 检索卡与结果区之间留一点空，不要贴死也不浪费 */
+.kdb-card {
+  margin-bottom: 14px;
+}
+
+/* 所藏机构多选框拉长，方便一眼看到更多选项 */
+#kdbOr {
+  min-width: 100%;
+  height: 172px;
+}
+
+.naj-adv .kdb-field select,
+.naj-adv .kdb-select {
+  min-width: 100%;
+}
+
+/* 状态行（命中数 / 显示件数 / 翻页）放到结果下方后缩小字号，不抢结果 */
+.kdb-statusbar {
+  margin: 10px 2px 0;
+  font-size: 11.5px;
+  gap: 10px;
+}
+
+.kdb-statusbar .av-btn {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 11.5px;
+}
+
+/* 批量下载「命名方式」字段浮窗：不超出窗口 */
+.dlc-name-pop,
+.dlb-tpl-pop,
+.dlb-field-pop {
+  max-width: min(360px, calc(100vw - 48px)) !important;
+  max-height: 260px;
+  overflow: auto;
+}
+
+
+/* ================================================================
+   V2：日藏 / 公文书馆 —— 左条目 + 右详情 常驻两栏
+   ================================================================ */
+.kdb-wrap .kdb-split,
+.kdb-split.view-results,
+.kdb-split.view-detail {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important;
+  gap: 14px !important;
+  align-items: stretch;
+  min-height: 320px;
+}
+
+.kdb-split.view-results .kdb-results,
+.kdb-split.view-detail .kdb-results { display: block !important; }
+.kdb-split.view-results .kdb-detail,
+.kdb-split.view-detail .kdb-detail { display: block !important; }
+
+.kdb-detail {
+  border-left: 1px solid var(--divider);
+}
+
+.kdb-detail:empty::after {
+  content: '← 点左侧条目查看详细信息';
+  display: block;
+  padding: 48px 12px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+
+@media (max-width: 1080px) {
+  .kdb-split.view-results,
+  .kdb-split.view-detail,
+  .kdb-wrap .kdb-split {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .kdb-detail { border-left: 0; }
+}
+
+/* ---------------- 绿色点缀 ---------------- */
+.fab {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  box-shadow: 0 8px 22px rgba(120, 160, 30, .35) !important;
+}
+
+.fab:hover { background: var(--accent-strong) !important; }
+
+.su-avatar {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.nav-badge {
+  background: var(--accent-soft) !important;
+  color: #4d6b0f !important;
+}
+
+[data-theme="dark"] .nav-badge {
+  background: rgba(200, 241, 105, .16) !important;
+  color: var(--accent) !important;
+}
+
+.side-user:hover,
+.side-user[aria-expanded="true"] {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.av-btn-primary {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+
+.av-btn-primary:hover { background: var(--accent-strong) !important; }
+
+[data-theme="dark"] .av-btn-primary { color: #14161A !important; }
+
+
+/* V2：批量下载「命名方式」字段浮窗 —— 不超出对话框，贴 ▾ 下方 */
+.dlb-tpl-row { position: relative; }
+.dlb-tok-menu {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  right: 0 !important;
+  left: auto !important;
+  width: min(320px, calc(100vw - 96px)) !important;
+  max-width: min(320px, calc(100vw - 96px)) !important;
+  max-height: 200px !important;
+  overflow: auto !important;
+  z-index: 60 !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.16) !important;
+}
+
+
+/* ================================================================
+   V2 最终覆盖：荧光绿强调色（放在最后，压过基础样式的 --accent）
+   ================================================================ */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --accent: #C8F169;
+  --accent-strong: #B4E84A;
+  --accent-ink: #171A1F;
+  --accent-soft: rgba(200, 241, 105, .18);
+}
+
+
+/* V2 状态行字号：命中数/显示件数/翻页缩小，不抢结果 */
+.kdb-statusbar,
+.kdb-statusbar .kdb-status,
+.kdb-statusbar .kdb-sumline,
+#najStatus {
+  font-size: 11.5px !important;
+  line-height: 1.5 !important;
 }

@@ -1224,127 +1224,6 @@ mark.search-highlight {
 }
 
 /* ============================================
-   Export Dialog
-   ============================================ */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  background: var(--color-overlay);
-  backdrop-filter: blur(3px);
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-.modal-overlay.open { display: flex; animation: overlayFadeIn 0.2s var(--ease-spring); }
-@keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-overlay.open .modal { animation: modalScaleIn 0.28s var(--ease-spring); }
-@keyframes modalScaleIn {
-  from { opacity: 0; transform: scale(0.96) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-.modal {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  max-width: 480px;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-.modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-divider);
-}
-.modal-head h3 {
-  font-size: 1rem;
-  color: var(--color-text);
-}
-.modal-close {
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
-}
-.modal-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
-.modal-body { padding: 1rem 1.25rem; }
-.exp-section { margin-bottom: 1rem; }
-.exp-title {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
-}
-.exp-cols {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.35rem 1rem;
-  max-height: 220px;
-  overflow-y: auto;
-  padding: 0.5rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-}
-.exp-col {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  padding: 0.2rem 0;
-  white-space: nowrap;
-}
-.exp-col input { accent-color: var(--color-accent); cursor: pointer; }
-.exp-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-.exp-btn {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  padding: 0.2rem 0.7rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-.exp-btn:hover { border-color: var(--color-accent-light); color: var(--color-accent); }
-.exp-ranges { display: flex; flex-direction: column; gap: 0.35rem; }
-.exp-range {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  padding: 0.25rem 0;
-}
-.exp-range input { accent-color: var(--color-accent); cursor: pointer; }
-.exp-count {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  padding: 0.5rem 0.6rem;
-  background: var(--color-bg-alt);
-  border-radius: var(--radius-sm);
-  text-align: center;
-}
-.modal-foot {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.85rem 1.25rem;
-  border-top: 1px solid var(--color-divider);
-}
-
-/* ============================================
    Toast
    ============================================ */
 .toast {
@@ -1850,7 +1729,7 @@ body{ background: var(--v3-bg-page); }
 /* ===== 页头（v3 phead） ===== */
 .page-head{ display:flex; align-items:flex-start; gap:16px; margin:24px 0 16px; flex-wrap:wrap; }
 .page-head .ph-text{ flex:1; min-width:0; }
-.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; letter-spacing:-.01em; line-height:1.35; }
+.page-head h2{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; letter-spacing:-.01em; line-height:1.35; }
 .page-head p{ margin:0; font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:900px; }
 .page-head p b{ color:var(--v3-t2); font-weight:600; }
 .page-head .ph-actions{ display:flex; align-items:center; gap:8px; margin-left:auto; flex:0 0 auto; }
@@ -1959,7 +1838,7 @@ body.ft-all-loaded .ft-load-all{ display:none !important; }
   .app-container{ padding:0 16px 8px; }
   .header-inner{ padding:0 16px; }
   .page-head{ margin:18px 0 12px; gap:10px; }
-  .page-head h1{ font-size:18px; }
+  .page-head h2{ font-size:18px; }
   .page-head p{ font-size:11.5px; }
   .ph-chip{ display:none; }
   .stats-bar{ padding:10px 12px; border-radius:var(--v3-r-mid); }
@@ -2003,7 +1882,7 @@ html.is-embed .app-footer{ display:none !important; }
 .app-container{ max-width:1400px; padding:0 28px 24px; }
 .page-head{ display:flex; align-items:flex-start; gap:16px; padding:24px 2px 18px; margin:0; flex-wrap:wrap; }
 .page-head .ph-text{ flex:1 1 320px; min-width:0; }
-.page-head h1{ font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; }
+.page-head h2{ font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--v3-t1); margin:0 0 4px; line-height:1.35; letter-spacing:-.01em; }
 .page-head p{ font-size:12px; color:var(--v3-t3); line-height:1.7; max-width:880px; margin:0; }
 .page-head p b{ color:var(--v3-t2); font-weight:600; }
 .page-head .ph-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; flex:0 0 auto; }
@@ -2045,7 +1924,7 @@ html.is-embed .app-footer{ display:none !important; }
 }
 .card-cols-btn.active{ background:var(--v3-card); color:var(--v3-t1); box-shadow:0 1px 3px rgba(0,0,0,.08); }
 
-/* ---- 搜索行（v3 searchrow：圆角大输入框 + 检索 + 今年） ---- */
+/* ---- 搜索行（v3 searchrow：圆角大输入框 + 检索 + 清除） ---- */
 .searchrow{
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
   background:var(--v3-card); border-radius:var(--v3-r-card);
@@ -2257,7 +2136,7 @@ body.v3-year .result-card .pager-row{ display:none !important; }
   .header-inner{ padding:0 16px; height:52px; }
   .app-container{ padding:0 16px 16px; }
   .page-head{ padding:16px 0 14px; gap:10px; }
-  .page-head h1{ font-size:18px; }
+  .page-head h2{ font-size:18px; }
   .page-head p{ font-size:11.5px; }
   .page-head .ph-actions{ width:100%; justify-content:flex-start; }
   .searchrow{ padding:12px; border-radius:var(--v3-r-mid); }
@@ -2331,17 +2210,12 @@ body.v3-year .result-card .pager-row{ display:none !important; }
      Main Content
      ============================================ -->
 <main class="app-container" role="main">
-  <!-- v3 页头：标题 + 一行说明 + 右侧动作区（置顶小窗 / 导出 CSV / 表格-卡片） -->
+  <!-- v3 页头：标题 + 右侧动作区（表格-卡片）。小字说明与置顶/导出入口按 V2a 要求移除。 -->
   <div class="page-head" id="pageHead">
     <div class="ph-text">
-      <h1 id="pageTitle">纪年查询</h1>
-      <p>公历年 ↔ 中国、日本及其他地区年号 · 打开即见<b>全部年份</b>表（2,868 年，分段渲染）；输入年份 / 年号 / 干支即定位。</p>
+      <h2 id="pageTitle">纪年查询</h2>
     </div>
     <div class="ph-actions">
-      <button class="btn ghost" id="tinyWinBtn" type="button" title="在桌面版打开纪年置顶小窗">置顶小窗</button>
-      <button class="btn ghost" id="exportBtn" type="button" aria-label="导出为 CSV">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        导出 CSV
       </button>
       <div class="seg view-mode-switch" id="viewModeSwitch" role="group" aria-label="视图切换">
         <button type="button" id="viewModeTable" class="active" aria-pressed="true">表格</button>
@@ -2354,7 +2228,7 @@ body.v3-year .result-card .pager-row{ display:none !important; }
     </div>
   </div>
 
-  <!-- v3 搜索行：圆角大输入框 + 检索 + 今年（快捷筛选收敛为一枚按钮） -->
+  <!-- v3 搜索行：圆角大输入框 + 检索 + 清除（快捷筛选收敛为一枚按钮） -->
   <div class="searchrow" id="searchRow">
     <div class="field" role="search">
       <svg class="field-ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -2362,7 +2236,7 @@ body.v3-year .result-card .pager-row{ display:none !important; }
       <div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="搜索建议"></div>
     </div>
     <button class="btn primary" id="searchBtn" type="button" aria-label="执行搜索">检索</button>
-    <button class="btn ghost" id="thisYearBtn" type="button" title="跳到今年">今年</button>
+    <button class="btn ghost" id="clearSearchBtn" type="button" title="清空搜索并回到全部年份">清除</button>
     <!-- 快捷筛选（朝代 / 年号，浮窗式；桌面与移动端共用） -->
     <div class="qf-wrap" id="qfWrap">
       <button class="qf-btn" id="qfBtn" aria-haspopup="true" aria-expanded="false">
@@ -2444,10 +2318,10 @@ body.v3-year .result-card .pager-row{ display:none !important; }
     <!-- 分页条 + 每页 -->
     <div class="pager-row" id="pagerRow" hidden>
       <span class="per-page-wrap"><span class="per-page-label">每页</span>
-        <select class="per-page-select" id="perPageSelect" aria-label="每页显示条数">
-          <option value="20">20条</option>
-          <option value="50" selected>50条</option>
-          <option value="100">100条</option>
+        <select class="per-page-select" id="perPageSelect" aria-label="每页显示年数">
+          <option value="20">20 年</option>
+          <option value="50" selected>50 年</option>
+          <option value="100">100 年</option>
         </select>
       </span>
       <span class="pager-summary" id="pagerSummary"></span>
@@ -2457,37 +2331,6 @@ body.v3-year .result-card .pager-row{ display:none !important; }
 </main>
 
 
-
-<!-- Export Dialog -->
-<div class="modal-overlay" id="exportDialog" role="dialog" aria-modal="true" aria-label="导出 CSV">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>导出 CSV</h3>
-      <button class="modal-close" id="exportDialogClose" aria-label="关闭">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="exp-section">
-        <div class="exp-title">选择导出列</div>
-        <div class="exp-cols"></div>
-        <div class="exp-actions">
-          <button type="button" class="exp-btn" id="expSelectAll">全选</button>
-          <button type="button" class="exp-btn" id="expSelectNone">清空</button>
-        </div>
-      </div>
-      <div class="exp-section">
-        <div class="exp-title">选择导出范围</div>
-        <div class="exp-ranges"></div>
-      </div>
-      <div class="exp-count"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" id="exportDialogCancel">取消</button>
-      <button class="btn btn-primary" id="exportDialogConfirm" style="background:var(--color-accent);border-color:var(--color-accent);color:#fff;">确认导出</button>
-    </div>
-  </div>
-</div>
 
 <!-- Toast -->
 <div class="toast" id="toast" aria-live="polite"></div>
@@ -2704,7 +2547,7 @@ function setDisplayLang(lang, force) {
     pageHeadP.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = toLang(n.textContent, lang); });
   }
   // 「全表 · 全部年份 / 按公历年份升序」等文案由 updateStats() 按 toDisplay 重建
-  document.querySelectorAll('.page-head h1, #pageTitle').forEach(el => { el.textContent = toLang(el.textContent, lang); });
+  document.querySelectorAll('.page-head h2, #pageTitle').forEach(el => { el.textContent = toLang(el.textContent, lang); });
   document.querySelectorAll('#perPageSelect option').forEach(opt => {
     opt.textContent = toLang(opt.textContent, lang);
   });
@@ -3086,13 +2929,10 @@ let fullTableSeq = 0;         // 递增令牌：重渲染时作废旧的分段�
 let fullTableTimer = null;    // 分段插入定时器
 let lastEffectiveMode = null; // 断点变化时补一次重渲染
 
-// 是否处于「全表浏览」状态
+// V2a：默认浏览改为「分页列表」（每页 50 年），不再有全表连续渲染模式。
+// 保留函数名与签名供既有调用方使用，恒返回 false。
 function isFullTableMode() {
-  if (effectiveMode() !== 'table') return false;
-  if (searchQuery && searchQuery.trim()) return false;
-  return selectedChinaFilters.size === 0 &&
-         selectedChinaEras.size === 0 &&
-         selectedJapanFilters.size === 0;
+  return false;
 }
 
 // 作废尚未完成的全表分段渲染 (切到搜索/筛选/卡片视图时调用)
@@ -5666,146 +5506,7 @@ function jumpToYear(year) {
 }
 
 // ========================================
-// Export CSV (可自定义列与范围)
-// ========================================
-// 列定义: key / 简体标签 / 取值函数
-const CSV_COLUMNS = [
-  { key:'year',    label:'公历年份', get: row => row.yearStr },
-  { key:'ganzhi',  label:'干支',     get: row => row.ganzhi },
-  { key:'cnEra',   label:'中国年号', get: row => stripHtml(row.cnEra) },
-  { key:'cnDyn',   label:'中国朝代', get: row => row.cnDynasty },
-  { key:'cnRuler', label:'在位皇帝', get: row => row.cnRuler },
-  { key:'jpPeriod',label:'其他朝代', get: row => row.jpPeriod },
-  { key:'jpEra',   label:'年号', get: row => stripHtml(row.jpEra) },
-  { key:'jpRuler', label:'在位君主', get: row => row.jpRuler },
-  { key:'notes',   label:'备注',     get: row => row.notes.replace(/；/g, ';') },
-  { key:'zodiac',  label:'生肖',     get: row => row.zodiac },
-];
-let exportSelectedCols = new Set(CSV_COLUMNS.map(c => c.key));
-let exportRange = 'filtered'; // 'filtered' | 'page'
-
-function stripHtml(s) {
-  return String(s).replace(/<br\s*\/?>/gi, '; ').replace(/<[^>]*>/g, '').trim();
-}
-
-// 打开导出对话框
-function exportCSV() {
-  const dlg = document.getElementById('exportDialog');
-  if (!dlg) return;
-  
-  // 对话框静态文本跟随当前字形
-  const langLabel = displayLang === 't' ? toTraditional : s => s;
-  dlg.querySelectorAll('.modal-head h3, .modal-foot .btn, .exp-btn, .exp-title, .exp-actions .exp-btn').forEach(el => {
-    el.childNodes.forEach(n => { if (n.nodeType === 3 && n.textContent.trim()) n.textContent = langLabel(n.textContent.trim()); });
-  });
-  const closeBtn = dlg.querySelector('.modal-close');
-  if (closeBtn) closeBtn.setAttribute('aria-label', langLabel(closeBtn.getAttribute('aria-label') || '关闭'));
-  
-  // 生成列勾选 (跟随当前字形)
-  const colsHtml = CSV_COLUMNS.map(c => {
-    const checked = exportSelectedCols.has(c.key) ? 'checked' : '';
-    return `<label class="exp-col">
-      <input type="checkbox" data-col="${c.key}" ${checked}> ${langLabel(c.label)}
-    </label>`;
-  }).join('');
-  
-  // 范围单选
-  const total = filteredData.length;
-  const pageRows = renderTableRowsCount();
-  const rangeHtml = `
-    <label class="exp-range">
-      <input type="radio" name="expRange" value="filtered" ${exportRange === 'filtered' ? 'checked' : ''}>
-      <span>${langLabel('全部筛选结果')}（${total} 条）</span>
-    </label>
-    <label class="exp-range">
-      <input type="radio" name="expRange" value="page" ${exportRange === 'page' ? 'checked' : ''}>
-      <span>${langLabel('仅当前页')}（${pageRows} 条）</span>
-    </label>`;
-  
-  dlg.querySelector('.exp-cols').innerHTML = colsHtml;
-  dlg.querySelector('.exp-ranges').innerHTML = rangeHtml;
-  updateExportCount();
-  dlg.classList.add('open');
-}
-
-// 当前页行数 (按当前分页状态计算)
-function renderTableRowsCount() {
-  // V10.0: 全表浏览模式下「当前页」即全表
-  if (isFullTableMode()) return realFilteredCount();
-  const start = (currentPage - 1) * perPage;
-  return Math.min(perPage, Math.max(0, filteredData.length - start));
-}
-
-// 更新导出对话框统计
-function updateExportCount() {
-  const dlg = document.getElementById('exportDialog');
-  if (!dlg) return;
-  const nCols = dlg.querySelectorAll('.exp-col input[type="checkbox"]:checked').length;
-  const range = dlg.querySelector('input[name="expRange"]:checked');
-  const nRows = range && range.value === 'page' ? renderTableRowsCount() : realFilteredCount();
-  const countEl = dlg.querySelector('.exp-count');
-  if (countEl) countEl.textContent = `${toDisplay('将导出')} ${nRows} ${toDisplay('行')} × ${nCols} ${toDisplay('列')}`;
-}
-
-// 执行导出
-function doExportCSV() {
-  const dlg = document.getElementById('exportDialog');
-  // 收集勾选列
-  exportSelectedCols = new Set();
-  dlg.querySelectorAll('.exp-col input[type="checkbox"]:checked').forEach(cb => {
-    exportSelectedCols.add(cb.dataset.col);
-  });
-  if (exportSelectedCols.size === 0) {
-    showToast('请至少选择一列');
-    return;
-  }
-  // 收集范围
-  const checked = dlg.querySelector('input[name="expRange"]:checked');
-  exportRange = checked ? checked.value : 'filtered';
-  
-  const BOM = '\uFEFF';
-  const selCols = CSV_COLUMNS.filter(c => exportSelectedCols.has(c.key));
-  const headers = selCols.map(c => toDisplay(c.label));
-  
-  // 取数 (V4.2: 排除临近行/分隔行)
-  let dataRows;
-  if (exportRange === 'page') {
-    if (isFullTableMode()) {
-      // V10.0: 全表模式下「仅当前页」= 当前展示的全部年份
-      dataRows = realFilteredRows();
-    } else {
-      const real = realFilteredRows();
-      const start = (currentPage - 1) * perPage;
-      dataRows = real.slice(start, start + perPage);
-    }
-  } else {
-    dataRows = realFilteredRows();
-  }
-  
-  const rows = dataRows.map(row =>
-    selCols.map(c => `"${String(toDisplay(c.get(row))).replace(/"/g, '""')}"`).join(',')
-  );
-  
-  const csv = BOM + headers.join(',') + '\n' + rows.join('\n');
-  
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `古代史及汉籍研究工具_纪年对照_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  
-  closeExportDialog();
-  showToast('CSV 导出成功');
-}
-
-function closeExportDialog() {
-  const dlg = document.getElementById('exportDialog');
-  if (dlg) dlg.classList.remove('open');
-}
-
-// ========================================
+// Toast// ========================================
 // Toast
 // ========================================
 function showToast(msg) {
@@ -6045,29 +5746,6 @@ function init() {
     renderPagination();
   });
   
-  // Export
-  document.getElementById('exportBtn').addEventListener('click', exportCSV);
-  // Export dialog events
-  document.getElementById('exportDialogClose').addEventListener('click', closeExportDialog);
-  document.getElementById('exportDialogCancel').addEventListener('click', closeExportDialog);
-  document.getElementById('exportDialogConfirm').addEventListener('click', doExportCSV);
-  document.getElementById('expSelectAll').addEventListener('click', function() {
-    document.querySelectorAll('#exportDialog .exp-col input[type="checkbox"]').forEach(cb => cb.checked = true);
-    updateExportCount();
-  });
-  document.getElementById('expSelectNone').addEventListener('click', function() {
-    document.querySelectorAll('#exportDialog .exp-col input[type="checkbox"]').forEach(cb => cb.checked = false);
-    updateExportCount();
-  });
-  document.getElementById('exportDialog').addEventListener('click', function(e) {
-    if (e.target === this) closeExportDialog();
-  });
-  // 勾选变化时更新统计
-  document.getElementById('exportDialog').addEventListener('change', function(e) {
-    if (e.target.matches('.exp-col input') || e.target.matches('.exp-range input')) {
-      updateExportCount();
-    }
-  });
   
   // 主题切换已移到桌面外壳；页内不再保留按钮（initTheme 仍读外壳同步的 theme）
   // 简繁切换（网页版顶栏保留；桌面版由外壳标题栏按钮经 KansekiLang 驱动）
@@ -6078,27 +5756,23 @@ function init() {
   // 将搜索框的简体 placeholder 存到 data 属性 (供切换用)
   document.getElementById('globalSearch').dataset.placeholderCn = '输入公历年、年号、干支或君主名，如 1600';
 
-  // v3 页头动作：置顶小窗（桌面版交给外壳的纪年小窗按钮；网页版给出提示）
-  const tinyWinBtn = document.getElementById('tinyWinBtn');
-  if (tinyWinBtn) {
-    tinyWinBtn.addEventListener('click', function() {
-      try {
-        var topDoc = window.top && window.top.document;
-        var shellBtn = topDoc && topDoc.getElementById('miniYearBtn');
-        if (shellBtn) { shellBtn.click(); return; }
-      } catch (e) { /* 跨域/非桌面环境 */ }
-      showToast('置顶小窗仅在桌面版可用（Ctrl+Shift+T）');
-    });
-  }
-
-  // v3 搜索行「今年」：直接跳到今年
-  const thisYearBtn = document.getElementById('thisYearBtn');
-  if (thisYearBtn) {
-    thisYearBtn.addEventListener('click', function() {
-      const y = new Date().getFullYear();
+  // v3 搜索行「清除」：清空搜索框与快捷筛选，回到默认全部年份列表（第 1 页）
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', function() {
       const inp = document.getElementById('globalSearch');
-      inp.value = String(y);
-      performSearchAndJump();
+      if (inp) inp.value = '';
+      searchQuery = '';
+      selectedChinaFilters.clear();
+      selectedChinaEras.clear();
+      selectedJapanFilters.clear();
+      renderFilterTags();
+      qfRenderChips();
+      const sug = document.getElementById('searchSuggestions');
+      if (sug) sug.classList.remove('active');
+      currentPage = 1;
+      applyFilters();
+      if (inp) inp.focus();
     });
   }
   

@@ -155,6 +155,8 @@ function embedStyleFor(rule) {
     css.push('.docs-layout{grid-template-columns:minmax(0,1fr) !important;max-width:1400px;padding-top:.9rem}');
     css.push('@media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}');
   }
+  // V2：内嵌页大标题统一（基准 = 日本所藏汉籍检索页：20px / 700 / 1.35）
+  css.push('.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead .pt h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}');
   // V1.1：网页版站点导航条在 APP 内不显示（侧栏已有同名入口）
   css.push('.web-nav-strip{display:none !important}');
   // 视口高度校正：页面内若干 calc(100vh - Npx) 是按「顶栏(约 60px) + 页脚/内边距」估的，
