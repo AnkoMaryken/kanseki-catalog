@@ -1740,3 +1740,58 @@ table.tbl tbody tr:hover {
   font-size: 11.5px !important;
   line-height: 1.5 !important;
 }
+
+
+/* ================================================================
+   V1.3：全站页面标题统一（基准「日本所藏汉籍检索」）——位置略低一点
+   ================================================================ */
+.av-head,
+.dlv-head {
+  padding-top: 10px !important;
+  padding-bottom: 14px !important;
+}
+
+.av-head h2,
+.av-head-tx h2,
+.dlv-head h1,
+.dlv-head h2 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.01em !important;
+  margin: 0 !important;
+}
+
+/* 工作台问候语沿用大标题字阶，但允许略大以保持日程感 */
+#wbRoot .wb2-greet,
+#wbRoot .wb-greet {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.01em !important;
+}
+
+/* 设置窗口主标题 */
+.set-main .set-h {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.01em !important;
+}
+
+
+/* V1.3：原生视图标题与内嵌页标题对齐（内嵌页内容列 padding-left=18） */
+.av-head,
+.dlv-head {
+  padding-left: 12px !important;
+}
+
+/* 工作台问候语上移，与其它页标题同一视觉高度 */
+#wbRoot {
+  padding-top: 0 !important;
+}
+
+#wbRoot .wb2-wrap,
+#wbRoot .wb-wrap {
+  padding-top: 0 !important;
+}

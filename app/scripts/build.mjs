@@ -155,6 +155,13 @@ function embedStyleFor(rule) {
     css.push('.docs-layout{grid-template-columns:minmax(0,1fr) !important;max-width:1400px;padding-top:.9rem}');
     css.push('@media(max-width:1150px){.docs-layout{grid-template-columns:minmax(0,1fr) !important}}');
   }
+  // V1.3 内容列归一：让所有内嵌页的标题落在与原生视图一致的水平/垂直位置
+  css.push('body{padding-left:0!important;padding-right:0!important}');
+  css.push('main,body>.wrap,body>.page-wrap,body>.container,.wrap-inner{max-width:none!important;margin-left:0!important;margin-right:0!important;padding-left:18px!important;padding-right:18px!important;padding-top:0!important}');
+  css.push('.page-head,.phead{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;padding-top:8px!important;margin-top:6px!important}');
+  // V1.3 标题统一（含位置略低）：所有内嵌页共用同一套标题字阶与上边距
+  css.push('.page-head,.phead{padding-top:10px!important}');
+  css.push('.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead-text h2,.phead-text h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}');
   // V2：内嵌页大标题统一（基准 = 日本所藏汉籍检索页：20px / 700 / 1.35）
   css.push('.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead .pt h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}');
   // V1.1：网页版站点导航条在 APP 内不显示（侧栏已有同名入口）

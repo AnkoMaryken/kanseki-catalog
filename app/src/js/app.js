@@ -652,7 +652,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -1277,7 +1277,7 @@ async function init() {
   });
   // V2：日藏检索页「KD」→ 打开原站
   $('#kdbSrcBtn')?.addEventListener('click', () => {
-    const url = 'https://kanji.zinbun.kyoto-u.ac.jp/kanseki/';
+    const url = 'http://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=';
     if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
     else window.open(url, '_blank');
   });

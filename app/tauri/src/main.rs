@@ -14,7 +14,38 @@ mod system;
 mod tray;
 mod websearch;
 
+/// Windows 任务栏图标 / 分组标识。
+/// 用户反馈：软件在任务栏不显示自己的 logo。
+/// 原因之一是进程没有显式 AppUserModelID，任务栏可能按宿主（WebView2）归类而丢图标。
+/// 这里用 kernel32 动态调用 SetCurrentProcessExplicitAppUserModelID，不引入新 crate。
+#[cfg(target_os = "windows")]
+fn set_app_user_model_id(id: &str) {
+    use std::ffi::OsStr;
+    use std::os::windows::ffi::OsStrExt;
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn GetProcAddress(module: *mut core::ffi::c_void, name: *const u8) -> *mut core::ffi::c_void;
+        fn LoadLibraryW(name: *const u16) -> *mut core::ffi::c_void;
+    }
+    type SetAumid = unsafe extern "system" fn(*const u16) -> i32;
+    let wide: Vec<u16> = OsStr::new(id).encode_wide().chain(std::iter::once(0)).collect();
+    unsafe {
+        let shell: Vec<u16> = OsStr::new("shell32.dll").encode_wide().chain(std::iter::once(0)).collect();
+        let lib = LoadLibraryW(shell.as_ptr());
+        if lib.is_null() { return; }
+        let proc_name = b"SetCurrentProcessExplicitAppUserModelID\0";
+        let f = GetProcAddress(lib, proc_name.as_ptr());
+        if f.is_null() { return; }
+        let func: SetAumid = std::mem::transmute(f);
+        let _ = func(wide.as_ptr());
+    }
+}
+
 fn main() {
+    // V1.3：显式 AppUserModelID，保证任务栏图标/分组使用本程序自己的标识
+    #[cfg(target_os = "windows")]
+    set_app_user_model_id("com.ankomaryken.kanseki.tool");
+
     // 单实例保护（V0.8）：必须在 tauri::Builder 之前，
     // 否则 WebView2 已启动并锁定 user data folder，崩溃照样发生。
     if single_instance::already_running() && single_instance::handoff_to_existing() {
@@ -74,6 +105,10 @@ fn main() {
                 }
                 // 主窗口「关闭」→ 隐藏（只有托盘菜单「退出」才真正结束）
                 if let Some(win) = app.get_webview_window("main") {
+                    // V1.3：显式设置窗口图标，保证任务栏显示本软件 logo
+                    if let Some(icon) = app.default_window_icon() {
+                        let _ = win.set_icon(icon.clone());
+                    }
                     let w = win.clone();
                     win.on_window_event(move |ev| {
                         if let tauri::WindowEvent::CloseRequested { api, .. } = ev {

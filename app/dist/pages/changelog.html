@@ -81,6 +81,11 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 .app-header{display:none !important}
 .filter-bar{top:0 !important}
 .doc-toolbar,.cat-toolbar{top:0 !important}
+body{padding-left:0!important;padding-right:0!important}
+main,body>.wrap,body>.page-wrap,body>.container,.wrap-inner{max-width:none!important;margin-left:0!important;margin-right:0!important;padding-left:18px!important;padding-right:18px!important;padding-top:0!important}
+.page-head,.phead{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important;padding-top:8px!important;margin-top:6px!important}
+.page-head,.phead{padding-top:10px!important}
+.page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead-text h2,.phead-text h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}
 .page-head h1,.page-head h2,.phead h1,.phead h2,.ph-text h1,.ph-text h2,.phead .pt h1{font-size:20px!important;font-weight:700!important;line-height:1.35!important;letter-spacing:-.01em!important;margin:0!important}
 .web-nav-strip{display:none !important}
 .doc-body{max-height:calc(100vh - 132px) !important}
@@ -108,7 +113,7 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 <main class="page">
   <header class="page-head">
     <div class="phead-text">
-      <h2>更新日志 <span class="cur-ver">v1.2.0</span></h2>
+      <h2>更新日志 <span class="cur-ver">v1.3.0</span></h2>
     </div>
     <div class="ph-actions">
       <button type="button" class="tool-btn" id="btnExpand">展开全部</button>
@@ -116,7 +121,22 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
     </div>
   </header>
   <div class="cl-list" id="clList">
-      <details class="cl-item" data-ver="v1.2.0" data-date="2026-10-19" open>
+      <details class="cl-item" data-ver="v1.3.0" data-date="2026-10-19" open>
+  <summary class="cl-sum">
+    <span class="cl-ver">v1.3.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">工作台与修复</span><span class="cl-date">2026-10-19</span>
+  </summary>
+  <ul class="cl-points">
+    <li>工作台：每日推荐右下角新增配色切换（白/深，记忆选择）、入场与切回动画、卡片固定尺寸；问问 AI 回答改为右下角通知卡，可展开查看、可在页面内浮动窗口中展开并继续提问</li>
+    <li>纪年查询：删除排序表头与底部排序提示；相同年号跨朝代时中国朝代优先；具体年份表格可直接点选复制年份</li>
+    <li>日本所藏汉籍检索：检索与结果间距收紧；左窄右宽且可拖拽调宽（记忆），删除「← 返回结果」，KD 改为源站详细检索地址</li>
+    <li>公文书馆：左窄右宽可拖拽；命中/分页行压缩为单行小字；清空同步清空详情；下载按钮缩小；批量下载书目清单上移、命名字段下拉贴按钮、预览框缩小；新增 DA 源站按钮</li>
+    <li>全站页面大标题再次统一：同字号/字重/行高，位置对齐并整体略低</li>
+    <li>修复设置「外观与快捷键」「关于」点击空白（分区切换只遍历了同步/API）</li>
+    <li>修复打开网页/文件夹时一闪而过的终端窗口（CREATE_NO_WINDOW）</li>
+    <li>修复 Windows 任务栏不显示软件 logo（显式窗口图标 + AppUserModelID）</li>
+  </ul>
+</details>
+  <details class="cl-item" data-ver="v1.2.0" data-date="2026-10-19" open>
   <summary class="cl-sum">
     <span class="cl-ver">v1.2.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">界面与工作台</span><span class="cl-date">2026-10-19</span>
   </summary>

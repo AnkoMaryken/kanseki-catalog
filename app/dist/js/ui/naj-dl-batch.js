@@ -89,9 +89,22 @@ function ensurePanel() {
       </div>
       <div class="dl-body">
         <div class="dlb-grid">
-          <label class="dl-field"><span>批量输入（每行一条：# 开头为注释）</span>
-            <textarea id="dlbInput" class="dlb-textarea" spellcheck="false"
-              placeholder="591091&#10;https://www.digital.archives.go.jp/file/1081945&#10;別０３８－０００１-0002"></textarea></label>
+          <div class="dlb-left">
+            <label class="dl-field"><span>批量输入（每行一条：# 开头为注释）</span>
+              <textarea id="dlbInput" class="dlb-textarea" spellcheck="false"
+                placeholder="591091&#10;https://www.digital.archives.go.jp/file/1081945&#10;別０３８－０００１-0002"></textarea></label>
+            <div class="dlb-list-head">
+              <b>书目清单</b>
+              <span id="dlbCount" class="dl-dim"></span>
+              <span class="dlb-list-act">
+                <button class="av-btn" type="button" id="dlbCheckAll">全选</button>
+                <button class="av-btn" type="button" id="dlbCheckNone">全不选</button>
+              </span>
+            </div>
+            <div class="dlb-list" id="dlbList">
+              <div class="dlc-empty">还没有条目。粘贴一批 ID / 链接 / 索书号后点「读取书目信息」。</div>
+            </div>
+          </div>
           <div class="dlb-side">
             <label class="dl-field"><span>输入类型</span>
               <select id="dlbMode">
@@ -126,18 +139,6 @@ function ensurePanel() {
             </div>
             <label class="dl-check"><input type="checkbox" id="dlbZip" checked> 每本完成后打包为 ZIP</label>
           </div>
-        </div>
-
-        <div class="dlb-list-head">
-          <b>书目清单</b>
-          <span id="dlbCount" class="dl-dim"></span>
-          <span class="dlb-list-act">
-            <button class="av-btn" type="button" id="dlbCheckAll">全选</button>
-            <button class="av-btn" type="button" id="dlbCheckNone">全不选</button>
-          </span>
-        </div>
-        <div class="dlb-list" id="dlbList">
-          <div class="dlc-empty">还没有条目。粘贴一批 ID / 链接 / 索书号后点「读取书目信息」。</div>
         </div>
       </div>
       <div class="dl-foot">
@@ -184,7 +185,12 @@ function ensurePanel() {
     const btn = e.target.closest('[data-dlb-tok]');
     if (btn) { e.stopPropagation(); toggleTokMenu(btn.dataset.dlbTok, btn); return; }
     const item = e.target.closest('[data-dlb-tok-ins]');
-    if (item) { e.stopPropagation(); insertTok(item.dataset.dlbTokIns); return; }
+    if (item) {
+      e.preventDefault();
+      e.stopPropagation();
+      insertTok(item.dataset.dlbTokIns);
+      return;
+    }
     if (!e.target.closest('#dlbTokMenu')) closeTokMenu();
   });
   for (const id of ['dlbTplFolder', 'dlbTplFile', 'dlbTplZip']) {
@@ -216,14 +222,13 @@ function toggleTokMenu(targetId, btn) {
     + '<button type="button" class="dlb-tok" data-dlb-tok-ins="{册次:02}" title="册次补零到 2 位">{册次:02}</button>'
     + '</div>';
   menu.hidden = false;
-  // 贴在对应输入框下方
-  const input = el(targetId);
-  if (input && btn) {
+  // V1.3（task-17）：把菜单移入被点的「字段 + ▾」容器，CSS 使其贴在该按钮正下方弹出
+  // （不再是整个预览区下方的一个公共浮层）
+  if (btn) {
     const wrap = btn.closest('.dlb-tpl-input') || btn.parentElement;
-    const box = (wrap || btn).getBoundingClientRect();
-    const host = el('dlbOverlay').getBoundingClientRect();
-    menu.style.left = Math.max(8, Math.round(box.left - host.left)) + 'px';
-    menu.style.top = Math.round(box.bottom - host.top + 4) + 'px';
+    if (wrap && menu.parentElement !== wrap) wrap.appendChild(menu);
+    const input = el(targetId);
+    if (input) input.focus({ preventScroll: true });
   }
 }
 
@@ -260,12 +265,12 @@ function renderTplPreview() {
   const fctx = { ...common, 册次: 1, 册名: it.title || '（册名）', 册ID: it.id || '（册ID）' };
   let file = truncateForNas(applyTemplate(el('dlbTplFile').value, fctx));
   if (file.toLowerCase().endsWith('.pdf')) file = file.slice(0, -4);
-  box.innerHTML = `<div class="dlb-preview-head">预览（以清单第一条为例）</div>
-    <div class="dl-preview-tree">
-      <div class="dl-ind1">${esc(folder)}/</div>
-      <div class="dl-ind2">${esc(file)}.pdf</div>
-      <div class="dl-ind1">${esc(folder)}/${esc(zip)}.zip</div>
-    </div>`;
+  box.innerHTML = `<div class="dlb-preview-head">预览（以清单第一条为例）</div>` +
+    `<div class="dl-preview-tree">` +
+    `<div class="dl-ind1">${esc(folder)}/</div>` +
+    `<div class="dl-ind2">${esc(file)}.pdf</div>` +
+    `<div class="dl-ind1">${esc(folder)}/${esc(zip)}.zip</div>` +
+    `</div>`;
 }
 
 function fillPresets() {
@@ -650,4 +655,9 @@ export function initBatchUi() {
 
 export function batchState() {
   return B.batch;
+}
+
+// 供自动化测试构造批量面板（浏览器/非 Tauri 环境无法从入口打开批量下载）
+if (typeof window !== 'undefined') {
+  window.__najBatchTest = { ensurePanel, renderTplPreview, toggleTokMenu };
 }

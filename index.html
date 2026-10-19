@@ -2052,6 +2052,18 @@ body.is-full-table .result-card .ch-right #fullTableBadge{ display:none !importa
 .v3-tbl .c-era{ font-weight:600; }
 .v3-tbl .c-muted{ color:var(--v3-t2); }
 .v3-tbl .num{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+.v3-tbl .c-span{ cursor:pointer; }
+.v3-tbl .c-span .v3-year-copy{
+  display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+  margin-left:6px; padding:0; border:1px solid transparent; border-radius:5px;
+  background:transparent; color:var(--v3-t3); cursor:pointer; vertical-align:middle;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.v3-tbl .c-span:hover .v3-year-copy,
+.v3-tbl .c-span .v3-year-copy:focus-visible{ background:var(--v3-hover); border-color:var(--v3-divider); color:var(--v3-t1); }
+.v3-tbl .c-span .v3-year-copy:hover{ background:var(--v3-fill); color:var(--v3-t1); }
+.v3-tbl .c-span .v3-year-copy.copied{ color:var(--v3-t1); background:var(--v3-fill); }
+.v3-tbl .c-span.copied .v3-year-copy{ color:var(--v3-t1); }
 .v3-pager{
   display:flex; align-items:center; gap:6px; margin-top:12px; padding-top:12px;
   border-top:1px solid var(--v3-divider); font-size:11.5px; color:var(--v3-t3);
@@ -2064,14 +2076,6 @@ body.is-full-table .result-card .ch-right #fullTableBadge{ display:none !importa
 }
 .v3-pager button:disabled{ opacity:.45; cursor:default; }
 [data-theme="dark"] .v3-pager button{ background:#262626; color:var(--v3-t2); }
-.v3-note{
-  display:none; gap:9px; margin-top:0; padding:11px 14px;
-  background:var(--v3-badge); border-radius:var(--v3-r-mid);
-  font-size:11.5px; color:var(--v3-t2); line-height:1.65;
-}
-body.v3-year .v3-note{ display:flex; }
-body.v3-year .v3-note svg{ width:16px; height:16px; flex:0 0 16px; fill:none; stroke:var(--v3-t2); stroke-width:1.8; margin-top:1px; }
-.v3-note p{ margin:0; }
 
 /* ---- 分页条 / 每页选择（放在白卡底部） ---- */
 .result-card .pager-row{
@@ -2079,6 +2083,7 @@ body.v3-year .v3-note svg{ width:16px; height:16px; flex:0 0 16px; fill:none; st
   padding-top:12px; margin-top:4px; border-top:1px solid var(--v3-divider); flex-wrap:wrap;
 }
 .result-card .pager-row[hidden]{ display:none !important; }
+#resultSub:empty{ display:none; }
 body.is-full-table .result-card .pager-row,
 body.v3-year .result-card .pager-row{ display:none !important; }
 .result-card .pagination{ padding:0; margin:0; border:0; gap:6px; display:flex; align-items:center; flex-wrap:wrap; }
@@ -2257,7 +2262,7 @@ body.v3-year .result-card .pager-row{ display:none !important; }
     </div>
   </div>
 
-  <!-- v3 结果白卡：卡头（「1600 年 · 4 条」+ 排序说明）/ 表格 / 分页 -->
+  <!-- v3 结果白卡：卡头（单年表仅显示年份）/ 表格 / 分页 -->
   <div class="result-card" id="resultCard">
     <div class="card-h">
       <div class="ch-left">
@@ -2276,11 +2281,6 @@ body.v3-year .result-card .pager-row{ display:none !important; }
 
     <!-- 单一年份搜索：v3 区域对照表（区域 / 朝代·幕府 / 年号 / 君主 / 干支 / 公元起止） -->
     <div id="v3Result" hidden></div>
-    <div class="v3-note" id="v3Note" role="note">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
-      <p>排序固定为<b>中国 → 日本 → 其他地区</b>；同一公历年可能对应多个年号，以农历正月初一为界。</p>
-    </div>
-
     <!-- 全表 / 多行结果：年份表格 -->
     <div class="table-wrapper" id="tableWrapper" role="region" aria-label="纪年对照数据表" style="position:relative;">
       <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
@@ -4038,12 +4038,18 @@ function detectPreciseHit(q, rows) {
     // 目标年: 该干支年份中, 年号命中且最接近
     const gzRows = rows.filter(r => r.ganzhi === gz);
     let hit = null;
+    // V1.3: 同一年号跨政权时，中国朝代优先（先找中国年号命中，再找其他政权）
+    const gzEraHit = (r) => (r.cnEraNames || []).some(e => e && e.includes(eraKeyword)) ||
+                            (r.jpEraNames || []).some(j => j && j.includes(eraKeyword)) ||
+                            (r.jpPeriods || []).some(p => p && p.includes(eraKeyword)) ||
+                            (r.cnDynasties || []).some(d => d && d.includes(eraKeyword));
     for (const r of gzRows) {
-      const eraHit = (r.cnEraNames || []).some(e => e && e.includes(eraKeyword)) ||
-                     (r.jpEraNames || []).some(j => j && j.includes(eraKeyword)) ||
-                     (r.jpPeriods || []).some(p => p && p.includes(eraKeyword)) ||
-                     (r.cnDynasties || []).some(d => d && d.includes(eraKeyword));
-      if (eraHit) { hit = r; break; }
+      if ((r.cnEraNames || []).some(e => e && e.includes(eraKeyword)) && gzEraHit(r)) { hit = r; break; }
+    }
+    if (!hit) {
+      for (const r of gzRows) {
+        if (gzEraHit(r)) { hit = r; break; }
+      }
     }
     if (!hit) return null;
     // 取命中的年号全名与归属
@@ -4068,8 +4074,11 @@ function detectPreciseHit(q, rows) {
       if (n >= 1 && n <= 60) {
         // 目标年 = 年号起始年 + n - 1 (按公历推算; 若行命中则直接取行)
         // 先尝试: rows 中 cnEra/jpEra 含 era 的起始行
-        const eraRows = rows.filter(r =>
+        let eraRows = rows.filter(r =>
           (r.cnEraNames || []).some(e => e === era) || (r.jpEraNames || []).some(e => e === era));
+        // V1.3: 同一年号跨政权时，中国朝代优先（起始年按中国年号计算）
+        const cnEraRows = eraRows.filter(r => (r.cnEraNames || []).some(e => e === era));
+        if (cnEraRows.length > 0) eraRows = cnEraRows;
         if (eraRows.length > 0) {
           const startRow = eraRows[0];
           const targetYear = startRow.year + n - 1;
@@ -4312,10 +4321,28 @@ function findEraNameInQuery(q) {
   return null;
 }
 
+// V1.3: 检索年号时，同一年号可能被中国、日本及其他地区共同使用：
+// 按 中国 → 日本 → 其他地区 的既有目标排序，保证中国朝代的结果优先展示。
+function rowEraRegionRank(row, eraName) {
+  if (!eraName) return 0;
+  if ((row.cnEraNames || []).some(e => e === eraName)) return 0;           // 中国
+  if ((row._v3jp || []).some(e => String(e.era || '').indexOf(eraName) === 0)) return 1; // 日本
+  if ((row._v3ot || []).some(e => String(e.era || '').indexOf(eraName) === 0)) return 2; // 其他地区
+  return 0;
+}
+
 function sortData() {
   // V4.2: 临近行/分隔行不参与排序 (保持跟随命中行的相对顺序)
   const real = filteredData.filter(r => !isNearbyRow(r) && !isNearbySep(r));
+  // V1.3: 仅检索年号时启用「中国优先」；按年份浏览/年份查询时仍保持纯纪年顺序
+  const q = (searchQuery || '').trim();
+  const eraName = q ? findEraNameInQuery(toSimplified(q).toLowerCase()) : null;
   real.sort((a, b) => {
+    if (eraName) {
+      const ra = rowEraRegionRank(a, eraName);
+      const rb = rowEraRegionRank(b, eraName);
+      if (ra !== rb) return ra - rb;   // 中国 → 日本 → 其他地区
+    }
     if (sortDir === 'asc') return a.year - b.year;
     return b.year - a.year;
   });
@@ -4695,10 +4722,6 @@ function v3ResultRow() {
   return real.length === 1 ? real[0] : null;
 }
 
-// 主题标签：排序说明（中国 → 日本 → 其他地区）
-function v3SortLabel() {
-  return toDisplay('排序：中国 → 日本 → 其他地区');
-}
 
 function setV3YearMode(on) {
   document.body.classList.toggle('v3-year', !!on);
@@ -4728,7 +4751,10 @@ function renderV3YearResult(row) {
       '<td class="c-era">' + a.era + '</td>' +
       '<td class="c-muted">' + a.ruler + '</td>' +
       '<td class="num">' + a.gz + '</td>' +
-      '<td class="num c-muted">' + a.span + '</td>' +
+      '<td class="num c-muted c-span" data-copy="' + escapeHtml(String(row.yearStr)) + toDisplay('年') + '" title="' + toDisplay('点击复制年份') + '">' +
+        a.span + '<button class="v3-year-copy" type="button" data-copy="' + escapeHtml(String(row.yearStr)) + toDisplay('年') + '" title="' + toDisplay('复制年份') + '" aria-label="' + toDisplay('复制年份') + '">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>' +
+        '</button></td>' +
     '</tr>'
   )).join('');
   box.innerHTML =
@@ -5063,9 +5089,9 @@ function updateStats() {
     selectedChinaFilters.size === 0 && selectedChinaEras.size === 0 && selectedJapanFilters.size === 0;
   if (titleEl && subEl) {
     if (v3row) {
-      const areas = v3AreaRowsForYear(v3row);
-      titleEl.innerHTML = toDisplay(v3row.yearStr) + ' ' + toDisplay('年') + ' · <b>' + areas.length + '</b> ' + toDisplay('条');
-      subEl.textContent = v3SortLabel();
+      // V1.3：具体年份表卡头只保留年份（不再显示「· N 条」与排序说明）
+      titleEl.innerHTML = toDisplay(v3row.yearStr) + ' ' + toDisplay('年');
+      subEl.textContent = '';
     } else if (browseAll) {
       titleEl.innerHTML = toDisplay('全部年份') + ' · <b>' + n.toLocaleString() + '</b> ' + toDisplay('年');
       subEl.textContent = toDisplay('排序：公历年份升序');
@@ -5856,7 +5882,7 @@ function init() {
   // Era copy button — event delegation
   // 复制按钮统一处理 (表格 .era-copy-btn 与卡片 .yc-copy 共用)
   function handleCopyClick(e) {
-    const btn = e.target.closest('.era-copy-btn, .yc-copy');
+    const btn = e.target.closest('.era-copy-btn, .yc-copy, .v3-year-copy, .c-span[data-copy]');
     if (!btn) return;
     e.stopPropagation();
     
@@ -5883,6 +5909,8 @@ function init() {
     });
   }
   document.getElementById('tableBody').addEventListener('click', handleCopyClick);
+  const v3Box = document.getElementById('v3Result');
+  if (v3Box) v3Box.addEventListener('click', handleCopyClick);
   const cardViewEl = document.getElementById('cardView');
   if (cardViewEl) cardViewEl.addEventListener('click', handleCopyClick);
   

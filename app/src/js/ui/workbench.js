@@ -49,6 +49,11 @@ const IC = {
   trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 13h9l1-13"/></svg>',
   gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.16.6.7 1 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>',
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></svg>',
+  moon: '<svg viewBox="0 0 24 24"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2z"/></svg>',
+  expand: '<svg viewBox="0 0 24 24"><path d="M9 4H4v5M15 4h5v5M15 20h5v-5M9 20H4v-5"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  win: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M3.5 9h17"/><path d="M8 5V3.2M12 5V3.2M16 5V3.2"/></svg>',
 };
 
 // ---------------------------------------------------------------- 常量
@@ -56,6 +61,7 @@ const USER_KEY = 'kanseki_user';
 const PROFILE_KEY = 'kanseki_profile';
 const LANG_KEY = 'kanseki_lang';
 const TODO_KEY = 'kanseki_todo_v1';
+const DAILY_TONE_KEY = 'kanseki_wb_daily_tone';
 const WEEK_CN = ['日', '一', '二', '三', '四', '五', '六'];
 
 const AI_SYSTEM_PROMPT = [
@@ -77,6 +83,7 @@ const AI_CHIPS = [
 const state = {
   dailyBase: null,
   dailyOffset: 0,
+  dailyTone: 'ink',      // 'ink' 深色主卡 | 'paper' 白色卡片（持久化）
   stats: { records: 0 },
   recent: [],
   calMonth: null,        // Date（当月 1 日）
@@ -91,6 +98,8 @@ const state = {
     answer: '',
     error: '',
     draft: '',
+    history: [],         // [{role:'user'|'assistant', content}]
+    notice: null,        // {q, a, expanded, dismissed}
   },
 };
 
@@ -166,22 +175,64 @@ function dailyBodyHtml() {
     + `<div class="wb2-tip-src">${esc(item.src || '编目小识')}</div>`;
 }
 
+/* -------------------- 每日推荐：配色（深色 / 白色） -------------------- */
+function loadDailyTone() {
+  try {
+    const v = localStorage.getItem(DAILY_TONE_KEY);
+    return v === 'paper' ? 'paper' : 'ink';
+  } catch (_) { return 'ink'; }
+}
+
+function saveDailyTone(tone) {
+  try { localStorage.setItem(DAILY_TONE_KEY, tone); } catch (_) { /* 忽略 */ }
+}
+
+function applyDailyTone() {
+  const card = $('wb2Daily');
+  if (!card) return;
+  card.classList.toggle('is-paper', state.dailyTone === 'paper');
+  const btn = card.querySelector('.wb2-tone');
+  if (btn) {
+    const toPaper = state.dailyTone !== 'paper';
+    btn.innerHTML = (toPaper ? IC.sun : IC.moon) + '<span>' + (toPaper ? '白色' : '深色') + '</span>';
+    btn.setAttribute('aria-label', toPaper ? '切换为白色卡片' : '切换为深色卡片');
+    btn.setAttribute('title', toPaper ? '切换为白色卡片' : '切换为深色卡片');
+  }
+}
+
+function toggleDailyTone() {
+  state.dailyTone = state.dailyTone === 'paper' ? 'ink' : 'paper';
+  saveDailyTone(state.dailyTone);
+  applyDailyTone();
+  const card = $('wb2Daily');
+  if (card) {
+    card.classList.remove('tone-swap');
+    void card.offsetWidth; // 重启动画
+    card.classList.add('tone-swap');
+  }
+}
+
 function dailyHeroHtml() {
   const d = new Date();
   const date = `${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+  const toneLabel = state.dailyTone === 'paper' ? '深色' : '白色';
+  const toneIcon = state.dailyTone === 'paper' ? IC.moon : IC.sun;
+  const toneAria = state.dailyTone === 'paper' ? '切换为深色卡片' : '切换为白色卡片';
   return ''
     + '<div class="wb2-hero-head">'
     +   '<span class="wb2-hero-tag"><span class="dot"></span>每日推荐</span>'
     +   `<span class="wb2-hero-date">${esc(date)}</span>`
     +   `<button class="wb2-refresh" type="button" data-act="daily-refresh" title="换一条">${IC.refresh}换一条</button>`
     + '</div>'
-    + `<div class="wb2-hero-body" id="wb2DailyBody">${dailyBodyHtml()}</div>`;
+    + `<div class="wb2-hero-body" id="wb2DailyBody">${dailyBodyHtml()}</div>`
+    + `<button class="wb2-tone" type="button" data-act="daily-tone" title="${toneAria}" aria-label="${toneAria}">${toneIcon}<span>${toneLabel}</span></button>`;
 }
 
 function updateDaily() {
   const card = $('wb2Daily');
   if (!card) return;
   card.innerHTML = dailyHeroHtml();
+  applyDailyTone();
   const body = $('wb2DailyBody');
   if (body) body.classList.add('swap');
 }
@@ -217,7 +268,7 @@ function quickCards() {
   return [
     ['#/query', IC.cal, '纪年查询', '公历年 → 朝代年号'],
     ['#/kanseki', IC.tree, '古籍类目', '书名 → 总目分类'],
-    ['#/kansekidb', IC.search, '汉籍检索（日本）', '全國漢籍データベース'],
+    ['#/kansekidb', IC.search, '日本所藏汉籍检索', '全國漢籍データベース'],
     ['#/najdb', IC.archive, '日本国立公文书馆', '内閣文庫 · 可下载'],
     ['#/records', IC.pen, '编目记录', records ? `本机 ${records} 条` : '本机 · 尚未录入'],
   ].map(([hash, ic, t, s]) => `
@@ -296,7 +347,10 @@ function aiAnswerHtml() {
     return `<div class="wb2-ai-answer"><span class="err">${esc(state.ai.error)}</span></div>`;
   }
   if (state.ai.answer) {
-    return `<div class="wb2-ai-answer" id="wb2AiAnswer">${mdLite(state.ai.answer)}</div>`;
+    return `<div class="wb2-ai-answer" id="wb2AiAnswer">${mdLite(state.ai.answer)}</div>`
+      + '<div class="wb2-ai-answer-foot">'
+      +   `<button class="wb2-ai-mini" type="button" data-act="ai-window">${IC.win}新窗口查看并继续提问</button>`
+      + '</div>';
   }
   return '<div class="wb2-ai-answer" id="wb2AiAnswer"></div>';
 }
@@ -381,12 +435,19 @@ async function sendAI() {
   state.ai.error = '';
   state.ai.answer = '';
   updateAI();
+  // 带上前几轮对话（最多 8 条）以便追问
+  const ctxHistory = state.ai.history.slice(-8);
+  const messages = [{ role: 'system', content: AI_SYSTEM_PROMPT }]
+    .concat(ctxHistory)
+    .concat([{ role: 'user', content: q }]);
   try {
-    const r = await mod.chat([
-      { role: 'system', content: AI_SYSTEM_PROMPT },
-      { role: 'user', content: q },
-    ], { temperature: 0.3 });
-    state.ai.answer = (r && r.content) || '（模型没有返回内容，请重试）';
+    const r = await mod.chat(messages, { temperature: 0.3 });
+    const answer = (r && r.content) || '（模型没有返回内容，请重试）';
+    state.ai.answer = answer;
+    state.ai.history.push({ role: 'user', content: q });
+    state.ai.history.push({ role: 'assistant', content: answer });
+    if (state.ai.history.length > 24) state.ai.history = state.ai.history.slice(-24);
+    showAiNotice(q, answer);
   } catch (e) {
     state.ai.error = '请求失败：' + ((e && e.message) || e);
     state.ai.draft = q;
@@ -415,6 +476,262 @@ function mdLite(src) {
   });
   if (inList) html += '</ul>';
   return html || '<p></p>';
+}
+
+// ---------------------------------------------------------------- AI 回答通知 / 独立对话窗口
+function previewText(s, n) {
+  const t = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  return t.length > n ? t.slice(0, n - 1) + '…' : t;
+}
+
+function showAiNotice(q, a) {
+  state.ai.notice = { q: q, a: a, expanded: false, dismissed: false, at: Date.now() };
+  mountNotice(true);
+}
+
+function noticeHtml() {
+  const n = state.ai.notice;
+  if (!n) return '';
+  const head = ''
+    + '<div class="wb2-notice-head">'
+    +   `<span class="wb2-notice-ico">${IC.spark}</span>`
+    +   '<div class="wb2-notice-tx"><b>AI 回答好了</b><span>' + esc(previewText('你问：' + n.q, 46)) + '</span></div>'
+    +   `<button class="wb2-notice-x" type="button" data-act="notice-close" title="关闭通知" aria-label="关闭通知">${IC.x}</button>`
+    + '</div>';
+  if (!n.expanded) {
+    return head
+      + `<div class="wb2-notice-preview">${esc(previewText(n.a, 132))}</div>`
+      + '<div class="wb2-notice-foot">'
+      +   '<span class="wb2-notice-hint">点击展开完整回答</span>'
+      +   `<button class="wb2-notice-btn" type="button" data-act="notice-window">${IC.win}新窗口</button>`
+      + '</div>';
+  }
+  return head
+    + '<div class="wb2-notice-qline">' + esc(n.q) + '</div>'
+    + `<div class="wb2-notice-answer">${mdLite(n.a)}</div>`
+    + '<div class="wb2-notice-foot">'
+    +   `<button class="wb2-notice-btn ghost" type="button" data-act="notice-collapse">收起</button>`
+    +   `<button class="wb2-notice-btn" type="button" data-act="notice-window">${IC.win}新窗口查看并继续提问</button>`
+    + '</div>';
+}
+
+function mountNotice(animate) {
+  const root = $('wbRoot');
+  if (!root) return;
+  let el = $('wb2Notice');
+  const n = state.ai.notice;
+  if (!n || n.dismissed) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'wb2Notice';
+    el.className = 'wb2-notice';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    root.appendChild(el);
+  }
+  el.classList.toggle('expanded', !!n.expanded);
+  el.innerHTML = noticeHtml();
+  if (animate) {
+    el.classList.remove('in');
+    void el.offsetWidth;
+    el.classList.add('in');
+  }
+}
+
+function toggleNotice(expanded) {
+  if (!state.ai.notice) return;
+  state.ai.notice.expanded = (typeof expanded === 'boolean') ? expanded : !state.ai.notice.expanded;
+  mountNotice();
+}
+
+function dismissNotice() {
+  if (!state.ai.notice) return;
+  state.ai.notice.dismissed = true;
+  mountNotice();
+}
+
+function absAssetUrl(p) {
+  try { return new URL(p, location.href).href; } catch (_) { return p; }
+}
+
+/* 新窗口内的启动脚本（.toString() 注入到生成页面；只依赖 window 上的两个变量） */
+function aiWindowBoot() {
+  'use strict';
+  var HISTORY = window.__WB_AI_HISTORY || [];
+  var SYS = window.__WB_AI_SYS || '';
+  var list = document.getElementById('wbAiWinList');
+  var input = document.getElementById('wbAiWinInput');
+  var send = document.getElementById('wbAiWinSend');
+  var hint = document.getElementById('wbAiWinHint');
+  var busy = false;
+  var history = HISTORY.slice();
+
+  function mod() { return window.KansekiAI || null; }
+  function cfg() {
+    try {
+      var m = mod();
+      return (m && typeof m.getConfig === 'function') ? m.getConfig() : null;
+    } catch (e) { return null; }
+  }
+  function addMsg(role, text, cls) {
+    var wrap = document.createElement('div');
+    wrap.className = 'wb2-aiwin-msg ' + role + (cls ? ' ' + cls : '');
+    var bubble = document.createElement('div');
+    bubble.className = 'wb2-aiwin-bubble';
+    bubble.textContent = text;
+    wrap.appendChild(bubble);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+    return wrap;
+  }
+  function refreshHint() {
+    if (!hint) return;
+    var m = mod();
+    var c = cfg();
+    if (!m || typeof m.chat !== 'function') {
+      hint.textContent = 'AI 配置模块未加载';
+      if (input) input.disabled = true;
+      if (send) send.disabled = true;
+      return;
+    }
+    if (!c || !c.hasKey) {
+      hint.textContent = '尚未配置 DeepSeek API Key（设置 → API 管理）';
+      if (input) input.disabled = true;
+      if (send) send.disabled = true;
+      return;
+    }
+    hint.textContent = '模型 ' + (c.model || '');
+  }
+  function sendMsg() {
+    if (busy) return;
+    var q = ((input && input.value) || '').trim();
+    if (!q) { if (input) input.focus(); return; }
+    var m = mod();
+    if (!m || typeof m.chat !== 'function') return;
+    if (input) input.value = '';
+    busy = true;
+    if (send) send.disabled = true;
+    addMsg('user', q);
+    history.push({ role: 'user', content: q });
+    var loading = addMsg('assistant', '正在思考…', 'loading');
+    var msgs = [{ role: 'system', content: SYS }].concat(history.slice(-12));
+    m.chat(msgs, { temperature: 0.3 }).then(function (r) {
+      var text = (r && r.content) || '（模型没有返回内容，请重试）';
+      if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
+      addMsg('assistant', text);
+      history.push({ role: 'assistant', content: text });
+      if (history.length > 40) history = history.slice(-40);
+    }, function (e) {
+      if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
+      addMsg('assistant', '请求失败：' + ((e && e.message) || e), 'err');
+    }).then(function () {
+      busy = false;
+      if (send) send.disabled = false;
+      if (input) input.focus();
+    });
+  }
+  if (input) {
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+    });
+  }
+  if (send) send.addEventListener('click', sendMsg);
+  if (HISTORY.length) {
+    HISTORY.forEach(function (m) {
+      addMsg(m.role === 'user' ? 'user' : 'assistant', String(m.content == null ? '' : m.content));
+    });
+  } else {
+    addMsg('assistant', '你好，我是古籍编目助手。可以在这里继续提问。');
+  }
+  refreshHint();
+  setTimeout(function () { if (input && !input.disabled) input.focus(); }, 80);
+}
+
+function buildAiWindowHtml(historyJson) {
+  const cssV3 = absAssetUrl('css/v3.css');
+  const cssWb2 = absAssetUrl('css/wb2.css');
+  const aiJs = absAssetUrl('pages/ai-config.js');
+  const icon = IC.spark;
+  return [
+    '<!doctype html>',
+    '<html lang="zh-CN" class="wb2-win" data-theme="light">',
+    '<head>',
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    '<title>问问 AI · 编目助手</title>',
+    '<link rel="stylesheet" href="' + cssV3 + '">',
+    '<link rel="stylesheet" href="' + cssWb2 + '">',
+    '<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}<\/script>',
+    '<script src="' + aiJs + '"><\/script>',
+    '</head>',
+    '<body>',
+    '<div id="wbRoot" class="wb2-aiwin">',
+    '  <header class="wb2-aiwin-head">',
+    '    <span class="wb2-aiwin-ico">' + icon + '</span>',
+    '    <div class="wb2-aiwin-title"><b>问问 AI</b><span>古籍编目助手 · 可继续追问</span></div>',
+    '    <span class="wb2-aiwin-hint" id="wbAiWinHint"></span>',
+    '  </header>',
+    '  <div class="wb2-aiwin-list" id="wbAiWinList"></div>',
+    '  <div class="wb2-aiwin-input">',
+    '    <textarea id="wbAiWinInput" rows="2" placeholder="继续提问…（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="wbAiWinSend" class="wb2-aiwin-send" type="button">发送</button>',
+    '  </div>',
+    '</div>',
+    '<script>window.__WB_AI_HISTORY = ' + historyJson + ';window.__WB_AI_SYS = ' + JSON.stringify(AI_SYSTEM_PROMPT) + ';<\/script>',
+    '<script>(' + aiWindowBoot.toString() + ')();<\/script>',
+    '</body>',
+    '</html>',
+  ].join('\n');
+}
+
+/* V1.3：页内浮动窗口（用户要求不做独立窗口）。
+   复用原有 aiWindowBoot 的对话逻辑，但渲染在当前页面的模态浮层里，
+   关闭后保留历史（state.ai.history 继续累积）。 */
+function closeAIOverlay() {
+  const m = document.getElementById('wb2AiModal');
+  if (m) m.remove();
+  state.ai.overlayBound = false;
+}
+
+function openAIWindow() {
+  const history = (state.ai.history || []).slice(-20);
+  closeAIOverlay();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'wb2-aiwin-overlay';
+  overlay.id = 'wb2AiModal';
+  overlay.innerHTML = [
+    '<div class="wb2-aiwin-panel" role="dialog" aria-modal="true" aria-label="问问 AI">',
+    '  <button class="wb2-aiwin-close" type="button" data-close title="关闭">×</button>',
+    '  <header class="wb2-aiwin-head">',
+    '    <span class="wb2-aiwin-ico">' + IC.spark + '</span>',
+    '    <div class="wb2-aiwin-title"><b>问问 AI</b><span>古籍编目助手 · 可继续追问</span></div>',
+    '    <span class="wb2-aiwin-hint" id="wbAiWinHint"></span>',
+    '  </header>',
+    '  <div class="wb2-aiwin-list" id="wbAiWinList"></div>',
+    '  <div class="wb2-aiwin-input">',
+    '    <textarea id="wbAiWinInput" rows="2" placeholder="继续提问…（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '    <button id="wbAiWinSend" class="wb2-aiwin-send" type="button">发送</button>',
+    '  </div>',
+    '</div>',
+  ].join('');
+  document.getElementById('wbRoot').appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay || e.target.closest('[data-close]')) closeAIOverlay();
+  });
+  const onKey = (e) => { if (e.key === 'Escape') { closeAIOverlay(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+
+  window.__WB_AI_HISTORY = history;
+  window.__WB_AI_SYS = AI_SYSTEM_PROMPT;
+  try { aiWindowBoot(); } catch (e) {
+    const list = document.getElementById('wbAiWinList');
+    if (list) list.textContent = '对话窗口初始化失败：' + ((e && e.message) || e);
+  }
+  const ta = document.getElementById('wbAiWinInput');
+  if (ta) setTimeout(() => ta.focus(), 60);
+  return overlay;
 }
 
 // ---------------------------------------------------------------- 工作日历 / 待办
@@ -639,11 +956,12 @@ function headHtml() {
 function renderAll() {
   const root = $('wbRoot');
   if (!root) return;
+  const toneCls = state.dailyTone === 'paper' ? ' is-paper' : '';
   root.innerHTML = ''
     + '<div class="wb2-head">' + headHtml() + '</div>'
     + `<div class="wb2-quick">${quickCards()}</div>`
     + '<div class="wb2-hero-grid">'
-    +   `<section class="wb2-hero" id="wb2Daily">${dailyHeroHtml()}</section>`
+    +   `<section class="wb2-hero wb2-reveal${toneCls}" id="wb2Daily">${dailyHeroHtml()}</section>`
     +   '<section class="wb2-card wb2-ai" id="wb2AiCard"><div class="wb2-ai-head"><span class="wb2-ai-ico">' + IC.spark + '</span><div class="wb2-ai-title"><b>问问 AI</b><span>古籍编目助手 · DeepSeek</span></div></div><div class="wb2-ai-empty"><p class="wb2-ai-hint">正在加载 AI 配置…</p></div></section>'
     + '</div>'
     + '<div class="wb2-lower-grid">'
@@ -653,8 +971,10 @@ function renderAll() {
     +     `<section class="wb2-card wb2-recent"><div class="wb2-card-head"><h3>最近更新</h3></div>${recentHtml()}</section>`
     +   '</div>'
     + '</div>';
+  applyDailyTone();
   bindRootEvents(root);
   updateAI();
+  mountNotice();
 }
 
 function bindRootEvents(root) {
@@ -662,6 +982,12 @@ function bindRootEvents(root) {
   root.__wb2Bound = true;
 
   root.addEventListener('click', (e) => {
+    /* 通知卡片：点正文展开/收起（按钮另行处理） */
+    if (e.target.closest('.wb2-notice') && !e.target.closest('[data-act]')) {
+      toggleNotice();
+      return;
+    }
+
     const goEl = e.target.closest('[data-go]');
     if (goEl) { go(goEl.getAttribute('data-go')); return; }
 
@@ -691,12 +1017,17 @@ function bindRootEvents(root) {
     if (name === 'daily-refresh') {
       state.dailyOffset += 1;
       updateDaily();
+    } else if (name === 'daily-tone') {
+      toggleDailyTone();
     } else if (name === 'cal-prev') calShift(-1);
     else if (name === 'cal-next') calShift(1);
     else if (name === 'cal-today') calToday();
     else if (name === 'todo-add') addTodo();
     else if (name === 'ai-send') sendAI();
     else if (name === 'ai-settings') aiSettings();
+    else if (name === 'ai-window' || name === 'notice-window') openAIWindow();
+    else if (name === 'notice-close') dismissNotice();
+    else if (name === 'notice-collapse') toggleNotice(false);
     else if (name === 'ai-reload') {
       state.ai.tried = false;
       state.ai.module = null;
@@ -755,7 +1086,8 @@ export async function initWorkbench() {
   const root = $('wbRoot');
   if (!root) return;
 
-  // 月份 / 选中日期只在首屏初始化；之后由用户点选或翻月控制
+  // 每日推荐配色（持久化）与日历初始状态
+  state.dailyTone = loadDailyTone();
   const now = new Date();
   if (!state.calMonth) state.calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   if (!state.calSel) state.calSel = dateKey(now);
@@ -770,3 +1102,23 @@ export async function initWorkbench() {
 
   renderAll();
 }
+
+/* 调试 / 自测钩子（不参与界面逻辑；便于自动化脚本模拟 AI 回答与新窗口） */
+try {
+  window.__wb2Debug = {
+    state: state,
+    initWorkbench: initWorkbench,
+    showAiNotice: showAiNotice,
+    mountNotice: mountNotice,
+    openAIWindow: openAIWindow,
+    simulateAnswer: function (q, a) {
+      state.ai.history.push({ role: 'user', content: q });
+      state.ai.history.push({ role: 'assistant', content: a });
+      state.ai.answer = a;
+      state.ai.error = '';
+      showAiNotice(q, a);
+      updateAI();
+      mountNotice(true);
+    },
+  };
+} catch (_) { /* 忽略 */ }

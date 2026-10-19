@@ -15,6 +15,23 @@
 // ================================================
 use tauri::Manager;
 
+/// Windows：静默启动外部程序。
+/// 背景（用户反馈）：点「打开网页」「打开文件夹」等按钮时会闪一下 cmd 控制台窗口。
+/// 原因是 std::process::Command 启动 cmd.exe 时默认会新建控制台。
+/// 这里加 CREATE_NO_WINDOW(0x08000000) 标志，控制台完全不显示。
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+#[cfg(target_os = "windows")]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+#[cfg(target_os = "windows")]
+fn hidden_command(program: &str) -> std::process::Command {
+    let mut c = std::process::Command::new(program);
+    c.creation_flags(CREATE_NO_WINDOW);
+    c
+}
+
 /// 显示并聚焦主窗口（V10.0：从托盘/下载中心唤回窗口用）
 #[tauri::command]
 pub async fn app_show_main(app: tauri::AppHandle) -> Result<(), String> {
@@ -213,7 +230,7 @@ pub async fn open_path(path: String) -> Result<(), String> {
     }
     #[cfg(target_os = "windows")]
     {
-        std::process::Command::new("cmd")
+        hidden_command("cmd")
             .args(["/C", "start", "", &p.to_string_lossy()])
             .spawn()
             .map_err(|e| format!("打开文件失败：{}", e))?;
@@ -255,7 +272,7 @@ pub async fn reveal_path(path: String) -> Result<(), String> {
     }
     #[cfg(target_os = "windows")]
     {
-        std::process::Command::new("explorer")
+        hidden_command("explorer")
             .arg(dir.to_string_lossy().as_ref())
             .spawn()
             .map_err(|e| format!("打开文件夹失败：{}", e))?;
@@ -300,7 +317,7 @@ pub async fn open_external(url: String) -> Result<(), String> {
     {
         // cmd /C start "" "<url>" —— 第一个空串是窗口标题占位，
         // 否则 start 会把带引号的 URL 当成标题而不去打开。
-        std::process::Command::new("cmd")
+        hidden_command("cmd")
             .args(["/C", "start", "", u])
             .spawn()
             .map_err(|e| format!("调用系统默认程序失败：{}", e))?;
@@ -325,3 +342,4 @@ pub async fn open_external(url: String) -> Result<(), String> {
         Ok(())
     }
 }
+

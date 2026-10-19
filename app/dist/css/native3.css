@@ -1,0 +1,348 @@
+/* ================================================================
+   native3.css — 日藏 / 公文书馆 v1.3（task-17）
+   仅覆盖 #view-kansekidb / #view-najdb 与批量下载弹窗；
+   由 app/src/index.html 在 app.css、v3.css 之后引入，故同优先级后者生效。
+   ================================================================ */
+
+/* ================================================================
+   1. 检索卡与结果区之间：压缩到 6–8px（用户要求 6–8px）
+   v3.css 把 .av-wrap 的 gap 抬到 16px，这里在 kdb-wrap 上收回 6px；
+   检索卡自身不再额外留 margin，卡→状态行 = 6px gap + 2px margin = 8px。
+   ================================================================ */
+.kdb-wrap {
+  gap: 6px !important;
+}
+
+.kdb-wrap .kdb-card {
+  margin-bottom: 0 !important;
+}
+
+.kdb-wrap .kdb-split {
+  margin-top: 2px;
+}
+
+/* ================================================================
+   2. 日藏 / 公文书馆：左窄右宽两栏（0.75 : 1.25）+ 中间可拖拽
+   默认左栏 37.5%；拖动后由 --split-left 控制，值记忆在 localStorage。
+   ================================================================ */
+.kdb-wrap .kdb-split,
+.kdb-split.view-results,
+.kdb-split.view-detail {
+  display: grid !important;
+  grid-template-columns: var(--split-left, 37.5%) 7px minmax(0, 1fr) !important;
+  gap: 0 !important;
+  align-items: stretch;
+  min-height: 320px;
+  margin-top: 4px;
+}
+
+.kdb-split .kdb-panel {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 两栏之间已有分隔条，取消详情栏的左侧描边 */
+.kdb-split .kdb-detail {
+  border-left: 0 !important;
+}
+
+/* 拖动分隔条 */
+.kdb-split-divider {
+  position: relative;
+  flex: 0 0 7px;
+  width: 7px;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background: transparent;
+  border-radius: 999px;
+  outline: none;
+}
+
+.kdb-split-divider::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--divider);
+  border-radius: 1px;
+  transition: background 120ms, width 120ms;
+}
+
+.kdb-split-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background: var(--border);
+  opacity: .55;
+  transition: background 120ms, opacity 120ms;
+}
+
+.kdb-split-divider:hover::before,
+.kdb-split-divider:focus-visible::before,
+.kdb-split.is-dragging .kdb-split-divider::before,
+body.kdb-col-dragging .kdb-split-divider::before {
+  background: var(--accent);
+  width: 2px;
+}
+
+.kdb-split-divider:hover::after,
+.kdb-split-divider:focus-visible::after,
+.kdb-split.is-dragging .kdb-split-divider::after,
+body.kdb-col-dragging .kdb-split-divider::after {
+  background: var(--accent);
+  opacity: 1;
+}
+
+body.kdb-col-dragging {
+  cursor: col-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 详情栏空态提示（去掉旧「← 返回结果」语感） */
+.kdb-detail:empty::after {
+  content: '点左侧条目查看详细信息';
+}
+
+/* 详情顶部只保留位置信息（返回按钮已删除） */
+.kdb-split .kdb-detail-bar {
+  min-height: 22px;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.kdb-split .kdb-detail-bar:empty {
+  display: none;
+}
+
+/* 窄屏（<1080）仍按单栏阅读，隐藏拖动条 */
+@media (max-width: 1080px) {
+  .kdb-wrap .kdb-split,
+  .kdb-split.view-results,
+  .kdb-split.view-detail {
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 0;
+  }
+  .kdb-split-divider { display: none !important; }
+}
+
+/* ================================================================
+   3. 公文书馆：命中 / 条件 / 显示件数 / 翻页压缩成一行，不换行
+   ================================================================ */
+.naj-wrap .kdb-statusbar {
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 5px 2px 0 !important;
+  min-height: 22px;
+  overflow: hidden;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+.naj-wrap .kdb-statusbar .kdb-status {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 33%;
+  min-height: 0;
+  padding: 0;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.naj-wrap .kdb-statusbar .naj-cond {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.naj-wrap .naj-rows-wrap {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+.naj-wrap .naj-rows-btn {
+  height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.naj-wrap .naj-rows-btn .kdb-caret {
+  font-size: 9px;
+}
+
+.naj-wrap .naj-pager {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px !important;
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+/* [hidden] 的 UA display:none 会被上面的 display:inline-flex 覆盖，必须显式兜底 */
+.naj-wrap .naj-pager[hidden],
+.naj-wrap .naj-rows-wrap[hidden] {
+  display: none !important;
+}
+
+.naj-wrap .naj-pager .av-btn {
+  height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  line-height: 1;
+}
+
+.naj-wrap .naj-page-info {
+  font-size: 11px !important;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* ================================================================
+   4. 公文书馆：每条结果的「下载」按钮缩小
+   ================================================================ */
+.naj-wrap .dl-row-btn {
+  height: 20px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: 10.5px !important;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+.naj-wrap .naj-row-head {
+  gap: 6px;
+}
+
+/* ================================================================
+   5. 批量下载弹窗：书目清单移到输入框下方；▾ 下拉贴各自按钮下方；
+      预览框缩小
+   ================================================================ */
+.dlb-modal {
+  width: min(1080px, 96vw) !important;
+}
+
+.dlb-grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 12px !important;
+}
+
+.dlb-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dlb-left .dlb-textarea {
+  min-height: 150px;
+  height: 150px;
+  resize: vertical;
+}
+
+.dlb-left .dlb-list-head {
+  margin: 2px 0 0;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.dlb-left .dlb-list {
+  max-height: 236px;
+  min-height: 96px;
+}
+
+.dlb-side {
+  gap: 6px !important;
+}
+
+.dlb-tpl {
+  padding: 8px 10px !important;
+}
+
+/* ▾ 下拉：贴在被点按钮正下方（菜单被 JS 移入对应 .dlb-tpl-input 内） */
+.dlb-tpl-input {
+  position: relative;
+}
+
+.dlb-tpl-input .dlb-tok-menu {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  right: 0 !important;
+  left: auto !important;
+  z-index: 80 !important;
+  width: min(300px, calc(100vw - 96px)) !important;
+  min-width: 240px !important;
+  max-width: min(300px, calc(100vw - 96px)) !important;
+  max-height: 232px !important;
+  overflow: auto !important;
+  padding: 7px 9px !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .18) !important;
+}
+
+/* 预览框整体缩小 */
+.dlb-preview {
+  margin-top: 5px !important;
+}
+
+.dlb-preview-head {
+  font-size: 10.5px !important;
+  margin-bottom: 2px !important;
+}
+
+.dlb-preview .dl-preview-tree {
+  font-size: 10.5px !important;
+  line-height: 1.5 !important;
+  padding: 5px 8px !important;
+}
+
+.dlb-preview .dl-ind1 { padding-left: 10px; }
+.dlb-preview .dl-ind2 { padding-left: 20px; }
+
+/* 窄屏：退回单列（清单仍紧跟在输入框下方） */
+@media (max-width: 1000px) {
+  .dlb-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* ================================================================
+   6. 暗色适配（颜色变量已在 v3.css 定义，这里只兜底滚动条/描边）
+   ================================================================ */
+[data-theme="dark"] .kdb-split-divider::before {
+  background: rgba(255, 255, 255, .16);
+}
+
+[data-theme="dark"] .kdb-split-divider::after {
+  background: rgba(255, 255, 255, .28);
+}
+
+[data-theme="dark"] .dlb-tok-menu {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .55) !important;
+}

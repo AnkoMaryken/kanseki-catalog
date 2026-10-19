@@ -445,12 +445,25 @@ if (IS_TAURI) {
 /* ---------- 左栏切换 ---------- */
 /* V9.3.1：移除「个人中心」分区，只保留 同步设置 / API 管理 */
 function showPane(name) {
-  ['sync', 'api'].forEach(function (n) {
-    var tab = document.getElementById('tab-' + n);
-    var pane = document.getElementById('pane-' + n);
-    if (tab && !tab.hidden) tab.classList.toggle('active', n === name);
-    if (pane) pane.classList.toggle('active', n === name);
-  });
+  // V1.3 修复：原来只遍历 ['sync','api']，导致「外观与快捷键」「关于」点了空白。
+  // 改为按 DOM 中实际页签动态遍历，新增分区无需再改这里。
+  var tabs = document.querySelectorAll('.set-tab');
+  var found = false;
+  for (var i = 0; i < tabs.length; i++) {
+    var tab = tabs[i];
+    var key = tab.getAttribute('data-pane');
+    if (!key) continue;
+    var pane = document.getElementById('pane-' + key);
+    var on = key === name;
+    if (on) found = true;
+    tab.classList.toggle('active', on);
+    if (pane) pane.classList.toggle('active', on);
+  }
+  if (!found) {
+    // 兜底：未知分区回落到第一个可用页签
+    var first = tabs[0];
+    if (first) showPane(first.getAttribute('data-pane'));
+  }
 }
 document.querySelectorAll('.set-tab').forEach(function (b) {
   b.addEventListener('click', function () { showPane(b.getAttribute('data-pane')); });

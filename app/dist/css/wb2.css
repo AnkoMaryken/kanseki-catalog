@@ -193,19 +193,21 @@
 #wbRoot .wb2-stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
 /* ================================================================
-   3. 黑色主卡：每日推荐
+   3. 主卡：每日推荐（深色 / 白色两种配色，可切换、可持久化）
    ================================================================ */
 #wbRoot .wb2-hero {
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 306px;
-  padding: 24px 26px 22px;
+  height: 352px;               /* 固定高度：内容长短不引起跳动 */
+  min-height: 352px;
+  padding: 24px 26px 20px;
   border-radius: 28px;
   background: var(--wb-ink);
   color: var(--wb-on-ink);
   box-shadow: 0 18px 42px -18px rgba(0, 0, 0, .45), var(--wb-shadow);
+  transition: background 240ms ease, color 240ms ease, box-shadow 240ms ease;
 }
 
 #wbRoot .wb2-hero::before {
@@ -219,6 +221,7 @@
   background: radial-gradient(circle, color-mix(in srgb, var(--wb-accent) 46%, transparent) 0%, transparent 68%);
   opacity: .55;
   pointer-events: none;
+  transition: opacity 240ms ease;
 }
 
 #wbRoot .wb2-hero::after {
@@ -231,6 +234,7 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 255, 255, .07) 0%, transparent 70%);
   pointer-events: none;
+  transition: opacity 240ms ease;
 }
 
 #wbRoot .wb2-hero-head {
@@ -254,6 +258,7 @@
   font-size: var(--fs-caption, 11.5px);
   font-weight: 600;
   letter-spacing: .02em;
+  transition: background 240ms ease, color 240ms ease;
 }
 
 #wbRoot .wb2-hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -262,6 +267,7 @@
   font-size: var(--fs-caption, 11.5px);
   color: rgba(255, 255, 255, .45);
   font-variant-numeric: tabular-nums;
+  transition: color 240ms ease;
 }
 
 #wbRoot .wb2-refresh {
@@ -291,13 +297,45 @@
 
 #wbRoot .wb2-refresh svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
 
+/* 右下角：配色切换（低存在感小胶囊） */
+#wbRoot .wb2-tone {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .05);
+  color: rgba(255, 255, 255, .58);
+  font-family: inherit;
+  font-size: 10.5px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 180ms, color 180ms, border-color 180ms;
+}
+
+#wbRoot .wb2-tone:hover {
+  background: var(--wb-accent);
+  border-color: var(--wb-accent);
+  color: var(--wb-accent-ink);
+}
+
+#wbRoot .wb2-tone svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+
 #wbRoot .wb2-hero-body {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding-top: 16px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px 0 26px;      /* 底部留出配色按钮的位置 */
   min-width: 0;
 }
 
@@ -310,23 +348,34 @@
   letter-spacing: .01em;
   color: var(--wb-on-ink);
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 240ms ease;
 }
 
 #wbRoot .wb2-quote-src {
-  margin-top: 14px;
+  margin-top: 12px;
   font-size: var(--fs-sub, 12px);
   color: color-mix(in srgb, var(--wb-on-ink) 62%, transparent);
   text-align: right;
+  transition: color 240ms ease;
 }
 
 #wbRoot .wb2-hero-note {
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, .12);
   font-size: var(--fs-sub, 12px);
-  line-height: 1.85;
+  line-height: 1.8;
   color: color-mix(in srgb, var(--wb-on-ink) 74%, transparent);
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 240ms ease, border-color 240ms ease;
 }
 
 #wbRoot .wb2-tip-title {
@@ -336,6 +385,11 @@
   font-weight: 700;
   letter-spacing: -.01em;
   color: var(--wb-on-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 240ms ease;
 }
 
 #wbRoot .wb2-tip-body {
@@ -344,14 +398,89 @@
   line-height: 1.9;
   color: color-mix(in srgb, var(--wb-on-ink) 82%, transparent);
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 240ms ease;
 }
 
 #wbRoot .wb2-tip-src {
-  margin-top: 14px;
+  margin-top: 12px;
   align-self: flex-end;
   font-size: var(--fs-caption, 11.5px);
   color: var(--wb-accent);
   letter-spacing: .02em;
+  transition: color 240ms ease;
+}
+
+/* —— 白色配色（paper）：白卡 + 深字；暗色主题下为深灰卡 + 浅字 —— */
+#wbRoot .wb2-hero.is-paper {
+  background: var(--wb-card);
+  color: var(--wb-text);
+  box-shadow: var(--wb-shadow-lg), inset 0 0 0 1px var(--wb-line);
+}
+
+#wbRoot .wb2-hero.is-paper::before {
+  background: radial-gradient(circle, color-mix(in srgb, var(--wb-accent) 34%, transparent) 0%, transparent 70%);
+  opacity: .8;
+}
+
+#wbRoot .wb2-hero.is-paper::after {
+  background: radial-gradient(circle, color-mix(in srgb, var(--wb-text) 5%, transparent) 0%, transparent 70%);
+}
+
+#wbRoot .wb2-hero.is-paper .wb2-hero-tag {
+  background: var(--accent-soft, color-mix(in srgb, var(--wb-accent) 22%, transparent));
+  color: var(--wb-text);
+}
+
+#wbRoot .wb2-hero.is-paper .wb2-hero-tag .dot { background: var(--wb-accent); }
+
+#wbRoot .wb2-hero.is-paper .wb2-hero-date { color: var(--wb-muted); }
+
+#wbRoot .wb2-hero.is-paper .wb2-refresh,
+#wbRoot .wb2-hero.is-paper .wb2-tone {
+  border-color: var(--wb-line);
+  background: var(--wb-fill);
+  color: var(--wb-sec);
+}
+
+#wbRoot .wb2-hero.is-paper .wb2-refresh:hover,
+#wbRoot .wb2-hero.is-paper .wb2-tone:hover {
+  background: var(--wb-accent);
+  border-color: var(--wb-accent);
+  color: var(--wb-accent-ink);
+}
+
+#wbRoot .wb2-hero.is-paper .wb2-quote { color: var(--wb-text); }
+#wbRoot .wb2-hero.is-paper .wb2-quote-src { color: var(--wb-sec); }
+#wbRoot .wb2-hero.is-paper .wb2-hero-note { color: var(--wb-sec); border-top-color: var(--wb-line); }
+#wbRoot .wb2-hero.is-paper .wb2-tip-title { color: var(--wb-text); }
+#wbRoot .wb2-hero.is-paper .wb2-tip-body { color: var(--wb-sec); }
+#wbRoot .wb2-hero.is-paper .wb2-tip-src { color: var(--wb-sec); }
+
+/* —— 入场 / 切换动画（克制：淡入 + 轻微上移） —— */
+#wbRoot .wb2-reveal { animation: wb2Reveal 460ms cubic-bezier(.16, 1, .3, 1) both; }
+#wbRoot .wb2-reveal .wb2-hero-head { animation: wb2RevealSoft 620ms cubic-bezier(.16, 1, .3, 1) 40ms both; }
+#wbRoot .wb2-reveal .wb2-hero-body { animation: wb2RevealSoft 680ms cubic-bezier(.16, 1, .3, 1) 90ms both; }
+
+@keyframes wb2Reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes wb2RevealSoft {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#wbRoot .wb2-hero.tone-swap { animation: wb2ToneSwap 320ms ease; }
+
+@keyframes wb2ToneSwap {
+  0% { transform: scale(.995); }
+  55% { transform: scale(1.004); }
+  100% { transform: scale(1); }
 }
 
 #wbRoot .wb2-hero-body.swap { animation: wb2Swap 260ms ease; }
@@ -557,6 +686,36 @@
 }
 #wbRoot .wb2-ai-answer .err { color: var(--danger, #E5484D); }
 #wbRoot .wb2-ai-answer .busy { color: var(--wb-muted); }
+
+/* 回答下方：新窗口继续提问 */
+#wbRoot .wb2-ai-answer-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+#wbRoot .wb2-ai-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wb-muted);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 160ms, color 160ms;
+}
+
+#wbRoot .wb2-ai-mini:hover {
+  background: color-mix(in srgb, var(--wb-accent) 30%, var(--wb-fill));
+  color: var(--wb-text);
+}
+
+#wbRoot .wb2-ai-mini svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 
 #wbRoot .wb2-spin {
   display: inline-block;
@@ -942,6 +1101,286 @@
 #wbRoot .wb2-recent .wb2-recent-empty { font-size: var(--fs-caption, 11.5px); color: var(--wb-muted); padding: 4px 0; }
 
 /* ================================================================
+   7.5 AI 回答通知（右下角，点击展开）
+   ================================================================ */
+#wbRoot .wb2-notice {
+  position: fixed;
+  right: 24px;
+  bottom: 84px;               /* 让开外壳右下角的导出通知栏 */
+  z-index: 9990;
+  width: 344px;
+  max-width: calc(100vw - 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 15px 11px;
+  background: var(--wb-card);
+  color: var(--wb-text);
+  border: 1px solid var(--wb-line);
+  border-radius: 18px;
+  box-shadow: 0 18px 44px -18px rgba(0, 0, 0, .38), var(--wb-shadow);
+  cursor: pointer;
+  transition: width 200ms ease, box-shadow 200ms ease;
+}
+
+#wbRoot .wb2-notice.in { animation: wb2NoticeIn 320ms cubic-bezier(.16, 1, .3, 1) both; }
+
+@keyframes wb2NoticeIn {
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+#wbRoot .wb2-notice.expanded {
+  width: 432px;
+  cursor: default;
+  box-shadow: 0 24px 56px -20px rgba(0, 0, 0, .45), var(--wb-shadow-lg);
+}
+
+#wbRoot .wb2-notice-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+#wbRoot .wb2-notice-ico {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 9px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wbRoot .wb2-notice-ico svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+#wbRoot .wb2-notice-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#wbRoot .wb2-notice-tx b { font-size: 12.5px; font-weight: 600; }
+#wbRoot .wb2-notice-tx span {
+  font-size: 11px;
+  color: var(--wb-muted);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#wbRoot .wb2-notice-x {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wb-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+#wbRoot .wb2-notice-x:hover { background: var(--wb-fill); color: var(--wb-text); }
+#wbRoot .wb2-notice-x svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+#wbRoot .wb2-notice-preview {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--wb-sec);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-notice-qline {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--wb-muted);
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--wb-fill);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-notice-answer {
+  max-height: min(40vh, 320px);
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--wb-fill);
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: var(--wb-text);
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-notice-answer p { margin: 0 0 6px; }
+#wbRoot .wb2-notice-answer p:last-child { margin-bottom: 0; }
+#wbRoot .wb2-notice-answer ul { margin: 4px 0 6px; padding-left: 1.15em; }
+#wbRoot .wb2-notice-answer code {
+  background: var(--wb-card);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 10.5px;
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+#wbRoot .wb2-notice-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+#wbRoot .wb2-notice-hint { margin-right: auto; font-size: 10.5px; color: var(--wb-muted); }
+
+#wbRoot .wb2-notice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 160ms;
+}
+
+#wbRoot .wb2-notice-btn:hover { filter: brightness(.95); }
+#wbRoot .wb2-notice-btn.ghost { background: var(--wb-fill); color: var(--wb-sec); }
+#wbRoot .wb2-notice-btn.ghost:hover { background: var(--wb-line); color: var(--wb-text); }
+#wbRoot .wb2-notice-btn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+
+/* ================================================================
+   7.6 独立 AI 对话窗口（workbench.js 用 document.write 生成）
+   ================================================================ */
+html.wb2-win,
+html.wb2-win body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg, #F2F3F5);
+}
+
+html.wb2-win body { font-family: var(--font-body); }
+
+#wbRoot.wb2-aiwin {
+  height: 100dvh;
+  max-width: none;
+  padding: 16px 18px;
+  gap: 12px;
+  font-size: var(--fs-body, 13.5px);
+}
+
+#wbRoot .wb2-aiwin-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#wbRoot .wb2-aiwin-ico {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 11px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#wbRoot .wb2-aiwin-ico svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+#wbRoot .wb2-aiwin-title { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+#wbRoot .wb2-aiwin-title b { font-size: 14px; font-weight: 600; }
+#wbRoot .wb2-aiwin-title span { font-size: 11px; color: var(--wb-muted); }
+#wbRoot .wb2-aiwin-hint {
+  margin-left: auto;
+  max-width: 58%;
+  font-size: 10.5px;
+  color: var(--wb-muted);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#wbRoot .wb2-aiwin-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 2px 6px;
+}
+
+#wbRoot .wb2-aiwin-msg { display: flex; }
+#wbRoot .wb2-aiwin-msg.user { justify-content: flex-end; }
+
+#wbRoot .wb2-aiwin-bubble {
+  max-width: 86%;
+  padding: 10px 13px;
+  border-radius: 16px;
+  background: var(--wb-card);
+  border: 1px solid var(--wb-line);
+  box-shadow: var(--wb-shadow);
+  font-size: 12.5px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+#wbRoot .wb2-aiwin-msg.user .wb2-aiwin-bubble {
+  background: var(--wb-accent);
+  border-color: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  box-shadow: none;
+}
+
+#wbRoot .wb2-aiwin-msg.loading .wb2-aiwin-bubble { color: var(--wb-muted); }
+#wbRoot .wb2-aiwin-msg.err .wb2-aiwin-bubble { color: var(--danger, #E5484D); }
+
+#wbRoot .wb2-aiwin-input { display: flex; align-items: flex-end; gap: 8px; }
+#wbRoot .wb2-aiwin-input textarea {
+  flex: 1;
+  min-width: 0;
+  height: 58px;
+  resize: none;
+  border: 0;
+  border-radius: 14px;
+  background: var(--wb-card);
+  box-shadow: var(--wb-shadow);
+  padding: 10px 13px;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--wb-text);
+  outline: none;
+}
+#wbRoot .wb2-aiwin-input textarea:focus { box-shadow: inset 0 0 0 1.5px var(--wb-accent), var(--wb-shadow); }
+#wbRoot .wb2-aiwin-input textarea::placeholder { color: var(--wb-muted); }
+#wbRoot .wb2-aiwin-send {
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--wb-accent);
+  color: var(--wb-accent-ink);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 160ms, opacity 160ms;
+}
+#wbRoot .wb2-aiwin-send:hover { filter: brightness(.95); }
+#wbRoot .wb2-aiwin-send:disabled { opacity: .5; cursor: default; }
+
+/* ================================================================
    8. 动效 / 响应式 / 暗色补丁
    ================================================================ */
 #wbRoot .wb2-card,
@@ -961,7 +1400,6 @@
 @media (max-width: 1180px) {
   #wbRoot .wb2-hero-grid,
   #wbRoot .wb2-lower-grid { grid-template-columns: minmax(0, 1fr); }
-  #wbRoot .wb2-hero,
   #wbRoot .wb2-ai { min-height: 0; }
   #wbRoot .wb2-quick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -970,15 +1408,22 @@
   #wbRoot .wb2-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #wbRoot .wb2-greet { font-size: 22px; }
   #wbRoot .wb2-card { padding: 16px 16px; }
-  #wbRoot .wb2-hero { padding: 20px 18px 18px; border-radius: 22px; min-height: 0; }
+  #wbRoot .wb2-hero { height: 336px; min-height: 336px; padding: 18px 16px 16px; border-radius: 22px; }
   #wbRoot .wb2-quote { font-size: 20px; }
   #wbRoot .wb2-head-side { margin-left: 0; }
   #wbRoot .wb2-ai-answer { max-height: 180px; }
+  #wbRoot .wb2-notice,
+  #wbRoot .wb2-notice.expanded { left: 12px; right: 12px; width: auto; max-width: none; bottom: 76px; }
 }
 
-[data-theme="dark"] #wbRoot .wb2-hero {
+[data-theme="dark"] #wbRoot .wb2-hero:not(.is-paper) {
   background: var(--wb-ink);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07), 0 18px 42px -20px rgba(0, 0, 0, .8);
+}
+
+[data-theme="dark"] #wbRoot .wb2-hero.is-paper {
+  background: var(--wb-card);
+  box-shadow: inset 0 0 0 1px var(--wb-line), var(--wb-shadow-lg);
 }
 
 [data-theme="dark"] #wbRoot .wb2-day.sel { background: var(--wb-accent); color: var(--wb-accent-ink); }
@@ -986,3 +1431,68 @@
 [data-theme="dark"] #wbRoot .wb2-day.today::before { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wb-accent) 65%, transparent); }
 [data-theme="dark"] #wbRoot .wb2-ai-answer code { background: var(--wb-card); }
 [data-theme="dark"] #wbRoot .wb2-ai-model { background: var(--wb-fill); }
+
+
+/* ================================================================
+   V1.3：问问 AI 页内浮动窗口（不做独立窗口）
+   ================================================================ */
+#wbRoot .wb2-aiwin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(12, 14, 18, .42);
+  backdrop-filter: blur(3px);
+  animation: wb2OverlayIn .18s ease both;
+}
+
+@keyframes wb2OverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#wbRoot .wb2-aiwin-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(620px, 94vw);
+  height: min(78vh, 720px);
+  padding: 16px 18px 14px;
+  border-radius: 20px;
+  background: var(--wb-card, var(--surface, #fff));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .32);
+  animation: wb2PanelIn .2s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+@keyframes wb2PanelIn {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+#wbRoot .wb2-aiwin-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wb-muted, #8b919b);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#wbRoot .wb2-aiwin-close:hover {
+  background: rgba(0, 0, 0, .06);
+  color: var(--wb-ink, #171a1f);
+}
+
+[data-theme="dark"] #wbRoot .wb2-aiwin-close:hover {
+  background: rgba(255, 255, 255, .1);
+}

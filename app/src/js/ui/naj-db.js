@@ -578,7 +578,6 @@ export function initNajDbView() {
     el('najDetail')?.addEventListener('click', (e) => {
       const link = e.target.closest('a[data-naj-out]');
       if (link) { e.preventDefault(); openExternal(link.getAttribute('href')); return; }
-      if (e.target.closest('[data-naj-back]')) { showResults(); return; }
       if (e.target.closest('[data-naj-dlbook]')) {
         const it = state.selected;
         if (it) openBookDownload({ id: it.id, title: it.title, url: it.url, categoryPath: hierarchyToCategory(it) });
@@ -607,6 +606,10 @@ export function initNajDbView() {
        桌面版经内置网络桥直连原站，可直接检索并查看记录与图像链接。</p>`;
     el('najSearchBtn')?.setAttribute('disabled', '');
   }
+  // V1.3：左右两栏可拖拽调宽（左窄右宽），宽度记忆到 localStorage
+  if (typeof window.__initSplitDrag === 'function') {
+    window.__initSplitDrag(el('najSplit'), { storageKey: 'kanseki_naj_split_left', defaultLeft: 37.5 });
+  }
   renderStatus();
 }
 
@@ -620,7 +623,10 @@ function resetForm() {
   state.items = [];
   state.total = null;
   state.keyword = '';
+  state.selected = null;
   el('najResults').innerHTML = '<p class="kdb-empty">输入关键词后点「检索」，或在「内閣文庫 汉籍分类」中先选分类。<br>可检索書名、作成者、件名・細目与参照コード；详细检索可进一步按资料种别、利用限制、年代等筛选。</p>';
+  // V1.3（用户要求）：点「清空」时同时清空右侧详情栏
+  if (el('najDetail')) el('najDetail').innerHTML = '<p class="kdb-empty">点左侧条目查看详细信息</p>';
   el('najPager')?.setAttribute('hidden', '');
   renderStatus();
 }
@@ -881,7 +887,6 @@ function renderDetail(rec, item, resp) {
     : '';
   el('najDetail').innerHTML = `
     <div class="kdb-detail-bar">
-      <button class="kdb-back" data-naj-back type="button">← 返回结果</button>
       <span class="kdb-detail-pos">${escHtml(rec.levelName || '')}${rec.identifier ? ' · ' + escHtml(rec.identifier) : ''}</span>
     </div>
     <div class="kdb-detail-head">
@@ -924,7 +929,6 @@ function renderDetailFallback(item, resp, errMsg) {
   const reason = errMsg || (resp && resp.truncated ? '响应被服务器中断' : '响应为空');
   el('najDetail').innerHTML = `
     <div class="kdb-detail-bar">
-      <button class="kdb-back" data-naj-back type="button">← 返回结果</button>
       <span class="kdb-detail-pos">${escHtml(item.kind || '')}</span>
     </div>
     <div class="kdb-detail-head"><h3>${escHtml(item.title || '（无标题）')}</h3></div>
@@ -944,11 +948,6 @@ function renderDetailFallback(item, resp, errMsg) {
       <span class="naj-src-label">原链接</span>
       <a class="naj-link" data-naj-out href="${escHtml(item.url || '')}">${escHtml(item.url || '')}</a>
     </div>`;
-}
-
-function showResults() {
-  el('najSplit')?.classList.remove('view-detail');
-  el('najSplit')?.classList.add('view-results');
 }
 
 // ---------------------------------------------------------------- 复制 / 转编目记录

@@ -243,7 +243,7 @@ function renderResults() {
   if (!state.entries.length) {
     box.innerHTML = '<p class="kdb-empty">' +
       (state.searched ? '没有命中记录。可放宽或调整条件后重试。'
-        : '填写上方条件后点击「检索」。结果会在这块全宽区域里列出。') +
+        : '填写上方条件后点击「检索」。结果会在这里列出，点条目可在右侧查看详情。') +
       '</p>';
     return;
   }
@@ -265,21 +265,13 @@ function renderResults() {
   });
 }
 
-/** 详情顶部「← 返回结果」按钮（每次重绘都要重新绑定） */
-function wireDetailBar() {
-  const back = $('#kdbBack');
-  if (back) back.addEventListener('click', () => showView('results'));
-}
-
+/** 详情栏空态提示（V1.3：两栏常驻，不再有「返回结果」按钮） */
 function renderDetail(rec, truncatedNote, posText) {
   const box = $('#kdbDetail');
   if (!box) return;
-  if (!rec) { box.innerHTML = '<p class="kdb-empty">在上方结果里点一条记录即可查看详情</p>'; return; }
+  if (!rec) { box.innerHTML = '<p class="kdb-empty">点左侧条目查看详细信息</p>'; return; }
   if (rec.error === 'no-record') {
-    box.innerHTML = '<div class="kdb-detail-bar">' +
-      '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button></div>' +
-      '<p class="kdb-empty">该记录在原站不存在（レコードがありません）</p>';
-    wireDetailBar();
+    box.innerHTML = '<p class="kdb-empty">该记录在原站不存在（レコードがありません）</p>';
     return;
   }
 
@@ -299,10 +291,7 @@ function renderDetail(rec, truncatedNote, posText) {
     : '';
 
   box.innerHTML =
-    '<div class="kdb-detail-bar">' +
-    '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button>' +
-    (posText ? '<span class="kdb-detail-pos">' + esc(posText) + '</span>' : '') +
-    '</div>' +
+    (posText ? '<div class="kdb-detail-bar"><span class="kdb-detail-pos">' + esc(posText) + '</span></div>' : '') +
     (truncatedNote ? '<p class="kdb-warn">' + esc(truncatedNote) + '</p>' : '') +
     '<div class="kdb-detail-head"><h3>' + esc((rec.ti || []).join(' ; ') || '（无题名）') + '</h3>' +
     '<p class="kdb-dim">' + esc((rec.or || []).join(' ; ')) + '</p></div>' +
@@ -312,8 +301,6 @@ function renderDetail(rec, truncatedNote, posText) {
     '<button type="button" class="av-btn" id="kdbCopy">复制字段</button>' +
     '<button type="button" class="av-btn" id="kdbOpen">在浏览器打开原记录页</button>' +
     '</div>';
-
-  wireDetailBar();
 
   const copyBtn = $('#kdbCopy');
   if (copyBtn) {
@@ -420,19 +407,15 @@ async function openDetail(idx) {
   const posText = '第 ' + (idx + 1) + ' / ' + state.entries.length + ' 条' +
     (state.total > state.entries.length ? '（本页返回 ' + state.entries.length + ' / 共命中 ' + state.total + '）' : '');
   $('#kdbDetail').innerHTML = '<div class="kdb-detail-bar">' +
-    '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button>' +
     '<span class="kdb-detail-pos">' + esc(posText) + '</span></div>' +
     '<p class="kdb-empty">正在读取记录详情…</p>';
-  wireDetailBar();
   try {
     const resp = await fetchKanseki(e.url, 60);
     const rec = parseRecordPage(resp.body, { path: e.recordPath, url: e.url });
     renderDetail(rec, resp.truncated ? '该记录页内容被服务器截断，字段可能不全。' : '', posText);
   } catch (err) {
-    $('#kdbDetail').innerHTML = '<div class="kdb-detail-bar">' +
-      '<button type="button" class="kdb-back" id="kdbBack">← 返回结果</button></div>' +
+    $('#kdbDetail').innerHTML =
       '<p class="kdb-warn">' + esc(err.message) + '</p>';
-    wireDetailBar();
   }
 }
 
@@ -505,6 +488,10 @@ export function initKansekiDbView() {
 
   setAdvOpen(false);   // 默认收起：页面以结果为主
   showView('results');
+  // V1.3：左右两栏可拖拽调宽（左窄右宽），宽度记忆到 localStorage
+  if (typeof window.__initSplitDrag === 'function') {
+    window.__initSplitDrag($('#kdbSplit'), { storageKey: 'kanseki_kdb_split_left', defaultLeft: 37.5 });
+  }
   renderResults();
   renderDetail(null);
   refreshSummary();
