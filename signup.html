@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>注册 · Juvenile</title>
+<title>注册 · 古代史及汉籍研究工具</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
 <style>
 :root {
@@ -252,10 +252,6 @@ body {
 <meta name="apple-mobile-web-app-title" content="汉籍工具">
 </head>
 <body>
-<div class="brand">
-  <img class="brand-mark" src="assets/logo.png" alt="" style="width:44px;height:44px;object-fit:contain;display:block">
-  <span>Juvenile</span>
-</div>
 
 <div class="card">
   <div class="card-title">Create your account</div>
@@ -316,7 +312,7 @@ const form = document.getElementById('signupForm');
 const errBox = document.getElementById('formError');
 const signupBtn = document.getElementById('signupBtn');
 
-// 管理员入口 (V6.1): 连续快速点击 Juvenile 品牌 5 次 → 管理员登录页
+// 管理员入口 (V6.1): 连续快速点击品牌区 5 次 → 管理员登录页
 // 单击仍回首页 (500ms 内未凑满 5 次即恢复导航)
 (function() {
   const brand = document.querySelector('.brand');

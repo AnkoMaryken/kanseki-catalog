@@ -918,95 +918,6 @@ tr.nearby-sep-row:hover td { background: transparent !important; }
 .knowledge-btn:hover .kb-text { max-width: 140px; opacity: 1; }
 .knowledge-btn.locked { background: var(--color-accent); }
 
-/* v2.1 卷数计算器按钮 (位于知识按钮上方, 同款交互)
-   V3.1: bottom 8.3rem 上移, 与知识按钮/回到顶部按钮纵向排开, 不再遮挡 */
-.calc-btn { bottom: 8.3rem; }
-.calc-btn:hover { min-width: 140px; }
-.calc-btn:hover .kb-text { max-width: 110px; }
-.calc-btn:hover, .calc-btn:hover .kb-text { transition-delay: 0s; }
-/* V3.1: 计算器改为居中弹窗 (modal) */
-.calc-overlay {
-  position: fixed; inset: 0; z-index: 400;
-  background: rgba(0,0,0,.45);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; visibility: hidden;
-  transition: opacity .25s var(--ease-spring), visibility .25s var(--ease-spring);
-}
-.calc-overlay.show { opacity: 1; visibility: visible; }
-.calc-panel {
-  position: relative; z-index: 401;
-  width: 300px; max-width: calc(100vw - 3rem);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 24px 64px rgba(0,0,0,.28);
-  padding: 1.1rem 1.15rem 1.15rem;
-  transform: translateY(14px) scale(.97);
-  transition: transform .28s var(--ease-spring);
-}
-.calc-overlay.show .calc-panel { transform: translateY(0) scale(1); }
-.calc-head {
-  font-size: 0.85rem; font-weight: 600;
-  margin-bottom: 0.6rem;
-  color: var(--color-primary);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.calc-close {
-  border: none; background: none; cursor: pointer;
-  font-size: 1rem; line-height: 1; color: var(--color-text-muted);
-  width: 26px; height: 26px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-.calc-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
-/* 计算过程预览 */
-.calc-steps {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: 0.4rem 0.7rem;
-  margin-bottom: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  color: var(--color-text-secondary);
-  min-height: 1.7rem;
-  line-height: 1.55;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-.calc-steps:empty::before { content: '计算过程将在此预览'; color: var(--color-text-muted); opacity: .7; }
-.calc-display {
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 1.15rem;
-  text-align: right;
-  margin-bottom: 0.6rem;
-  min-height: 2.5rem;
-  line-height: 1.5;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
-.calc-grid button {
-  border: 1px solid var(--color-border-light);
-  background: var(--color-surface);
-  color: var(--color-text);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0;
-  font-size: 0.9rem;
-  cursor: pointer;
-  font-family: var(--font-mono);
-  transition: background var(--transition-fast);
-}
-.calc-grid button:hover { background: var(--color-surface-hover); }
-.calc-grid .calc-op { background: var(--color-bg-alt); font-weight: 600; }
-.calc-grid .calc-op-c { color: var(--color-accent); font-family: var(--font-body); }
-.calc-grid .calc-eq { background: var(--color-primary); color: var(--color-bg); font-weight: 600; }
-.calc-grid .calc-eq:hover { background: var(--color-primary-light); }
-.calc-grid .calc-zero { grid-column: span 2; }
 
 .knowledge-panel {
   position: fixed; bottom: 5rem; right: 7rem; z-index: 190;
@@ -1066,10 +977,6 @@ tr.nearby-sep-row:hover td { background: transparent !important; }
 /* Mobile: bottom drawer */
 @media (max-width: 768px) {
   .knowledge-btn { bottom: 4.5rem; right: 1rem; width: auto; min-width: 42px; padding: 0 0.75rem; }
-  /* 卷数计算按钮的 class 是「knowledge-btn calc-btn」，会被上面一条规则一起改掉 bottom，
-     导致两个浮动按钮在手机宽度下完全重叠（实测同在 bottom:4.5rem）。
-     这里显式把它抬回 8.3rem，保持上下错开。 */
-  .knowledge-btn.calc-btn { bottom: 8.3rem; }
   .knowledge-btn .kb-text { max-width: 140px; opacity: 1; }
   .knowledge-panel {
     position: fixed; top: 0; right: 0; bottom: 0; left: 0;
@@ -1328,7 +1235,7 @@ mark.search-highlight {
    ============================================ */
 body { transition: background-color 0.3s ease, color 0.3s ease; }
 .table-wrapper, .filter-bar, .app-footer, .modal, .search-suggestions,
-.knowledge-panel, .calc-panel, .toast { transition-property: background-color, border-color, color, opacity, transform, visibility; }
+.knowledge-panel, .toast { transition-property: background-color, border-color, color, opacity, transform, visibility; }
 .table-wrapper { transition-duration: 0.3s; }
 
 /* 滚动进度条 (页面顶部 2px) */
@@ -2064,6 +1971,15 @@ body.is-full-table .result-card .ch-right #fullTableBadge{ display:none !importa
 .v3-tbl .c-span .v3-year-copy:hover{ background:var(--v3-fill); color:var(--v3-t1); }
 .v3-tbl .c-span .v3-year-copy.copied{ color:var(--v3-t1); background:var(--v3-fill); }
 .v3-tbl .c-span.copied .v3-year-copy{ color:var(--v3-t1); }
+/* V1.4：年号后的复制按钮（复制「年号（公历年）」，全角括号） */
+.v3-tbl .v3-era-copy{
+  display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+  margin-left:6px; padding:0; border:1px solid transparent; border-radius:5px;
+  background:transparent; color:var(--v3-t3); cursor:pointer; vertical-align:middle; opacity:1;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.v3-tbl .v3-era-copy:hover{ background:var(--v3-hover); border-color:var(--v3-divider); color:var(--v3-t1); }
+.v3-tbl .v3-era-copy.copied{ color:var(--v3-t1); background:var(--v3-fill); }
 .v3-pager{
   display:flex; align-items:center; gap:6px; margin-top:12px; padding-top:12px;
   border-top:1px solid var(--v3-divider); font-size:11.5px; color:var(--v3-t3);
@@ -2105,7 +2021,7 @@ body.v3-year .result-card .pager-row{ display:none !important; }
 .result-card .empty-state{ background:transparent; box-shadow:none; margin:0; }
 .result-card .loading-overlay{ border-radius:var(--v3-r-mid); }
 
-/* 浮动常识 / 卷数入口：白底轻阴影胶囊，避免黑块压住表格 */
+/* 浮动常识入口：白底轻阴影胶囊，避免黑块压住表格 */
 .knowledge-btn{
   background:var(--v3-card); color:var(--v3-t2);
   border:1px solid var(--v3-divider); box-shadow:var(--v3-shadow-card);
@@ -4739,6 +4655,17 @@ function setV3YearMode(on) {
   }
 }
 
+// V1.4：具体年份表「年号（公历年份）」复制按钮；括号用全角（）
+function v3EraCopyBtn(areaRow, row) {
+  const era = areaRow && areaRow.era ? String(areaRow.era) : '';
+  if (!era || era === '—' || era === toDisplay('无年号') || era === '无年号') return '';
+  const copy = era + '（' + toDisplay(String(row.yearStr)) + toDisplay('年') + '）';
+  return '<button class="v3-era-copy era-copy-btn" type="button" data-copy="' + escapeHtml(copy) +
+    '" title="' + escapeHtml(toDisplay('复制') + ' ' + copy) + '" aria-label="' + escapeHtml(toDisplay('复制年号与年份')) + '">' +
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">' +
+    '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>';
+}
+
 // 渲染 v3 单年区域表
 function renderV3YearResult(row) {
   const box = document.getElementById('v3Result');
@@ -4748,7 +4675,7 @@ function renderV3YearResult(row) {
     '<tr>' +
       '<td class="c-area">' + a.area + '</td>' +
       '<td>' + a.dyn + '</td>' +
-      '<td class="c-era">' + a.era + '</td>' +
+      '<td class="c-era">' + a.era + v3EraCopyBtn(a, row) + '</td>' +
       '<td class="c-muted">' + a.ruler + '</td>' +
       '<td class="num">' + a.gz + '</td>' +
       '<td class="num c-muted c-span" data-copy="' + escapeHtml(String(row.yearStr)) + toDisplay('年') + '" title="' + toDisplay('点击复制年份') + '">' +
@@ -5930,7 +5857,6 @@ if (document.readyState === 'loading') {
 <script src="user-state.js"></script>
 <script src="conv_tables.js"></script>
 <script src="knowledge.js"></script>
-<script src="calc.js"></script>
 <!-- ============================================
      Knowledge Panel — 书画纪时常识
      ============================================ -->
@@ -5944,38 +5870,6 @@ if (document.readyState === 'loading') {
   </nav>
   <div class="knowledge-content" id="knowledgeContent" role="tabpanel"></div>
   <button class="knowledge-panel-close" id="knowledgeClose" aria-label="关闭常识面板">关闭</button>
-</div>
-<!-- ============================================
-     v2.1 卷数计算器 (丛书卷数加减计算)
-     V3.1: 居中弹窗 + 计算过程预览
-     ============================================ -->
-<div class="calc-overlay" id="calcOverlay" role="dialog" aria-modal="true" aria-label="卷数计算器">
-  <div class="calc-panel">
-    <div class="calc-head">
-      <span>卷数计算</span>
-      <span style="font-weight:400;font-size:0.72rem;color:var(--color-text-muted);">丛书卷数加减</span>
-      <button type="button" class="calc-close" id="calcClose" aria-label="关闭计算器">✕</button>
-    </div>
-    <div class="calc-steps" id="calcSteps" aria-live="polite"></div>
-    <div class="calc-display" id="calcDisplay" aria-live="polite">0</div>
-    <div class="calc-grid">
-      <button type="button" data-key="7">7</button>
-      <button type="button" data-key="8">8</button>
-      <button type="button" data-key="9">9</button>
-      <button type="button" class="calc-op calc-op-c" data-key="C">C</button>
-      <button type="button" data-key="4">4</button>
-      <button type="button" data-key="5">5</button>
-      <button type="button" data-key="6">6</button>
-      <button type="button" class="calc-op" data-key="+">＋</button>
-      <button type="button" data-key="1">1</button>
-      <button type="button" data-key="2">2</button>
-      <button type="button" data-key="3">3</button>
-      <button type="button" class="calc-op" data-key="-">－</button>
-      <button type="button" class="calc-zero" data-key="0">0</button>
-      <button type="button" class="calc-op" data-key="←">⌫</button>
-      <button type="button" class="calc-eq" data-key="=">＝</button>
-    </div>
-  </div>
 </div>
 <script defer src="pwa.js"></script>
 </body>

@@ -13,7 +13,10 @@
 //     这里每 800ms 轮询一次 —— 只依赖 `__TAURI_INTERNALS__.invoke`，零额外前端依赖；
 //   · 提示音用 WebAudio 现场合成（不引入音频文件）。
 // ================================================
-import { RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, onEngine, listRunTasks } from './naj-dl.js';
+import {
+  RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, toast, onEngine, listRunTasks,
+  pauseRecord, resumeRecord, cancelQueuedResume,
+} from './naj-dl.js';
 
 const el = (id) => document.getElementById(id);
 let pollTimer = null;
@@ -225,7 +228,31 @@ function ensureDrawer() {
   d.addEventListener('click', (e) => {
     const b = e.target.closest('[data-dlc-decide]');
     if (b) { decide(b.dataset.dlcDecide); renderDrawer(); return; }
-    // V10.5：下载记录里的「打开所在文件夹」
+    // V2.0：下载记录里每本的「暂停 / 继续 / 取消排队」
+    const recById = (id) => (listRunTasks() || []).find((t) => String(t.id) === String(id));
+    const pauseB = e.target.closest('[data-dlc-task-pause]');
+    if (pauseB) {
+      const rec = recById(pauseB.getAttribute('data-dlc-task-pause'));
+      if (rec) { pauseRecord(rec); toast('已暂停这一本；其它书继续下载', 'warn'); renderDrawer(); }
+      return;
+    }
+    const resumeB = e.target.closest('[data-dlc-task-resume]');
+    if (resumeB) {
+      const rec = recById(resumeB.getAttribute('data-dlc-task-resume'));
+      if (rec) {
+        const r = resumeRecord(rec);
+        toast(r === 'queued' ? '已加入队列：当前任务结束后继续这一本' : '已继续下载这一本', 'ok');
+        renderDrawer();
+      }
+      return;
+    }
+    const cqB = e.target.closest('[data-dlc-task-cancelqueue]');
+    if (cqB) {
+      const rec = recById(cqB.getAttribute('data-dlc-task-cancelqueue'));
+      if (rec) { cancelQueuedResume(rec); renderDrawer(); }
+      return;
+    }
+    // V10.5：下载记录里的「打开所在文件夹」（V2.0：该书记录的下载目录）
     const openDir = e.target.closest('[data-dlc-task-dir]');
     if (openDir) {
       const p = openDir.getAttribute('data-dlc-task-dir');
@@ -347,11 +374,20 @@ function renderNow() {
       ${running ? `<div class="dlc-dim">本册：${esc(running.title || '')} ${running.pages ? `（共 ${running.pages} 页）` : ''}</div>` : ''}
     </div>
     <div class="dlc-actions">
+      ${RUN.currentRec ? `<button class="av-btn" type="button" data-dlc-pause-task="1">${RUN.currentRec.status === 'paused' ? '继续这一本' : '暂停这一本'}</button>` : ''}
       <button class="av-btn" type="button" data-dlc-open-task="1">查看逐册明细</button>
     </div>
     <div class="dlc-dim dlc-path" title="${esc(taskDir(task))}">${esc(taskDir(task))}</div>`;
   const openBtn = box.querySelector('[data-dlc-open-task]');
   if (openBtn) openBtn.addEventListener('click', () => window.__najDlShowTask?.(task));
+  const pauseTaskBtn = box.querySelector('[data-dlc-pause-task]');
+  if (pauseTaskBtn) pauseTaskBtn.addEventListener('click', () => {
+    const rec = RUN.currentRec;
+    if (!rec) return;
+    if (rec.status === 'paused') { resumeRecord(rec); toast('已继续下载这一本'); }
+    else { pauseRecord(rec); toast('已暂停这一本；其它书继续下载'); }
+    renderDrawer();
+  });
 }
 
 function renderQueue() {
@@ -390,7 +426,8 @@ function renderDecide() {
   }
 }
 
-/** V10.5 下载记录：单本与批量每一本都在这里，带状态与逐册进度 */
+/** V10.5 下载记录：单本与批量每一本都在这里，带状态与逐册进度；
+ *  V2.0：每本可单独暂停/继续（暂停一本不影响其它书），并给出百分比与失败原因 */
 function renderTasks() {
   const sec = el('dlcTasksSec');
   const box = el('dlcTasks');
@@ -400,6 +437,8 @@ function renderTasks() {
   sec.hidden = false;
   const label = {
     running: ['下载中', 'dl-b-run'],
+    queued: ['队列中', 'dl-b-idle'],
+    paused: ['已暂停', 'dl-b-warn'],
     done: ['完成', 'dl-b-ok'],
     failed: ['失败', 'dl-b-err'],
     cancelled: ['已取消', 'dl-b-warn'],
@@ -407,17 +446,24 @@ function renderTasks() {
   box.innerHTML = list.slice(0, 12).map((t, i) => {
     const [tx, cls] = label[t.status] || ['—', 'dl-b-idle'];
     const kind = t.kind === 'single' ? '单本' : '批量';
-    const prog = t.total ? `${t.done}/${t.total} 册` : '';
+    const pct = t.total ? Math.min(100, Math.round(((t.done || 0) / t.total) * 100)) : (t.status === 'done' ? 100 : 0);
+    const prog = t.total ? `${pct}% · ${t.done || 0}/${t.total} 册 · ${t.pages || 0} 页` : '';
     const when = new Date(t.startedAt || Date.now());
     const hm = `${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}`;
-    const err = t.error ? `<span class="dlc-t-err" title="${esc(t.error)}">· ${esc(String(t.error).slice(0, 16))}</span>` : '';
+    const err = t.error ? `<span class="dlc-t-err" title="${esc(t.error)}">· ${esc(String(t.error).slice(0, 24))}</span>` : '';
+    const acts = [];
+    if (t.status === 'running') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-pause="${t.id}" title="只暂停这一本；其它书继续">暂停</button>`);
+    if (t.status === 'paused') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册">继续</button>`);
+    if (t.status === 'queued') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-cancelqueue="${t.id}" title="取消排队（保持暂停）">取消排队</button>`);
+    if (t.status === 'failed' || t.status === 'cancelled') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册">重试</button>`);
     return `<div class="dlc-task-row">
       <span class="dlc-t-idx">${String(list.length - i).padStart(2, '0')}</span>
       <span class="dl-badge ${cls}">${esc(tx)}</span>
       <span class="dlc-t-title" title="${esc(t.title)}">${esc(t.title)}</span>
       <span class="dlc-t-meta">${kind}${prog ? ' · ' + prog : ''} · ${hm}</span>
       ${err}
-      <button class="dlc-t-open" type="button" data-dlc-task-dir="${esc(t.dir || '')}" title="打开所在文件夹">↗</button>
+      ${acts.join('')}
+      <button class="dlc-t-open" type="button" data-dlc-task-dir="${esc(t.dir || '')}" title="打开这本书的下载文件夹">↗</button>
     </div>`;
   }).join('');
 }

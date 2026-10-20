@@ -83,9 +83,18 @@ const AI_CHIPS = [
 const state = {
   dailyBase: null,
   dailyOffset: 0,
-  dailyTone: 'ink',      // 'ink' 深色主卡 | 'paper' 白色卡片（持久化）
+  dailyTone: 'paper',    // 'ink' 深色主卡 | 'paper' 白色卡片（默认白，持久化）
   stats: { records: 0 },
   recent: [],
+  version: {             // 最近更新：版本检查（本次会话缓存于 state + 当天缓存于 localStorage）
+    current: '',
+    status: 'idle',      // idle | checking | new | latest | error
+    latest: '',
+    assetUrl: '',
+    pageUrl: '',
+    checkedAt: 0,
+    error: '',
+  },
   calMonth: null,        // Date（当月 1 日）
   calSel: '',            // 'YYYY-MM-DD'
   ai: {
@@ -99,7 +108,7 @@ const state = {
     error: '',
     draft: '',
     history: [],         // [{role:'user'|'assistant', content}]
-    notice: null,        // {q, a, expanded, dismissed}
+    notice: null,        // {q, a, dismissed}
   },
 };
 
@@ -176,11 +185,11 @@ function dailyBodyHtml() {
 }
 
 /* -------------------- 每日推荐：配色（深色 / 白色） -------------------- */
+/* 用户要求：默认白色（paper）；仅当用户手动切到深色并持久化了 'ink' 时才用深色 */
 function loadDailyTone() {
   try {
-    const v = localStorage.getItem(DAILY_TONE_KEY);
-    return v === 'paper' ? 'paper' : 'ink';
-  } catch (_) { return 'ink'; }
+    return localStorage.getItem(DAILY_TONE_KEY) === 'ink' ? 'ink' : 'paper';
+  } catch (_) { return 'paper'; }
 }
 
 function saveDailyTone(tone) {
@@ -262,6 +271,192 @@ async function readRecentVersions() {
   } catch (_) { return []; }
 }
 
+// ---------------------------------------------------------------- 版本检查（最近更新区块）
+const UPDATE_CACHE_KEY = 'kanseki_update_check_v1';
+const UPDATE_REPO = 'AnkoMaryken/kanseki-catalog';
+const UPDATE_API_LATEST = 'https://api.github.com/repos/' + UPDATE_REPO + '/releases/latest';
+const UPDATE_API_TAGS = 'https://api.github.com/repos/' + UPDATE_REPO + '/tags';
+const UPDATE_RELEASES_PAGE = 'https://github.com/' + UPDATE_REPO + '/releases/latest';
+
+function normalizeVersion(v) { return String(v == null ? '' : v).trim().replace(/^v/i, ''); }
+
+function compareVersion(a, b) {
+  const pa = normalizeVersion(a).split(/[.+\-]/).map((x) => parseInt(x, 10) || 0);
+  const pb = normalizeVersion(b).split(/[.+\-]/).map((x) => parseInt(x, 10) || 0);
+  const n = Math.max(pa.length, pb.length);
+  for (let i = 0; i < n; i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d) return d;
+  }
+  return 0;
+}
+
+function resolveCurrentVersion() {
+  try {
+    const av = window.__APP_VERSION;
+    if (av) return normalizeVersion(av);
+  } catch (_) { /* 忽略 */ }
+  const first = state.recent && state.recent[0];
+  if (first && first.ver) return normalizeVersion(first.ver);
+  return '';
+}
+
+function todayStamp() { return dateKey(new Date()); }
+
+function readUpdateCache() {
+  try {
+    const o = JSON.parse(localStorage.getItem(UPDATE_CACHE_KEY) || 'null');
+    if (o && o.date === todayStamp()) return o;
+  } catch (_) { /* 忽略 */ }
+  return null;
+}
+
+function writeUpdateCache() {
+  const v = state.version;
+  try {
+    localStorage.setItem(UPDATE_CACHE_KEY, JSON.stringify({
+      date: todayStamp(), latest: v.latest, assetUrl: v.assetUrl, pageUrl: v.pageUrl, checkedAt: v.checkedAt,
+    }));
+  } catch (_) { /* 忽略 */ }
+}
+
+function clearUpdateCache() {
+  try { localStorage.removeItem(UPDATE_CACHE_KEY); } catch (_) { /* 忽略 */ }
+}
+
+/* 查 GitHub 最新 release；无 release 时退到 tags。失败抛出，由 checkUpdate 统一转成 error 态 */
+async function fetchLatestRelease() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => { try { ctrl.abort(); } catch (_) {} }, 8000);
+  try {
+    const resp = await fetch(UPDATE_API_LATEST, {
+      headers: { Accept: 'application/vnd.github+json' },
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      const assets = Array.isArray(data.assets) ? data.assets : [];
+      const exe = assets.find((a) => /\.exe$/i.test(a.name || '')) || null;
+      return {
+        tag: data.tag_name || data.name || '',
+        assetUrl: (exe && exe.browser_download_url) || '',
+        pageUrl: data.html_url || UPDATE_RELEASES_PAGE,
+      };
+    }
+    if (resp.status !== 404) throw new Error('GitHub API HTTP ' + resp.status);
+  } finally {
+    clearTimeout(timer);
+  }
+  const resp2 = await fetch(UPDATE_API_TAGS, {
+    headers: { Accept: 'application/vnd.github+json' },
+    cache: 'no-store',
+  });
+  if (!resp2.ok) throw new Error('GitHub API HTTP ' + resp2.status);
+  const tags = await resp2.json();
+  if (!Array.isArray(tags) || !tags.length) throw new Error('no tags');
+  return { tag: tags[0].name || '', assetUrl: '', pageUrl: UPDATE_RELEASES_PAGE };
+}
+
+function applyVersionResult(latest, assetUrl, pageUrl, checkedAt) {
+  const v = state.version;
+  v.latest = normalizeVersion(latest);
+  v.assetUrl = assetUrl || '';
+  v.pageUrl = pageUrl || UPDATE_RELEASES_PAGE;
+  v.checkedAt = checkedAt || Date.now();
+  v.current = resolveCurrentVersion();
+  if (!v.latest || !v.current) v.status = 'latest';
+  else v.status = compareVersion(v.latest, v.current) > 0 ? 'new' : 'latest';
+}
+
+async function checkUpdate(force) {
+  if (state.version.status === 'checking') return;
+  state.version.current = resolveCurrentVersion();
+  if (!force) {
+    const cached = readUpdateCache();
+    if (cached && cached.latest) {
+      applyVersionResult(cached.latest, cached.assetUrl, cached.pageUrl, cached.checkedAt || 0);
+      updateUpdateUI();
+      return;
+    }
+  }
+  state.version.status = 'checking';
+  state.version.error = '';
+  updateUpdateUI();
+  try {
+    const rel = await fetchLatestRelease();
+    if (!rel.tag) throw new Error('release tag 为空');
+    applyVersionResult(rel.tag, rel.assetUrl, rel.pageUrl, Date.now());
+    writeUpdateCache();
+  } catch (e) {
+    state.version.status = 'error';
+    state.version.error = (e && e.message) || String(e);
+    clearUpdateCache();
+  }
+  updateUpdateUI();
+}
+
+/* 打开更新地址：优先 Lead 提供的全局外部打开能力；预留后端下载 switch */
+function openUpdateUrl() {
+  const v = state.version;
+  const url = v.assetUrl || v.pageUrl || UPDATE_RELEASES_PAGE;
+  // switch：后端若提供下载安装接口，可在此改为调用（例如 window.__kansekiDownloadUpdate?.(v)）
+  try {
+    if (typeof window.__kansekiOpenExternal === 'function') {
+      window.__kansekiOpenExternal(url);
+      return;
+    }
+  } catch (_) { /* 落到备用 */ }
+  // 备用：打开 release 页面
+  try { window.open(v.pageUrl || UPDATE_RELEASES_PAGE, '_blank', 'noopener'); } catch (_) { /* 忽略 */ }
+}
+
+function formatCheckedAt(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const p = (n) => (n < 10 ? '0' : '') + n;
+  return p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
+function updateBlockInnerHtml() {
+  const v = state.version;
+  let stateHtml = '';
+  if (v.status === 'checking') {
+    stateHtml = '<span class="wb2-update-txt"><span class="wb2-spin"></span>正在检查更新…</span>';
+  } else if (v.status === 'new') {
+    stateHtml = '<span class="wb2-update-txt new"><b>新版本 v' + esc(v.latest) + ' 待下载</b><span>当前 v' + esc(v.current || '—') + '</span></span>'
+      + '<button class="wb2-update-btn" type="button" data-act="update-download" title="打开下载页面">直接覆盖更新</button>';
+  } else if (v.status === 'error') {
+    stateHtml = '<span class="wb2-update-txt err">检查更新失败（可重试）</span>';
+  } else {
+    stateHtml = '<span class="wb2-update-txt">已是最新版本'
+      + (v.latest ? (' v' + esc(v.latest)) : (v.current ? (' v' + esc(v.current)) : '')) + '</span>';
+  }
+  const meta = v.checkedAt
+    ? ((v.status === 'error' ? '上次成功检查 ' : '上次检查 ') + esc(formatCheckedAt(v.checkedAt)))
+    : '';
+  return '<div class="wb2-update-line">' + stateHtml
+    + '<button class="wb2-update-check" type="button" data-act="update-check" title="立即检查更新">检查更新</button></div>'
+    + '<div class="wb2-update-meta">' + meta + '</div>';
+}
+
+function updateUpdateUI() {
+  const host = $('wb2UpdateBlock');
+  if (host) host.innerHTML = updateBlockInnerHtml();
+}
+
+function recentRowsHtml() {
+  const list = state.recent;
+  if (!list.length) return '<div class="wb2-recent-empty">暂无更新记录</div>';
+  return list.slice(0, 3).map((v) => `
+    <div class="wb2-recent-row"><b>${esc(v.ver)}</b><span>${esc(v.date || '')}</span></div>`).join('');
+}
+
+function recentHtml() {
+  return '<div id="wb2RecentRows">' + recentRowsHtml() + '</div>'
+    + '<div class="wb2-update" id="wb2UpdateBlock">' + updateBlockInnerHtml() + '</div>';
+}
+
 // ---------------------------------------------------------------- 快捷入口 / 资料磁贴
 function quickCards() {
   const records = state.stats.records || 0;
@@ -288,13 +483,6 @@ function tilesHtml() {
     <button class="wb2-tile" type="button" data-go="${hash}">
       <span class="ti">${ic}</span><b>${esc(t)}</b><span class="sub">${esc(s)}</span><span class="arw">${IC.arrowR}</span>
     </button>`).join('');
-}
-
-function recentHtml() {
-  const list = state.recent;
-  if (!list.length) return '<div class="wb2-recent-empty">暂无更新记录</div>';
-  return list.slice(0, 3).map((v) => `
-    <div class="wb2-recent-row"><b>${esc(v.ver)}</b><span>${esc(v.date || '')}</span></div>`).join('');
 }
 
 // ---------------------------------------------------------------- 问问 AI
@@ -347,12 +535,14 @@ function aiAnswerHtml() {
     return `<div class="wb2-ai-answer"><span class="err">${esc(state.ai.error)}</span></div>`;
   }
   if (state.ai.answer) {
-    return `<div class="wb2-ai-answer" id="wb2AiAnswer">${mdLite(state.ai.answer)}</div>`
-      + '<div class="wb2-ai-answer-foot">'
-      +   `<button class="wb2-ai-mini" type="button" data-act="ai-window">${IC.win}新窗口查看并继续提问</button>`
+    /* 用户要求：主栏不显示答案正文，只显示状态 + 查看入口（答案只在 #wb2AiModal 浮窗内） */
+    return '<div class="wb2-ai-done">'
+      +   `<span class="wb2-ai-done-ico">${IC.check}</span>`
+      +   '<div class="wb2-ai-done-tx"><b>问题已回答</b><span>完整答案在浮窗中，可查看或继续追问</span></div>'
+      +   '<button class="wb2-ai-open" type="button" data-act="ai-open-modal">查看答案</button>'
       + '</div>';
   }
-  return '<div class="wb2-ai-answer" id="wb2AiAnswer"></div>';
+  return '';
 }
 
 function aiCardHtml() {
@@ -418,16 +608,17 @@ async function aiSettings() {
   try { location.hash = '#/settings'; } catch (_) {}
 }
 
-async function sendAI() {
+/* 统一的提问逻辑：主栏输入框与浮窗内输入框共用；问题完成后主栏只显示状态，答案进浮窗 */
+async function askAI(rawQuestion) {
   if (state.ai.busy) return;
-  const ta = $('wb2AiInput');
-  const q = ((ta && ta.value) || '').trim();
-  if (!q) { if (ta) ta.focus(); return; }
+  const q = String(rawQuestion == null ? '' : rawQuestion).trim();
+  if (!q) return;
   let mod = state.ai.module;
   if (!mod) mod = await ensureAI();
   if (!mod || typeof mod.chat !== 'function') {
     state.ai.error = 'AI 模块未加载，请先在设置中检查配置。';
     updateAI();
+    renderAIOverlay();
     return;
   }
   state.ai.draft = '';
@@ -435,6 +626,7 @@ async function sendAI() {
   state.ai.error = '';
   state.ai.answer = '';
   updateAI();
+  renderAIOverlay();
   // 带上前几轮对话（最多 8 条）以便追问
   const ctxHistory = state.ai.history.slice(-8);
   const messages = [{ role: 'system', content: AI_SYSTEM_PROMPT }]
@@ -454,64 +646,189 @@ async function sendAI() {
   }
   state.ai.busy = false;
   updateAI();
+  renderAIOverlay();
 }
 
-/* 极简 markdown：粗体、行内代码、无序列表、段落 */
-function mdLite(src) {
-  let s = esc(src);
-  s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>');
-  const lines = s.split(/\r?\n/);
-  let html = '';
-  let inList = false;
-  lines.forEach((line) => {
-    const m = /^\s*[-*•]\s+(.*)$/.exec(line);
-    if (m) {
-      if (!inList) { html += '<ul>'; inList = true; }
-      html += '<li>' + m[1] + '</li>';
-    } else {
-      if (inList) { html += '</ul>'; inList = false; }
-      if (line.trim()) html += '<p>' + line + '</p>';
+function sendAI() {
+  const ta = $('wb2AiInput');
+  const q = ((ta && ta.value) || '').trim();
+  if (!q) { if (ta) ta.focus(); return; }
+  if (ta) ta.value = '';
+  askAI(q);
+}
+
+function sendFromModal() {
+  const ta = $('wb2AiModalInput');
+  const q = ((ta && ta.value) || '').trim();
+  if (!q) { if (ta) ta.focus(); return; }
+  ta.value = '';
+  askAI(q);
+}
+
+/* 轻量 Markdown 渲染（不引库）：标题 / 无序·有序列表 / 加粗 / 行内代码 / 代码块 / 链接 / 引用 / 分隔线 / 段落
+   先整段 HTML 转义，再做结构替换；链接仅允许 http(s)，代码块内容不再做行内替换。 */
+function inlineMd(text) {
+  let s = String(text == null ? '' : text);
+  const slots = [];
+  const keep = (html) => { slots.push(html); return '\u0000' + (slots.length - 1) + '\u0000'; };
+  // 行内代码优先占位，避免其中的 * 与链接被误处理
+  s = s.replace(/`([^`\n]+)`/g, (m, code) => keep('<code>' + code + '</code>'));
+  // 链接 [文字](http...)
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, label, url) =>
+    keep('<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + label + '</a>'));
+  // 裸链接
+  s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)\]]+)/g, (m, pre, url) =>
+    pre + keep('<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>'));
+  // 加粗
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+  // 斜体（单星号，避开已生成的 strong）
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  // 还原占位
+  s = s.replace(/\u0000(\d+)\u0000/g, (m, i) => slots[Number(i)] || '');
+  return s;
+}
+
+function renderMarkdown(src) {
+  const escaped = esc(String(src == null ? '' : src));
+  const lines = escaped.split(/\r?\n/);
+  const out = [];
+  let para = [];
+  let listType = ''; // 'ul' | 'ol'
+  let i = 0;
+
+  const flushPara = () => {
+    if (!para.length) return;
+    out.push('<p>' + para.map(inlineMd).join('<br>') + '</p>');
+    para = [];
+  };
+  const flushList = () => {
+    if (!listType) return;
+    out.push('</' + listType + '>');
+    listType = '';
+  };
+  const openList = (type) => {
+    if (listType === type) return;
+    flushList();
+    listType = type;
+    out.push('<' + type + '>');
+  };
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // 代码块 ```lang ... ```
+    if (/^```/.test(trimmed)) {
+      flushPara();
+      flushList();
+      const lang = trimmed.replace(/^```+/, '').trim();
+      const code = [];
+      i += 1;
+      while (i < lines.length && !/^```/.test(lines[i].trim())) { code.push(lines[i]); i += 1; }
+      i += 1; // 跳过结束 ```
+      out.push('<pre class="wb2-md-pre"><code' + (lang ? ' data-lang="' + lang.replace(/"/g, '') + '"' : '') + '>'
+        + code.join('\n') + '</code></pre>');
+      continue;
     }
-  });
-  if (inList) html += '</ul>';
-  return html || '<p></p>';
+
+    // 标题 # ~ ####（输出 h3/h4/h5，避免与页面 h1/h2 混淆）
+    let m = /^(#{1,4})\s+(.*)$/.exec(trimmed);
+    if (m) {
+      flushPara();
+      flushList();
+      const level = Math.min(5, m[1].length + 2);
+      out.push('<h' + level + '>' + inlineMd(m[2]) + '</h' + level + '>');
+      i += 1;
+      continue;
+    }
+
+    // 分隔线
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+      flushPara();
+      flushList();
+      out.push('<hr>');
+      i += 1;
+      continue;
+    }
+
+    // 引用（连续多行合并）
+    if (/^&gt;\s?/.test(line)) {
+      flushPara();
+      flushList();
+      const quote = [];
+      while (i < lines.length && /^&gt;\s?/.test(lines[i])) {
+        quote.push(lines[i].replace(/^&gt;\s?/, ''));
+        i += 1;
+      }
+      out.push('<blockquote>' + quote.map(inlineMd).join('<br>') + '</blockquote>');
+      continue;
+    }
+
+    // 无序列表
+    m = /^\s*[-*+]\s+(.*)$/.exec(line);
+    if (m) {
+      flushPara();
+      openList('ul');
+      out.push('<li>' + inlineMd(m[1]) + '</li>');
+      i += 1;
+      continue;
+    }
+
+    // 有序列表
+    m = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+    if (m) {
+      flushPara();
+      openList('ol');
+      out.push('<li>' + inlineMd(m[1]) + '</li>');
+      i += 1;
+      continue;
+    }
+
+    // 空行：段落/列表收尾
+    if (!trimmed) {
+      flushPara();
+      flushList();
+      i += 1;
+      continue;
+    }
+
+    // 普通段落行
+    flushList();
+    para.push(line);
+    i += 1;
+  }
+  flushPara();
+  flushList();
+  return out.join('');
 }
 
-// ---------------------------------------------------------------- AI 回答通知 / 独立对话窗口
+/* 旧名别名（保持兼容） */
+function mdLite(src) { return renderMarkdown(src); }
+
+// ---------------------------------------------------------------- AI 回答通知 / 页内浮窗（答案只在浮窗内查看）
 function previewText(s, n) {
   const t = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
   return t.length > n ? t.slice(0, n - 1) + '…' : t;
 }
 
 function showAiNotice(q, a) {
-  state.ai.notice = { q: q, a: a, expanded: false, dismissed: false, at: Date.now() };
+  state.ai.notice = { q: q, a: a, dismissed: false, at: Date.now() };
   mountNotice(true);
 }
 
 function noticeHtml() {
   const n = state.ai.notice;
   if (!n) return '';
-  const head = ''
+  return ''
     + '<div class="wb2-notice-head">'
     +   `<span class="wb2-notice-ico">${IC.spark}</span>`
-    +   '<div class="wb2-notice-tx"><b>AI 回答好了</b><span>' + esc(previewText('你问：' + n.q, 46)) + '</span></div>'
+    +   '<div class="wb2-notice-tx"><b>问题已回答 · 点击查看</b><span>' + esc(previewText('你问：' + n.q, 46)) + '</span></div>'
     +   `<button class="wb2-notice-x" type="button" data-act="notice-close" title="关闭通知" aria-label="关闭通知">${IC.x}</button>`
-    + '</div>';
-  if (!n.expanded) {
-    return head
-      + `<div class="wb2-notice-preview">${esc(previewText(n.a, 132))}</div>`
-      + '<div class="wb2-notice-foot">'
-      +   '<span class="wb2-notice-hint">点击展开完整回答</span>'
-      +   `<button class="wb2-notice-btn" type="button" data-act="notice-window">${IC.win}新窗口</button>`
-      + '</div>';
-  }
-  return head
-    + '<div class="wb2-notice-qline">' + esc(n.q) + '</div>'
-    + `<div class="wb2-notice-answer">${mdLite(n.a)}</div>`
+    + '</div>'
     + '<div class="wb2-notice-foot">'
-    +   `<button class="wb2-notice-btn ghost" type="button" data-act="notice-collapse">收起</button>`
-    +   `<button class="wb2-notice-btn" type="button" data-act="notice-window">${IC.win}新窗口查看并继续提问</button>`
+    +   '<span class="wb2-notice-hint">答案在页面内浮窗中</span>'
+    +   `<button class="wb2-notice-btn" type="button" data-act="notice-open">${IC.spark}查看答案</button>`
     + '</div>';
 }
 
@@ -529,19 +846,14 @@ function mountNotice(animate) {
     el.setAttribute('aria-live', 'polite');
     root.appendChild(el);
   }
-  el.classList.toggle('expanded', !!n.expanded);
   el.innerHTML = noticeHtml();
+  // 浮窗打开期间不显示右下角通知（关闭浮窗后恢复）
+  el.style.display = isAIOverlayOpen() ? 'none' : '';
   if (animate) {
     el.classList.remove('in');
     void el.offsetWidth;
     el.classList.add('in');
   }
-}
-
-function toggleNotice(expanded) {
-  if (!state.ai.notice) return;
-  state.ai.notice.expanded = (typeof expanded === 'boolean') ? expanded : !state.ai.notice.expanded;
-  mountNotice();
 }
 
 function dismissNotice() {
@@ -550,153 +862,71 @@ function dismissNotice() {
   mountNotice();
 }
 
-function absAssetUrl(p) {
-  try { return new URL(p, location.href).href; } catch (_) { return p; }
+// —— 页内浮窗（#wb2AiModal）：显示历史问答（Markdown 渲染）并可继续提问 ——
+function isAIOverlayOpen() {
+  return !!document.getElementById('wb2AiModal');
 }
 
-/* 新窗口内的启动脚本（.toString() 注入到生成页面；只依赖 window 上的两个变量） */
-function aiWindowBoot() {
-  'use strict';
-  var HISTORY = window.__WB_AI_HISTORY || [];
-  var SYS = window.__WB_AI_SYS || '';
-  var list = document.getElementById('wbAiWinList');
-  var input = document.getElementById('wbAiWinInput');
-  var send = document.getElementById('wbAiWinSend');
-  var hint = document.getElementById('wbAiWinHint');
-  var busy = false;
-  var history = HISTORY.slice();
+function aiOverlayMsgHtml(m) {
+  if (!m) return '';
+  const role = m.role === 'user' ? 'user' : 'assistant';
+  if (role === 'user') {
+    return '<div class="wb2-aiwin-msg user"><div class="wb2-aiwin-bubble">' + esc(m.content) + '</div></div>';
+  }
+  return '<div class="wb2-aiwin-msg assistant"><div class="wb2-aiwin-bubble wb2-md">'
+    + renderMarkdown(m.content) + '</div></div>';
+}
 
-  function mod() { return window.KansekiAI || null; }
-  function cfg() {
-    try {
-      var m = mod();
-      return (m && typeof m.getConfig === 'function') ? m.getConfig() : null;
-    } catch (e) { return null; }
-  }
-  function addMsg(role, text, cls) {
-    var wrap = document.createElement('div');
-    wrap.className = 'wb2-aiwin-msg ' + role + (cls ? ' ' + cls : '');
-    var bubble = document.createElement('div');
-    bubble.className = 'wb2-aiwin-bubble';
-    bubble.textContent = text;
-    wrap.appendChild(bubble);
-    list.appendChild(wrap);
-    list.scrollTop = list.scrollHeight;
-    return wrap;
-  }
-  function refreshHint() {
-    if (!hint) return;
-    var m = mod();
-    var c = cfg();
-    if (!m || typeof m.chat !== 'function') {
-      hint.textContent = 'AI 配置模块未加载';
-      if (input) input.disabled = true;
-      if (send) send.disabled = true;
-      return;
-    }
-    if (!c || !c.hasKey) {
-      hint.textContent = '尚未配置 DeepSeek API Key（设置 → API 管理）';
-      if (input) input.disabled = true;
-      if (send) send.disabled = true;
-      return;
-    }
-    hint.textContent = '模型 ' + (c.model || '');
-  }
-  function sendMsg() {
-    if (busy) return;
-    var q = ((input && input.value) || '').trim();
-    if (!q) { if (input) input.focus(); return; }
-    var m = mod();
-    if (!m || typeof m.chat !== 'function') return;
-    if (input) input.value = '';
-    busy = true;
-    if (send) send.disabled = true;
-    addMsg('user', q);
-    history.push({ role: 'user', content: q });
-    var loading = addMsg('assistant', '正在思考…', 'loading');
-    var msgs = [{ role: 'system', content: SYS }].concat(history.slice(-12));
-    m.chat(msgs, { temperature: 0.3 }).then(function (r) {
-      var text = (r && r.content) || '（模型没有返回内容，请重试）';
-      if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
-      addMsg('assistant', text);
-      history.push({ role: 'assistant', content: text });
-      if (history.length > 40) history = history.slice(-40);
-    }, function (e) {
-      if (loading && loading.parentNode) loading.parentNode.removeChild(loading);
-      addMsg('assistant', '请求失败：' + ((e && e.message) || e), 'err');
-    }).then(function () {
-      busy = false;
-      if (send) send.disabled = false;
-      if (input) input.focus();
-    });
-  }
-  if (input) {
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-    });
-  }
-  if (send) send.addEventListener('click', sendMsg);
-  if (HISTORY.length) {
-    HISTORY.forEach(function (m) {
-      addMsg(m.role === 'user' ? 'user' : 'assistant', String(m.content == null ? '' : m.content));
-    });
+function renderAIOverlay() {
+  const list = document.getElementById('wb2AiModalList');
+  if (!list) return;
+  const cfg = aiConfigInfo();
+  let html = '';
+  if (!state.ai.history.length) {
+    html = '<div class="wb2-aiwin-empty">还没有问答记录：在主栏提问后，答案会在这里显示并可继续追问。</div>';
   } else {
-    addMsg('assistant', '你好，我是古籍编目助手。可以在这里继续提问。');
+    state.ai.history.forEach((m) => { html += aiOverlayMsgHtml(m); });
   }
-  refreshHint();
-  setTimeout(function () { if (input && !input.disabled) input.focus(); }, 80);
+  if (state.ai.busy) {
+    html += '<div class="wb2-aiwin-msg assistant loading"><div class="wb2-aiwin-bubble">'
+      + '<span class="wb2-spin"></span>正在思考…</div></div>';
+  }
+  if (state.ai.error) {
+    html += '<div class="wb2-aiwin-msg assistant err"><div class="wb2-aiwin-bubble">'
+      + esc(state.ai.error) + '</div></div>';
+  }
+  list.innerHTML = html;
+  list.scrollTop = list.scrollHeight;
+  // 头部/底部状态
+  const hint = document.getElementById('wb2AiModalHint');
+  if (hint) hint.textContent = cfg.hasKey ? ('模型 ' + (cfg.model || '')) : '尚未配置 API Key';
+  const input = document.getElementById('wb2AiModalInput');
+  const send = document.getElementById('wb2AiModalSend');
+  const lock = document.getElementById('wb2AiModalLock');
+  const disabled = !cfg.hasKey || state.ai.busy;
+  if (input) input.disabled = disabled;
+  if (send) send.disabled = disabled;
+  if (lock) lock.hidden = !!cfg.hasKey;
 }
 
-function buildAiWindowHtml(historyJson) {
-  const cssV3 = absAssetUrl('css/v3.css');
-  const cssWb2 = absAssetUrl('css/wb2.css');
-  const aiJs = absAssetUrl('pages/ai-config.js');
-  const icon = IC.spark;
-  return [
-    '<!doctype html>',
-    '<html lang="zh-CN" class="wb2-win" data-theme="light">',
-    '<head>',
-    '<meta charset="utf-8">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    '<title>问问 AI · 编目助手</title>',
-    '<link rel="stylesheet" href="' + cssV3 + '">',
-    '<link rel="stylesheet" href="' + cssWb2 + '">',
-    '<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"light")}catch(e){}<\/script>',
-    '<script src="' + aiJs + '"><\/script>',
-    '</head>',
-    '<body>',
-    '<div id="wbRoot" class="wb2-aiwin">',
-    '  <header class="wb2-aiwin-head">',
-    '    <span class="wb2-aiwin-ico">' + icon + '</span>',
-    '    <div class="wb2-aiwin-title"><b>问问 AI</b><span>古籍编目助手 · 可继续追问</span></div>',
-    '    <span class="wb2-aiwin-hint" id="wbAiWinHint"></span>',
-    '  </header>',
-    '  <div class="wb2-aiwin-list" id="wbAiWinList"></div>',
-    '  <div class="wb2-aiwin-input">',
-    '    <textarea id="wbAiWinInput" rows="2" placeholder="继续提问…（Enter 发送，Shift+Enter 换行）"></textarea>',
-    '    <button id="wbAiWinSend" class="wb2-aiwin-send" type="button">发送</button>',
-    '  </div>',
-    '</div>',
-    '<script>window.__WB_AI_HISTORY = ' + historyJson + ';window.__WB_AI_SYS = ' + JSON.stringify(AI_SYSTEM_PROMPT) + ';<\/script>',
-    '<script>(' + aiWindowBoot.toString() + ')();<\/script>',
-    '</body>',
-    '</html>',
-  ].join('\n');
-}
 
-/* V1.3：页内浮动窗口（用户要求不做独立窗口）。
-   复用原有 aiWindowBoot 的对话逻辑，但渲染在当前页面的模态浮层里，
-   关闭后保留历史（state.ai.history 继续累积）。 */
+/* 页内浮窗（用户要求：不跳独立窗口；答案只在 #wb2AiModal 中查看与继续提问） */
+let overlayKeyHandler = null;
+
 function closeAIOverlay() {
   const m = document.getElementById('wb2AiModal');
   if (m) m.remove();
-  state.ai.overlayBound = false;
+  if (overlayKeyHandler) {
+    document.removeEventListener('keydown', overlayKeyHandler);
+    overlayKeyHandler = null;
+  }
+  // 浮窗关闭后恢复右下角通知
+  const noticeEl = document.getElementById('wb2Notice');
+  if (noticeEl) noticeEl.style.display = '';
 }
 
-function openAIWindow() {
-  const history = (state.ai.history || []).slice(-20);
+function openAIOverlay() {
   closeAIOverlay();
-
   const overlay = document.createElement('div');
   overlay.className = 'wb2-aiwin-overlay';
   overlay.id = 'wb2AiModal';
@@ -706,32 +936,49 @@ function openAIWindow() {
     '  <header class="wb2-aiwin-head">',
     '    <span class="wb2-aiwin-ico">' + IC.spark + '</span>',
     '    <div class="wb2-aiwin-title"><b>问问 AI</b><span>古籍编目助手 · 可继续追问</span></div>',
-    '    <span class="wb2-aiwin-hint" id="wbAiWinHint"></span>',
+    '    <span class="wb2-aiwin-hint" id="wb2AiModalHint"></span>',
     '  </header>',
-    '  <div class="wb2-aiwin-list" id="wbAiWinList"></div>',
-    '  <div class="wb2-aiwin-input">',
-    '    <textarea id="wbAiWinInput" rows="2" placeholder="继续提问…（Enter 发送，Shift+Enter 换行）"></textarea>',
-    '    <button id="wbAiWinSend" class="wb2-aiwin-send" type="button">发送</button>',
+    '  <div class="wb2-aiwin-list" id="wb2AiModalList"></div>',
+    '  <div class="wb2-aiwin-foot">',
+    '    <div class="wb2-aiwin-lock" id="wb2AiModalLock" hidden>',
+    '      <span>尚未配置 DeepSeek API Key，配置后可继续提问</span>',
+    '      <button class="wb2-aiwin-settings" type="button" data-act="ai-settings">去设置</button>',
+    '    </div>',
+    '    <div class="wb2-aiwin-input">',
+    '      <textarea id="wb2AiModalInput" rows="2" placeholder="继续提问…（Enter 发送，Shift+Enter 换行）"></textarea>',
+    '      <button id="wb2AiModalSend" class="wb2-aiwin-send" type="button">发送</button>',
+    '    </div>',
     '  </div>',
     '</div>',
-  ].join('');
+  ].join('\n');
   document.getElementById('wbRoot').appendChild(overlay);
+
+  // 浮窗打开时隐藏右下角通知，避免遮挡浮窗输入区
+  const noticeEl = document.getElementById('wb2Notice');
+  if (noticeEl) noticeEl.style.display = 'none';
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay || e.target.closest('[data-close]')) closeAIOverlay();
   });
-  const onKey = (e) => { if (e.key === 'Escape') { closeAIOverlay(); document.removeEventListener('keydown', onKey); } };
-  document.addEventListener('keydown', onKey);
+  overlayKeyHandler = (e) => { if (e.key === 'Escape') closeAIOverlay(); };
+  document.addEventListener('keydown', overlayKeyHandler);
 
-  window.__WB_AI_HISTORY = history;
-  window.__WB_AI_SYS = AI_SYSTEM_PROMPT;
-  try { aiWindowBoot(); } catch (e) {
-    const list = document.getElementById('wbAiWinList');
-    if (list) list.textContent = '对话窗口初始化失败：' + ((e && e.message) || e);
+  const send = $('wb2AiModalSend');
+  if (send) send.addEventListener('click', sendFromModal);
+  const input = $('wb2AiModalInput');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFromModal(); }
+    });
   }
-  const ta = document.getElementById('wbAiWinInput');
-  if (ta) setTimeout(() => ta.focus(), 60);
+  renderAIOverlay();
+  setTimeout(() => { if (input && !input.disabled) input.focus(); }, 60);
   return overlay;
+}
+
+/* 兼容旧名：原「新窗口查看」入口与新需求统一改为页内浮窗 */
+function openAIWindow() {
+  return openAIOverlay();
 }
 
 // ---------------------------------------------------------------- 工作日历 / 待办
@@ -968,13 +1215,14 @@ function renderAll() {
     +   `<section class="wb2-card wb2-cal" id="wb2CalCard">${calendarInnerHtml()}</section>`
     +   '<div class="wb2-stack">'
     +     `<section class="wb2-card wb2-tiles"><div class="wb2-card-head"><h3>编目资料</h3></div>${tilesHtml()}</section>`
-    +     `<section class="wb2-card wb2-recent"><div class="wb2-card-head"><h3>最近更新</h3></div>${recentHtml()}</section>`
+    +     `<section class="wb2-card wb2-recent" id="wb2RecentCard"><div class="wb2-card-head"><h3>最近更新</h3></div>${recentHtml()}</section>`
     +   '</div>'
     + '</div>';
   applyDailyTone();
   bindRootEvents(root);
   updateAI();
   mountNotice();
+  if (isAIOverlayOpen()) renderAIOverlay();
 }
 
 function bindRootEvents(root) {
@@ -982,9 +1230,9 @@ function bindRootEvents(root) {
   root.__wb2Bound = true;
 
   root.addEventListener('click', (e) => {
-    /* 通知卡片：点正文展开/收起（按钮另行处理） */
+    /* 通知卡片：点击直接打开页内浮窗查看答案 */
     if (e.target.closest('.wb2-notice') && !e.target.closest('[data-act]')) {
-      toggleNotice();
+      openAIOverlay();
       return;
     }
 
@@ -1025,9 +1273,10 @@ function bindRootEvents(root) {
     else if (name === 'todo-add') addTodo();
     else if (name === 'ai-send') sendAI();
     else if (name === 'ai-settings') aiSettings();
-    else if (name === 'ai-window' || name === 'notice-window') openAIWindow();
+    else if (name === 'ai-open-modal' || name === 'notice-open' || name === 'ai-window' || name === 'notice-window') openAIOverlay();
     else if (name === 'notice-close') dismissNotice();
-    else if (name === 'notice-collapse') toggleNotice(false);
+    else if (name === 'update-check') checkUpdate(true);
+    else if (name === 'update-download') openUpdateUrl();
     else if (name === 'ai-reload') {
       state.ai.tried = false;
       state.ai.module = null;
@@ -1100,10 +1349,13 @@ export async function initWorkbench() {
     state.recent = recent;
   } catch (_) { /* 读取失败时保留默认值 */ }
 
+  state.version.current = resolveCurrentVersion();
   renderAll();
+  /* 打开工作台时自动检查新版本：当天有缓存则直接用缓存，否则联网查询（失败静默为可重试态） */
+  checkUpdate(false).catch(() => {});
 }
 
-/* 调试 / 自测钩子（不参与界面逻辑；便于自动化脚本模拟 AI 回答与新窗口） */
+/* 调试 / 自测钩子（不参与界面逻辑；便于自动化脚本模拟 AI 回答、浮窗与版本检查） */
 try {
   window.__wb2Debug = {
     state: state,
@@ -1111,6 +1363,9 @@ try {
     showAiNotice: showAiNotice,
     mountNotice: mountNotice,
     openAIWindow: openAIWindow,
+    openAIOverlay: openAIOverlay,
+    renderMarkdown: renderMarkdown,
+    checkUpdate: checkUpdate,
     simulateAnswer: function (q, a) {
       state.ai.history.push({ role: 'user', content: q });
       state.ai.history.push({ role: 'assistant', content: a });
@@ -1119,6 +1374,7 @@ try {
       showAiNotice(q, a);
       updateAI();
       mountNotice(true);
+      renderAIOverlay();
     },
   };
 } catch (_) { /* 忽略 */ }

@@ -54,6 +54,7 @@ export const RUN = {
   mode: '',                // 'single' | 'batch'
   batch: null,             // 批量队列对象（批量模式）
   current: null,           // { book, task, dir, startedAt }
+  currentRec: null,        // 当前正在执行的「下载记录」（RUN.tasks 里的一条）
   lastResult: null,        // 最近一次完成结果
   decided: null,           // 批量失败待决：'retry'|'skip'|'pause'|'cancel'
   tasks: [],               // V10.5：下载记录（单本与批量都入列，最新在前）
@@ -169,6 +170,125 @@ export function cancelRun() {
 export function decide(what) {
   RUN.decided = what;
   emit('decide', what);
+}
+
+// ---------------------------------------------------------------- V2.0 按任务（按这本书）暂停 / 恢复
+// 用户第 13 条：下载中心里每一本可单独暂停/继续；暂停一本时其它书继续下载。
+// 做法：内存里给任务对象打 `_paused` 标记（不写入 _任务.json，重启视为继续）：
+//   · executeTask 在每册开始前检查 → 提前返回 { paused:true }，不进入 finalize（不审计、不打包）；
+//   · runBook（批量中的一本）/ startRun（单本）/ runRecord（下载中心恢复）负责把记录标成 paused；
+//   · 恢复时若引擎正忙 → 进入 RESUME_QUEUE（记录显示「队列中」），引擎空闲后 pumpResumeQueue 启动，
+//     批量队列结束后也能接着跑（下载中心视图轮询调用 pump）。
+// 这样批量队列只需在收到 paused 结果后跳过这一本继续下一本，零缺册审计与打包流程保持不变。
+const RESUME_QUEUE = [];
+
+export function isTaskPaused(task) { return !!(task && task._paused); }
+
+export function pauseTask(task) {
+  if (!task) return false;
+  task._paused = true;
+  emit('pauseTask', { task });
+  return true;
+}
+export function resumeTask(task) {
+  if (!task) return false;
+  task._paused = false;
+  emit('resumeTask', { task });
+  return true;
+}
+
+/** 下载中心：暂停某一条记录（正在下载的那本会在当前这一册下完后停下） */
+export function pauseRecord(rec) {
+  if (!rec || !rec.task) return false;
+  pauseTask(rec.task);
+  if (rec.status === 'running') {
+    rec.status = 'paused';
+    emit('progress', { task: rec.task, rec });
+  }
+  return true;
+}
+
+/** 下载中心：恢复一条暂停（或失败/cancelled）的记录；引擎忙则排队，返回 'queued' */
+export function resumeRecord(rec) {
+  if (!rec || !rec.task) return 'noop';
+  rec.task._paused = false;
+  // 正在跑的就是这一条：清掉暂停标记即可继续（当前这一册还没停）
+  if (RUN.running && RUN.currentRec === rec) {
+    rec.status = 'running';
+    emit('progress', { task: rec.task, rec });
+    return 'running';
+  }
+  if (RUN.running) {
+    if (!RESUME_QUEUE.includes(rec)) RESUME_QUEUE.push(rec);
+    rec.status = 'queued';
+    rec.error = '';
+    emit('progress', { task: rec.task, rec });
+    return 'queued';
+  }
+  runRecord(rec);
+  return 'started';
+}
+
+/** 取消「排队中」的恢复（回到已暂停，不启动） */
+export function cancelQueuedResume(rec) {
+  const i = RESUME_QUEUE.indexOf(rec);
+  if (i >= 0) RESUME_QUEUE.splice(i, 1);
+  if (rec && rec.task) rec.task._paused = true;
+  if (rec && rec.status === 'queued') rec.status = 'paused';
+  return i >= 0;
+}
+
+/** 引擎空闲时启动下一条排队恢复的记录（下载中心定时调用；批量结束后也会立即调一次） */
+export function pumpResumeQueue() {
+  if (RUN.running) return false;
+  const rec = RESUME_QUEUE.shift();
+  if (!rec) return false;
+  runRecord(rec);
+  return true;
+}
+
+export function resumeQueueLength() { return RESUME_QUEUE.length; }
+
+/** 启动一条已暂停/失败的下载记录（沿用原 task：已完成的册不会再下） */
+async function runRecord(rec) {
+  const task = rec.task;
+  if (!task) return false;
+  task._paused = false;
+  RUN.running = true;
+  RUN.cancelled = false;
+  RUN.paused = false;
+  RUN.mode = rec.kind === 'batch' ? 'batch' : 'single';
+  RUN.current = { book: task.book, task, dir: taskDir(task), startedAt: Date.now() };
+  RUN.currentRec = rec;
+  rec.status = 'running';
+  rec.error = '';
+  rec.endedAt = 0;
+  if (!rec.startedAt) rec.startedAt = Date.now();
+  emit('bookStart', { book: task.book, task });
+  emit('progress', { task, rec });
+  try {
+    const res = await executeTask(task);
+    RUN.current = null; RUN.currentRec = null; RUN.running = false;
+    if (res && res.paused) {
+      rec.status = 'paused';
+    } else {
+      rec.status = res && res.ok ? 'done' : 'failed';
+      rec.error = res && res.ok ? '' : ((((res.audit || {}).problems) || []).slice(0, 3).join('；') || '下载未完成');
+      if (res && res.ok) RUN.lastResult = { book: task.book, task, dir: taskDir(task), ok: true, error: '' };
+    }
+  } catch (e) {
+    RUN.current = null; RUN.currentRec = null; RUN.running = false;
+    rec.status = 'failed';
+    rec.error = String((e && e.message) || e);
+  }
+  emit('bookEnd', {
+    book: task.book, task, dir: taskDir(task),
+    ok: rec.status === 'done', paused: rec.status === 'paused', error: rec.error, rec,
+  });
+  emit('progress', { task, rec });
+  // 队列里还有待恢复的就接着跑（放到下一 tick，避免递归过深）
+  setTimeout(() => { try { pumpResumeQueue(); } catch (_) { } }, 0);
+  return true;
 }
 
 async function fetchText(url) {
@@ -439,17 +559,23 @@ async function runVolume(task, v, dir) {
   emit('volume', { task, volume: v });
 }
 
-/** 执行一个任务（逐册队列）；返回 { ok, audit, zip } */
+/** 执行一个任务（逐册队列）；返回 { ok, audit, zip }；
+ *  V2.0：若该任务被「按本暂停」（task._paused），当前这一册下完后提前返回 { paused:true }，
+ *        不进入 finalize —— 已完成册与 _任务.json 都在，恢复时照常续传、审计、打包。 */
 export async function executeTask(task) {
   const dir = taskDir(task);
   await invoke('naj_dl_mkdir', { path: dir });
   await saveTask(task);
 
+  if (isTaskPaused(task)) return { ok: false, paused: true, task, dir };
+
   let cursor = 0;
+  let paused = false;
   const conc = Math.max(1, Math.min(2, Number(task.options.concurrency) || 1));
   const worker = async () => {
     for (;;) {
       if (RUN.cancelled) return;
+      if (isTaskPaused(task)) { paused = true; return; }
       if (!(await waitWhilePaused())) return;
       const i = cursor++;
       if (i >= task.volumes.length) return;
@@ -464,6 +590,7 @@ export async function executeTask(task) {
   };
   await Promise.all(Array.from({ length: conc }, worker));
 
+  if (paused || isTaskPaused(task)) return { ok: false, paused: true, task, dir };
   return finalizeTask(task, dir);
 }
 
@@ -516,14 +643,16 @@ export async function runBook(book, options) {
   }
   RUN.current = { book, task, dir: taskDir(task), startedAt: Date.now() };
   const rec = regTask('batch', task);          // V10.5：批量里的每一本也进「下载记录」
+  RUN.currentRec = rec;
   emit('bookStart', { book, task });
   const res = await executeTask(task);
-  const error = res.ok ? '' : res.audit.problems.slice(0, 3).join('；');
-  RUN.current = null;
-  RUN.lastResult = { book, task, dir: res.dir, ok: res.ok, error };
-  updTask(rec, { status: res.ok ? 'done' : 'failed', error });
-  emit('bookEnd', RUN.lastResult);
-  return { ...res, error };
+  const paused = !!(res && res.paused);
+  const error = paused ? '' : (res.ok ? '' : (((res.audit || {}).problems) || []).slice(0, 3).join('；'));
+  RUN.current = null; RUN.currentRec = null;
+  RUN.lastResult = { book, task, dir: res.dir, ok: !paused && res.ok, error, paused };
+  updTask(rec, { status: paused ? 'paused' : (res.ok ? 'done' : 'failed'), error });
+  emit('bookEnd', { ...RUN.lastResult, rec });
+  return { ...res, error, paused, rec };
 }
 
 // ================================================================
@@ -909,6 +1038,7 @@ function startRun(task, { resume }) {
   // 这样抽屉里的「当前任务/下载记录」和右上角角标都能看到本单的进度。
   const rec = regTask('single', task);
   RUN.current = { book: task.book, task, dir: taskDir(task), startedAt: Date.now() };
+  RUN.currentRec = rec;
   emit('bookStart', { book: task.book, task });
   el('najDlPrepare').hidden = true;
   el('najDlRun').hidden = false;
@@ -921,13 +1051,25 @@ function startRun(task, { resume }) {
     .then((res) => {
       RUN.running = false;
       S.task = task;
-      RUN.current = null;
+      RUN.current = null; RUN.currentRec = null;
+      // V2.0：按本暂停 —— 当前这一册下完后提前返回 paused，不审计、不打包；任务文件保留可续传
+      if (res && res.paused) {
+        rec.status = 'paused'; rec.error = ''; rec.endedAt = 0;
+        RUN.lastResult = { book: task.book, task, dir: res.dir, ok: false, paused: true, error: '' };
+        emit('bookEnd', { ...RUN.lastResult, rec });
+        renderTask();
+        toast('这一本已暂停，可在「下载中心」继续', 'warn');
+        el('najDlStart').hidden = false;
+        el('najDlStart').textContent = '继续下载未完成册';
+        el('najDlReveal').hidden = false;
+        return;
+      }
       RUN.lastResult = {
         book: task.book, task, dir: res.dir, ok: res.ok,
         error: res.ok ? '' : ((res.audit && res.audit.problems) || []).slice(0, 3).join('；'),
       };
       updTask(rec, { status: res.ok ? 'done' : 'failed', error: RUN.lastResult.error });
-      emit('bookEnd', RUN.lastResult);
+      emit('bookEnd', { ...RUN.lastResult, rec });
       renderTask();
       if (!res.ok) {
         renderProblems(res.audit, '未通过完整性门禁，已拒绝打包（避免出现缺册却看似完整的压缩包）。可点「只重试未完成册」补齐后再打包。');
@@ -955,11 +1097,11 @@ function startRun(task, { resume }) {
     })
     .catch((e) => {
       RUN.running = false;
-      RUN.current = null;
+      RUN.current = null; RUN.currentRec = null;
       const msg = String(e.message || e);
       RUN.lastResult = { book: task.book, task, dir: taskDir(task), ok: false, error: msg };
       updTask(rec, { status: 'failed', error: msg });
-      emit('bookEnd', RUN.lastResult);
+      emit('bookEnd', { ...RUN.lastResult, rec });
       toast(`任务异常终止：${msg}`, 'err');
     });
 }
@@ -977,26 +1119,34 @@ async function onRetryFailed() {
   // V10.5：补齐同样登记进下载中心
   const rec = regTask('single', S.task);
   RUN.current = { book: S.task.book, task: S.task, dir: taskDir(S.task), startedAt: Date.now() };
+  RUN.currentRec = rec;
   emit('bookStart', { book: S.task.book, task: S.task });
   renderTask();
   executeTask(S.task).then((res) => {
     RUN.running = false;
-    RUN.current = null;
+    RUN.current = null; RUN.currentRec = null;
+    if (res && res.paused) {
+      rec.status = 'paused'; rec.error = ''; rec.endedAt = 0;
+      emit('bookEnd', { book: S.task.book, task: S.task, dir: res.dir, ok: false, paused: true, error: '', rec });
+      renderTask();
+      toast('这一本已暂停，可在「下载中心」继续', 'warn');
+      return;
+    }
     RUN.lastResult = {
       book: S.task.book, task: S.task, dir: res.dir, ok: res.ok,
       error: res.ok ? '' : ((res.audit && res.audit.problems) || []).slice(0, 3).join('；'),
     };
     updTask(rec, { status: res.ok ? 'done' : 'failed', error: RUN.lastResult.error });
-    emit('bookEnd', RUN.lastResult);
+    emit('bookEnd', { ...RUN.lastResult, rec });
     renderTask();
     if (!res.ok) renderProblems(res.audit, '仍有未完成册，已拒绝打包。');
     else window.__najDlNotify?.({ kind: 'ok', title: '补齐完成', text: `${S.task.book.title} 已全部完成`, dir: res.dir, task: S.task });
   }).catch((e) => {
     RUN.running = false;
-    RUN.current = null;
+    RUN.current = null; RUN.currentRec = null;
     const msg = String(e.message || e);
     updTask(rec, { status: 'failed', error: msg });
-    emit('bookEnd', { book: S.task.book, task: S.task, dir: taskDir(S.task), ok: false, error: msg });
+    emit('bookEnd', { book: S.task.book, task: S.task, dir: taskDir(S.task), ok: false, error: msg, rec });
     toast(String(msg), 'err');
   });
 }

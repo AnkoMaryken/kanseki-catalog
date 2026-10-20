@@ -3,194 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>服务条款 · Juvenile</title>
+<title>服务条款 — 古代史及汉籍研究工具</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
 <style>
-:root {
-  --color-bg: #fafafa;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f5f5f5;
-  --color-accent: #171717;
-  --color-text: #0a0a0a;
-  --color-text-secondary: #525252;
-  --color-text-muted: #737373;
-  --color-border: #e5e5e5;
-  --color-input-bg: #fafafa;
-  --color-input-border: #d4d4d4;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 16px;
-}
-[data-theme="dark"] {
-  --color-bg: #0a0a0a;
-  --color-surface: #171717;
-  --color-surface-hover: #262626;
-  --color-accent: #fafafa;
-  --color-text: #fafafa;
-  --color-text-secondary: #d4d4d4;
-  --color-text-muted: #a3a3a3;
-  --color-border: rgba(255,255,255,0.1);
-  --color-input-bg: #1f1f1f;
-  --color-input-border: rgba(255,255,255,0.14);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.8;
-  -webkit-font-smoothing: antialiased;
-}
-.page {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  margin-bottom: 2rem;
-}
-.brand .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  font-weight: 600;
-}
-.brand span {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-.updated {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin: 1.75rem 0 0.6rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
-}
-h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
-p { font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 0.6rem; }
-ul { padding-left: 1.25rem; margin-bottom: 0.6rem; }
-li { font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 0.3rem; }
-a { color: var(--color-text); }
-a:hover { opacity: 0.8; }
-.back {
-  display: inline-block;
-  margin-top: 2.5rem;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  background: var(--color-surface);
-}
-.back:hover { color: var(--color-text); background: var(--color-surface-hover); }
-
-/* ===== V8.2 移动端适配 ===== */
-@media (max-width: 768px) {
-  .page { padding: 1.5rem 0.9rem 2.5rem; }
-  .brand { margin-bottom: 1.5rem; }
-  h1 { font-size: 1.3rem; }
-  h2 { font-size: 0.98rem; margin: 1.4rem 0 0.5rem; }
-  p, li { font-size: 0.85rem; }
-  .back { margin-top: 2rem; padding: 0.55rem 1rem; }
-}
+:root{--bg:#F2F3F5;--card:#fff;--t1:#171A1F;--t2:#5F6672;--t3:#8F959E;--line:#ECEEF1;--accent:#C8F169}
+[data-theme="dark"]{--bg:#14161A;--card:#1C1F24;--t1:#F2F3F5;--t2:#B7BDC7;--t3:#838A96;--line:#2A2E35}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font:14px/1.85 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 22px 72px}
+h1{font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--t3);font-size:12.5px;margin:0 0 22px}
+.card{background:var(--card);border-radius:20px;padding:26px 30px;box-shadow:0 8px 28px rgba(0,0,0,.05)}
+h2{font-size:15px;font-weight:700;margin:24px 0 8px}
+h2:first-child{margin-top:0}
+p{color:var(--t2);margin:0 0 10px}
+ul{color:var(--t2);margin:0 0 10px;padding-left:20px}
+li{margin:4px 0}
+a{color:inherit}
+.foot{margin-top:26px;color:var(--t3);font-size:12px}
 </style>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#fafafa">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="汉籍工具">
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light');}catch(e){}</script>
 </head>
 <body>
-<div class="page">
-  <a class="brand" href="index.html">
-    <img class="brand-mark" src="assets/logo.png" alt="" style="width:44px;height:44px;object-fit:contain;display:block">
-    <span>Juvenile</span>
-  </a>
-
+<main>
   <h1>服务条款</h1>
-  <div class="updated">最后更新：2026 年 8 月</div>
+  <p class="sub">更新日期：2026 年 10 月 19 日 · 适用版本：v1.4 及以后</p>
+  <div class="card">
+    <h2>一、关于本软件</h2>
+    <p>本软件是一款面向古籍编目与研究工作的本地桌面工具，提供纪年查询、古籍类目查询、日本所藏汉籍检索、日本国立公文书馆检索、编目规范与快速跳转等功能。本软件按「现状」提供，供个人学习与研究使用。</p>
 
-  <p>欢迎使用 <strong>Juvenile</strong>（逐风少年）——一个面向古典文献学与古代文学学习、古籍编目工作的综合性平台。使用本服务前，请仔细阅读本条款。你访问或使用本平台，即表示你同意受本条款约束。</p>
+    <h2>二、本地运行与数据</h2>
+    <ul>
+      <li>本软件在本机运行，检索与编目数据默认只保存在本机，不上传服务器。</li>
+      <li>注册的账号、密码（仅本机校验）、昵称与头像均保存在本机，不涉及任何后端服务。</li>
+      <li>导入或导出的表格、PDF 等文件由用户自行管理，请及时备份。</li>
+    </ul>
 
-  <h2>1. 服务内容</h2>
-  <p>本平台提供以下服务：</p>
-  <ul>
-    <li>中日历史纪年对照查询（朝代、年号、干支、生肖等）</li>
-    <li>古典文献学与古代文学知识库（规划中）</li>
-    <li>古籍编目规范查阅与四部分类表查询</li>
-    <li>编目录入工具与个人数据存储（规划中）</li>
-  </ul>
+    <h2>三、第三方数据来源</h2>
+    <p>本软件展示的目录元数据来自公开来源（如全國漢籍データベース、国立公文書館デジタルアーカイブ、《中國古籍總目》等），其著作权与使用条件归原机构所有。本软件仅作本地整理与检索，不对第三方数据的完整性、准确性作担保。</p>
 
-  <h2>2. 账号注册</h2>
-  <ul>
-    <li>注册需提供真实有效的邮箱地址，并设置密码</li>
-    <li>你应妥善保管账号与密码，账号下的所有操作由你负责</li>
-    <li>本平台区分普通用户（学生/学习者）、编目工作者与管理员的角色，不同角色权限不同</li>
-    <li>如发现账号被未经授权使用，请及时告知我们</li>
-  </ul>
+    <h2>四、使用规范</h2>
+    <ul>
+      <li>请遵守目标网站的访问频率与使用条款，不要用本软件进行高频抓取或批量镜像。</li>
+      <li>不得将本软件用于侵犯他人著作权、数据库权利或其他合法权益的行为。</li>
+      <li>AI 功能由用户自行配置第三方服务，使用时应遵守对应服务商的服务条款。</li>
+    </ul>
 
-  <h2>3. 用户行为规范</h2>
-  <ul>
-    <li>不得利用本平台从事任何违法违规活动</li>
-    <li>编目录入的内容应真实、准确，不得侵犯他人著作权或其他合法权益</li>
-    <li>不得恶意攻击、破坏、干扰平台的数据、服务与正常运行</li>
-    <li>不得批量抓取或滥用平台数据用于商业用途</li>
-  </ul>
+    <h2>五、免责声明</h2>
+    <p>本软件为研究辅助工具，检索结果、AI 输出与类目判定仅供参考，请以原站与纸本原书为准。因使用本软件产生的任何直接或间接损失，开发者不承担责任。</p>
 
-  <h2>4. 内容与版权</h2>
-  <ul>
-    <li>平台提供的编目规范、知识库内容仅供学习与研究使用，未经许可不得用于商业用途</li>
-    <li>你录入的编目数据归你所有；为提供服务所必需的范围内，平台有权存储与展示</li>
-    <li>《全球汉籍合璧工程》及各类细则、工作手册等资料的版权归原权利方所有</li>
-  </ul>
+    <h2>六、更新与终止</h2>
+    <p>本软件会不定期更新，修复问题或调整功能。用户可自行选择是否升级；停止使用本软件即视为终止本条款。</p>
 
-  <h2>5. 免责声明</h2>
-  <ul>
-    <li>平台数据（纪年对照、编目规范等）仅供学习参考，学术研究请以原始文献为准</li>
-    <li>因不可抗力、网络故障或第三方原因导致的服务中断，平台不承担相应责任</li>
-    <li>用户间因使用本平台产生的纠纷，平台不承担连带责任</li>
-  </ul>
+    <h2>七、条款变更</h2>
+    <p>条款如有变更，会在软件内的「更新日志」中说明。继续使用即视为接受变更后的条款。</p>
 
-  <h2>6. 条款修改</h2>
-  <p>平台有权修改本条款。修改后的条款将在本页面公布并更新"最后更新"日期。继续使用本平台即视为你接受修改后的条款。</p>
-
-  <h2>7. 联系我们</h2>
-  <p>如对本条款有任何疑问，请通过网站内的联系方式与我们沟通。</p>
-
-  <a class="back" href="javascript:history.back()">← 返回</a>
-</div>
-<script>
-// 全站主题 (V6.0: 与所有页面共用 localStorage 键 theme)
-(function() {
-  var t = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
-<script defer src="pwa.js"></script>
+    <p class="foot">如对本条款有疑问，可在软件内「设置 → 关于 → 复制诊断信息」反馈。</p>
+  </div>
+</main>
 </body>
 </html>

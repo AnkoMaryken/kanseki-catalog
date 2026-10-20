@@ -13,7 +13,7 @@
 import {
   RUN, invoke, esc, toast, onEngine, runBook, resolveBookPlan, taskDir, saveTask,
   pickFolder, defaultOutRoot, lastOutDir, rememberOutDir, dlAvailable,
-  effectiveTemplates, saveTemplates,
+  effectiveTemplates, saveTemplates, pumpResumeQueue,
 } from './naj-dl.js';
 import { buildSearchUrl, parseSearchPage } from '../core/naj-parse.js';
 import {
@@ -533,10 +533,11 @@ async function startBatch() {
   let doneCount = 0;
   let failedCount = 0;
   let skippedCount = 0;
+  let pausedCount = 0;
 
   for (let i = 0; i < B.batch.items.length; i++) {
     const it = B.batch.items[i];
-    if (!it.checked || it.status === 'done' || it.status === 'skipped') continue;
+    if (!it.checked || it.status === 'done' || it.status === 'skipped' || it.status === 'paused') continue;
     if (!(await waitWhilePausedOrCancelled())) break;
 
     B.batch.cursor = i;
@@ -559,6 +560,24 @@ async function startBatch() {
       } catch (e) {
         res = { ok: false, error: (e && e.message) ? e.message : String(e), audit: { problems: [String(e)] } };
       }
+      if (res && res.paused) {
+        // V2.0 按本暂停：这一本在当前册下完后停下 → 记 paused，队列直接继续下一本
+        // （恢复由「下载中心」负责：引擎空闲时重新入队，续传 + 审计 + 打包规则不变）
+        it.status = 'paused';
+        it.error = '';
+        if (res.rec) it.rec = res.rec;
+        pausedCount++;
+        renderList();
+        await saveBatch(B.batch);
+        notify({
+          kind: 'warn',
+          title: '已暂停这一本',
+          text: `${it.title}：已暂停，队列继续下载其它书；可在「下载中心」点「继续」恢复`,
+          dir: res.dir || opts.outDir,
+        });
+        break;
+      }
+      if (res && res.rec) it.rec = res.rec;
       if (res.ok) {
         it.status = 'done';
         it.stats = res.audit ? res.audit.stats : null;
@@ -613,19 +632,22 @@ async function startBatch() {
   B.batch.cursor = -1;
   renderList();
   await saveBatch(B.batch);
+  const pausedLeft = B.batch.items.filter((i) => i.status === 'paused').length;
   // 全部成功：清掉队列文件，输出目录里只留各书的 PDF/压缩包（用户要求「只留 PDF」）
   const allOk = B.batch.items.every((i) => i.status === 'done' || i.status === 'skipped');
   if (allOk && !RUN.cancelled) {
     try { await invoke('naj_dl_remove', { path: `${(opts.outDir || '').replace(/[\\/]+$/, '')}/_批量队列.json` }); } catch (_) { /* 忽略 */ }
   }
-  const summary = `完成 ${doneCount} · 略过 ${skippedCount} · 失败未决 ${Math.max(0, failedCount - skippedCount)}`;
+  const summary = `完成 ${doneCount} · 暂停 ${pausedLeft} · 略过 ${skippedCount} · 失败未决 ${Math.max(0, failedCount - skippedCount)}`;
   notify({
-    kind: RUN.cancelled ? 'warn' : (failedCount ? 'error' : 'ok'),
-    title: RUN.cancelled ? '批量下载已取消' : '批量下载结束',
-    text: `共 ${todo.length} 本：${summary}（队列与逐本进度已存盘，可随时恢复续跑）`,
+    kind: RUN.cancelled ? 'warn' : (failedCount ? 'error' : (pausedLeft ? 'warn' : 'ok')),
+    title: RUN.cancelled ? '批量下载已取消' : (pausedLeft ? '批量下载暂告一段落' : '批量下载结束'),
+    text: `共 ${todo.length} 本：${summary}${pausedLeft ? '（暂停的书可在「下载中心」继续）' : ''}（队列与逐本进度已存盘，可随时恢复续跑）`,
     dir: opts.outDir,
-    sticky: !!failedCount,
+    sticky: !!(failedCount || pausedLeft),
   });
+  // 批量结束后立刻尝试启动「排队恢复」的书（若用户已经在下载中心点了继续）
+  try { pumpResumeQueue(); } catch (_) { /* 忽略 */ }
 }
 
 // ---------------------------------------------------------------- 初始化

@@ -40,6 +40,8 @@ const config = require('../../../tests/helpers/config.js');
     }));
   };
 
+  // V1.4：编目记录默认封禁，e2e 需要解锁钩子
+  await page.addInitScript(() => { window.__kansekiRecordsUnlock = true; });
   await page.goto(config.resolveAppUrl('#/records'), { waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForTimeout(900);
   await clearRecords();

@@ -74,7 +74,6 @@ const SITE_SCRIPTS = [
   'kanseki_data.js',    // V9.0 古籍类目数据（9.6MB，仅 kanseki.html 使用）
   'kanseki_conv.js',    // V9.0 古籍类目专用 繁→简 表
   'ai-config.js',       // V9.2 DeepSeek 配置与调用（kanseki.html / settings.html / profile.html 共用）
-  'calc.js',            // 卷数计算
   'supabase-config.js', // 认证配置（账号页依赖）
 ];
 

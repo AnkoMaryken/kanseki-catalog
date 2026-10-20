@@ -25,6 +25,43 @@ import {
 
 const STORE_RECORDS = 'catalog_records';
 
+// ================================================================
+// V1.3（task-20）编目记录「暂时封禁使用」
+// ----------------------------------------------------------------
+// · 功能暂停期间：整页只显示「暂停使用」提示 + 只读记录条数，
+//   不渲染操作工具栏、不绑定编辑/批量删除等事件，**已有数据不删除**。
+// · 解锁开关（供以后恢复）：
+//     - 常量 RECORDS_FEATURE_ENABLED = true 即恢复全部功能；
+//     - localStorage 键 kanseki_records_locked 保留（默认锁定）；
+//     - 封禁期间用户不可自助解锁（UI 无开关；外部把键改成 '0' 也会被复位）。
+// · 开发/自动化测试可在页面脚本前设 window.__kansekiRecordsUnlock = true，
+//   仅用于自测与以后恢复时的临时验证，普通界面不暴露。
+// ================================================================
+const RECORDS_LOCKED_KEY = 'kanseki_records_locked';
+const RECORDS_LOCKED_DEFAULT = true;
+const RECORDS_FEATURE_ENABLED = false;   // ← 以后恢复功能：改为 true
+
+function recordsLocked() {
+  if (RECORDS_FEATURE_ENABLED) return false;
+  if (typeof window !== 'undefined' && window.__kansekiRecordsUnlock === true) return false;
+  const view = el('view-records');
+  const attr = view && view.getAttribute('data-records-locked');
+  if (attr === '0' || attr === 'false') return false;
+  let v = null;
+  try { v = localStorage.getItem(RECORDS_LOCKED_KEY); } catch (_) { /* 忽略 */ }
+  // 封禁期间：默认锁定；外部写入 '0' 不生效并立即复位，防止用户自助解锁
+  if (v === '0' || v === 'false') {
+    try { localStorage.setItem(RECORDS_LOCKED_KEY, String(RECORDS_LOCKED_DEFAULT)); } catch (_) { /* 忽略 */ }
+  } else if (v == null) {
+    try { localStorage.setItem(RECORDS_LOCKED_KEY, String(RECORDS_LOCKED_DEFAULT)); } catch (_) { /* 忽略 */ }
+  }
+  return RECORDS_LOCKED_DEFAULT;
+}
+
+export function isRecordsLocked() {
+  return recordsLocked();
+}
+
 let deps = {
   getStore: () => null,
   isTauri: false,
@@ -40,6 +77,9 @@ const state = {
   bound: false,
   loading: false,
   view: 'card',      // 预览方式：card（卡片）| table（表格预览，同编目表格模板）| text（文字预览，按著录格式成文）
+  selected: new Set(), // V1.3：批量删除勾选集合（记录 id）
+  locked: false,     // V1.3：本页实例是否处于「暂停使用」状态
+  bulkBar: null,
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -54,10 +94,21 @@ function toast(msg, type) {
 export function initRecordsView(options = {}) {
   deps = Object.assign({}, deps, options || {});
   if (state.bound) return;
+  state.bound = true;
+  injectRecordsStyles();
+
+  // V1.3：封禁态——整页替换为提示 + 只读统计；不绑定任何编辑/删除事件
+  if (recordsLocked()) {
+    state.locked = true;
+    renderLockedView();
+    return;
+  }
+
   const overlay = el('recordFormOverlay');
   if (!overlay) return;
-  state.bound = true;
 
+  // 解锁态：确保 Lead 预置的暂停提示块处于收起状态
+  hideLockedView();
   el('addRecordBtn')?.addEventListener('click', () => openForm(null));
   el('recordFormClose')?.addEventListener('click', closeForm);
   el('recordFormCancel')?.addEventListener('click', closeForm);
@@ -122,12 +173,243 @@ export function initRecordsView(options = {}) {
     const del = e.target.closest('[data-rec-del]');
     if (del) requestDelete(del.dataset.recDel);
   });
+
+  // V1.3：批量删除（行复选 / 全选 / 已选 N 条 / 批量删除）
+  ensureBulkBar();
+  bindBatchSelection();
 }
 
 /** 进入视图时调用：读库 + 消费检索面板带来的带入数据 */
 export async function refreshRecordsView() {
+  // V1.3：封禁态只刷新只读条数，不读表单、不消费带入数据
+  if (state.locked || recordsLocked()) {
+    state.locked = true;
+    renderLockedView();
+    await refreshLockedCount();
+    return;
+  }
+  hideLockedView();
   await loadRecords();
   consumePendingRecord();
+}
+
+// ---------------------------------------------------------------- V1.3 封禁态 UI
+/** 注入本模块专用样式（不改 index.html / 不改公共 CSS） */
+function injectRecordsStyles() {
+  if (el('recordsNative3Style')) return;
+  const style = document.createElement('style');
+  style.id = 'recordsNative3Style';
+  style.textContent = `
+/* —— 暂停使用 ——
+   优先使用 index.html 里 Lead 预置的 #recordsLocked 提示块；锁定时隐藏
+   .rec-wrap 里除提示块以外的全部内容；解锁时把提示块收起。 */
+#view-records.is-records-locked .rec-wrap{padding-top:26px}
+#view-records.is-records-locked .rec-wrap > *:not(#recordsLocked){display:none !important}
+#view-records.is-records-locked #recordsLocked{display:block !important;max-width:860px;margin:0 auto 14px}
+#view-records.rec-locked-fallback .rec-wrap{display:none !important}
+.rec-lock-wrap{flex:1 1 auto;display:flex;align-items:flex-start;justify-content:center;padding:44px 24px 60px;width:100%;box-sizing:border-box}
+.rec-lock-card{max-width:520px;width:100%;text-align:center;padding:34px 30px 30px}
+.rec-lock-badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-muted);background:var(--bg);border-radius:999px;padding:3px 10px;margin-bottom:14px}
+.rec-lock-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 8px;line-height:1.45}
+.rec-lock-desc{font-size:13px;line-height:1.8;color:var(--text-sec);margin:0 0 16px}
+.rec-lock-count{font-size:12.5px;color:var(--text-muted);border-top:1px solid var(--divider);padding-top:14px}
+.rec-lock-count b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+/* —— 批量删除 —— */
+.rec-bulkbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;flex-basis:100%;margin:2px 0 0;padding:8px 0 0;border-top:1px solid var(--divider)}
+.rec-bulkbar[hidden]{display:none !important}
+.rec-bulk-all{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-sec);cursor:pointer;white-space:nowrap}
+.rec-bulk-count{font-size:12px;color:var(--text-muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rec-bulk-count b{color:var(--text);font-weight:600}
+.rec-bulkbar .av-btn{height:30px;padding:0 12px;font-size:12px}
+.rec-check{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding-top:2px;cursor:pointer}
+.rec-check input[type="checkbox"],.rec-bulk-all input[type="checkbox"],.rec-table input[type="checkbox"]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;margin:0}
+.rec-check-th{width:30px !important;text-align:center !important;padding-left:6px !important;padding-right:6px !important}
+.rec-check-td{width:30px;text-align:center;padding-left:6px !important;padding-right:6px !important}
+.rec-text-item .rec-check{float:left;margin-right:8px}
+.rec-text-item{overflow:hidden}
+`;
+  document.head.appendChild(style);
+}
+
+const LOCKED_HTML = `
+  <div class="av-card rec-locked">
+    <h3 class="rec-locked-title">编目记录功能暂停使用</h3>
+    <p class="rec-locked-sub">已有编目数据仍保存在本机，不会丢失；恢复使用时会自动读回。</p>
+    <p class="rec-locked-count">本机现有记录：<b id="recordsLockedCount">—</b> 条</p>
+  </div>`;
+
+/** 取/建锁定时显示的提示块；有 Lead 预置的 #recordsLocked 就直接用 */
+function ensureLockedBlock() {
+  const view = el('view-records');
+  if (!view) return null;
+  let box = el('recordsLocked');
+  if (box) return box;
+  box = document.createElement('div');
+  box.id = 'recordsLocked';
+  const holder = document.createElement('div');
+  holder.className = 'rec-lock-wrap';
+  holder.setAttribute('role', 'status');
+  holder.innerHTML = LOCKED_HTML;
+  box.appendChild(holder);
+  view.appendChild(box);
+  view.classList.add('rec-locked-fallback');
+  box.dataset.fallback = '1';
+  return box;
+}
+
+/** 封禁态：隐藏原操作区，显示提示 + 只读条数（不删除任何数据） */
+function renderLockedView() {
+  const view = el('view-records');
+  if (!view) return;
+  view.classList.add('is-records-locked');
+  const box = ensureLockedBlock();
+  if (box) {
+    box.hidden = false;
+    box.style.display = '';
+  }
+  // Lead 预置块若没有条目数元素，按同一版式补一个
+  if (!el('recordsLockedCount')) {
+    const p = document.createElement('p');
+    p.className = 'rec-locked-count';
+    p.innerHTML = '本机现有记录：<b id="recordsLockedCount">—</b> 条';
+    (box && (box.querySelector('.av-card') || box))?.appendChild(p);
+  }
+  // 录入弹层不允许出现在封禁态
+  const overlay = el('recordFormOverlay');
+  if (overlay) overlay.hidden = true;
+  document.body.style.overflow = '';
+  state.records = [];
+  state.selected.clear();
+  if (state.bulkBar) state.bulkBar.hidden = true;
+  if (typeof window !== 'undefined') window.__recordsLocked = true;
+}
+
+/** 解锁态：把暂停使用提示块收起（Lead 预置块在解锁后不应出现） */
+function hideLockedView() {
+  const view = el('view-records');
+  if (view) view.classList.remove('is-records-locked', 'rec-locked-fallback');
+  const box = el('recordsLocked');
+  if (box) { box.hidden = true; box.style.display = 'none'; }
+}
+
+/** 封禁态只读条数（数据照旧读出来数一数，不做任何写操作） */
+async function refreshLockedCount(attempt = 0) {
+  const store = deps.getStore && deps.getStore();
+  const cnt = el('recordsLockedCount');
+  if (!store) {
+    if (cnt) cnt.textContent = '—';
+    if (attempt < 6) setTimeout(() => { refreshLockedCount(attempt + 1); }, 500);
+    return;
+  }
+  try {
+    const all = await store.getAllRecords();
+    const total = (all || []).filter((r) => r && !r.deletedAt).length;
+    if (cnt) cnt.textContent = String(total);
+    if (typeof window !== 'undefined') window.__recordsLockedCount = total;
+  } catch (e) {
+    if (cnt) cnt.textContent = '—';
+  }
+}
+
+// ---------------------------------------------------------------- V1.3 批量删除
+function ensureBulkBar() {
+  if (state.bulkBar && document.body.contains(state.bulkBar)) return state.bulkBar;
+  let bar = el('recordsBulkBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'rec-bulkbar';
+    bar.id = 'recordsBulkBar';
+    bar.hidden = true;
+    bar.innerHTML = `
+      <label class="rec-bulk-all"><input type="checkbox" id="recordsSelectAll"> 全选</label>
+      <span class="rec-bulk-count" id="recordsSelCount">已选 <b>0</b> 条</span>
+      <button class="av-btn rec-danger" id="recordsBulkDelete" type="button" disabled>批量删除</button>`;
+    const toolbar = document.querySelector('#view-records .rec-toolbar');
+    if (toolbar) toolbar.appendChild(bar);
+    else {
+      const card = document.querySelector('#view-records .rec-listcard');
+      if (card && card.parentNode) card.parentNode.insertBefore(bar, card);
+      else el('view-records')?.appendChild(bar);
+    }
+  }
+  state.bulkBar = bar;
+  return bar;
+}
+
+function bindBatchSelection() {
+  const view = el('view-records');
+  if (!view) return;
+  // 卡片 / 表格 / 文字三种视图的复选框（事件委托）
+  view.addEventListener('change', (e) => {
+    const all = e.target.closest('[data-rec-all]');
+    if (all) { selectAllVisible(all.checked); return; }
+    const cb = e.target.closest('[data-rec-check]');
+    if (!cb) return;
+    if (cb.checked) state.selected.add(cb.dataset.recCheck);
+    else state.selected.delete(cb.dataset.recCheck);
+    updateBulkBar();
+  });
+  el('recordsSelectAll')?.addEventListener('change', (e) => selectAllVisible(e.target.checked));
+  el('recordsBulkDelete')?.addEventListener('click', batchDeleteSelected);
+}
+
+/** 全选 / 全不选（只作用于当前可见列表） */
+function selectAllVisible(checked) {
+  for (const r of visibleRecords()) {
+    if (checked) state.selected.add(r.id);
+    else state.selected.delete(r.id);
+  }
+  document.querySelectorAll('#view-records [data-rec-check]').forEach((cb) => {
+    cb.checked = !!checked && state.selected.has(cb.dataset.recCheck);
+  });
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = state.bulkBar || el('recordsBulkBar');
+  if (!bar) return;
+  const total = state.records.length;
+  bar.hidden = total === 0;
+  const n = state.selected.size;
+  const cnt = el('recordsSelCount');
+  if (cnt) cnt.innerHTML = `已选 <b>${n}</b> 条`;
+  const del = el('recordsBulkDelete');
+  if (del) del.disabled = n === 0;
+  const vis = visibleRecords();
+  const selVis = vis.filter((r) => state.selected.has(r.id)).length;
+  const allChecked = vis.length > 0 && selVis === vis.length;
+  const partial = selVis > 0 && selVis < vis.length;
+  const master = el('recordsSelectAll');
+  if (master) { master.checked = allChecked; master.indeterminate = partial; }
+  const thAll = document.querySelector('#view-records [data-rec-all]');
+  if (thAll) { thAll.checked = allChecked; thAll.indeterminate = partial; }
+}
+
+/** 批量删除（软删除墓碑；二次确认；删除后刷新列表/计数并提示） */
+async function batchDeleteSelected() {
+  const ids = Array.from(state.selected);
+  if (!ids.length) { toast('请先勾选要删除的记录', 'err'); return; }
+  if (!window.confirm(`确定删除选中的 ${ids.length} 条编目记录？\n（软删除，会随同步传播到其它设备；本机数据删除后不可恢复）`)) return;
+  const store = deps.getStore && deps.getStore();
+  if (!store) { toast('存储未就绪，暂时无法删除', 'err'); return; }
+  let done = 0;
+  try {
+    for (const id of ids) {
+      const rec = state.records.find((r) => r.id === id);
+      if (!rec) continue;
+      const tomb = markDeleted(rec, store.deviceId);
+      await store.putRecordValue(tomb);
+      await store.pushChange(STORE_RECORDS, tomb.id);
+      done++;
+    }
+    state.selected.clear();
+    await loadRecords();
+    toast(`已删除 ${done} 条编目记录`, 'ok');
+  } catch (e) {
+    state.selected.clear();
+    await loadRecords();
+    toast('批量删除失败：' + ((e && e.message) || e), 'err');
+  }
 }
 
 // ---------------------------------------------------------------- 读库
@@ -185,8 +467,15 @@ function renderList() {
   const textBox = el('recordsTextWrap');
   const emptyBox = el('recordsEmpty');
   if (!listBox) return;
+  if (state.locked) return;   // 封禁态整页由提示块接管，不渲染列表
   const rows = visibleRecords();
   const total = state.records.length;
+
+  // 勾选集合只保留仍存在的记录（删除/同步后自动收敛）
+  if (state.selected.size) {
+    const ids = new Set(state.records.map((r) => r.id));
+    for (const id of Array.from(state.selected)) if (!ids.has(id)) state.selected.delete(id);
+  }
 
   const countEl = el('recordsCount');
   if (countEl) countEl.textContent = total ? `共 ${total} 条${state.keyword ? ` · 命中 ${rows.length} 条` : ''}` : '';
@@ -216,12 +505,14 @@ function renderList() {
         if (sub) sub.textContent = '点右上角「＋ 新增编目」按模板著录，或「导入表格」把 Excel/CSV 编目表一次性导入。';
       }
     }
+    updateBulkBar();
     return;
   }
   if (emptyBox) emptyBox.hidden = true;
   if (showCard) listBox.innerHTML = rows.map(rowHtml).join('');
   if (showTable && tableBox) tableBox.innerHTML = tableHtml(rows);
   if (showText && textBox) textBox.innerHTML = textHtml(rows);
+  updateBulkBar();
 }
 
 /** 预览方式：card | table | text */
@@ -233,20 +524,33 @@ function setView(v) {
   renderList();
 }
 
-/** 表格预览：与「编目表格」模板同 14 列（序號 + 13 业务字段） */
+/** 表格预览：与「编目表格」模板同 14 列（序號 + 13 业务字段）；V1.3 增加行复选列 */
 function tableHtml(rows) {
   const { headers, rows: body } = recordsToTableRows(rows);
-  const head = headers.map((h) => `<th>${escHtml(h)}</th>`).join('');
-  const trs = body.map((r) => '<tr>' + r.map((c) => {
-    const empty = c === '' || c == null;
-    return `<td class="${empty ? 'rec-cell-empty' : ''}">${escHtml(empty ? '' : c)}</td>`;
-  }).join('') + '</tr>').join('');
+  const head = '<th class="rec-check-th"><input type="checkbox" data-rec-all title="全选当前列表" aria-label="全选当前列表"></th>'
+    + headers.map((h) => `<th>${escHtml(h)}</th>`).join('');
+  const trs = body.map((r, i) => {
+    const rec = rows[i] || {};
+    const checked = state.selected.has(rec.id) ? ' checked' : '';
+    const tds = r.map((c) => {
+      const empty = c === '' || c == null;
+      return `<td class="${empty ? 'rec-cell-empty' : ''}">${escHtml(empty ? '' : c)}</td>`;
+    }).join('');
+    return `<tr data-rec-id="${escHtml(rec.id)}">`
+      + `<td class="rec-check-td"><label class="rec-check"><input type="checkbox" data-rec-check="${escHtml(rec.id)}"${checked} aria-label="选择该记录"></label></td>`
+      + tds + '</tr>';
+  }).join('');
   return `<table class="rec-table"><thead><tr>${head}</tr></thead><tbody>${trs}</tbody></table>`;
 }
 
-/** 文字预览：按文字著录格式成文（可直接复制/打印） */
+/** 文字预览：按文字著录格式成文（可直接复制/打印）；V1.3 增加行复选 */
 function textHtml(rows) {
-  return rows.map((r) => `<div class="rec-text-item">${escHtml(recordToText(r))}</div>`).join('');
+  return rows.map((r) => {
+    const checked = state.selected.has(r.id) ? ' checked' : '';
+    return `<div class="rec-text-item" data-rec-id="${escHtml(r.id)}">`
+      + `<label class="rec-check"><input type="checkbox" data-rec-check="${escHtml(r.id)}"${checked} aria-label="选择该记录"></label>`
+      + escHtml(recordToText(r)) + '</div>';
+  }).join('');
 }
 
 function rowHtml(r) {
@@ -262,7 +566,9 @@ function rowHtml(r) {
     r.catalogers ? `<span class="rec-badge">編目 ${escHtml(r.catalogers)}</span>` : '',
   ].filter(Boolean).join('');
   const ts = r.updatedAt ? new Date(r.updatedAt).toLocaleString('zh-CN') : '';
+  const checked = state.selected.has(r.id) ? ' checked' : '';
   return `<div class="rec-item" data-id="${escHtml(r.id)}">
+      <label class="rec-check" title="选择该记录"><input type="checkbox" data-rec-check="${escHtml(r.id)}"${checked} aria-label="选择该记录"></label>
       <div class="rec-item-main">
         <div class="rec-item-title">
           <span class="rec-seq">#${escHtml(r.seq == null ? '—' : String(r.seq))}</span>
@@ -412,6 +718,7 @@ async function requestDelete(id) {
     const tomb = markDeleted(rec, store.deviceId);
     await store.putRecordValue(tomb);
     await store.pushChange(STORE_RECORDS, tomb.id);
+    state.selected.delete(id);
     await loadRecords();
     closeForm();
     toast('已删除', 'ok');
@@ -516,5 +823,11 @@ function consumePendingRecord() {
 // window.__kansekiToast / __kansekiAppReady 同属「测试可观测点」）
 export const __recordsInternals = {
   visibleRecords, recordsToCsv, recordsToTableRows, recordToText, recordsToText, setView, csvCell,
+  isRecordsLocked, batchDeleteSelected, selectAllVisible, updateBulkBar,
+  RECORDS_LOCKED_KEY, RECORDS_LOCKED_DEFAULT, RECORDS_FEATURE_ENABLED, recordsLocked,
 };
 if (typeof window !== 'undefined') window.__recordsInternals = __recordsInternals;
+if (typeof window !== 'undefined') {
+  window.__recordsLocked = recordsLocked();
+  window.__recordsLockedKey = RECORDS_LOCKED_KEY;
+}

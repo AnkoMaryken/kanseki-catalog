@@ -94,7 +94,7 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 <main class="page">
   <header class="page-head">
     <div class="phead-text">
-      <h2>更新日志 <span class="cur-ver">v1.3.0</span></h2>
+      <h2>更新日志 <span class="cur-ver">v1.4.0</span></h2>
     </div>
     <div class="ph-actions">
       <button type="button" class="tool-btn" id="btnExpand">展开全部</button>
@@ -102,7 +102,24 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
     </div>
   </header>
   <div class="cl-list" id="clList">
-      <details class="cl-item" data-ver="v1.3.0" data-date="2026-10-19" open>
+      <details class="cl-item" data-ver="v1.4.0" data-date="2026-10-19" open>
+  <summary class="cl-sum">
+    <span class="cl-ver">v1.4.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">正式使用前调整</span><span class="cl-date">2026-10-19</span>
+  </summary>
+  <ul class="cl-points">
+    <li>工作台：每日推荐默认白色；问问 AI 答案不在卡片内显示，只提示「问题已回答」，答案在页面内浮窗中查看（支持 Markdown）并继续提问；最近更新自动检查 GitHub 新版本，有新版本可一键下载覆盖更新</li>
+    <li>纪年查询：删除卷数计算器；精确年份结果的年号后新增复制按钮，复制格式为「年号（公历年）」全角括号</li>
+    <li>日本所藏汉籍检索 / 公文书馆：删除检索栏与筛选中的繁简、字形说明文字</li>
+    <li>汉籍编目记录：支持批量删除；暂时封禁使用（数据保留在本机）</li>
+    <li>快速跳转等处的外部链接统一改为系统默认浏览器打开；页面内快捷键（Ctrl+, / Ctrl+B / Ctrl+K）在所有内嵌页也生效</li>
+    <li>个人中心/登录/注册：去掉 logo 与旧品牌字样；账号、密码、昵称、头像全部只存本机（暂不做后端）</li>
+    <li>重写服务条款与隐私政策，品牌统一表述为「本软件」</li>
+    <li>设置改为页面内浮窗（不再开独立窗口），按现有风格重排，去掉左上角 logo 与软件名；「外观与快捷键」移除明暗主题与界面字形（主界面右上角已可设置），保留的侧栏默认与快捷键对全部界面生效</li>
+    <li>暂时禁用标题栏 GitHub 跳转与设置中的「打开网页版」，点击给出说明提示</li>
+    <li>下载中心：支持单本暂停/继续、显示每本书的具体下载进度；删除顶部说明；「打开文件夹」定位到当前书图像所在目录</li>
+  </ul>
+</details>
+  <details class="cl-item" data-ver="v1.3.0" data-date="2026-10-19" open>
   <summary class="cl-sum">
     <span class="cl-ver">v1.3.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">工作台与修复</span><span class="cl-date">2026-10-19</span>
   </summary>

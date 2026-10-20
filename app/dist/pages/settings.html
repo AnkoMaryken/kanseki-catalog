@@ -43,7 +43,13 @@
     .about-grid > div { background: var(--c-bg-alt); border-radius: 10px; padding: 10px 12px; }
     .about-grid span { display: block; font-size: 11.5px; color: var(--c-text-muted); margin-bottom: 2px; }
     .about-grid b { font-size: 13px; font-weight: 600; color: var(--c-text); }
-  </style>
+  html.embed-settings body { background: transparent; }
+html.embed-settings .set-titlebar { display: none !important; }
+html.embed-settings .sf-name { display: none !important; }
+html.embed-settings .set-rail { padding-top: 10px; }
+html.embed-settings .set-main { padding-top: 10px; }
+html.embed-settings .set-home { display: none !important; }
+</style>
 <style>
   html,body{height:100%;margin:0}
   body{display:flex;flex-direction:column;background:var(--c-bg);color:var(--c-text);
@@ -182,6 +188,7 @@
   </style>
 </head>
 <body>
+<script>try { if (location.search.indexOf('embed=1') >= 0) document.documentElement.classList.add('embed-settings'); } catch (e) { }</script>
 
 <!-- ================= 自绘标题栏 ================= -->
 <header class="set-titlebar" id="setTitlebar" hidden>
@@ -330,21 +337,6 @@
     <section class="set-pane" id="pane-ui">
       <h2 class="set-h">外观与快捷键</h2>
       <p class="set-sub">外观改动立即生效，并与主窗口同步。</p>
-
-      <div class="set-row">
-        <label>明暗主题</label>
-        <div class="seg-lite" id="uiThemeSeg">
-          <button type="button" data-theme="light">浅色</button>
-          <button type="button" data-theme="dark">深色</button>
-        </div>
-      </div>
-      <div class="set-row">
-        <label>界面字形</label>
-        <div class="seg-lite" id="uiLangSeg">
-          <button type="button" data-lang="s">简体</button>
-          <button type="button" data-lang="t">繁体</button>
-        </div>
-      </div>
 
       <div class="set-row">
         <label>侧栏默认</label>
@@ -870,9 +862,11 @@ if (IS_TAURI) (async function initSync() {
   });
   var web = document.getElementById("aboutWeb");
   if (web) web.addEventListener("click", function () {
-    var url = "https://ankomaryken.github.io/kanseki-catalog/";
-    if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
-    else window.open(url, "_blank");
+    var msgTxt = '开发者认为网页源站目前有些乱，所以暂时不给看o(╥﹏╥)o';
+    try {
+      if (window.parent && window.parent !== window && typeof window.parent.__kansekiToast === 'function') window.parent.__kansekiToast(msgTxt);
+      else alert(msgTxt);
+    } catch (e) { alert(msgTxt); }
   });
 })();
 </script>

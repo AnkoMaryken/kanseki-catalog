@@ -104,6 +104,8 @@
 
   // 静态配置是否「看起来」已填（凭据非占位符）
   var HAS_CREDENTIALS = !forceDemo && !isPlaceholder(url) && !isPlaceholder(anonKey);
+  // V1.4：正式版先不做后端，账号/密码/头像一律只存本机（kanseki_accounts / kanseki_profile）
+  HAS_CREDENTIALS = false;
 
   // ================================================
   // V8.1.1: 端点可用性探测 —— 解决「登录/注册全都用不了」

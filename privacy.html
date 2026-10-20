@@ -3,193 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>隐私政策 · Juvenile</title>
+<title>隐私政策 — 古代史及汉籍研究工具</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
 <style>
-:root {
-  --color-bg: #fafafa;
-  --color-surface: #ffffff;
-  --color-surface-hover: #f5f5f5;
-  --color-accent: #171717;
-  --color-text: #0a0a0a;
-  --color-text-secondary: #525252;
-  --color-text-muted: #737373;
-  --color-border: #e5e5e5;
-  --color-input-bg: #fafafa;
-  --color-input-border: #d4d4d4;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 16px;
-}
-[data-theme="dark"] {
-  --color-bg: #0a0a0a;
-  --color-surface: #171717;
-  --color-surface-hover: #262626;
-  --color-accent: #fafafa;
-  --color-text: #fafafa;
-  --color-text-secondary: #d4d4d4;
-  --color-text-muted: #a3a3a3;
-  --color-border: rgba(255,255,255,0.1);
-  --color-input-bg: #1f1f1f;
-  --color-input-border: rgba(255,255,255,0.14);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.8;
-  -webkit-font-smoothing: antialiased;
-}
-.page {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  margin-bottom: 2rem;
-}
-.brand .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  font-weight: 600;
-}
-.brand span {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-.updated {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin: 1.75rem 0 0.6rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border);
-}
-h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
-p { font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 0.6rem; }
-ul { padding-left: 1.25rem; margin-bottom: 0.6rem; }
-li { font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 0.3rem; }
-a { color: var(--color-text); }
-a:hover { opacity: 0.8; }
-.back {
-  display: inline-block;
-  margin-top: 2.5rem;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
-  background: var(--color-surface);
-}
-.back:hover { color: var(--color-text); background: var(--color-surface-hover); }
-
-/* ===== V8.2 移动端适配 ===== */
-@media (max-width: 768px) {
-  .page { padding: 1.5rem 0.9rem 2.5rem; }
-  .brand { margin-bottom: 1.5rem; }
-  h1 { font-size: 1.3rem; }
-  h2 { font-size: 0.98rem; margin: 1.4rem 0 0.5rem; }
-  p, li { font-size: 0.85rem; }
-  .back { margin-top: 2rem; padding: 0.55rem 1rem; }
-}
+:root{--bg:#F2F3F5;--card:#fff;--t1:#171A1F;--t2:#5F6672;--t3:#8F959E;--accent:#C8F169}
+[data-theme="dark"]{--bg:#14161A;--card:#1C1F24;--t1:#F2F3F5;--t2:#B7BDC7;--t3:#838A96}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font:14px/1.85 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 22px 72px}
+h1{font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--t3);font-size:12.5px;margin:0 0 22px}
+.card{background:var(--card);border-radius:20px;padding:26px 30px;box-shadow:0 8px 28px rgba(0,0,0,.05)}
+h2{font-size:15px;font-weight:700;margin:24px 0 8px}
+h2:first-child{margin-top:0}
+p{color:var(--t2);margin:0 0 10px}
+ul{color:var(--t2);margin:0 0 10px;padding-left:20px}
+li{margin:4px 0}
+.foot{margin-top:26px;color:var(--t3);font-size:12px}
 </style>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#fafafa">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="汉籍工具">
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light');}catch(e){}</script>
 </head>
 <body>
-<div class="page">
-  <a class="brand" href="index.html">
-    <img class="brand-mark" src="assets/logo.png" alt="" style="width:44px;height:44px;object-fit:contain;display:block">
-    <span>Juvenile</span>
-  </a>
-
+<main>
   <h1>隐私政策</h1>
-  <div class="updated">最后更新：2026 年 8 月</div>
+  <p class="sub">更新日期：2026 年 10 月 19 日 · 适用版本：v1.4 及以后</p>
+  <div class="card">
+    <h2>一、总则</h2>
+    <p>本软件重视用户隐私。本政策说明本软件会处理哪些信息、如何保存，以及用户如何管理这些信息。核心原则：<b>数据默认只存在本机，不上传服务器。</b></p>
 
-  <p><strong>Juvenile</strong>（逐风少年）高度重视用户隐私。本政策说明我们如何收集、使用和保护你的个人信息。你使用本平台即表示你同意本政策所述做法。</p>
+    <h2>二、本机保存的信息</h2>
+    <ul>
+      <li><b>账号信息</b>：注册时填写的邮箱、密码校验值（仅本机校验）、昵称、头像，保存在本机浏览器/程序存储中。</li>
+      <li><b>使用数据</b>：编目记录、检索历史、下载任务、待办事项、设置项，保存在本机。</li>
+      <li><b>AI 配置</b>：用户自行填写的 API Key、接口地址与模型名，只保存在本机，仅用于向所选服务商发起请求。</li>
+    </ul>
+    <p>以上信息不会由本软件上传至任何服务器；卸载软件或清理应用数据会删除这些信息，请在清理前自行备份。</p>
 
-  <h2>1. 我们收集的信息</h2>
-  <ul>
-    <li><strong>注册信息</strong>：邮箱地址、姓名/昵称（用于账号标识）</li>
-    <li><strong>使用数据</strong>：登录状态、界面偏好（如简繁字形选择、深浅主题）</li>
-    <li><strong>用户内容</strong>：你录入的编目数据、收藏、笔记等（未来功能）</li>
-  </ul>
+    <h2>三、联网行为</h2>
+    <ul>
+      <li>检索日本所藏汉籍、日本国立公文书馆等数据时，本软件会直接访问对应原站（或其公开接口），请求内容仅为检索条件。</li>
+      <li>用户配置 AI 功能后，提问内容会发送给所选 AI 服务商，具体处理方式适用该服务商的隐私政策。</li>
+      <li>检查更新时，本软件会访问 GitHub 查询最新版本号，不发送任何个人信息。</li>
+      <li>用户点击外部链接时，由系统默认浏览器打开，本软件不记录浏览内容。</li>
+    </ul>
 
-  <h2>2. 信息使用</h2>
-  <ul>
-    <li>提供登录、数据同步等核心服务</li>
-    <li>保存你的偏好设置，改善使用体验</li>
-    <li>我们不会将你的个人信息用于广告投放，也不会出售给第三方</li>
-  </ul>
+    <h2>四、信息共享</h2>
+    <p>本软件不收集、不出售、不共享用户的个人信息，也不接入任何统计分析或广告服务。</p>
 
-  <h2>3. 信息存储与安全</h2>
-  <ul>
-    <li>数据存储于 Supabase 云服务（PostgreSQL 数据库，密码经 bcrypt 加密存储）</li>
-    <li>网站与云端通信采用 HTTPS 加密传输</li>
-    <li>我们采取合理的技术与组织措施保护你的数据安全</li>
-  </ul>
+    <h2>五、用户权利</h2>
+    <ul>
+      <li>可随时在「个人中心」修改昵称、头像，或退出登录。</li>
+      <li>可在「设置 → API 管理」清除本机保存的 API Key。</li>
+      <li>可通过清理应用数据彻底删除本机保存的全部信息。</li>
+    </ul>
 
-  <h2>4. 信息共享</h2>
-  <p>我们不会向任何第三方出售、出租或交换你的个人信息。仅在以下情形可能共享：</p>
-  <ul>
-    <li>获得你的明确同意</li>
-    <li>法律法规要求，或为保护我们的合法权益所必需</li>
-  </ul>
+    <h2>六、未成年人保护</h2>
+    <p>本软件为研究工具，建议未成年人在监护人指导下使用。</p>
 
-  <h2>5. 你的权利</h2>
-  <ul>
-    <li>你可以随时查看、修改、删除你的个人信息与录入的数据</li>
-    <li>你可以注销账号，注销后你的个人数据将被删除</li>
-    <li>你可以通过邮件或网站内渠道联系我们行使上述权利</li>
-  </ul>
+    <h2>七、政策更新</h2>
+    <p>隐私政策如有调整，会在软件内「更新日志」中说明；重大变更会以更显著的方式提示。</p>
 
-  <h2>6. Cookie 与本地存储</h2>
-  <p>我们使用浏览器本地存储（localStorage）保存登录状态、界面偏好等信息，仅用于改善使用体验，不用于跨站跟踪。</p>
-
-  <h2>7. 政策更新</h2>
-  <p>本政策可能不定期更新。更新后将在本页面公布并更新"最后更新"日期，继续使用本平台即视为你接受更新后的政策。</p>
-
-  <h2>8. 联系我们</h2>
-  <p>如对本政策有任何疑问，请通过网站内的联系方式与我们沟通。</p>
-
-  <a class="back" href="javascript:history.back()">← 返回</a>
-</div>
-<script>
-// 全站主题 (V6.0: 与所有页面共用 localStorage 键 theme)
-(function() {
-  var t = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
-<script defer src="pwa.js"></script>
+    <p class="foot">如对隐私处理有疑问，可在软件内「设置 → 关于 → 复制诊断信息」反馈。</p>
+  </div>
+</main>
 </body>
 </html>

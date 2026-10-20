@@ -260,6 +260,67 @@ function closeUserMenu() { toggleUserMenu(false); }
 // ---------- 侧栏收起 / 展开（V0.7） ----------
 const COLLAPSE_KEY = 'kanseki_app_sidebar_collapsed';
 
+// ---------- V1.4：设置浮窗（页面内，不再开独立窗口） ----------
+function openSettingsModal() {
+  const m = document.getElementById('settingsModal');
+  if (!m) { showToast('设置面板未就绪', 'err'); return; }
+  m.hidden = false;
+  const f = document.getElementById('settingsFrame');
+  if (f && !f.getAttribute('src') && f.dataset.src) f.setAttribute('src', f.dataset.src);
+  if (f) {
+    // 与主界面保持同一主题/字形
+    try {
+      f.addEventListener('load', () => {
+        try {
+          f.contentWindow.document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'light');
+          if (typeof applyGlobalLangToFrame === 'function') applyGlobalLangToFrame('settings', langCurrent);
+        } catch (_) { }
+      }, { once: true });
+    } catch (_) { }
+  }
+}
+function closeSettingsModal() {
+  const m = document.getElementById('settingsModal');
+  if (m) m.hidden = true;
+}
+
+// ---------- V1.4：内嵌页接管（外链走系统浏览器 / 快捷键在主窗口也生效） ----------
+function wireFrameDoc(el) {
+  let doc;
+  try { doc = el.contentDocument; } catch (_) { return; }
+  if (!doc) return;
+  if (doc.__kansekiWired) return;
+  doc.__kansekiWired = true;
+
+  // 1) 所有 http(s) 链接一律交给系统默认浏览器（Tauri 里不再在应用内打开）
+  doc.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    if (!/^https?:/i.test(href)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window.__kansekiOpenExternal === 'function') window.__kansekiOpenExternal(href);
+  }, true);
+
+  // 2) 快捷键：把 Ctrl+, / Ctrl+B / Ctrl+K 转发给主窗口处理
+  doc.addEventListener('keydown', (e) => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    const k = String(e.key || '').toLowerCase();
+    if (k === ',' || k === 'b' || k === 'k') {
+      e.preventDefault();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: e.key, ctrlKey: true, bubbles: true }));
+    }
+  }, true);
+}
+
+function wireFrame(el) {
+  if (!el || el.dataset.wired) return;
+  el.dataset.wired = '1';
+  el.addEventListener('load', () => wireFrameDoc(el));
+  if (el.contentDocument && el.contentDocument.readyState === 'complete') wireFrameDoc(el);
+}
+
 function applyCollapse(collapsed) {
   const shell = $('#app');
   if (!shell) return;
@@ -652,7 +713,21 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.4.0';
+
+// V1.4：给工作台/内嵌页使用的全局能力
+try {
+  window.__APP_VERSION = APP_VERSION;
+  window.__kansekiOpenExternal = function (url) {
+    const u = String(url || '').trim();
+    if (!/^(https?:|mailto:)/i.test(u)) return;
+    if (isTauri) {
+      tauriInvoke('open_external', { url: u }).catch(() => { try { window.open(u, '_blank'); } catch (_) { } });
+    } else {
+      try { window.open(u, '_blank'); } catch (_) { }
+    }
+  };
+} catch (_) { /* 忽略 */ }
 function refreshAboutInfo() {
   const envEl = $('#aboutEnv');
   const sizeEl = $('#aboutWinSize');
@@ -688,6 +763,7 @@ function ensureFrame(view) {
   if (!el.getAttribute('src') && el.dataset.src) {
     el.setAttribute('src', el.dataset.src);
   }
+  try { wireFrame(el); } catch (_) { }
   return el;
 }
 
@@ -1245,10 +1321,9 @@ async function init() {
     if (!b) return;
     applyGlobalLang(b.dataset.lang);
   });
+  // V1.4：用户要求暂时禁用 GitHub 跳转（版本检测仍走内部 API，不影响）
   $('#githubBtn')?.addEventListener('click', () => {
-    const url = 'https://github.com/AnkoMaryken/kanseki-catalog';
-    if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
-    else window.open(url, '_blank');
+    showToast('开发者认为网页源站目前有些乱，所以暂时不给看o(╥﹏╥)o');
   });
   $('#themeBtn')?.addEventListener('click', toggleAppTheme);
 
@@ -1282,10 +1357,7 @@ async function init() {
     else window.open(url, '_blank');
   });
   $('#tbDl')?.addEventListener('click', () => { location.hash = '#/downloads'; });
-  $('#navSettings')?.addEventListener('click', () => {
-    if (isTauri) tauriInvoke('open_settings_window', {}).catch(() => showToast('设置窗口打开失败'));
-    else showToast('设置仅在桌面版可用');
-  });
+
 
   // ---------- V1.1 收起侧栏后的 FAB ----------
   $('#fab')?.addEventListener('click', (e) => {
@@ -1418,13 +1490,17 @@ async function init() {
   $('#sideLogoutBtn')?.addEventListener('click', logoutUser);
 
   // V9.2：「设置」→ 打开独立设置窗口（个人中心 / 同步设置 / API 管理）
-  $('#sideSettingsBtn')?.addEventListener('click', async () => {
+  $('#sideSettingsBtn')?.addEventListener('click', () => {
     closeUserMenu();
-    try {
-      await tauriInvoke('open_settings_window', {});
-    } catch (e) {
-      showToast('打开设置窗口失败：' + ((e && e.message) || e), 'err');
-    }
+    openSettingsModal();
+  });
+  // 设置浮窗：关闭按钮 / 点遮罩 / Esc
+  $('#settingsClose')?.addEventListener('click', closeSettingsModal);
+  $('#settingsModal')?.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'settingsModal') closeSettingsModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('settingsModal')?.hidden) closeSettingsModal();
   });
 
   // V9.7：「纪年小窗」——独立小窗口，可缩放、可置顶（窗口本身在 tauri.conf.json 声明）

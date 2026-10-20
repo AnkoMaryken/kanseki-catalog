@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="css/v3.css">
   <link rel="stylesheet" href="css/wb2.css">
   <link rel="stylesheet" href="css/native3.css">
+  <link rel="stylesheet" href="css/downloads3.css">
 </head>
 <body>
 <div id="app" class="app-shell">
@@ -226,7 +227,7 @@
       <nav class="side-nav">
         <a href="#/records" data-view="records" class="nav-item">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>编目记录</span>
-          <span class="nav-badge soon" title="尚未正式上线，请暂勿使用，功能仍在完善中">未上线</span>
+          <span class="nav-badge soon" title="编目记录功能暂时封禁使用，已有数据保留在本机">暂停使用</span>
         </a>
       </nav>
     </div>
@@ -369,8 +370,6 @@
               </div>
               <select id="kdbOr" multiple size="6"></select>
             </div>
-
-            <p class="av-hint" id="kdbHint">繁简与异体字由原站自动归一；人名异称不归一（陶潛 / 陶淵明 需分别查）。</p>
           </div>
         </form>
 
@@ -468,8 +467,6 @@
               <button type="button" class="av-btn" id="najAdvClear">清空详细条件</button>
             </div>
           </div>
-
-          <p class="av-hint">关键词按原站字形输入（日文／繁体）；多词请分批检索。</p>
         </form><div class="kdb-split view-results" id="najSplit">
           <div class="av-card kdb-panel kdb-results" id="najResults">
             <p class="kdb-empty">输入关键词后点「检索」。</p>
@@ -525,8 +522,14 @@
 
     <!-- 编目记录视图（V9.5：正式启用）——数据落 IndexedDB 的 catalog_records，
          随同步引擎（坚果云 WebDAV）做 LWW + 墓碑同步。 -->
-    <section id="view-records" class="view app-view">
+    <section id="view-records" data-records-locked="1" class="view app-view">
       <div class="av-wrap rec-wrap">
+        <!-- V1.4：编目记录暂时封禁使用（数据保留） -->
+        <div class="av-card rec-locked" id="recordsLocked">
+          <h3 class="rec-locked-title">编目记录功能暂停使用</h3>
+          <p class="rec-locked-sub">已有编目数据仍保存在本机，不会丢失；恢复使用时会自动读回。</p>
+          <p class="rec-locked-count">本机现有记录：<b id="recordsLockedCount">—</b> 条</p>
+        </div>
         <header class="av-head rec-head">
           <div class="av-head-tx">
             <h2>汉籍编目记录</h2>
@@ -660,19 +663,27 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 1.3.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.4.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.3.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.4.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
       </div>
     </section>
-  </main>
+  
+    <!-- V1.4：设置改为页面内浮窗（不再开独立窗口） -->
+    <div id="settingsModal" class="settings-modal" hidden>
+      <div class="settings-modal-card" role="dialog" aria-modal="true" aria-label="设置">
+        <button class="settings-modal-x" id="settingsClose" type="button" title="关闭">×</button>
+        <iframe id="settingsFrame" class="settings-iframe" data-src="pages/settings.html?embed=1" title="设置"></iframe>
+      </div>
+    </div>
+</main>
   </div><!-- /.app-body -->
 </div>
 
