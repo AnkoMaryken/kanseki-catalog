@@ -569,6 +569,33 @@ html.is-embed .app-header{ display:none !important; }
   box-shadow: none !important;
 }
 .ks-tbl tbody tr:focus-visible td { background: var(--color-surface-hover); }
+
+/* v1.6：批量查询结果 —— 类目 / AI 复检 / 操作 */
+.ks-batch-body{ max-height:min(56vh, 520px); }
+.ks-batch-table td{ vertical-align:top; }
+.ks-batch-table .c-q{ width:16%; }
+.ks-batch-table .c-n{ width:6%; }
+.ks-batch-table .c-cat{ width:46%; }
+.ks-batch-table .c-ai{ width:10%; }
+.ks-batch-table .c-op{ width:12%; }
+.ks-batch-hit{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; padding:2px 0; }
+.ks-batch-book{ font-weight:600; }
+.ks-batch-author{ color:var(--v3-t3); font-size:.92em; }
+.ks-batch-cat{ padding:1px 7px; border-radius:999px; background:rgba(23,26,31,.06); color:var(--v3-t2); font-size:.92em; }
+.ks-batch-he{ padding:1px 7px; border-radius:999px; background:rgba(200,241,105,.28); color:#4a5f10; font-size:.92em; }
+.ks-batch-vd{ color:var(--v3-t3); font-size:.92em; }
+.ks-batch-more{ color:var(--v3-t3); font-size:.86em; padding:1px 0 2px; }
+.ks-batch-ops{ white-space:nowrap; }
+.ks-batch-op{ margin:0 4px 4px 0; padding:3px 9px; border:1px solid var(--v3-t4); border-radius:999px; background:var(--v3-card); color:var(--v3-t2); font-family:inherit; font-size:.84em; cursor:pointer; }
+.ks-batch-op:hover{ border-color:var(--v3-t1); color:var(--v3-t1); }
+.ks-batch-op.primary{ background:var(--v3-t1); border-color:var(--v3-t1); color:#fff; }
+.ks-batch-ai-res.ok{ color:#2e7d32; font-weight:600; }
+.ks-batch-ai-res.warn{ color:#c0392b; font-weight:600; }
+.ks-batch-ai-busy{ color:var(--v3-t3); }
+[data-theme="dark"] .ks-batch-cat{ background:rgba(255,255,255,.1); color:#d7dbe0; }
+[data-theme="dark"] .ks-batch-he{ background:rgba(200,241,105,.22); color:#d6f28a; }
+[data-theme="dark"] .ks-batch-op{ background:#1c1f24; border-color:#3a3f47; color:#d7dbe0; }
+[data-theme="dark"] .ks-batch-op.primary{ background:var(--v3-t1); color:#14161a; }
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#fafafa">
@@ -668,7 +695,7 @@ html.is-embed .app-header{ display:none !important; }
       <div class="ks-batch" id="ksBatchPanel" hidden>
         <div class="ks-batch-head">
           <span class="ks-batch-title" data-cn="批量查询">批量查询</span>
-          <span class="ks-batch-hint" data-cn="每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条">每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条</span>
+          <span class="ks-batch-hint" data-cn="每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条。查询后给出匹配的类目与判定；有异议可逐条或批量 AI 复检">每行一条（书名／著者／类目，写法同检索框；# 开头为注释），最多 200 条</span>
           <span class="ks-batch-spacer"></span>
           <button class="ks-btn ks-btn-tiny" id="ksBatchClose" type="button" data-cn="收起">收起</button>
         </div>
@@ -677,6 +704,7 @@ html.is-embed .app-header{ display:none !important; }
                   placeholder="每行一条，例如：&#10;周易&#10;論語 朱熹&#10;經部 易類"></textarea>
         <div class="ks-batch-actions">
           <button class="ks-btn primary" id="ksBatchRun" type="button" data-cn="开始查询">开始查询</button>
+          <button class="ks-btn" id="ksBatchAi" type="button" data-cn="批量 AI 复检" title="对每条的首个匹配逐条做 AI 复检，结果写入该行">批量 AI 复检</button>
           <button class="ks-btn" id="ksBatchClear" type="button" data-cn="清空">清空</button>
           <span class="ks-batch-status" id="ksBatchStatus"></span>
         </div>
@@ -1504,8 +1532,20 @@ function runBatch(){
   var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
   batchResults = qs.map(function(q){
     var r = batchQueryOnly(q);
-    return { q: q, n: r.rows.length, level: r.level, hint: r.hint, counts: batchVerdictCounts(r.rows),
-      sample: r.rows.slice(0, 3).map(batchSampleLine) };
+    var rows = r.rows || [];
+    var matches = rows.slice(0, 5).map(function(i){
+      var ci = catIdx[i], c = CATS[ci] || [];
+      return {
+        i: i,
+        book: books[i] || '',
+        author: authors[i] || '',
+        path: PATHS[ci] || '',
+        he: HEL[ci] || '',
+        verdict: c[5] || ''
+      };
+    });
+    return { q: q, n: rows.length, level: r.level, hint: r.hint, counts: batchVerdictCounts(rows),
+      sample: rows.slice(0, 3).map(batchSampleLine), matches: matches, top: matches[0] || null, ai: null, aiState: '' };
   });
   // 收尾：按原状态重绘一次（批量期间的 render 被短路了）
   render();
@@ -1516,27 +1556,113 @@ function runBatch(){
     (truncated ? toDisplay('（仅前 200 条）') : '') + '　' + ms.toFixed(0) + ' ms';
 }
 
+function batchCatCell(r){
+  if (!r.matches || !r.matches.length) return '<span class="ks-dash">—</span>';
+  var out = [];
+  for (var k = 0; k < r.matches.length; k++) {
+    var m = r.matches[k];
+    var line = '<div class="ks-batch-hit">'
+      + '<span class="ks-batch-book">' + esc(fmtRec(m.book)) + '</span>'
+      + (m.author ? '<span class="ks-batch-author">' + esc(fmtRec(m.author)) + '</span>' : '')
+      + '<span class="ks-batch-cat">' + esc(fmtRec(m.path || '')) + '</span>'
+      + (m.he ? '<span class="ks-batch-he">' + esc(fmtRec(m.he)) + '</span>' : '')
+      + (m.verdict ? '<span class="ks-batch-vd">' + esc(fmtRec(m.verdict)) + '</span>' : '')
+      + '</div>';
+    out.push(line);
+    if (k >= 2 && r.matches.length > 3) {
+      out.push('<div class="ks-batch-more">' + esc(toDisplay('等 ' + r.n + ' 条')) + '</div>');
+      break;
+    }
+  }
+  return out.join('');
+}
+
+function batchAiCell(r){
+  if (r.aiState === 'busy') return '<span class="ks-batch-ai-busy">' + esc(toDisplay('复检中…')) + '</span>';
+  if (r.ai && r.ai.consistency) {
+    var v = r.ai.consistency;
+    var cls = (v === '一致') ? 'ok' : 'warn';
+    return '<span class="ks-batch-ai-res ' + cls + '" title="' + esc(String(r.ai.text || '').slice(0, 300)) + '">'
+      + esc(toDisplay(v)) + '</span>';
+  }
+  return '<span class="ks-dash">—</span>';
+}
+
 function renderBatch(){
   var body = $('ksBatchBody');
   if (!body) return;
   if (!batchResults.length) { body.innerHTML = ''; return; }
   var html = '<table class="ks-batch-table"><thead><tr>'
-    + '<th>#</th><th>' + esc(toDisplay('查询词')) + '</th><th>' + esc(toDisplay('命中')) + '</th>'
-    + '<th>' + esc(toDisplay('判定分布')) + '</th><th>' + esc(toDisplay('示例')) + '</th>'
+    + '<th>#</th><th class="c-q">' + esc(toDisplay('查询词')) + '</th><th class="c-n">' + esc(toDisplay('命中')) + '</th>'
+    + '<th class="c-cat">' + esc(toDisplay('匹配类目（古籍分类 / 合璧类目 / 判定）')) + '</th>'
+    + '<th class="c-ai">' + esc(toDisplay('AI 复检')) + '</th>'
+    + '<th class="c-op">' + esc(toDisplay('操作')) + '</th>'
     + '</tr></thead><tbody>';
   for (var i = 0; i < batchResults.length; i++) {
     var r = batchResults[i];
-    var dist = Object.keys(r.counts).map(function(k){ return esc(fmtRec(k)) + ' ' + r.counts[k]; }).join('　');
     html += '<tr>'
       + '<td class="n">' + (i + 1) + '</td>'
       + '<td class="ks-batch-q">' + esc(r.q) + '</td>'
       + '<td class="n' + (r.n ? '' : ' ks-batch-zero') + '">' + r.n + '</td>'
-      + '<td>' + (dist || '<span class="ks-dash">—</span>') + '</td>'
-      + '<td class="ks-batch-sample">' + (r.sample.length ? esc(r.sample.join('；')) : '<span class="ks-dash">—</span>') + '</td>'
+      + '<td class="ks-batch-cats">' + batchCatCell(r) + '</td>'
+      + '<td class="ks-batch-ai">' + batchAiCell(r) + '</td>'
+      + '<td class="ks-batch-ops">'
+      + '<button class="ks-batch-op" type="button" data-view-q="' + esc(r.q) + '" title="查看该条完整结果">查看</button>'
+      + (r.top ? '<button class="ks-batch-op primary" type="button" data-ai-row="' + r.top.i + '" data-ai-qi="' + i + '" title="对首个匹配做 AI 复检">AI 复检</button>' : '')
+      + '</td>'
       + '</tr>';
   }
   html += '</tbody></table>';
   body.innerHTML = html;
+}
+
+/* ---- 批量 AI 复检：逐条复用 aiRecheckRow，结果回写表格 ---- */
+var batchAiRunning = false;
+function batchAiReview(){
+  if (batchAiRunning) return;
+  var tasks = [];
+  for (var i = 0; i < batchResults.length; i++) {
+    if (batchResults[i].top) tasks.push({ qi: i, row: batchResults[i].top.i });
+  }
+  if (!tasks.length) { var st0 = $('ksBatchStatus'); if (st0) st0.textContent = toDisplay('没有可复检的条目'); return; }
+  if (!aiHasKey()) { aiNeedKeyOut(); return; }
+  batchAiRunning = true;
+  var k = 0;
+  var st = $('ksBatchStatus');
+  function finishAll() {
+    batchAiRunning = false;
+    if (st) st.textContent = toDisplay('批量 AI 复检完成') + '（' + tasks.length + ' 条）';
+    renderBatch();
+  }
+  function step() {
+    if (k >= tasks.length) return finishAll();
+    var t = tasks[k++];
+    batchResults[t.qi].aiState = 'busy';
+    if (st) st.textContent = toDisplay('批量 AI 复检中…') + ' ' + k + '/' + tasks.length + '（第 ' + (t.qi + 1) + ' 条）';
+    renderBatch();
+    try {
+      var ret = aiRecheckRow(t.row);
+      if (ret) { /* aiRecheckRow 内部异步 */ }
+    } catch (e) { /* 忽略 */ }
+    var waited = 0;
+    var timer = setInterval(function () {
+      waited += 400;
+      if (!aiBusy) {
+        clearInterval(timer);
+        batchResults[t.qi].aiState = '';
+        batchResults[t.qi].ai = { consistency: aiCtx.consistency, text: aiCtx.answer, at: aiCtx.at };
+        renderBatch();
+        step();
+      } else if (waited > 90000) {
+        clearInterval(timer);
+        batchResults[t.qi].aiState = '';
+        batchResults[t.qi].ai = { consistency: '', text: '复检超时' };
+        renderBatch();
+        step();
+      }
+    }, 400);
+  }
+  step();
 }
 
 function batchPanel(open){
@@ -1552,6 +1678,27 @@ function batchInit(){
   if (!btn || !panel) return;
   btn.addEventListener('click', function(e){ e.stopPropagation(); batchPanel(panel.hidden); });
   var run = $('ksBatchRun'); if (run) run.addEventListener('click', runBatch);
+  var batchAi = $('ksBatchAi'); if (batchAi) batchAi.addEventListener('click', batchAiReview);
+  var bodyEl = $('ksBatchBody');
+  if (bodyEl) bodyEl.addEventListener('click', function(e){
+    var t = e.target;
+    var ai = t && t.closest ? t.closest('[data-ai-row]') : null;
+    if (ai) {
+      var qi = Number(ai.getAttribute('data-ai-qi'));
+      if (qi >= 0 && batchResults[qi]) batchResults[qi].aiState = 'busy';
+      renderBatch();
+      aiRecheckRow(Number(ai.getAttribute('data-ai-row')));
+      return;
+    }
+    var v = t && t.closest ? t.closest('[data-view-q]') : null;
+    if (v) {
+      var q = v.getAttribute('data-view-q');
+      var inp = $('ksSearch');
+      if (inp) { inp.value = q; }
+      batchPanel(false);
+      runSearch(q);
+    }
+  });
   var clr = $('ksBatchClear'); if (clr) clr.addEventListener('click', function(){
     var t = $('ksBatchInput'); if (t) t.value = '';
     batchResults = []; renderBatch();
