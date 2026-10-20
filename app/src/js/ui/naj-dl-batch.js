@@ -15,6 +15,7 @@ import {
   pickFolder, defaultOutRoot, lastOutDir, rememberOutDir, dlAvailable,
   effectiveTemplates, saveTemplates, pumpResumeQueue, drainInsertedQueue,
   pauseRecord, cancelRecord, forgetRunTask, requeueInserted,
+  isReading, setReading, READING_TIP,
 } from './naj-dl.js';
 import { buildSearchUrl, parseSearchPage } from '../core/naj-parse.js';
 import {
@@ -89,6 +90,8 @@ function ensurePanel() {
         <button class="dl-x" type="button" data-dlb-close title="关闭">×</button>
       </div>
       <div class="dl-body">
+        <!-- V2.3：书目读取中提示（readAll/解析册目录期间；暂停/继续/取消不可用） -->
+        <div class="dlb-reading-hint" id="dlbReadingHint" role="status" aria-live="polite" hidden></div>
         <div class="dlb-grid">
           <div class="dlb-left">
             <label class="dl-field"><span>批量输入（每行一条：# 开头为注释）</span>
@@ -354,6 +357,8 @@ function currentOptions() {
 }
 
 async function readAll() {
+  // V2.3：读取中禁止重入（按钮已 disabled，这里再拦一次，程序化调用也绕不过）
+  if (isReading()) { toast(READING_TIP, 'warn'); return; }
   const lines = parseBatchInput(el('dlbInput').value);
   if (!lines.length) { toast('请先粘贴要下载的条目（每行一条）', 'err'); return; }
   const opts = currentOptions();
@@ -380,17 +385,27 @@ async function readAll() {
   B.batch.items.push(...added);
   renderList();
 
-  for (const it of added) {
-    it.status = 'resolving';
-    renderList();
-    try {
-      await applyResolved(it);
-    } catch (e) {
-      it.status = 'failed';
-      it.error = (e && e.message) ? e.message : String(e);
+  // V2.3：进入「读取中」——提示条 + 暂停/继续/取消禁用（引擎侧同样拦住）；成功/失败都必须在 finally 恢复
+  setReading(true);
+  renderReadingState();
+  renderList();
+  try {
+    for (const it of added) {
+      it.status = 'resolving';
+      renderList();
+      try {
+        await applyResolved(it);
+      } catch (e) {
+        it.status = 'failed';
+        it.error = (e && e.message) ? e.message : String(e);
+      }
+      renderList();
+      await sleep(120);
     }
+  } finally {
+    setReading(false);
+    renderReadingState();
     renderList();
-    await sleep(120);
   }
   toast(appending
     ? `已追加 ${added.length} 条到队列（共 ${B.batch.items.length} 条），当前下载不受影响`
@@ -399,6 +414,7 @@ async function readAll() {
 
 /** 清空清单（下载进行中不允许，避免把正在跑的队列拆掉） */
 function clearBatchList() {
+  if (isReading()) { toast(READING_TIP, 'warn'); return; }   // 读取中不能清空
   if (RUN.running) { toast('下载进行中：不能清空清单（可先暂停/取消，或等本批结束）', 'warn'); return; }
   B.batch = null;
   renderList();
@@ -416,6 +432,33 @@ function renderBatchRunState() {
   }
   if (startBtn) startBtn.textContent = running ? '追加到队列' : '加入队列并开始';
   if (el('dlbClear')) el('dlbClear').disabled = running;
+  renderReadingState();
+}
+
+/** V2.3：书目读取中的面板状态 —— 顶部提示 + 相关按钮 disabled（读取结束自动恢复） */
+function renderReadingState() {
+  const reading = isReading();
+  const hint = el('dlbReadingHint');
+  if (hint) {
+    hint.hidden = !reading;
+    hint.textContent = reading ? READING_TIP : '';
+  }
+  const panel = el('dlbOverlay');
+  if (panel) {
+    panel.classList.toggle('reading', reading);
+    const modal = panel.querySelector('.dlb-modal');
+    if (modal) modal.classList.toggle('reading', reading);
+  }
+  for (const id of ['dlbRead', 'dlbStart', 'dlbClear', 'dlbCheckAll', 'dlbCheckNone']) {
+    const b = el(id);
+    if (b) b.disabled = reading;
+  }
+  // 读取中面板内其它会改变队列/下载的控件也禁用（关闭按钮保留可用）
+  if (panel) {
+    for (const b of panel.querySelectorAll('.dlb-list-act .av-btn, #dlbRestore, #dlbMode, #dlbBrowse')) {
+      b.disabled = reading;
+    }
+  }
 }
 
 /** 解析一条（索书号或 ID）→ 书名、册数；索书号命中多条时给出候选供选择 */
@@ -593,6 +636,7 @@ function nextBatchItem(processed) {
  *  V2.2：**即时抢占** —— 若批量正在下载另一本，先把它按本暂停（当前册下完即停、状态「已暂停」），
  *  马上开始优先这本；优先这本处理完（完成/失败/暂停/取消）后自动恢复被抢占的那一本（回到队首）。 */
 export function prioritizeBatchItem(item) {
+  if (isReading()) { toast(READING_TIP, 'warn'); return false; }   // V2.3：读取中禁用优先（会抢占暂停）
   const batch = B.batch || RUN.batch;      // 兼容：面板未打开时 RUN.batch 就是当前队列
   if (!item || !batch) return false;
   if (item.status === 'paused') return 'paused';      // 暂停的书交给引擎恢复队列（放回队尾）
@@ -654,6 +698,7 @@ function resumePreemptedBatch(processed) {
 
 /** 每本「取消当前」：从批量队列删除这一本（未开始/下载中/已暂停都可删），并从下载中心列表移出 */
 export function removeBatchItem(item) {
+  if (isReading()) { toast(READING_TIP, 'warn'); return false; }   // V2.3：读取中禁止取消
   const batch = B.batch || RUN.batch;
   if (!item) return false;
   if (batch) {
@@ -688,6 +733,7 @@ export function startBatchIfIdle() {
 }
 
 async function startBatch(fromView) {
+  if (isReading()) { toast(READING_TIP, 'warn'); return; }   // V2.3：读取中不允许开始/追加
   if (!B.batch || !B.batch.items.length) { toast('请先「读取书目信息」', 'err'); return; }
   if (RUN.running) {
     // V2.1：下载进行中再次点「加入队列」= 只是追加（清单已实时追加，不重置队列）
@@ -897,6 +943,7 @@ export function initBatchUi() {
   // 引擎事件：队列条目状态变化时刷新面板与抽屉
   onEngine((kind) => {
     if (!B.open) return;
+    if (kind === 'reading') { renderReadingState(); renderList(); return; }
     if (kind === 'bookStart' || kind === 'bookEnd' || kind === 'progress') renderList();
   });
 }

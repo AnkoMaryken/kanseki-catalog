@@ -471,3 +471,74 @@
   background: #F2F3F5;
   color: #14161A;
 }
+
+/* ================================================================================
+   V2.3（用户第 2 条）：书目读取中 —— 提示条 + 暂停/继续/取消禁用
+   ================================================================================ */
+.dlb-reading-hint,
+.dlv-reading-hint,
+.dlc-reading-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 9px 14px;
+  border-radius: var(--radius);
+  background: #FDF1DC;
+  color: #8A5A00;
+  font-size: 12.5px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.dlb-reading-hint::before,
+.dlv-reading-hint::before,
+.dlc-reading-hint::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #C77A2A;
+  animation: dl-read-pulse 1s ease-in-out infinite;
+}
+
+@keyframes dl-read-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .35; transform: scale(.8); }
+}
+
+.dlb-reading-hint[hidden],
+.dlv-reading-hint[hidden],
+.dlc-reading-hint[hidden] { display: none !important; }
+
+.dlv-reading-hint {
+  margin-top: 10px;
+}
+
+[data-theme="dark"] .dlb-reading-hint,
+[data-theme="dark"] .dlv-reading-hint,
+[data-theme="dark"] .dlc-reading-hint {
+  background: #3A2E17;
+  color: #F0C674;
+}
+
+/* 读取中：行内暂停/继续/取消按钮呈禁用态 */
+.dlv-op:disabled,
+.dlc-t-open:disabled {
+  opacity: .42;
+  cursor: default !important;
+  pointer-events: none;
+}
+
+.dlc-drawer.reading #dlcPause,
+.dlc-drawer.reading #dlcCancel {
+  opacity: .45;
+  cursor: default;
+}
+
+/* 批量面板读取中：表单区轻微变暗，提示条保持醒目 */
+.dlb-modal.reading .dlb-grid,
+.dlb-modal.reading .dl-foot {
+  opacity: .65;
+}

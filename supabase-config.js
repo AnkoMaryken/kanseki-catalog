@@ -9,16 +9,16 @@
  *   3. 配置完成后，替换占位符或注入 SUPABASE_CONFIG 即自动切换真实模式。
  * -------------------------------------------------
  * 已配置 (V6.2, 2026-08-16):
- *   Project URL: https://ndogqsjmkoeecoekmhod.supabase.co
- *   anon key:    用户提供, 已填入 PLACEHOLDER_ANON
+ *   Project URL: （发布版不内置，账号仅本机）
+ *   anon key:    （发布版不内置）
  * 注意: 只使用 anon/publishable key; 严禁使用 service_role key!
  * ================================================ */
 (function () {
   'use strict';
 
   // 部署时替换以下占位符，或在使用前注入 window.SUPABASE_CONFIG
-  var PLACEHOLDER_URL = 'https://ndogqsjmkoeecoekmhod.supabase.co';
-  var PLACEHOLDER_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kb2dxc2pta29lZWNvZWttaG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MzA4MDIsImV4cCI6MjEwMjQwNjgwMn0.bvN7UYSc9O9B-A6A2d4mLXsunhlZr4lPDi-a3yJDRkc';
+  var PLACEHOLDER_URL = '';  // V1.8：发布版不再内置任何服务端地址
+  var PLACEHOLDER_ANON = ''; // V1.8：发布版不再内置任何令牌
 
   // ================================================
   // 本地账号兜底 (V8.1): 解决「邮箱未验证导致登录失败、数据看似丢失」问题
@@ -111,8 +111,7 @@
   // V8.1.1: 端点可用性探测 —— 解决「登录/注册全都用不了」
   // -------------------------------------------------
   // 背景: 仅凭「凭据非占位符」就判定可走真实模式是不够的。
-  //   实测本项目填写的项目地址 https://ndogqsjmkoeecoekmhod.supabase.co
-  //   经 AliDNS DoH 查询返回 Status=3 (NXDOMAIN) —— 该子域根本不存在
+    //   经 AliDNS DoH 查询返回 Status=3 (NXDOMAIN) —— 该子域根本不存在
   //   （同一查询下随机 ref 亦为 3，supabase.com 为 0，可确认非本地拦截）。
   //   此时 supabase-js 的 createClient() 仍会成功创建实例（不联网），
   //   于是 signUp/signIn 每次都在 fetch 阶段抛 "Failed to fetch"，

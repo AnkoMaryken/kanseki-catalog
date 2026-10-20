@@ -16,6 +16,7 @@
 import {
   RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, toast, onEngine, listRunTasks,
   pauseRecord, resumeRecord, cancelQueuedResume, clearFinishedRunTasks, cancelRecord, forgetRunTask,
+  isReading, READING_TIP,
 } from './naj-dl.js';
 import { prioritizeBatchItem, removeBatchItem } from './naj-dl-batch.js';
 
@@ -187,7 +188,8 @@ function ensureDrawer() {
       <button class="dlc-x" type="button" id="dlcClose" title="收起">×</button>
     </div>
     <div class="dlc-body">
-      <div class="dlc-sec" id="dlcNow">
+      <!-- V2.3：书目读取中提示；读取期间暂停/继续/取消禁用 -->
+      <div class="dlc-reading-hint" id="dlcReadingHint" role="status" aria-live="polite" hidden></div>      <div class="dlc-sec" id="dlcNow">
         <div class="dlc-empty">当前没有下载任务。<br>
           在「国立公文书馆」检索结果里点条目右侧的「下载」，或用「批量下载」一次提交多本。</div>
       </div>
@@ -232,6 +234,11 @@ function ensureDrawer() {
   d.addEventListener('click', (e) => {
     const b = e.target.closest('[data-dlc-decide]');
     if (b) { decide(b.dataset.dlcDecide); renderDrawer(); return; }
+    // V2.3：书目读取中，暂停/继续/取消/优先等操作一律拒绝（按钮 disabled + 这里二次判断，键盘/程序化也绕不过）
+    if (isReading() && e.target.closest('[data-dlc-pause-task],[data-dlc-task-pause],[data-dlc-task-resume],[data-dlc-task-cancel],[data-dlc-task-cancelitem],[data-dlc-task-priority],[data-dlc-task-cancelqueue]')) {
+      toast(READING_TIP, 'warn');
+      return;
+    }
     // V2.0：下载记录里每本的「暂停 / 继续 / 取消排队」
     const recById = (id) => (listRunTasks() || []).find((t) => String(t.id) === String(id));
     const pauseB = e.target.closest('[data-dlc-task-pause]');
@@ -417,7 +424,7 @@ function renderNow() {
       ${running ? `<div class="dlc-dim">本册：${esc(running.title || '')} ${running.pages ? `（共 ${running.pages} 页）` : ''}</div>` : ''}
     </div>
     <div class="dlc-actions">
-      ${RUN.currentRec ? `<button class="av-btn" type="button" data-dlc-pause-task="1">${RUN.currentRec.status === 'paused' ? '继续这一本' : '暂停这一本'}</button>` : ''}
+      ${RUN.currentRec ? `<button class="av-btn" type="button" data-dlc-pause-task="1" ${isReading() ? 'disabled' : ''}>${RUN.currentRec.status === 'paused' ? '继续这一本' : '暂停这一本'}</button>` : ''}
       <button class="av-btn" type="button" data-dlc-open-task="1">查看逐册明细</button>
     </div>
     <div class="dlc-dim dlc-path" title="${esc(taskDir(task))}">${esc(taskDir(task))}</div>`;
@@ -425,6 +432,7 @@ function renderNow() {
   if (openBtn) openBtn.addEventListener('click', () => window.__najDlShowTask?.(task));
   const pauseTaskBtn = box.querySelector('[data-dlc-pause-task]');
   if (pauseTaskBtn) pauseTaskBtn.addEventListener('click', () => {
+    if (isReading()) { toast(READING_TIP, 'warn'); return; }
     const rec = RUN.currentRec;
     if (!rec) return;
     if (rec.status === 'paused') { resumeRecord(rec); toast('已继续下载这一本'); }
@@ -541,6 +549,7 @@ function renderTasks() {
     done: ['完成', 'dl-b-ok'], failed: ['失败', 'dl-b-err'], cancelled: ['已取消', 'dl-b-warn'],
   };
   const list = (taskFilter === 'all' ? rows : rows.filter((r) => r.status === taskFilter)).slice(0, 20);
+  const RD = isReading() ? ' disabled' : '';
   box.innerHTML = list.map((row, i) => {
     const [tx, cls] = label[row.status] || ['—', 'dl-b-idle'];
     const no = String(rows.length - i).padStart(2, '0');
@@ -551,8 +560,8 @@ function renderTasks() {
         <span class="dl-badge ${cls}">${esc(tx)}</span>
         <span class="dlc-t-title" title="${esc(row.title)}">${esc(row.title)}</span>
         <span class="dlc-t-meta">批量队列 · 还没轮到</span>
-        <button class="dlc-t-open" type="button" data-dlc-task-priority="${esc(String(it.no || it.id))}" title="立即抢占：暂停当前这本，先下这一本">优先</button>
-        <button class="dlc-t-open" type="button" data-dlc-task-cancelitem="${esc(String(it.no || it.id))}" title="从下载队列删除这一本">取消当前</button>
+        <button class="dlc-t-open" type="button" data-dlc-task-priority="${esc(String(it.no || it.id))}" title="立即抢占：暂停当前这本，先下这一本"${RD}>优先</button>
+        <button class="dlc-t-open" type="button" data-dlc-task-cancelitem="${esc(String(it.no || it.id))}" title="从下载队列删除这一本"${RD}>取消当前</button>
       </div>`;
     }
     const t = row.t;
@@ -564,10 +573,10 @@ function renderTasks() {
     const err = t.error ? `<span class="dlc-t-err" title="${esc(t.error)}">· ${esc(String(t.error).slice(0, 24))}</span>` : '';
     const acts = [];
     const active = t.status === 'running' || t.status === 'paused' || t.status === 'queued';
-    if (t.status === 'running') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-pause="${t.id}" title="只暂停这一本；队列立刻跳过它开始下一本">暂停</button>`);
-    if (t.status === 'paused') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册">继续</button>`);
-    if (t.status === 'failed' || t.status === 'cancelled') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册">重试</button>`);
-    if (active) acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-cancel="${t.id}" title="从下载队列删除这一本">取消当前</button>`);
+    if (t.status === 'running') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-pause="${t.id}" title="只暂停这一本；队列立刻跳过它开始下一本"${RD}>暂停</button>`);
+    if (t.status === 'paused') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册"${RD}>继续</button>`);
+    if (t.status === 'failed' || t.status === 'cancelled') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册"${RD}>重试</button>`);
+    if (active) acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-cancel="${t.id}" title="从下载队列删除这一本"${RD}>取消当前</button>`);
     return `<div class="dlc-task-row">
       <span class="dlc-t-idx">${no}</span>
       <span class="dl-badge ${cls}">${esc(tx)}</span>
@@ -583,11 +592,19 @@ function renderTasks() {
 function renderDrawer() {
   if (!el('dlcDrawer')) return;
   const running = RUN.running;
-  el('dlcState').textContent = RUN.cancelled ? '已取消' : (RUN.paused ? '已暂停' : (running ? '下载中' : '空闲'));
+  const reading = isReading();
+  el('dlcState').textContent = reading ? '读取书目中…'
+    : (RUN.cancelled ? '已取消' : (RUN.paused ? '已暂停' : (running ? '下载中' : '空闲')));
+  const rHint = el('dlcReadingHint');
+  if (rHint) {
+    rHint.hidden = !reading;
+    rHint.textContent = reading ? READING_TIP : '';
+  }
+  el('dlcDrawer').classList.toggle('reading', reading);
   const pauseBtn = el('dlcPause');
   pauseBtn.textContent = RUN.paused ? '继续' : '暂停';
-  pauseBtn.disabled = !running;
-  el('dlcCancel').disabled = !running;
+  pauseBtn.disabled = !running || reading;
+  el('dlcCancel').disabled = !running || reading;
   renderNow();
   renderQueue();
   renderTasks();

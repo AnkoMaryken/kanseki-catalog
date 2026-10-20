@@ -62,6 +62,7 @@ const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 
 const ACCOUNT_PAGES = ['login.html', 'signup.html', 'terms.html', 'privacy.html', 'profile.html'];
 // 页面依赖的脚本（根目录同名）
 const SITE_SCRIPTS = [
+  'seal-font-coverage.js',  // 小篆字库覆盖表（缺字检测）
   'seal-ids-data.js',  // 小篆检字：部件检字索引
   'user-state.js',      // V7.0 用户态（页面菜单）
   'overlay.js',         // 遮罩层

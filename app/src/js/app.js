@@ -741,7 +741,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.7.0';
+const APP_VERSION = '1.8.0';
 
 // V1.4：给工作台/内嵌页使用的全局能力
 try {

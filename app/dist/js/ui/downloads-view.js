@@ -12,7 +12,7 @@
 import {
   RUN, listRunTasks, pauseRun, resumeRun, cancelRun, taskDir, onEngine, invoke, esc, toast,
   dlAvailable, pauseRecord, resumeRecord, cancelQueuedResume, pumpResumeQueue, pumpQueuedSingles,
-  clearFinishedRunTasks, cancelRecord, forgetRunTask,
+  clearFinishedRunTasks, cancelRecord, forgetRunTask, isReading, READING_TIP,
 } from './naj-dl.js';
 import { prioritizeBatchItem, startBatchIfIdle, removeBatchItem } from './naj-dl-batch.js';
 
@@ -192,6 +192,7 @@ function currentRec(tasks) {
 
 function cancelRec(rec) {
   if (!rec) return;
+  if (isReading()) { toast(READING_TIP, 'warn'); return; }   // 读取中禁止取消（程序化调用也绕不过）
   // V2.2 第 3 条「取消当前」：从下载队列删除这一本（未开始/下载中/已暂停都能删），并从列表移出
   const batch = RUN.batch;
   const it = (batch && Array.isArray(batch.items)) ? (batch.items.find((x) => x.rec === rec) || null) : null;
@@ -250,6 +251,7 @@ function pickNewBook() {
 
 function doPick(cand) {
   UI.pickerOpen = false;
+  if (isReading()) { toast(READING_TIP, 'warn'); render(); return; }
   if (cand.kind === 'rec') {
     const r = resumeRecord(cand.rec);
     toast(r === 'queued' ? '已放回队尾：当前任务结束后继续这一本' : '已继续下载这一本', 'ok');
@@ -270,15 +272,17 @@ function doPick(cand) {
 function recOps(rec) {
   const ops = [];
   const dir = dirOf(rec);
+  const reading = isReading();
+  const dis = reading ? ' disabled' : '';
   const active = rec.status === 'running' || rec.status === 'paused' || rec.status === 'queued';
   if (rec.status === 'running') {
-    ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；队列立刻跳过它开始下一本">暂停</button>`);
+    ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；队列立刻跳过它开始下一本"${dis}>暂停</button>`);
   } else if (rec.status === 'paused') {
-    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="重新入队：当前任务结束后继续">${RUN.running ? '放回队尾' : '继续'}</button>`);
+    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="重新入队：当前任务结束后继续"${dis}>${RUN.running ? '放回队尾' : '继续'}</button>`);
   } else if (rec.status === 'failed' || rec.status === 'cancelled') {
-    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="续传未完成册；完成后照常审计、打包">重试</button>`);
+    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="续传未完成册；完成后照常审计、打包"${dis}>重试</button>`);
   }
-  if (active) ops.push(`<button type="button" class="dlv-op" data-act="cancelcurrent" data-id="${rec.id}" title="从下载队列删除这一本（当前册下完即停）">取消当前</button>`);
+  if (active) ops.push(`<button type="button" class="dlv-op" data-act="cancelcurrent" data-id="${rec.id}" title="从下载队列删除这一本（当前册下完即停）"${dis}>取消当前</button>`);
   if (!active && (rec.status === 'done' || rec.status === 'failed' || rec.status === 'cancelled')) {
     ops.push(`<button type="button" class="dlv-op" data-act="remove" data-id="${rec.id}" title="只从列表移除，不影响已下载文件">从列表移除</button>`);
   }
@@ -318,11 +322,12 @@ function itemRow(row) {
   const [tx, cls] = STATE[row.status] || ['队列中', 'queued'];
   const pri = it.priority ? '<span class="dlv-pri" title="已设为下一本优先下载">优先</span>' : '';
   const ops = [];
+  const dis = isReading() ? ' disabled' : '';
   if (row.status === 'queued') {
     if (RUN.running) {
-      ops.push(`<button type="button" class="dlv-op" data-act="priority" data-key="${esc(String(it.no || it.id))}" title="立即抢占：暂停当前这本，先下这一本">优先下载</button>`);
+      ops.push(`<button type="button" class="dlv-op" data-act="priority" data-key="${esc(String(it.no || it.id))}" title="立即抢占：暂停当前这本，先下这一本"${dis}>优先下载</button>`);
     }
-    ops.push(`<button type="button" class="dlv-op" data-act="cancelitem" data-key="${esc(String(it.no || it.id))}" title="从下载队列删除这一本">取消当前</button>`);
+    ops.push(`<button type="button" class="dlv-op" data-act="cancelitem" data-key="${esc(String(it.no || it.id))}" title="从下载队列删除这一本"${dis}>取消当前</button>`);
   }
   return `<tr class="dlv-row dlv-row-${esc(row.status)}">
     <td><span class="dlv-badge ${cls}">${esc(tx)}</span></td>
@@ -375,17 +380,19 @@ function render() {
     <div class="dlv-head">
       <div><h1>下载中心</h1></div>
       <div class="dlv-actions">
-        <button type="button" class="av-btn" id="dlvPause" ${RUN.running ? '' : 'disabled'}>${RUN.paused ? '继续全部' : '暂停全部'}</button>
-        <button type="button" class="av-btn" id="dlvCancel" ${RUN.running ? '' : 'disabled'}>取消当前</button>
+        <button type="button" class="av-btn" id="dlvPause" ${RUN.running && !isReading() ? '' : 'disabled'}>${RUN.paused ? '继续全部' : '暂停全部'}</button>
+        <button type="button" class="av-btn" id="dlvCancel" ${RUN.running && !isReading() ? '' : 'disabled'}>取消当前</button>
         <button type="button" class="av-btn" id="dlvReveal" ${curDir ? '' : 'disabled'} title="${esc(curDir || '当前没有可定位的任务')}">打开当前书文件夹</button>
       </div>
     </div>
+
+    ${isReading() ? `<div class="dlv-reading-hint" id="dlvReadingHint" role="status" aria-live="polite">${esc(READING_TIP)}</div>` : ''}
 
     <div class="dlv-toolbar">
       <div class="dlv-filters" role="tablist" aria-label="按状态筛选">${filterHtml}</div>
       <div class="dlv-tools">
         <span class="dlv-pickwrap">
-          <button type="button" class="av-btn" id="dlvPickBtn" aria-haspopup="true" aria-expanded="${UI.pickerOpen}">选择新书开始…</button>
+          <button type="button" class="av-btn" id="dlvPickBtn" aria-haspopup="true" aria-expanded="${UI.pickerOpen}" ${isReading() ? 'disabled title="正在读取书目信息，请稍候…"' : ''}>选择新书开始…</button>
           ${pickHtml}
         </span>
         <button type="button" class="av-btn${UI.clearArmed ? ' dlv-danger' : ''}" id="dlvClear">${UI.clearArmed ? '再点一次确认清空' : '清空列表'}</button>
@@ -501,7 +508,7 @@ export function initDownloadsView() {
   if (!inited) {
     inited = true;
     try {
-      onEngine(() => { if (el('view-downloads')?.classList.contains('active')) render(); });
+      onEngine((kind) => { if (el('view-downloads')?.classList.contains('active')) render(); });
     } catch (_) { /* 忽略 */ }
   }
   render();

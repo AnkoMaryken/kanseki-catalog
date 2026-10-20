@@ -390,6 +390,7 @@ html.embed-settings .set-home { display: none !important; }
         <button class="set-btn" id="aboutGithub" type="button">打开 GitHub</button>
         <button class="set-btn" id="aboutWeb" type="button">打开网页版</button>
         <button class="set-btn" id="aboutDiag" type="button">复制诊断信息</button>
+        <button class="set-btn" id="replayIntro" type="button">重新播放开场动画</button>
       </div>
       <p class="set-note">
         目录元数据来源：国立公文書館デジタルアーカイブ（CC0）、全國漢籍データベース、
@@ -880,6 +881,16 @@ if (IS_TAURI) (async function initSync() {
   });
 
   // 开发者彩蛋：右下角小烟花
+  var replay = document.getElementById('replayIntro');
+  if (replay) replay.addEventListener('click', function () {
+    try {
+      if (window.parent && window.parent !== window && window.parent.__kansekiIntro) {
+        if (typeof window.parent.__kansekiIntro.show === 'function') { window.parent.__kansekiIntro.show(); return; }
+      }
+    } catch (e) { }
+    notifyParent('已重置开场动画，重新打开软件即可看到');
+  });
+
   var fw = document.getElementById('aboutFirework');
   if (fw) fw.addEventListener('click', function () {
     notifyParent('作者只是烟台大学的一个学生而已……');

@@ -57,6 +57,7 @@ export const RUN = {
   currentRec: null,        // 当前正在执行的「下载记录」（RUN.tasks 里的一条）
   lastResult: null,        // 最近一次完成结果
   decided: null,           // 批量失败待决：'retry'|'skip'|'pause'|'cancel'
+  reading: false,          // V2.3：正在读取书目信息（批量面板 readAll / 册目录解析期间）
   tasks: [],               // V10.5：下载记录（单本与批量都入列，最新在前）
   listeners: new Set(),
 };
@@ -128,6 +129,29 @@ function emit(kind, payload) {
   }
 }
 
+// ---------------------------------------------------------------- V2.3 书目读取中（reading）状态
+// 用户第 2 条：批量面板读取书目/解析册目录期间，暂停 / 继续 / 取消一律不可用。
+// 这里由引擎统一持有 reading 标记：面板开始读取时置 true、结束（成功或失败）时 finally 置 false；
+// 所有暂停/继续/取消入口二次判断 reading → 直接 return（按钮 disabled 之外，程序化/键盘也绕不过）。
+export const READING_TIP = '正在读取书目信息，暂停 / 继续 / 取消暂不可用，请稍候…';
+
+export function isReading() { return !!RUN.reading; }
+
+export function setReading(on) {
+  const next = !!on;
+  if (RUN.reading === next) return next;
+  RUN.reading = next;
+  emit('reading', { reading: next });
+  return next;
+}
+
+/** 暂停/继续/取消类操作统一入口：读取中直接拒绝（并给提示） */
+function blockedByReading() {
+  if (!RUN.reading) return false;
+  toast(READING_TIP, 'warn');
+  return true;
+}
+
 export function taskDir(task) {
   return `${String(task.options.outDir).replace(/[\\/]+$/, '')}/${task.folderName}`;
 }
@@ -147,18 +171,21 @@ async function waitWhilePaused() {
 }
 
 export function pauseRun() {
+  if (blockedByReading()) return false;
   RUN.paused = true;
   emit('pause');
   toast('已暂停：当前这一册下完后停下，进度已保存', 'warn');
 }
 
 export function resumeRun() {
+  if (blockedByReading()) return false;
   RUN.paused = false;
   emit('resume');
   toast('已继续下载', 'ok');
 }
 
 export function cancelRun() {
+  if (blockedByReading()) return false;
   RUN.cancelled = true;
   RUN.paused = false;
   RUN.decided = 'cancel';
@@ -199,6 +226,7 @@ export function resumeTask(task) {
 
 /** 下载中心：暂停某一条记录（正在下载的那本会在当前这一册下完后停下） */
 export function pauseRecord(rec) {
+  if (blockedByReading()) return false;
   if (!rec || !rec.task) return false;
   pauseTask(rec.task);
   if (rec.status === 'running') {
@@ -210,6 +238,7 @@ export function pauseRecord(rec) {
 
 /** 下载中心：恢复一条暂停（或失败/cancelled）的记录；引擎忙则排队，返回 'queued' */
 export function resumeRecord(rec) {
+  if (blockedByReading()) return 'blocked';
   if (!rec || !rec.task) return 'noop';
   rec.task._paused = false;
   rec.task._cancelled = false;   // 取消过的记录点「重试/继续」要清掉取消标记
@@ -232,6 +261,7 @@ export function resumeRecord(rec) {
 
 /** 取消「排队中」的恢复（回到已暂停，不启动） */
 export function cancelQueuedResume(rec) {
+  if (blockedByReading()) return false;
   const i = RESUME_QUEUE.indexOf(rec);
   if (i >= 0) RESUME_QUEUE.splice(i, 1);
   if (rec && rec.task) rec.task._paused = true;
@@ -249,6 +279,7 @@ export function cancelTask(task) { if (!task) return false; task._cancelled = tr
 
 /** 下载中心：取消这一本（正在下载 → 当前册下完即停；暂停/排队 → 立即移出队列） */
 export function cancelRecord(rec) {
+  if (blockedByReading()) return false;
   if (!rec) return false;
   const task = rec.task;
   if (task) { task._cancelled = true; task._paused = true; }
