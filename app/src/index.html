@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>古代史及汉籍研究工具</title>
+<script>try { if (localStorage.getItem('kanseki_intro_enabled') !== '0') document.documentElement.setAttribute('data-intro-default', '1'); } catch (e) { }</script>
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="css/app.css">
 <script src="js/protect.js"></script>
@@ -14,34 +15,32 @@
   <link rel="stylesheet" href="css/intro.css">
 </head>
 <body>
-<!-- V1.8：首次启动开场动画（仿票券出票，白色主色） -->
+<!-- V1.9：开场动画（logo × Ankoleopas × 全球汉籍合璧工程；每次启动显示，可在设置关闭） -->
 <div id="introOverlay" class="intro" hidden>
-  <canvas id="introCanvas" aria-hidden="true"></canvas>
-  <div class="intro-stage">
-    <div class="intro-slot" aria-hidden="true"></div>
-    <div class="intro-ticket" role="dialog" aria-label="欢迎使用">
-      <div class="intro-eyebrow">ANKOLEOPAS · 古籍编目工具</div>
-      <div class="intro-title">古籍编目</div>
-      <div class="intro-sub">考据有法 · 著录有序</div>
-      <div class="intro-lines">
-        <span>纪年 · 类目 · 检索 · 编目 · 小篆</span>
-        <span>数据只存在这台电脑，不上传服务器</span>
-        <span>整理案头，开始今天的工作</span>
-      </div>
-      <div class="intro-progress" aria-hidden="true"><i></i></div>
+  <div class="intro-center">
+    <div class="intro-brandline">
+      <span class="intro-logo"><img src="assets/logo.png" alt="" draggable="false"></span>
+      <span class="intro-x">×</span>
+      <span class="intro-name">Ankoleopas</span>
+      <span class="intro-x">×</span>
+      <span class="intro-name cn">全球汉籍合璧工程</span>
     </div>
-    <div class="intro-caption" id="introCaption">正在整理案头…</div>
-    <button class="intro-start" id="introStart" type="button" hidden>开始使用</button>
+    <div class="intro-actions">
+      <button class="intro-btn primary" id="introEnter" type="button">直接进入</button>
+      <button class="intro-btn" id="introGuide" type="button">新手引导</button>
+    </div>
   </div>
+  <div class="intro-version" id="introVersion">v—</div>
+  <div class="intro-tip">在“设置”中可关闭开场动画，祝您使用愉快。</div>
 </div>
 
-<!-- V1.8：新手引导（可跳过） -->
+<!-- V1.9：新手引导（覆盖侧栏全部功能，可跳过） -->
 <div id="onboardLayer" class="onboard" hidden>
   <div class="onboard-hole" id="onboardHole"></div>
   <div class="onboard-card" id="onboardCard" role="dialog" aria-modal="true" aria-label="新手引导">
-    <div class="ob-step" id="obStepNum">1 / 5</div>
+    <div class="ob-step" id="obStepNum">1 / 1</div>
     <h3 id="obTitle">欢迎使用</h3>
-    <p id="obText">先带你快速认一下界面。</p>
+    <p id="obText">先带你认一下界面。</p>
     <div class="ob-actions">
       <button class="ob-skip" id="obSkip" type="button">跳过</button>
       <span class="spacer"></span>
@@ -50,7 +49,6 @@
     </div>
   </div>
 </div>
-
 
 <div id="app" class="app-shell">
   <!-- ============================================================
@@ -711,13 +709,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 1.8.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.9.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.8.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.9.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>

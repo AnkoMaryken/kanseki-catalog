@@ -1,126 +1,75 @@
-/* V1.8：首次启动开场动画 + 新手引导
- * 配色：白底为主 + 青柠高亮（与软件主题一致）
- * 只显示一次（localStorage 标记），设置 → 关于可重播。
+/* V1.9：开场动画（logo × Ankoleopas × 全球汉籍合璧工程）+ 全功能新手引导
+ * · 默认每次启动显示；设置中可关闭（kanseki_intro_enabled）
+ * · 动画未完全出现时按钮即可点击（随时可进）
+ * · 引导覆盖侧栏全部功能，设置/登录聚焦在侧栏底部登录栏
  */
 (function () {
   'use strict';
 
-  var K_INTRO = 'kanseki_intro_seen';
+  var K_ENABLED = 'kanseki_intro_enabled';
   var K_ONBOARD = 'kanseki_onboarded';
   var $ = function (s) { return document.querySelector(s); };
 
-  function has(key) { try { return localStorage.getItem(key) === '1'; } catch (e) { return false; } }
-  function set(key, v) { try { localStorage.setItem(key, v ? '1' : '0'); } catch (e) { } }
-
   var introEl = null;
   var onboardEl = null;
-  var introTimers = [];
   var obIndex = 0;
 
   var OB_STEPS = [
-    {
-      sel: '.side-sec:first-of-type',
-      title: '这里是主功能导航',
-      text: '工作台、纪年查询、古籍类目等全部功能都在左侧。可以 Ctrl+B 收起侧栏，Ctrl+K 直接跳到纪年检索。'
-    },
-    {
-      sel: '[data-view="wb"]',
-      title: '工作台',
-      text: '打开就是工作台：每日推荐每日一换，右下角会自动检查新版本，问问 AI 的答案在页面浮窗里查看（支持 Markdown）。'
-    },
-    {
-      sel: '[data-view="query"]',
-      title: '纪年查询',
-      text: '输入年号或年份查对应纪年，精确年份结果年号后带复制按钮，格式为「年号（公历年）」。'
-    },
-    {
-      sel: '[data-view="seal"]',
-      title: '小篆检字（测试功能）',
-      text: '按字直查《说文》小篆字形，也可按部首检字；缺字会红色提示。'
-    },
-    {
-      sel: '#sideSettingsBtn',
-      title: '设置与更多',
-      text: '点左下角或右上角进入设置（浮窗）：AI 配置、同步、快捷键、关于与开场重播都在这里。'
-    }
+    { sel: '[data-view="wb"]', title: '工作台', text: '打开软件先到这里：上方卡片可快速进入各功能，右下角「最近更新」会自动检查新版本，问问 AI 的答案在页面浮窗里查看（支持 Markdown）。' },
+    { sel: '[data-view="query"]', title: '纪年查询', text: '输入年号或年份查对应纪年；精确年份结果年号后有复制按钮，格式为「年号（公历年）」。' },
+    { sel: '[data-view="kanseki"]', title: '古籍类目', text: '按书名、著者或分类查古籍类目；支持批量查询，并可就单条或整批做 AI 复检。' },
+    { sel: '[data-view="kansekidb"]', title: '日本所藏汉籍检索', text: '检索日本各藏书机构的汉籍目录，可查看原站详细著录信息。' },
+    { sel: '[data-view="najdb"]', title: '日本国立公文书馆', text: '检索公文书馆数字档案，支持批量下载整册影像，下载中可暂停、优先、取消单本。' },
+    { sel: '[data-view="records"]', title: '编目记录', text: '记录你的编目条目（当前暂停使用，数据会保留在本机）。' },
+    { sel: '[data-view="catalog"][data-tab="0"]', title: '细则查阅', text: '查阅 2023.09 / 2025.10 两版编目细则，可按章节树跳转。' },
+    { sel: '[data-view="catalog"][data-tab="1"]', title: '分类表', text: '按部、类、属查看分类体系与代表古籍。' },
+    { sel: '[data-view="catalog"][data-tab="2"]', title: '工作手册', text: '工作手册 PDF 已内嵌，可直接翻阅。' },
+    { sel: '[data-view="seal"]', title: '小篆检字（测试功能）', text: '按字直查《说文》小篆字形，也可按部首检字；缺字会红色提示。' },
+    { sel: '[data-view="jump"]', title: '快速跳转', text: '常用古籍网站入口，点击后由系统默认浏览器打开。' },
+    { sel: '[data-view="guide"]', title: '使用介绍', text: '完整的功能与操作说明，遇到问题先看这里。' },
+    { sel: '[data-view="changelog"]', title: '更新日志', text: '查看每个版本的新增与修正。' },
+    { sel: '#sideUserBtn', title: '登录 / 设置与更多', text: '侧栏底部这里是登录入口；点开后菜单里有「设置」——AI 配置、同步、快捷键、开场动画开关、关于与重播都在设置的浮窗里。' }
   ];
 
-  function clearTimers() { introTimers.forEach(function (t) { clearTimeout(t); }); introTimers = []; }
+  function readEnabled() {
+    try { return localStorage.getItem(K_ENABLED) !== '0'; } catch (e) { return true; }
+  }
+  function set(key, v) { try { localStorage.setItem(key, v ? '1' : '0'); } catch (e) { } }
 
-  // ---------------- 开场动画 ----------------
+  // 版本号：等 app.js 写入 window.__APP_VERSION（最多 3 秒）
+  function watchVersion() {
+    var el = $('#introVersion');
+    if (!el) return;
+    var tries = 0;
+    (function tick() {
+      var v = '';
+      try { v = window.__APP_VERSION || ''; } catch (e) { }
+      if (!v) { try { v = document.documentElement.dataset.appVersion || ''; } catch (e) { } }
+      if (v) { el.textContent = 'v' + String(v).replace(/^v/i, ''); return; }
+      if (tries++ > 30) return;
+      setTimeout(tick, 100);
+    })();
+  }
+
+  // ---------------- 开场 ----------------
   function showIntro() {
     if (!introEl) return;
     introEl.hidden = false;
-    try { document.documentElement.removeAttribute('data-first-run'); } catch (e) { }
     introEl.classList.remove('is-out');
     document.documentElement.classList.add('intro-lock');
-    var canvas = $('#introCanvas');
-    if (canvas) drawParticles(canvas);
-    clearTimers();
-    var start = $('#introStart');
-    if (start) { start.hidden = true; start.disabled = true; start.classList.remove('is-in'); }
-    var cap = $('#introCaption');
-    if (cap) cap.textContent = '正在整理案头…';
-    introTimers.push(setTimeout(function () {
-      if (cap) cap.textContent = '准备就绪';
-      if (start) { start.hidden = false; start.disabled = false; requestAnimationFrame(function () { start.classList.add('is-in'); }); }
-    }, 2000));
-    introTimers.push(setTimeout(function () {
-      var p = $('#introProgress i');
-      if (p) p.style.width = '100%';
-    }, 60));
+    try { document.documentElement.removeAttribute('data-intro-default'); } catch (e) { }
+    watchVersion();
   }
 
-  function hideIntro(thenOnboard) {
+  function hideIntro(thenGuide) {
     if (!introEl) return;
     introEl.classList.add('is-out');
-    clearTimers();
-    set(K_INTRO, true);
+    document.documentElement.classList.remove('intro-lock');
     setTimeout(function () {
       introEl.hidden = true;
       introEl.classList.remove('is-out');
-      document.documentElement.classList.remove('intro-lock');
-      if (thenOnboard && !has(K_ONBOARD)) showOnboard();
-    }, 620);
-  }
-
-  // 轻柔的纸面颗粒/光点
-  function drawParticles(canvas) {
-    var ctx = canvas.getContext('2d');
-    function resize() {
-      var r = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(r.width * (window.devicePixelRatio || 1)));
-      canvas.height = Math.max(1, Math.round(r.height * (window.devicePixelRatio || 1)));
-    }
-    resize();
-    var W = canvas.width, H = canvas.height;
-    var dots = [];
-    for (var i = 0; i < 46; i++) {
-      dots.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: (Math.random() * 1.6 + 0.5) * (window.devicePixelRatio || 1),
-        vy: -(Math.random() * 0.22 + 0.05),
-        a: Math.random() * 0.35 + 0.06
-      });
-    }
-    var raf = null;
-    function tick() {
-      if (!introEl || introEl.hidden) { if (raf) cancelAnimationFrame(raf); return; }
-      ctx.clearRect(0, 0, W, H);
-      for (var i = 0; i < dots.length; i++) {
-        var d = dots[i];
-        d.y += d.vy;
-        if (d.y < -6) { d.y = H + 6; d.x = Math.random() * W; }
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(200, 241, 105, ' + d.a + ')';
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(tick);
-    }
-    tick();
-    window.addEventListener('resize', function () { if (introEl && !introEl.hidden) { resize(); W = canvas.width; H = canvas.height; } });
+      if (thenGuide) showOnboard();
+    }, 380);
   }
 
   // ---------------- 新手引导 ----------------
@@ -137,9 +86,9 @@
     onboardEl.hidden = true;
     document.documentElement.classList.remove('intro-lock');
     set(K_ONBOARD, true);
-    var hole = $('#onboardHole');
-    if (hole) hole.className = 'onboard-hole';
     document.querySelectorAll('.onboard-target').forEach(function (el) { el.classList.remove('onboard-target'); });
+    var hole = $('#onboardHole');
+    if (hole) hole.classList.remove('on');
   }
 
   function renderObStep() {
@@ -148,19 +97,15 @@
     var target = $(step.sel);
     var hole = $('#onboardHole');
     var card = $('#onboardCard');
-    var title = $('#obTitle');
-    var text = $('#obText');
-    var num = $('#obStepNum');
-    var prev = $('#obPrev');
-    var next = $('#obNext');
-    if (title) title.textContent = step.title;
-    if (text) text.textContent = step.text;
-    if (num) num.textContent = (obIndex + 1) + ' / ' + OB_STEPS.length;
-    if (prev) prev.disabled = obIndex === 0;
-    if (next) next.textContent = obIndex === OB_STEPS.length - 1 ? '开始使用' : '下一步';
+    if ($('#obTitle')) $('#obTitle').textContent = step.title;
+    if ($('#obText')) $('#obText').textContent = step.text;
+    if ($('#obStepNum')) $('#obStepNum').textContent = (obIndex + 1) + ' / ' + OB_STEPS.length;
+    if ($('#obPrev')) $('#obPrev').disabled = obIndex === 0;
+    if ($('#obNext')) $('#obNext').textContent = obIndex === OB_STEPS.length - 1 ? '开始使用' : '下一步';
 
     document.querySelectorAll('.onboard-target').forEach(function (el) { el.classList.remove('onboard-target'); });
     if (target && hole) {
+      try { target.scrollIntoView({ block: 'nearest' }); } catch (e) { }
       target.classList.add('onboard-target');
       var r = target.getBoundingClientRect();
       var pad = 6;
@@ -169,12 +114,11 @@
       hole.style.width = Math.min(window.innerWidth - 12, r.width + pad * 2) + 'px';
       hole.style.height = Math.min(window.innerHeight - 12, r.height + pad * 2) + 'px';
       hole.classList.add('on');
-      // 引导卡片放在高亮区右侧/下方
       if (card) {
-        var cw = 320;
+        var cw = 330;
         var left = r.right + 18;
         if (left + cw > window.innerWidth - 16) left = Math.max(16, r.left - cw - 18);
-        var top = Math.min(Math.max(16, r.top), window.innerHeight - 230);
+        var top = Math.min(Math.max(16, r.top - 10), window.innerHeight - 250);
         card.style.left = left + 'px';
         card.style.top = top + 'px';
         card.style.transform = 'none';
@@ -189,32 +133,27 @@
   function init() {
     introEl = $('#introOverlay');
     onboardEl = $('#onboardLayer');
-    var start = $('#introStart');
-    if (start) start.addEventListener('click', function () { hideIntro(true); });
-    var obNext = $('#obNext');
-    if (obNext) obNext.addEventListener('click', function () {
+
+    var enter = $('#introEnter');
+    if (enter) enter.addEventListener('click', function () { hideIntro(false); });
+    var guide = $('#introGuide');
+    if (guide) guide.addEventListener('click', function () { hideIntro(true); });
+
+    if ($('#obNext')) $('#obNext').addEventListener('click', function () {
       if (obIndex >= OB_STEPS.length - 1) return hideOnboard();
       obIndex++; renderObStep();
     });
-    var obPrev = $('#obPrev');
-    if (obPrev) obPrev.addEventListener('click', function () { if (obIndex > 0) { obIndex--; renderObStep(); } });
-    var obSkip = $('#obSkip');
-    if (obSkip) obSkip.addEventListener('click', hideOnboard);
+    if ($('#obPrev')) $('#obPrev').addEventListener('click', function () { if (obIndex > 0) { obIndex--; renderObStep(); } });
+    if ($('#obSkip')) $('#obSkip').addEventListener('click', hideOnboard);
     window.addEventListener('resize', function () { if (onboardEl && !onboardEl.hidden) renderObStep(); });
 
-    var force = /(\?|&)intro=1/.test(location.search) || /(^|&)intro=1/.test(location.hash);
-    if (force || !has(K_INTRO)) {
-      showIntro();
-      if (force) { set(K_INTRO, false); set(K_ONBOARD, false); }
-    }
-    var replay = document.getElementById('replayIntro');
-    if (replay) replay.addEventListener('click', function () {
-      set(K_INTRO, false); set(K_ONBOARD, false);
-      showIntro();
-    });
+    var force = /[?&]intro=1/.test(location.search) || /(^|&)intro=1/.test(location.hash);
+    if (force || readEnabled()) showIntro();
+
     window.__kansekiIntro = {
-      show: function () { set(K_INTRO, false); set(K_ONBOARD, false); showIntro(); },
-      onboard: showOnboard
+      show: function () { showIntro(); },
+      onboard: showOnboard,
+      enabled: readEnabled
     };
   }
 

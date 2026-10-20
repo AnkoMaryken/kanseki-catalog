@@ -92,14 +92,78 @@ textarea.inp { min-height: 66px; resize: vertical; }
 .btn.primary:hover { opacity: .88; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 
-/* 两栏横排 */
-.seal-cols {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
+/* V1.9：模式切换（只看按字查篆 / 只看按部首检字） */
+.seal-view { display: block; }
+.seal-view[data-mode="char"] .card[data-pane="comp"],
+.seal-view[data-mode="comp"] .card[data-pane="char"] { display: none !important; }
+
+.mode-tabs {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--fill);
+  border: 1px solid var(--line);
+  border-radius: 999px;
 }
-@media (max-width: 980px) { .seal-cols { grid-template-columns: minmax(0, 1fr); } }
+.mode-tab {
+  border: 0;
+  background: transparent;
+  color: var(--t2);
+  font: inherit;
+  font-size: 12.5px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .16s, color .16s, box-shadow .16s;
+}
+.mode-tab:hover { color: var(--t1); }
+.mode-tab.on { background: var(--card); color: var(--t1); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+/* 按字查篆：篆形输出区（与输入区分开） */
+.char-output {
+  margin-top: 12px;
+  border: 1px dashed #D8DCE2;
+  border-radius: 14px;
+  background: #FBFCFD;
+  padding: 10px 12px 12px;
+}
+.char-output-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed #E3E6EB;
+}
+.char-output-head span { font-size: 12px; font-weight: 700; color: var(--t2); letter-spacing: .06em; }
+.char-output-head em { font-style: normal; font-size: 11.5px; color: var(--t3); }
+[data-theme="dark"] .char-output { background: #1F2329; border-color: #343A42; }
+[data-theme="dark"] .char-output-head { border-bottom-color: #2E343C; }
+
+/* 按部首检字：输入/结果双栏，可拖拽调整宽高 */
+.comp-split {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  min-height: 380px;
+}
+.comp-pane {
+  flex: 1 1 0;
+  min-width: 240px;
+  min-height: 240px;
+  max-height: 72vh;
+  overflow: auto;
+  resize: both;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--fill);
+  padding: 10px 12px 12px;
+}
+.pane-title { font-size: 12px; font-weight: 700; color: var(--t2); letter-spacing: .06em; margin-bottom: 8px; }
+@media (max-width: 860px) {
+  .comp-split { flex-direction: column; }
+  .comp-pane { width: auto !important; }
+}
 
 /* 单字查篆 */
 .char-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; min-height: 120px; }
@@ -117,7 +181,7 @@ textarea.inp { min-height: 66px; resize: vertical; }
 .char-cell.missing .seal { color: var(--danger); font-family: "KaiTi", "STKaiti", serif; }
 .char-cell .seal {
   font-family: var(--seal-font);
-  font-size: var(--seal-size, 64px);
+  font-size: 64px;
   line-height: 1.15;
   height: calc(var(--seal-size, 64px) * 1.25);
   display: flex; align-items: center; justify-content: center;
@@ -244,15 +308,15 @@ main,body>.wrap,body>.page-wrap,body>.container,.wrap-inner{max-width:none!impor
   <div class="ph-text">
     <h2>小篆检字</h2>
   </div>
-  <div class="ph-actions">
-    <button class="btn" id="plusSize" type="button" title="放大字形">A＋</button>
-    <button class="btn" id="minusSize" type="button" title="缩小字形">A−</button>
+  <div class="mode-tabs" id="modeTabs">
+    <button class="mode-tab on" type="button" data-mode="char">按字查篆</button>
+    <button class="mode-tab" type="button" data-mode="comp">按部首检字</button>
   </div>
 </header>
 
 <!-- 一、按字查篆 -->
-<div class="seal-cols">
-<section class="card">
+<div class="seal-view" id="sealView" data-mode="char">
+<section class="card" data-pane="char">
   <div class="card-h">
     <b>按字查篆</b>
     <span class="hint">繁体输入</span>
@@ -260,21 +324,32 @@ main,body>.wrap,body>.page-wrap,body>.container,.wrap-inner{max-width:none!impor
     <button class="btn" id="clearChar" type="button">清空</button>
   </div>
   <textarea class="inp" id="charInput" maxlength="300"></textarea>
-  <div class="char-grid" id="charGrid"></div>
+  <div class="char-output">
+    <div class="char-output-head"><span>篆形输出</span><em>输入汉字后，篆形显示在下方</em></div>
+    <div class="char-grid" id="charGrid"></div>
+  </div>
 </section>
 
-<section class="card">
+<section class="card" data-pane="comp">
   <div class="card-h">
     <b>按部件检字</b>
     
     <span class="spacer"></span>
     <button class="btn primary" id="compSearch" type="button">查字</button>
   </div>
-  <input class="inp" id="compFilter" placeholder="筛选部件，例如：水、木、人、心…" autocomplete="off">
-  <div class="comp-box" id="compBox"></div>
-  <div class="picked" id="picked"><span class="hint" style="font-size:12px;color:var(--t3)">已选部件：</span></div>
-  <div class="result-grid" id="resultGrid"></div>
-  <p class="result-note" id="resultNote"></p>
+  <div class="comp-split">
+    <div class="comp-pane" id="compLeftPane">
+      <div class="pane-title">部件选择</div>
+      <input class="inp" id="compFilter" placeholder="筛选部件，例如：水、木、人、心…" autocomplete="off">
+      <div class="comp-box" id="compBox"></div>
+      <div class="picked" id="picked"><span class="hint" style="font-size:12px;color:var(--t3)">已选部件：</span></div>
+    </div>
+    <div class="comp-pane" id="compRightPane">
+      <div class="pane-title">检字结果</div>
+      <div class="result-grid" id="resultGrid"></div>
+      <p class="result-note" id="resultNote"></p>
+    </div>
+  </div>
 </section>
 </div>
 
@@ -302,7 +377,6 @@ const COVER_SET = COVER && COVER.SEAL_FONT_SET ? COVER.SEAL_FONT_SET : null;
 
 const $ = (s) => document.querySelector(s);
 const fontStack = '"ShuoWenZhuan", "KaiTi", "STKaiti", serif';
-let sealSize = 64;
 let picked = [];
 let lastChar = '';
 
@@ -391,7 +465,7 @@ function renderChars() {
   if (!grid) return;
   const chars = [...raw].filter((c) => !/\s/.test(c));
   if (!chars.length) {
-    grid.innerHTML = '';
+    grid.innerHTML = '<div class="char-empty">输入汉字后，篆形会显示在这里</div>';
     return;
   }
   const uniq = [];
@@ -399,7 +473,7 @@ function renderChars() {
   for (const ch of chars) { if (!seen.has(ch)) { seen.add(ch); uniq.push(ch); } }
   grid.innerHTML = uniq.slice(0, 300).map((ch) => (
     '<div class="char-cell' + cellClass(ch) + '" data-ch="' + ch.replace(/"/g, '&quot;') + '" title="' + missingTip(ch) + '">' +
-      '<div class="seal" style="font-size:' + sealSize + 'px">' + ch + '</div>' +
+      '<div class="seal">' + ch + '</div>' +
     '</div>'
   )).join('');
   grid.querySelectorAll('.char-cell').forEach((el) => {
@@ -471,18 +545,11 @@ function runCompSearch() {
 }
 
 // ---------- 字号 ----------
-function applySize() {
-  document.documentElement.style.setProperty('--seal-size', sealSize + 'px');
-  renderChars();
-}
-
 // ---------- 事件 ----------
 $('#charInput').addEventListener('input', (e) => { renderChars(); });
 $('#clearChar').addEventListener('click', () => { $('#charInput').value = ''; renderChars(); });
 $('#compFilter').addEventListener('input', (e) => renderCompChips(e.target.value));
 $('#compSearch').addEventListener('click', runCompSearch);
-$('#plusSize').addEventListener('click', () => { sealSize = Math.min(140, sealSize + 12); applySize(); });
-$('#minusSize').addEventListener('click', () => { sealSize = Math.max(32, sealSize - 12); applySize(); });
 $('#sealModalX').addEventListener('click', closeDetail);
 $('#sealModal').addEventListener('click', (e) => { if (e.target.id === 'sealModal') closeDetail(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
@@ -490,6 +557,21 @@ $('#modalCopy').addEventListener('click', () => copyText(lastChar));
 $('#modalPng').addEventListener('click', () => downloadPng(lastChar));
 
 // ---------- 启动 ----------
+// V1.9：模式切换（按字查篆 / 按部首检字）
+(function initModeTabs() {
+  var view = document.getElementById('sealView');
+  var tabs = document.querySelectorAll('#modeTabs .mode-tab');
+  if (!view || !tabs.length) return;
+  function setMode(mode) {
+    view.setAttribute('data-mode', mode);
+    tabs.forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-mode') === mode); });
+    if (mode === 'comp') { try { runCompSearch(); } catch (e) { } }
+    else { try { renderChars(); } catch (e) { } }
+  }
+  tabs.forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); }); });
+  window.__sealSetMode = setMode;
+})();
+
 renderChars();
 renderCompChips('');
 renderPicked();

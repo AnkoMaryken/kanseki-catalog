@@ -1,6 +1,6 @@
 /* ================================================================
-   V1.8：首次启动开场动画 + 新手引导
-   配色：白色为主（--intro-bg #FFFFFF），青柠色点缀（#C8F169）
+   V1.9：开场动画（logo × Ankoleopas × 全球汉籍合璧工程）
+   白色主色；每次启动显示，可快速点击进入；设置中可关闭。
    ================================================================ */
 html.intro-lock,
 html.intro-lock body {
@@ -12,19 +12,22 @@ html.intro-lock body {
   display: none !important;
 }
 
+/* JS 未执行前的首屏：默认显示开场（避免闪一下主界面） */
+html[data-intro-default] .intro[hidden] {
+  display: flex !important;
+}
+
 /* ---------------- 开场动画 ---------------- */
 .intro {
   position: fixed;
   inset: 0;
   z-index: 300;
-  background:
-    radial-gradient(1100px 720px at 50% -8%, #FFFFFF 0%, #FDFDFC 42%, #F6F7F3 100%);
+  background: radial-gradient(1200px 760px at 50% -10%, #FFFFFF 0%, #FDFDFC 46%, #F5F6F2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   opacity: 1;
-  transition: opacity .55s ease;
+  transition: opacity .38s ease;
 }
 
 .intro.is-out {
@@ -32,190 +35,138 @@ html.intro-lock body {
   pointer-events: none;
 }
 
-#introCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.intro-stage {
-  position: relative;
+.intro-center {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  width: min(560px, 88vw);
+  gap: 26px;
+  padding: 0 24px;
+  max-width: min(920px, 92vw);
 }
 
-/* 出票口 */
-.intro-slot {
-  width: min(430px, 74vw);
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, rgba(23, 26, 31, .22) 22%, rgba(23, 26, 31, .22) 78%, transparent);
-  filter: blur(.2px);
-  animation: introSlotIn .7s ease both;
-}
-
-@keyframes introSlotIn {
-  from { opacity: 0; transform: scaleX(.4); }
-  to { opacity: 1; transform: scaleX(1); }
-}
-
-/* 票券 / 书页卡片 */
-.intro-ticket {
-  position: relative;
-  width: 100%;
-  background: #FFFFFF;
-  border: 1px solid #ECEEF1;
-  border-radius: 26px;
-  padding: 30px 34px 26px;
-  box-shadow:
-    0 30px 90px rgba(20, 24, 20, .10),
-    0 2px 0 rgba(255, 255, 255, .9) inset;
-  overflow: hidden;
-  transform-origin: 50% 0;
-  animation: introTicketOut 1.05s cubic-bezier(.16, .84, .24, 1) both;
-}
-
-@keyframes introTicketOut {
-  0% { opacity: 0; transform: translateY(-46px) scale(.965); clip-path: inset(0 0 96% 0 round 26px); }
-  45% { opacity: 1; }
-  100% { opacity: 1; transform: translateY(0) scale(1); clip-path: inset(0 0 0 0 round 26px); }
-}
-
-/* 纸面纹理 */
-.intro-ticket::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(rgba(23, 26, 31, .045) .5px, transparent .6px),
-    radial-gradient(rgba(23, 26, 31, .03) .5px, transparent .6px);
-  background-size: 5px 5px, 7px 7px;
-  background-position: 0 0, 2px 3px;
-  opacity: .5;
-  mix-blend-mode: multiply;
-}
-
-.intro-eyebrow {
-  font-size: 10.5px;
-  letter-spacing: .34em;
-  color: #9AA0A8;
-  text-transform: uppercase;
-  animation: introUp .6s .18s ease both;
-}
-
-.intro-title {
-  margin: 12px 0 2px;
-  font-size: 42px;
-  line-height: 1.18;
-  font-weight: 800;
-  letter-spacing: .06em;
-  color: #171A1F;
-  animation: introUp .7s .3s cubic-bezier(.2, .8, .3, 1) both;
-}
-
-.intro-sub {
+/* 品牌行：logo × Ankoleopas × 全球汉籍合璧工程 */
+.intro-brandline {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-  color: #5F6672;
-  font-size: 13.5px;
-  letter-spacing: .16em;
-  animation: introUp .7s .44s ease both;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px 22px;
+  animation: introFadeUp .62s cubic-bezier(.2, .8, .3, 1) both;
 }
 
-.intro-sub::before {
-  content: "";
-  width: 26px;
-  height: 4px;
-  border-radius: 4px;
-  background: #C8F169;
-}
-
-.intro-lines {
-  margin-top: 22px;
-  display: grid;
-  gap: 7px;
-  color: #8F959E;
-  font-size: 12px;
-  letter-spacing: .08em;
-}
-
-.intro-lines span {
-  animation: introUp .55s ease both;
-}
-
-.intro-lines span:nth-child(1) { animation-delay: .58s; }
-.intro-lines span:nth-child(2) { animation-delay: .68s; }
-.intro-lines span:nth-child(3) { animation-delay: .78s; }
-
-.intro-progress {
-  position: relative;
-  margin-top: 22px;
-  height: 3px;
-  border-radius: 3px;
-  background: #F0F1F3;
+.intro-logo {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
   overflow: hidden;
+  flex: 0 0 auto;
+  animation: introPop .7s cubic-bezier(.2, .8, .3, 1) both;
 }
 
-.intro-progress i {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 0;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #C8F169, #E6FF9B);
-  transition: width 1.9s cubic-bezier(.3, .8, .3, 1);
+.intro-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  -webkit-user-drag: none;
 }
 
-@keyframes introUp {
-  from { opacity: 0; transform: translateY(10px); }
+.intro-x {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 26px;
+  line-height: 1;
+  color: #C2C7CE;
+  font-weight: 400;
+}
+
+.intro-name {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #171A1F;
+  white-space: nowrap;
+}
+
+.intro-name.cn {
+  font-size: 26px;
+  letter-spacing: .12em;
+  font-weight: 600;
+}
+
+@keyframes introFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.intro-caption {
-  font-size: 12px;
-  color: #9AA0A8;
-  letter-spacing: .14em;
-  height: 18px;
-  animation: introUp .5s .9s ease both;
+@keyframes introPop {
+  from { opacity: 0; transform: scale(.86); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.intro-start {
-  margin-top: 2px;
-  min-width: 188px;
-  padding: 13px 34px;
-  border: 0;
+/* 按钮：动画期间即可点击 */
+.intro-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: introFadeUp .55s .18s ease both;
+}
+
+.intro-btn {
+  min-width: 132px;
+  padding: 12px 30px;
   border-radius: 999px;
-  background: #C8F169;
-  color: #171A1F;
+  border: 1px solid #ECEEF1;
+  background: #FFFFFF;
+  color: #5F6672;
   font: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: .12em;
+  font-size: 14.5px;
+  letter-spacing: .08em;
   cursor: pointer;
+  transition: background .16s, color .16s, border-color .16s, box-shadow .18s;
+}
+
+.intro-btn:hover {
+  border-color: #171A1F;
+  color: #171A1F;
+}
+
+.intro-btn.primary {
+  background: #C8F169;
+  border-color: #C8F169;
+  color: #171A1F;
+  font-weight: 700;
   box-shadow: 0 14px 34px rgba(140, 178, 40, .28);
-  opacity: 0;
-  transform: translateY(10px) scale(.98);
-  transition: opacity .5s ease, transform .5s cubic-bezier(.2, .8, .3, 1), box-shadow .2s;
 }
 
-.intro-start.is-in {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.intro-start:hover {
+.intro-btn.primary:hover {
   box-shadow: 0 18px 40px rgba(140, 178, 40, .38);
 }
 
-.intro-start:active {
+.intro-btn:active {
   transform: scale(.985);
+}
+
+/* 左下角版本号（Times New Roman） */
+.intro-version {
+  position: fixed;
+  left: 24px;
+  bottom: 18px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 13px;
+  letter-spacing: .06em;
+  color: #9AA0A8;
+}
+
+/* 右下角小字 */
+.intro-tip {
+  position: fixed;
+  right: 24px;
+  bottom: 18px;
+  font-size: 11.5px;
+  letter-spacing: .06em;
+  color: #9AA0A8;
 }
 
 /* ---------------- 新手引导 ---------------- */
@@ -234,7 +185,7 @@ html.intro-lock body {
   border-radius: 14px;
   box-shadow: 0 0 0 0 rgba(12, 14, 18, 0);
   pointer-events: none;
-  transition: left .28s ease, top .28s ease, width .28s ease, height .28s ease, box-shadow .28s ease;
+  transition: left .26s ease, top .26s ease, width .26s ease, height .26s ease, box-shadow .26s ease;
   z-index: 311;
 }
 
@@ -249,13 +200,13 @@ html.intro-lock body {
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 312;
-  width: min(324px, 86vw);
+  width: min(330px, 88vw);
   background: #FFFFFF;
   border-radius: 18px;
   box-shadow: 0 26px 70px rgba(0, 0, 0, .26);
   padding: 18px 20px 16px;
   color: #171A1F;
-  transition: left .28s ease, top .28s ease;
+  transition: left .26s ease, top .26s ease;
 }
 
 .onboard-card .ob-step {
@@ -333,29 +284,16 @@ html.intro-lock body {
 }
 
 [data-theme="dark"] .intro {
-  background: radial-gradient(1100px 720px at 50% -8%, #1B1E23 0%, #16191D 55%, #101216 100%);
+  background: radial-gradient(1200px 760px at 50% -10%, #1B1E23 0%, #16191D 56%, #101216 100%);
 }
 
-[data-theme="dark"] .intro-ticket {
-  background: #1C1F24;
-  border-color: #2A2E35;
-}
+[data-theme="dark"] .intro-name { color: #F2F3F5; }
+[data-theme="dark"] .intro-x { color: #4A5059; }
+[data-theme="dark"] .intro-btn { background: #1C1F24; border-color: #2A2E35; color: #B7BDC7; }
+[data-theme="dark"] .intro-btn:hover { border-color: #C8F169; color: #F2F3F5; }
+[data-theme="dark"] .intro-btn.primary { background: #C8F169; border-color: #C8F169; color: #171A1F; }
 
-[data-theme="dark"] .intro-title { color: #F2F3F5; }
-[data-theme="dark"] .intro-sub { color: #B7BDC7; }
-[data-theme="dark"] .intro-lines { color: #838A96; }
-[data-theme="dark"] .intro-progress { background: #2A2E35; }
-[data-theme="dark"] .intro-ticket::after { opacity: .18; }
-
-[data-theme="dark"] .onboard-card {
-  background: #1C1F24;
-  color: #F2F3F5;
-}
-
+[data-theme="dark"] .onboard-card { background: #1C1F24; color: #F2F3F5; }
 [data-theme="dark"] .onboard-card p { color: #B7BDC7; }
 [data-theme="dark"] .ob-actions .ob-btn { background: #1C1F24; border-color: #2A2E35; color: #B7BDC7; }
 [data-theme="dark"] .ob-actions .ob-btn.primary { background: #C8F169; border-color: #C8F169; color: #171A1F; }
-
-
-/* 首屏（js 尚未执行时）也要显示开场，避免闪一下主界面 */
-html[data-first-run] .intro[hidden] { display: flex !important; }

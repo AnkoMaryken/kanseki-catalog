@@ -741,11 +741,12 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.8.0';
+const APP_VERSION = '1.9.0';
 
 // V1.4：给工作台/内嵌页使用的全局能力
 try {
   window.__APP_VERSION = APP_VERSION;
+  try { document.documentElement.dataset.appVersion = APP_VERSION; } catch (_) { }
   window.__kansekiOpenExternal = function (url) {
     const u = String(url || '').trim();
     if (!/^(https?:|mailto:)/i.test(u)) return;

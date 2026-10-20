@@ -345,6 +345,13 @@ html.embed-settings .set-home { display: none !important; }
       <p class="set-sub">外观改动立即生效，并与主窗口同步。</p>
 
       <div class="set-row">
+        <label>开场动画</label>
+        <div class="seg-lite" id="uiIntroSeg">
+          <button type="button" data-intro="1">每次显示</button>
+          <button type="button" data-intro="0">关闭</button>
+        </div>
+      </div>
+      <div class="set-row">
         <label>侧栏默认</label>
         <div class="seg-lite" id="uiSideSeg">
           <button type="button" data-side="0">展开</button>
@@ -391,6 +398,7 @@ html.embed-settings .set-home { display: none !important; }
         <button class="set-btn" id="aboutWeb" type="button">打开网页版</button>
         <button class="set-btn" id="aboutDiag" type="button">复制诊断信息</button>
         <button class="set-btn" id="replayIntro" type="button">重新播放开场动画</button>
+        <button class="set-btn" id="replayOnboard" type="button">新手引导</button>
       </div>
       <p class="set-note">
         目录元数据来源：国立公文書館デジタルアーカイブ（CC0）、全國漢籍データベース、
@@ -818,6 +826,30 @@ if (IS_TAURI) (async function initSync() {
       b.classList.toggle("on", (b.getAttribute("data-hot") === "1") === on);
     });
   }
+  // V1.9：开场动画开关
+  var introSeg = document.getElementById("uiIntroSeg");
+  if (introSeg) {
+    function paintIntroSeg() {
+      var off = false;
+      try { off = localStorage.getItem('kanseki_intro_enabled') === '0'; } catch (e) { }
+      introSeg.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('on', b.getAttribute('data-intro') === (off ? '0' : '1'));
+      });
+    }
+    introSeg.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        try { localStorage.setItem('kanseki_intro_enabled', b.getAttribute('data-intro') === '0' ? '0' : '1'); } catch (e) { }
+        paintIntroSeg();
+        try {
+          if (window.parent && window.parent !== window && typeof window.parent.__kansekiToast === 'function') {
+            window.parent.__kansekiToast(b.getAttribute('data-intro') === '0' ? '已关闭开场动画' : '已开启开场动画');
+          }
+        } catch (e) { }
+      });
+    });
+    paintIntroSeg();
+  }
+
   var sideSeg = document.getElementById("uiSideSeg");
   if (sideSeg) sideSeg.addEventListener("click", function (e) {
     var b = e.target.closest("button[data-side]");
@@ -881,6 +913,17 @@ if (IS_TAURI) (async function initSync() {
   });
 
   // 开发者彩蛋：右下角小烟花
+  var replayOnboard = document.getElementById('replayOnboard');
+  if (replayOnboard) replayOnboard.addEventListener('click', function () {
+    try {
+      if (window.parent && window.parent !== window && window.parent.__kansekiIntro && typeof window.parent.__kansekiIntro.onboard === 'function') {
+        window.parent.__kansekiIntro.onboard();
+        return;
+      }
+    } catch (e) { }
+    notifyParent('请回到主界面查看新手引导');
+  });
+
   var replay = document.getElementById('replayIntro');
   if (replay) replay.addEventListener('click', function () {
     try {
