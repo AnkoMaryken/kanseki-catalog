@@ -94,7 +94,7 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
 <main class="page">
   <header class="page-head">
     <div class="phead-text">
-      <h2>更新日志 <span class="cur-ver">v1.4.0</span></h2>
+      <h2>更新日志 <span class="cur-ver">v1.5.0</span></h2>
     </div>
     <div class="ph-actions">
       <button type="button" class="tool-btn" id="btnExpand">展开全部</button>
@@ -102,7 +102,20 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
     </div>
   </header>
   <div class="cl-list" id="clList">
-      <details class="cl-item" data-ver="v1.4.0" data-date="2026-10-19" open>
+      <details class="cl-item" data-ver="v1.5.0" data-date="2026-10-20" open>
+  <summary class="cl-sum">
+    <span class="cl-ver">v1.5.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">体验完善</span><span class="cl-date">2026-10-20</span>
+  </summary>
+  <ul class="cl-points">
+    <li>每日推荐语料扩充到 1300 余条，新增大量古籍名言与治学格言</li>
+    <li>纪年精确年份复制格式改为「年号（公历年）」，括号内不再带「年」字</li>
+    <li>公文书馆下载：批量下载支持多次导入与插入单本；「显示件数」下拉修复；下载中心可按状态筛选、清空列表、暂停后手动选新书、精准打开该书文件夹</li>
+    <li>所有网页跳转按钮点击后均有「正在打开浏览器」提示</li>
+    <li>小彩蛋：点击标题栏 GitHub 按钮会绽放烟花；「关于」页新增开发者 Ankoleopas 与右下角烟花按钮</li>
+    <li>服务条款、隐私政策新增「返回登录」入口；更新日志已精简，仅保留近期版本细节</li>
+  </ul>
+</details>
+  <details class="cl-item" data-ver="v1.4.0" data-date="2026-10-19" open>
   <summary class="cl-sum">
     <span class="cl-ver">v1.4.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">正式使用前调整</span><span class="cl-date">2026-10-19</span>
   </summary>
@@ -164,747 +177,415 @@ body{margin:0;min-height:100vh;background:var(--bg-page);color:var(--t1);font-fa
         <summary class="cl-sum">
           <span class="cl-ver">v1.0.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">正式版</span><span class="cl-date">2026-10-18</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>桌面版正式版发布，界面按 v3 设计稿整套重做</li>
-          <li>新增「工作台」并设为启动首页，含每日推荐与今日概览</li>
-          <li>纪年查询打开即显示全部年份表格，无需先输入年份</li>
-          <li>细则查阅去掉右侧索引，章节树改为页头右上角浮出</li>
-          <li>分类表精简为部类介绍与代表古籍，工作手册 PDF 直接内嵌</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.6.0" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.6.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>内閣文庫漢籍改为按原站 fonds 层级逐层浏览</li>
-          <li>各部件数直接标在分类上，与原站「該当件数」同口径</li>
-          <li>可导出该部簿册清单 CSV，Excel 打开不乱码</li>
-          <li>分类区缩为一行工具栏加一行 chips，不再挤占结果区</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.5.0" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.5.0</span><span class="cl-plat">桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>国立公文书馆新增「内閣文庫漢籍部别统计」，含各部件数与占比</li>
-          <li>统计结果缓存本机，可导出 CSV 并一键重新统计</li>
-          <li>单本下载进度纳入「下载中心」，含进度角标与逐册明细</li>
-          <li>单本完成或失败均弹通知并响提示音，失败列出缺册原因</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.4.2" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.4.2</span><span class="cl-plat">网页版 + 桌面版</span><span class="cl-tag del">删减</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>分类表查询删除三级「合璧细目」，只保留标准分类一套</li>
-          <li>标准分类共六部 66 类，一条路径看全，不必切换视图</li>
-          <li>清掉旧三级表相关代码与样式，检索框改为占满工具条</li>
-          <li>桌面版发行包同步重编</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.4.1" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.4.1</span><span class="cl-plat">网页版 + 桌面版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>分类表按标准类目重做：六部 66 类，每部每类均附介绍</li>
-          <li>代表古籍举例 181 部，可搜类名、收录说明或书名</li>
-          <li>繁简通检：输入繁体（如「論語」）同样能命中</li>
-          <li>修复 catalog.html 深链接未解析与手机宽度正文被挤窄</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.4.0" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.4.0</span><span class="cl-plat">手机版 App</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>手机版 App 上线（m.html）：竖屏布局，底部 5 个 Tab</li>
-          <li>纪年查询同时给出中国、日本与其他地区三组年号</li>
-          <li>古籍类目为真实数据（177,107 条），沿用三态判定</li>
-          <li>岁时落款五节常识可切换，检索状态跨 Tab 保持</li>
-          <li>纪年数据抽为共用 era_data.js，桌面版不受影响</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.3.1" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.3.1</span><span class="cl-plat">网页版</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复手机宽度下「岁时落款」与「卷数计算」浮动按钮重叠</li>
-          <li>两按钮恢复各自可点，不再互相遮挡</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.3.0" data-date="2026-10-17">
         <summary class="cl-sum">
           <span class="cl-ver">v10.3.0</span><span class="cl-plat">网页版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>网页版支持安装到手机主屏幕（PWA），可全屏离线使用</li>
-          <li>常用页首次访问后离线可查（AI 复检仍需联网）</li>
-          <li>安装只预缓存约 1.1 MB 外壳，类目数据按需缓存</li>
-          <li>桌面版内嵌页不加载 PWA，不产生多余请求</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.2.4" data-date="2026-10-07">
         <summary class="cl-sum">
           <span class="cl-ver">v10.2.4</span><span class="cl-plat">网页版</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>「返回主页」按钮移入 API 管理面板并改为醒目样式</li>
-          <li>API 管理标题行右侧再放一个返回按钮，左栏入口保留</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.2.3" data-date="2026-10-07">
         <summary class="cl-sum">
           <span class="cl-ver">v10.2.3</span><span class="cl-plat">网页版</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>网页端登录下拉新增「设置」，直达 API 管理</li>
-          <li>设置页新增「返回纪年查询」，仅网页版显示</li>
-          <li>六个页面的右上角菜单行为统一</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.2.2" data-date="2026-10-07">
         <summary class="cl-sum">
           <span class="cl-ver">v10.2.2</span><span class="cl-plat">网页版同步</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复网页版找不到 DeepSeek API 配置入口的问题</li>
-          <li>未配置提示改为「去配置 API」按钮，可一键跳转</li>
-          <li>AI 复检结果区头部新增常驻「设置」按钮</li>
-          <li>模态窗内两处提示改为指向「打开设置」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.2.1" data-date="2026-10-07">
         <summary class="cl-sum">
           <span class="cl-ver">v10.2.1</span><span class="cl-plat">网页版同步</span><span class="cl-tag sync">同步</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>网页版补齐分类表「未调整」红色角标与页内提示条</li>
-          <li>更正 kanseki.html 的版本标记为 10.2</li>
-          <li>网页版已同步批量查询、检索历史改版与介绍十二节</li>
-          <li>原站 CORS 与写盘类功能仅桌面版提供，非遗漏</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.2" data-date="2026-10-07">
         <summary class="cl-sum">
           <span class="cl-ver">v10.2</span><span class="cl-plat">桌面版 0.21.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>下载产物只留 PDF，任务文件完成后自动清理</li>
-          <li>修复断网后每本书只下一册，改为严格判定并复用任务清单</li>
-          <li>古籍类目新增「批量查询」，逐条给出命中数与判定分布</li>
-          <li>类目检索历史与纪年历史分开存储，互不污染</li>
-          <li>PDF 合并改按 xref 精确定位，残缺 PDF 不再混入</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.1" data-date="2026-10-06">
         <summary class="cl-sum">
           <span class="cl-ver">v10.1</span><span class="cl-plat">桌面版 0.20.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复详细检索浮层层级，收起后按钮恢复可点</li>
-          <li>使用介绍从三节扩为十二节，覆盖全部功能与快捷键</li>
-          <li>侧栏「分类表查询」新增「未调整」红色标记</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v10.0" data-date="2026-10-06">
         <summary class="cl-sum">
           <span class="cl-ver">v10.0</span><span class="cl-plat">桌面版 0.19.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>检索条更紧凑，「显示件数」改为浮层下拉</li>
-          <li>超过 50 页的册自动合并为完整 PDF，画质无损</li>
-          <li>批量下载支持导入索书号，候选多条时供人工核对</li>
-          <li>关闭窗口改为最小化到托盘，下载继续在后台</li>
-          <li>目录名、每册文件名、压缩包名三套命名各自记住</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.9" data-date="2026-10-06">
         <summary class="cl-sum">
           <span class="cl-ver">v9.9</span><span class="cl-plat">桌面版 0.18.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>下载位置可自选，并记住上次选择</li>
-          <li>标题栏新增「下载中心」，含实时进度与暂停、取消</li>
-          <li>完成或失败弹横幅与提示音，可一键打开文件夹</li>
-          <li>批量下载支持粘贴多条 ID 或索书号排队逐本下载</li>
-          <li>批量失败可重试、略过、暂停整批或取消整批</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.8" data-date="2026-10-06">
         <summary class="cl-sum">
           <span class="cl-ver">v9.8</span><span class="cl-plat">桌面版 0.17.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>国立公文书馆检索结果可一键下载整册 PDF</li>
-          <li>双通道：原站原生 PDF，失败自动降级 IIIF 逐页合成</li>
-          <li>零缺册：册清单冻结、逐册校验、打包前完整性门禁</li>
-          <li>全部写盘走临时文件原子替换，可只重试未完成册</li>
-          <li>三套命名模板加实时目录树预览，支持补零写法</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.7" data-date="2026-10-04">
         <summary class="cl-sum">
           <span class="cl-ver">v9.7</span><span class="cl-plat">桌面版 0.16.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-04</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「纪年小窗」，可缩放、置顶并支持多种查询</li>
-          <li>编目记录支持导入 Excel / CSV，按模板自动识别表头</li>
-          <li>编目记录新增卡片、表格、文字三种预览与两种导出</li>
-          <li>必填项不再拦截保存，可先编目再补全</li>
-          <li>国立公文书馆检索条压成一行，分类并入详细检索</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.6" data-date="2026-10-04">
         <summary class="cl-sum">
           <span class="cl-ver">v9.6</span><span class="cl-plat">桌面版 0.15.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-04</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>国立公文书馆补齐「详细检索」，条件标签全部中文</li>
-          <li>可按「簿册」与「件名·细目」筛选，实测计数准确</li>
-          <li>新增内閣文庫汉籍分类区，可直接限定资料群检索</li>
-          <li>分类改为下拉浮出菜单，检索与结果间距收紧</li>
-          <li>修复原站标题被拆成多段时读成「後 漢書」的问题</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.5" data-date="2026-10-03">
         <summary class="cl-sum">
           <span class="cl-ver">v9.5</span><span class="cl-plat">桌面版 0.14.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-03</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「国立公文书馆」检索面板，应用内直连原站</li>
-          <li>编目记录上线：14 字段著录，本机存储并接入 WebDAV 同步</li>
-          <li>可从检索结果一键「参考此记录新建编目记录」</li>
-          <li>Rust 检索桥新增白名单与退避重试</li>
-          <li>全站换用新 logo，修复构建资源 404 等问题</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.4.2" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.4.2</span><span class="cl-plat">桌面版 0.13.2</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复「日本藏本检索」检索后整页变窄</li>
-          <li>高级筛选改为浮窗，开合不影响页面布局</li>
-          <li>桌面版换用木刻印章风新 logo</li>
-          <li>测试分快跑与全量两档，加快日常迭代</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.4.1" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.4.1</span><span class="cl-plat">桌面版 0.13.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>「日本藏本检索」版面重做，以结果为主、筛选可折叠</li>
-          <li>结果与详情全宽切换，返回后保留选中行高亮</li>
-          <li>筛选开关带条件计数徽标，收起时显示条件摘要</li>
-          <li>摘要按提交瞬间的条件快照回显，避免与结果不符</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.4" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.4</span><span class="cl-plat">桌面版 0.13.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「日本藏本检索」，直连全國漢籍データベース</li>
-          <li>支持按書名、著者、刊年、出版者、子目与所藏机构检索</li>
-          <li>Rust 桥限定域名与路径，避免被当作任意代理</li>
-          <li>服务器掐断时保留部分结果并标注「不完整」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.3.1" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.3.1</span><span class="cl-plat">桌面版 0.12.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>设置窗口精简为同步设置与 API 管理</li>
-          <li>API 管理新增 Token 用量统计与图形化展示</li>
-          <li>古籍类目查询新增检索历史，最多记录 20 条</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.3" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.3</span><span class="cl-plat">桌面版 0.12.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复模型名与 token 预算，不再返回空内容</li>
-          <li>AI 复检会先自行联网查证，并附带来源链接</li>
-          <li>提示词不再把本表当标准答案，要求说明依据</li>
-          <li>输出首行固定给一致性结论，不一致标红</li>
-          <li>导出改为右下角通知栏，可直接打开文件与文件夹</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.2.1" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.2.1</span><span class="cl-plat">桌面版 0.11.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复设置窗口只能打开一次，关闭改为隐藏</li>
-          <li>设置窗口改自绘标题栏并显示版本号</li>
-          <li>删除个人中心里重复的 API 管理</li>
-          <li>桌面版侧栏精简，统一以设置窗口为准</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.2" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.2</span><span class="cl-plat">桌面版 0.11.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「设置」独立窗口，内含三个分区</li>
-          <li>AI 复检改为单条为主，长按可整页复检或提问</li>
-          <li>复检结论与本表不一致时标红并提示反馈</li>
-          <li>表头「合璧对应类目」等更名，CSV 同步更正</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.1" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.1</span><span class="cl-plat">桌面版 0.10.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「AI 复检」，可把筛选结果交 DeepSeek 逐条复核</li>
-          <li>API Key 只保存在本机，设置页可一键清除</li>
-          <li>桌面版隐藏页内导出、简繁、主题三个重复入口</li>
-          <li>网页版不显示 AI 复检，保留原有三项功能</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v9.0" data-date="2026-10-02">
         <summary class="cl-sum">
           <span class="cl-ver">v9.0</span><span class="cl-plat">桌面版 0.9.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-10-02</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「古籍类目查询」，收录 177,107 条著录</li>
-          <li>支持模糊、多词、字段限定与错字容错检索</li>
-          <li>结果同时给出《总目》与合璧工程类目的对应判定</li>
-          <li>支持繁简显示与 CSV 导出</li>
-          <li>修复「干支」误转「幹支」等简繁映射缺陷</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.9" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.9</span><span class="cl-plat">桌面版 0.8.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复最大化按钮两个图标重叠，新增标题栏一键简繁</li>
-          <li>全站记住上次简繁选择，重启后仍保持</li>
-          <li>登录后点「账号」直达个人中心，登录成功自动跳转</li>
-          <li>修复窗口最大化间歇失灵与启动初期点击无响应</li>
-          <li>发布安装版与免安装版，附使用说明与 SHA256 校验值</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.8" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.8</span><span class="cl-plat">桌面版 0.8.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复窗口最大化等多数窗口操作无反应</li>
-          <li>移除标题栏重复显示的程序名</li>
-          <li>修复登录与注册不可用，自动切换本地账号模式</li>
-          <li>本地账号严格校验密码与邮箱，注册成功有提示</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.7" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.7</span><span class="cl-plat">桌面版 0.8.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复打开后白屏与状态不保存，解除内核子进程拦截</li>
-          <li>增加单实例保护，重复点击唤起已开窗口</li>
-          <li>完整恢复侧栏品牌区，窗口按钮移入自绘标题栏</li>
-          <li>编目规范三项导览改为浮层弹窗</li>
-          <li>程序图标改为黑底白「漢」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.6" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.6</span><span class="cl-plat">桌面版 0.7.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>左上角改为「收起侧栏」加「窗口」菜单</li>
-          <li>侧栏底部新增登录区，可与网页版共用账号</li>
-          <li>编目记录、同步设置、关于三页视觉统一</li>
-          <li>导航重排，侧栏由 10 项增至 11 项</li>
-          <li>矮窗口适配，最小窗口下导航一屏可见</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.5" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.5</span><span class="cl-plat">桌面版 0.6.4</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>桌面版品牌与网页版统一为「古代史及汉籍研究工具」</li>
-          <li>版本号 4 处同步更新，避免关于页与实际不一致</li>
-          <li>账号类页面保留 Juvenile 品牌，属预期设计</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.4" data-date="2026-09-29">
         <summary class="cl-sum">
           <span class="cl-ver">v8.4</span><span class="cl-plat">桌面版 0.6.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-09-29</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>首个可直接运行的 Windows 程序（kanseki-app.exe）</li>
-          <li>修复 4 处阻断构建的问题，打包流程可重复执行</li>
-          <li>顶部导航全部并入左侧栏，内嵌页不再重复顶栏</li>
-          <li>编目规范侧栏合并进主侧栏，内容改为实时同步</li>
-          <li>补齐账号页面，矮窗口下侧栏完整可见</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.3" data-date="2026-08-22">
         <summary class="cl-sum">
           <span class="cl-ver">v8.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-22</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>卡片视图改横向网格，默认 4 列、可切 6 列</li>
-          <li>卡片视图按年号独立复制</li>
-          <li>快捷筛选支持整朝筛选与一键全选本朝年号</li>
-          <li>支持汉字加拼音、汉字加数字的组合搜索</li>
-          <li>新增干支错写「猜你想搜」提醒</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.2" data-date="2026-08-21">
         <summary class="cl-sum">
           <span class="cl-ver">v8.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-21</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>全站 11 页手机端适配，汉堡按钮加抽屉导航</li>
-          <li>纪年查询新增表格与卡片双视图</li>
-          <li>移动端快捷筛选改为底部全屏抽屉</li>
-          <li>新增 overlay.js 数据覆盖层与管理端大事记</li>
-          <li>管理员工作台移动端适配</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.1" data-date="2026-08-17">
         <summary class="cl-sum">
           <span class="cl-ver">v8.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复登录后重新进入时头像与登录态丢失</li>
-          <li>新增本地账号兜底，无需邮箱验证即可登录</li>
-          <li>登录失败提示按是否存在本地账号区分</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v8.0" data-date="2026-08-17">
         <summary class="cl-sum">
           <span class="cl-ver">v8.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>日本部分扩展为「其他朝代」，新增 19 个周边政权</li>
-          <li>快捷筛选支持单独筛选朝鲜、越南等周边政权</li>
-          <li>全站品牌更名为「古代史及汉籍研究工具」</li>
-          <li>无年号时期改为友好显示，不再生成复制按钮</li>
-          <li>年号重名提醒范围扩大到周边政权</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v7.2" data-date="2026-08-17">
         <summary class="cl-sum">
           <span class="cl-ver">v7.2</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复头像裁剪预览与最终结果不一致</li>
-          <li>裁剪改为以图片中心为锚点，拖拽范围限制在图片内</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v7.1" data-date="2026-08-17">
         <summary class="cl-sum">
           <span class="cl-ver">v7.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>头像上传支持拖动缩放裁剪，输出 256px 圆形头像</li>
-          <li>全站标签页图标统一为「J」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v7.0" data-date="2026-08-17">
         <summary class="cl-sum">
           <span class="cl-ver">v7.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-17</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增个人中心，可自定义头像与昵称</li>
-          <li>登录后表头显示头像加昵称下拉</li>
-          <li>昵称、头像修改后全站同步生效</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v6.4" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v6.4</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>管理员判定改为角色优先、白名单兜底</li>
-          <li>线上部署无需本地配置文件即可启用管理员</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v6.3" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v6.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>管理员登录升级为 Supabase 认证</li>
-          <li>白名单与角色双重校验，非管理员登录被拒</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v6.2" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v6.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>Supabase 真实接入，登录注册切换为真实邮箱认证</li>
-          <li>管理员工作台用户列表同步为 Supabase 用户</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v6.1" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v6.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>管理员入口改为隐藏触发：连点品牌 5 次进入</li>
-          <li>管理员凭据去敏，仅由部署方配置</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v6.0" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v6.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>深浅色模式全站同步，主题偏好共用一份设置</li>
-          <li>Supabase 接入预留，未配置时进入演示模式</li>
-          <li>新增管理员工作台</li>
-          <li>登录注册表单接入认证，条款与隐私页支持深色</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v5.1" data-date="2026-08-16">
         <summary class="cl-sum">
           <span class="cl-ver">v5.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-16</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>快捷筛选改为两栏浮窗，年号按皇帝分组</li>
-          <li>已选条件以圆角框排列，可单个移除或一键清空</li>
-          <li>登录入口右置并加下拉菜单</li>
-          <li>登录注册页新增「游客访问」</li>
-          <li>全站交互界面统一为简体</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v5.0" data-date="2026-08-15">
         <summary class="cl-sum">
           <span class="cl-ver">v5.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增登录与注册页，黑白极简卡片式设计</li>
-          <li>新增服务条款与隐私政策页</li>
-          <li>全站导航加入「登录」入口</li>
-          <li>预留 Supabase 接入口</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.3.2" data-date="2026-08-15">
         <summary class="cl-sum">
           <span class="cl-ver">v4.3.2</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>精准结果横线下方新增小字标题「该年号下的所有年份」</li>
-          <li>小字标题的简繁随界面语言切换</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.3.1" data-date="2026-08-15">
         <summary class="cl-sum">
           <span class="cl-ver">v4.3.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>精准命中行去除描边，与正常行视觉一致</li>
-          <li>精准结果分隔横线加大上下间距</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.3" data-date="2026-08-15">
         <summary class="cl-sum">
           <span class="cl-ver">v4.3</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>删除「常用年号」快捷区，复核补全全部朝代年号</li>
-          <li>修正辽、西夏年号缺失与年份错误</li>
-          <li>精准查询改为横线分隔，展示年号全部年份</li>
-          <li>修复回车跳转定位与跨朝代年号归属错误</li>
-          <li>搜索后自动关闭建议浮层，滚动时补偿固定栏</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.2" data-date="2026-08-15">
         <summary class="cl-sum">
           <span class="cl-ver">v4.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-15</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>精准查询自动展示前后各 2 年临近年份</li>
-          <li>精准行与临近行做视觉区分，避免看错</li>
-          <li>日本年号命中时单元格闪烁提醒</li>
-          <li>相同年号多朝代或中日复用时高亮提醒</li>
-          <li>新增「常用年号」快捷标签 80 余个</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.1" data-date="2026-08-14">
         <summary class="cl-sum">
           <span class="cl-ver">v4.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>快速跳转页移除浮动侧边栏，改为标签网格</li>
-          <li>删除页头说明与输入框占位提示</li>
-          <li>标签卡片改为等宽等高正方形网格</li>
-          <li>新增自定义标签（名称加网址），可随时删除</li>
-          <li>自定义标签自动保存在本地</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v4.0" data-date="2026-08-14">
         <summary class="cl-sum">
           <span class="cl-ver">v4.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>「嵌入」页重做为「快速跳转」页，直接跳转目标网站</li>
-          <li>右上角新增一体化搜索栏，可输入网址直达</li>
-          <li>内置 7 个常用网站快捷入口</li>
-          <li>新增快捷网站卡片网格与跳转提示</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v3.2.1" data-date="2026-08-14">
         <summary class="cl-sum">
           <span class="cl-ver">v3.2.1</span><span class="cl-tag fix">修复</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>修复嵌入页 iframe 高度塌陷、只显示顶部一小条</li>
-          <li>嵌入内容改为绝对定位铺满，可完整显示并正常滚动</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v3.2" data-date="2026-08-14">
         <summary class="cl-sum">
           <span class="cl-ver">v3.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-14</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「嵌入」入口，可在站内打开任意网址</li>
-          <li>自动检测 X-Frame-Options 与 CSP，不允许时提示新窗口</li>
-          <li>内置 GitHub Pages、工作手册 PDF 等快捷入口</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v3.1" data-date="2026-08-13">
         <summary class="cl-sum">
           <span class="cl-ver">v3.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-13</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>2025 新版细则全文转为简体</li>
-          <li>分类表与工作手册内容区自动扩展填满</li>
-          <li>卷数计算器改为居中弹窗，并显示计算过程</li>
-          <li>修复计算器按钮遮挡「回到顶部」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v3.0" data-date="2026-08-13">
         <summary class="cl-sum">
           <span class="cl-ver">v3.0</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-13</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>「使用介绍」与「更新日志」合并为「说明文档」下拉</li>
-          <li>编目规范页改为三栏文档站布局</li>
-          <li>新增章节锚点导航与右侧「在本页」目录</li>
-          <li>三栏布局响应式，窄屏转为单列</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v2.2" data-date="2026-08-12">
         <summary class="cl-sum">
           <span class="cl-ver">v2.2</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>全站改为黑白极简风格</li>
-          <li>顶栏与筛选栏改为毛玻璃效果</li>
-          <li>新增页面进入、搜索建议、对话框等微动效</li>
-          <li>顶部新增滚动进度条，主题切换平滑过渡</li>
-          <li>表格视觉优化，可读性提升</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v2.1" data-date="2026-08-12">
         <summary class="cl-sum">
           <span class="cl-ver">v2.1</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>支持年份拼音全拼与首字母检索</li>
-          <li>支持干支拼音检索，60 组全拼缩写均可查</li>
-          <li>搜索框记录最近 10 条搜索历史</li>
-          <li>新增卷数计算器，可随时做卷册加减</li>
-          <li>新增功能在繁体模式下同样可用</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v2.0" data-date="2026-08-12">
         <summary class="cl-sum">
           <span class="cl-ver">v2.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-12</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>支持年号拼音与首字母检索，输入即有候选</li>
-          <li>候选按年号顺序聚合，并带朝代前缀</li>
-          <li>候选同步收录帝王与天皇名</li>
-          <li>新增拼音数据 1392 词条，繁简均可用</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.5" data-date="2026-08-08">
         <summary class="cl-sum">
           <span class="cl-ver">v1.5</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-08</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增「工作手册」标签页，可在线浏览 PDF 原版</li>
-          <li>工作手册 PDF 更新为最新修订版</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.4" data-date="2026-08-07">
         <summary class="cl-sum">
           <span class="cl-ver">v1.4</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>2023 旧版细则替换为完整原文（十章）</li>
-          <li>2025 新版细则替换为完整原文（八章）</li>
-          <li>两版细则大标题居中，引号统一为全角双引号</li>
-          <li>正文新增引用示例与著录格式等排版增强</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.3" data-date="2026-08-07">
         <summary class="cl-sum">
           <span class="cl-ver">v1.3</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>新增独立「使用介绍」页，说明各功能用法</li>
-          <li>顶部导航在「纪年查询」左侧新增入口</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.2" data-date="2026-08-07">
         <summary class="cl-sum">
           <span class="cl-ver">v1.2</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-07</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>搜索建议支持「年号加片段」的模糊补全</li>
-          <li>回车或点查找时自动启用模糊匹配直达结果</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.1.1" data-date="2026-08-06">
         <summary class="cl-sum">
           <span class="cl-ver">v1.1.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-06</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>进入纪年查询默认显示繁体，可随时切换简体</li>
-          <li>表头、筛选、搜索提示与复制导出内容一并随字形变化</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.1" data-date="2026-08-05">
         <summary class="cl-sum">
           <span class="cl-ver">v1.1</span><span class="cl-tag opt">调整</span><span class="cl-date">2026-08-05</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>CSV 导出可勾选导出列与范围（全部或当前页）</li>
-          <li>新增页面底部「更新日志」入口</li>
-          <li>删除首页与「跳转年份」按钮，直接进入纪年查询</li>
-          <li>标题条宽度统一，标题更名为「古代史及汉籍研究工具」</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
       <details class="cl-item" data-ver="v1.0" data-date="2026-08-01">
         <summary class="cl-sum">
           <span class="cl-ver">v1.0</span><span class="cl-tag new">新增</span><span class="cl-date">2026-08-01</span><svg class="cl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </summary>
-        <ul class="cl-points">
-          <li>中日历史纪年对照查询工具上线</li>
-          <li>支持全局检索、搜索建议与跳转高亮</li>
-          <li>支持多维筛选、排序、分页与 CSV 导出</li>
-          <li>编目规范查阅页上线（2023 / 2025 细则与四部分类表）</li>
-        </ul>
+        <ul class="cl-points"><li>维护更新：修复若干问题，调整界面与交互。</li></ul>
       </details>
   </div>
 </main>

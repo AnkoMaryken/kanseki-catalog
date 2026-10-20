@@ -53,6 +53,34 @@ function showToast(msg, type = '') {
 // 供子模块复用（ui/records.js）
 window.__kansekiToast = showToast;
 
+// ---------- V1.5：小烟花彩蛋 ----------
+function burstFireworks(anchor) {
+  try {
+    const r = anchor.getBoundingClientRect();
+    const layer = document.createElement('div');
+    layer.className = 'fw-layer';
+    layer.style.left = Math.round(r.left + r.width / 2) + 'px';
+    layer.style.top = Math.round(r.bottom + 4) + 'px';
+    const N = 22;
+    for (let i = 0; i < N; i++) {
+      const s = document.createElement('span');
+      s.className = 'fw-spark';
+      const angle = (Math.PI * 2 * i) / N + Math.random() * 0.25;
+      const dist = 28 + Math.random() * 34;
+      s.style.setProperty('--dx', Math.round(Math.cos(angle) * dist) + 'px');
+      s.style.setProperty('--dy', Math.round(Math.sin(angle) * dist + 14) + 'px');
+      s.style.animationDelay = (Math.random() * 90) + 'ms';
+      s.style.background = ['#C8F169', '#F7E86E', '#FF9E6B', '#9BE7FF'][i % 4];
+      layer.appendChild(s);
+    }
+    const glow = document.createElement('span');
+    glow.className = 'fw-glow';
+    layer.appendChild(glow);
+    document.body.appendChild(layer);
+    setTimeout(() => layer.remove(), 1200);
+  } catch (_) { /* 忽略 */ }
+}
+
 // 检测 Tauri 环境
 const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
@@ -713,7 +741,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.5.0';
 
 // V1.4：给工作台/内嵌页使用的全局能力
 try {
@@ -721,6 +749,8 @@ try {
   window.__kansekiOpenExternal = function (url) {
     const u = String(url || '').trim();
     if (!/^(https?:|mailto:)/i.test(u)) return;
+    // V1.5：所有网页跳转都要有反馈
+    try { showToast('正在打开浏览器…', 'ok'); } catch (_) { }
     if (isTauri) {
       tauriInvoke('open_external', { url: u }).catch(() => { try { window.open(u, '_blank'); } catch (_) { } });
     } else {
@@ -1322,8 +1352,10 @@ async function init() {
     applyGlobalLang(b.dataset.lang);
   });
   // V1.4：用户要求暂时禁用 GitHub 跳转（版本检测仍走内部 API，不影响）
-  $('#githubBtn')?.addEventListener('click', () => {
+  // V1.5：点击时在按钮下方触发小烟花彩蛋
+  $('#githubBtn')?.addEventListener('click', (e) => {
     showToast('开发者认为网页源站目前有些乱，所以暂时不给看o(╥﹏╥)o');
+    burstFireworks(e.currentTarget || $('#githubBtn'));
   });
   $('#themeBtn')?.addEventListener('click', toggleAppTheme);
 
@@ -1352,9 +1384,7 @@ async function init() {
   });
   // V2：日藏检索页「KD」→ 打开原站
   $('#kdbSrcBtn')?.addEventListener('click', () => {
-    const url = 'http://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=';
-    if (isTauri) tauriInvoke('open_external', { url }).catch(() => window.open(url, '_blank'));
-    else window.open(url, '_blank');
+    window.__kansekiOpenExternal?.('http://www.kanji.zinbun.kyoto-u.ac.jp/kanseki?detail=');
   });
   $('#tbDl')?.addEventListener('click', () => { location.hash = '#/downloads'; });
 
@@ -1607,12 +1637,7 @@ async function init() {
   // 侧边栏「打开网页版」→ GitHub 项目页（V9.3 按用户要求改指向仓库页，
   // 而不是直接开线上站；项目页里能看到源码、更新日志与线上站入口）
   $('#openWebBtn')?.addEventListener('click', () => {
-    const url = 'https://github.com/AnkoMaryken/kanseki-catalog';
-    if (isTauri) {
-      tauriInvoke('open_external', { url }).catch(() => { try { window.open(url, '_blank'); } catch (_) { } });
-    } else {
-      window.open(url, '_blank');
-    }
+    window.__kansekiOpenExternal?.('https://github.com/AnkoMaryken/kanseki-catalog');
   });
 
   // ---------- V9.3：右下角导出通知栏 ----------

@@ -1889,3 +1889,85 @@ table.tbl tbody tr:hover {
   font-size: 12.5px;
   color: var(--text-sec);
 }
+
+
+/* ================================================================
+   V1.5：小烟花彩蛋 + 关于页开发者烟花按钮
+   ================================================================ */
+.fw-layer {
+  position: fixed;
+  z-index: 400;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.fw-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: fwSpark .9s cubic-bezier(.15, .6, .3, 1) forwards;
+}
+
+@keyframes fwSpark {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.3); }
+}
+
+.fw-glow {
+  position: absolute;
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 241, 105, .85), rgba(200, 241, 105, 0) 70%);
+  animation: fwGlow .55s ease-out forwards;
+}
+
+@keyframes fwGlow {
+  from { opacity: .95; transform: scale(.35); }
+  to { opacity: 0; transform: scale(1.5); }
+}
+
+/* 设置 → 关于：开发者信息 + 右下角小烟花按钮 */
+.about-dev {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.about-dev b {
+  color: var(--text);
+  font-size: 13px;
+  letter-spacing: .01em;
+}
+
+.about-fw {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(200, 241, 105, .22);
+  color: #6b8a1c;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .16s, background .16s;
+}
+
+.about-fw:hover {
+  transform: scale(1.08) rotate(-8deg);
+  background: rgba(200, 241, 105, .4);
+}

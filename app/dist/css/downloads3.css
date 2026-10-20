@@ -208,6 +208,182 @@
   color: #F0C674;
 }
 
+/* ================================================================================
+   V2.1（用户第 3 条）：状态筛选 / 清空列表 / 选择新书开始 / 批量队列条目
+   ================================================================================ */
+
+/* 工具条：状态筛选（左）+ 选择新书/清空（右） */
+.dlv-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 2px;
+}
+
+.dlv-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dlv-filter {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-badge);
+  color: var(--text-sec);
+  font-family: inherit;
+  font-size: var(--fs-sub);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+
+.dlv-filter .n {
+  margin-left: 5px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dlv-filter:hover {
+  color: var(--text);
+}
+
+.dlv-filter.on {
+  background: var(--brand);
+  color: var(--surface);
+  font-weight: 600;
+}
+
+.dlv-filter.on .n {
+  color: inherit;
+  opacity: .75;
+}
+
+[data-theme="dark"] .dlv-filter.on {
+  background: #F2F3F5;
+  color: #14161A;
+}
+
+.dlv-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dlv-pickwrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.dlv-danger {
+  background: var(--danger) !important;
+  color: #fff !important;
+}
+
+/* 「选择新书开始」浮层 */
+.dlv-pickmenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 400;
+  width: min(360px, 84vw);
+  max-height: 340px;
+  overflow: auto;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.dlv-pickhead {
+  padding: 6px 10px;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.dlv-pickitem {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dlv-pickitem:hover {
+  background: var(--surface-hover);
+}
+
+.dlv-picktitle {
+  display: block;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dlv-picksub {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+/* 批量队列里还没轮到的条目 */
+.dlv-row-queued .dlv-cur {
+  color: var(--text-sec);
+}
+
+.dlv-pri {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  vertical-align: 2px;
+}
+
+.dlv-toolbar + .dlv-stats {
+  margin-top: 2px;
+}
+
+@media (max-width: 1180px) {
+  .dlv-tools {
+    margin-left: 0;
+  }
+}
+
+/* ================================================================================
+   公文书馆「显示件数」下拉修复（用户第 3 条第 2 项）
+   —— native3.css 把 .naj-wrap .kdb-statusbar 设为 overflow:hidden，
+      绝对定位的 .naj-rows-menu（从状态行向上弹出）被整块裁掉 → 看起来打不开/点不到。
+      状态行本身仍单行：各子项自己负责省略号，这里允许浮层溢出。
+   ================================================================================ */
+.naj-wrap .kdb-statusbar {
+  overflow: visible !important;
+}
+
+.naj-wrap .naj-rows-menu {
+  z-index: 320;
+}
+
+
 /* ---- 窄屏：统计两行、表格横向滚动（外壳主区最窄约 1100） ---- */
 @media (max-width: 1180px) {
   .dlv-stats {
@@ -221,4 +397,77 @@
   .dlv-cur {
     max-width: 220px;
   }
+}
+
+/* ================================================================================
+   V2.1：抽屉「下载中心」——状态筛选 / 清空已结束记录 / 批量队列优先
+   ================================================================================ */
+.dlc-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dlc-clear {
+  margin-left: auto;
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-badge);
+  color: var(--text-sec);
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.dlc-clear:hover {
+  color: var(--text);
+}
+
+.dlc-clear.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.dlc-clear:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.dlc-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 2px 0 8px;
+}
+
+.dlc-filter {
+  height: 24px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-badge);
+  color: var(--text-sec);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dlc-filter i {
+  margin-left: 4px;
+  font-style: normal;
+  font-size: 10px;
+  opacity: .7;
+}
+
+.dlc-filter.on {
+  background: var(--brand);
+  color: var(--surface);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .dlc-filter.on {
+  background: #F2F3F5;
+  color: #14161A;
 }

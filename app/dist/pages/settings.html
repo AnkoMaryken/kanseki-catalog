@@ -49,6 +49,12 @@ html.embed-settings .sf-name { display: none !important; }
 html.embed-settings .set-rail { padding-top: 10px; }
 html.embed-settings .set-main { padding-top: 10px; }
 html.embed-settings .set-home { display: none !important; }
+.about-dev { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12.5px; color: var(--c-text-muted, #8f959e); }
+.about-dev b { color: var(--c-text, #171a1f); font-size: 13px; }
+.about-fw { position: absolute; right: 18px; bottom: 16px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgba(200,241,105,.25); font-size: 15px; line-height: 1; cursor: pointer; transition: transform .16s, background .16s; }
+.about-fw:hover { transform: scale(1.1) rotate(-8deg); background: rgba(200,241,105,.45); }
+#pane-about { position: relative; }
+@keyframes aboutFw { 0% { opacity: 1; transform: translate(0,0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.3); } }
 </style>
 <style>
   html,body{height:100%;margin:0}
@@ -377,6 +383,9 @@ html.embed-settings .set-home { display: none !important; }
         <div><span>应用版本</span><b id="aboutVer2">—</b></div>
         <div><span>AI 服务商</span><b id="aboutProvider">—</b></div>
       </div>
+      <div class="about-dev">
+        <span>开发者</span><b>Ankoleopas</b><span>· 烟台大学</span>
+      </div>
       <div class="set-row" style="margin-top:.9rem">
         <button class="set-btn" id="aboutGithub" type="button">打开 GitHub</button>
         <button class="set-btn" id="aboutWeb" type="button">打开网页版</button>
@@ -386,6 +395,7 @@ html.embed-settings .set-home { display: none !important; }
         目录元数据来源：国立公文書館デジタルアーカイブ（CC0）、全國漢籍データベース、
         《中國古籍總目》。本工具仅做本地整理与检索，索引数据不上传服务器。
       </p>
+      <button class="about-fw" id="aboutFirework" type="button" title="点一下试试">🎆</button>
     </section>
   </main>
 </div>
@@ -854,11 +864,39 @@ if (IS_TAURI) (async function initSync() {
     else done();
   });
 
+  // V1.5：外链点击给出反馈
+  function notifyParent(msg) {
+    try {
+      if (window.parent && window.parent !== window && typeof window.parent.__kansekiToast === 'function') { window.parent.__kansekiToast(msg); return; }
+    } catch (e) { }
+    try { alert(msg); } catch (e) { }
+  }
   var gh = document.getElementById("aboutGithub");
   if (gh) gh.addEventListener("click", function () {
     var url = "https://github.com/AnkoMaryken/kanseki-catalog";
+    notifyParent('正在打开浏览器…');
     if (window.__TAURI_INTERNALS__) window.__TAURI_INTERNALS__.invoke("open_external", { url: url });
     else window.open(url, "_blank");
+  });
+
+  // 开发者彩蛋：右下角小烟花
+  var fw = document.getElementById('aboutFirework');
+  if (fw) fw.addEventListener('click', function () {
+    notifyParent('作者只是烟台大学的一个学生而已……');
+    try {
+      var r = fw.getBoundingClientRect();
+      var layer = document.createElement('div');
+      layer.style.cssText = 'position:fixed;z-index:400;width:0;height:0;pointer-events:none;left:' + Math.round(r.left + r.width / 2) + 'px;top:' + Math.round(r.top + 2) + 'px';
+      for (var i = 0; i < 20; i++) {
+        var s = document.createElement('span');
+        var ang = Math.PI * 2 * i / 20 + Math.random() * .3;
+        var dist = 26 + Math.random() * 30;
+        s.style.cssText = 'position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;opacity:0;background:' + ['#C8F169', '#F7E86E', '#FF9E6B', '#9BE7FF'][i % 4] + ';animation:aboutFw .9s cubic-bezier(.15,.6,.3,1) forwards;--dx:' + Math.round(Math.cos(ang) * dist) + 'px;--dy:' + Math.round(Math.sin(ang) * dist) + 'px;animation-delay:' + (Math.random() * 90) + 'ms';
+        layer.appendChild(s);
+      }
+      document.body.appendChild(layer);
+      setTimeout(function () { layer.remove(); }, 1200);
+    } catch (e) { }
   });
   var web = document.getElementById("aboutWeb");
   if (web) web.addEventListener("click", function () {

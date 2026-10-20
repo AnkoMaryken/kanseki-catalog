@@ -663,13 +663,13 @@
             <img src="assets/logo.png" width="72" height="72" alt="古代史及汉籍研究工具 图标">
           </div>
           <h3>古代史及汉籍研究工具</h3>
-          <p class="av-ver">版本 1.4.0（V5 路线图）</p>
+          <p class="av-ver">版本 1.5.0（V5 路线图）</p>
           <p class="av-desc">将「古代史及汉籍研究工具」静态站封装为 Windows 桌面应用，并提供编目记录、日本藏本检索（全國漢籍データベース）、国立公文书馆数字档案检索与坚果云同步能力。</p>
           <div class="av-actions av-actions-center">
             <button class="av-btn" id="openGuideBtn" type="button">使用介绍</button>
             <button class="av-btn" id="openChangelogBtn" type="button">更新日志</button>
           </div>
-          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.4.0</b></div>
+          <div class="av-kv av-kv-plain"><span>程序版本</span><b id="aboutAppVer">1.5.0</b></div>
           <div class="av-kv av-kv-plain"><span>运行环境</span><b id="aboutEnv">浏览器调试</b></div>
           <div class="av-kv av-kv-plain"><span>窗口尺寸</span><b id="aboutWinSize">—</b></div>
         </div>
@@ -749,6 +749,8 @@
   window.__kansekiSourceUrls = { kd: KD_URL, da: DA_URL };
 
   function openExternal(url) {
+    // V1.5：统一走外壳钩子（带「正在打开浏览器」提示）
+    if (typeof window.__kansekiOpenExternal === 'function') { window.__kansekiOpenExternal(url); return; }
     try {
       var inv = window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke;
       if (inv) {

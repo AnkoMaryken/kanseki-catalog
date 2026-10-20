@@ -4655,11 +4655,11 @@ function setV3YearMode(on) {
   }
 }
 
-// V1.4：具体年份表「年号（公历年份）」复制按钮；括号用全角（）
+// V1.5：具体年份表「年号（公历年）」复制按钮；括号用全角（），括号内公历年份不带「年」字
 function v3EraCopyBtn(areaRow, row) {
   const era = areaRow && areaRow.era ? String(areaRow.era) : '';
   if (!era || era === '—' || era === toDisplay('无年号') || era === '无年号') return '';
-  const copy = era + '（' + toDisplay(String(row.yearStr)) + toDisplay('年') + '）';
+  const copy = era + '（' + toDisplay(String(row.yearStr)) + '）';
   return '<button class="v3-era-copy era-copy-btn" type="button" data-copy="' + escapeHtml(copy) +
     '" title="' + escapeHtml(toDisplay('复制') + ' ' + copy) + '" aria-label="' + escapeHtml(toDisplay('复制年号与年份')) + '">' +
     '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">' +

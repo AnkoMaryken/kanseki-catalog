@@ -15,8 +15,9 @@
 // ================================================
 import {
   RUN, invoke, taskDir, pauseRun, resumeRun, cancelRun, decide, dlAvailable, esc, toast, onEngine, listRunTasks,
-  pauseRecord, resumeRecord, cancelQueuedResume,
+  pauseRecord, resumeRecord, cancelQueuedResume, clearFinishedRunTasks,
 } from './naj-dl.js';
+import { prioritizeBatchItem } from './naj-dl-batch.js';
 
 const el = (id) => document.getElementById(id);
 let pollTimer = null;
@@ -195,7 +196,10 @@ function ensureDrawer() {
         <div id="dlcQueue" class="dlc-queue"></div>
       </div>
       <div class="dlc-sec" id="dlcTasksSec" hidden>
-        <div class="dlc-sec-title">下载记录</div>
+        <div class="dlc-sec-title">下载记录
+          <button class="dlc-clear" type="button" id="dlcClearTasks" title="只清空已结束的记录，不影响正在下载的任务">清空列表</button>
+        </div>
+        <div class="dlc-filters" id="dlcFilters"></div>
         <div id="dlcTasks" class="dlc-tasks"></div>
       </div>
       <div class="dlc-sec" id="dlcDecideSec" hidden>
@@ -257,6 +261,21 @@ function ensureDrawer() {
     if (openDir) {
       const p = openDir.getAttribute('data-dlc-task-dir');
       if (p) invoke('reveal_path', { path: p }).catch(() => { });
+      return;
+    }
+    // V2.1：状态筛选 / 清空已结束记录 / 批量队列「优先」
+    const filterB = e.target.closest('[data-dlc-filter]');
+    if (filterB) { taskFilter = filterB.getAttribute('data-dlc-filter') || 'all'; renderDrawer(); return; }
+    if (e.target.closest('#dlcClearTasks')) { clearTasksFromDrawer(); return; }
+    const priB = e.target.closest('[data-dlc-task-priority]');
+    if (priB) {
+      const key = priB.getAttribute('data-dlc-task-priority');
+      const it = ((RUN.batch && RUN.batch.items) || []).find((x) => String(x.no || x.id) === key);
+      if (it) {
+        const r = prioritizeBatchItem(it);
+        toast(r === 'queued' ? `已设为下一本优先下载：${it.title || it.input}` : '这一本暂不可优先', r === 'queued' ? 'ok' : 'warn');
+        renderDrawer();
+      }
     }
   });
 }
@@ -427,24 +446,87 @@ function renderDecide() {
 }
 
 /** V10.5 下载记录：单本与批量每一本都在这里，带状态与逐册进度；
- *  V2.0：每本可单独暂停/继续（暂停一本不影响其它书），并给出百分比与失败原因 */
+ *  V2.0：每本可单独暂停/继续（暂停一本不影响其它书），并给出百分比与失败原因；
+ *  V2.1：展示**所有队列条目**（含批量还没轮到的书），支持状态筛选与清空已结束记录 */
+let taskFilter = 'all';
+let clearArmed = false;
+let clearTimer = null;
+const TASK_FILTERS = [['all', '全部'], ['running', '下载中'], ['queued', '队列中'], ['paused', '已暂停'], ['done', '已完成'], ['failed', '失败'], ['cancelled', '取消']];
+const ITEM_STATUS = {
+  pending: 'queued', ready: 'queued', resolving: 'queued', choose: 'queued',
+  downloading: 'running', paused: 'paused', done: 'done', failed: 'failed', skipped: 'cancelled',
+};
+
+function taskRows() {
+  const recs = listRunTasks() || [];
+  const rows = recs.map((t) => ({ type: 'rec', t, status: t.status, title: t.title || '（未命名）' }));
+  const batch = RUN.batch;
+  if (batch && Array.isArray(batch.items)) {
+    const linked = new Set();
+    for (const t of recs) for (const it of batch.items) if (it.rec === t) linked.add(it);
+    for (const it of batch.items) {
+      if (linked.has(it)) continue;
+      rows.push({ type: 'item', item: it, status: ITEM_STATUS[it.status] || 'queued', title: it.title || it.input || '（待核对）' });
+    }
+  }
+  return rows;
+}
+
+function clearTasksFromDrawer() {
+  if (!clearArmed) {
+    clearArmed = true;
+    toast('再点一次「清空列表」确认：只清已结束的记录，正在下载的不受影响', 'warn');
+    renderDrawer();
+    clearTimeout(clearTimer);
+    clearTimer = setTimeout(() => { clearArmed = false; try { renderDrawer(); } catch (_) { } }, 4000);
+    return;
+  }
+  clearArmed = false;
+  clearTimeout(clearTimer);
+  const n = clearFinishedRunTasks();
+  toast(n ? `已清空 ${n} 条已结束记录` : '没有可清空的已结束记录', n ? 'ok' : 'warn');
+  renderDrawer();
+}
+
 function renderTasks() {
   const sec = el('dlcTasksSec');
   const box = el('dlcTasks');
+  const filters = el('dlcFilters');
+  const clearBtn = el('dlcClearTasks');
   if (!sec || !box) return;
-  const list = listRunTasks() || [];
-  if (!list.length) { sec.hidden = true; box.innerHTML = ''; return; }
+  const rows = taskRows();
+  if (!rows.length) { sec.hidden = true; box.innerHTML = ''; if (filters) filters.innerHTML = ''; return; }
   sec.hidden = false;
+  if (filters) {
+    filters.innerHTML = TASK_FILTERS.map(([key, label]) => {
+      const n = key === 'all' ? rows.length : rows.filter((r) => r.status === key).length;
+      return `<button type="button" class="dlc-filter${taskFilter === key ? ' on' : ''}" data-dlc-filter="${key}">${label}<i>${n}</i></button>`;
+    }).join('');
+  }
+  if (clearBtn) {
+    clearBtn.textContent = clearArmed ? '再点一次确认' : '清空列表';
+    clearBtn.classList.toggle('danger', clearArmed);
+    clearBtn.disabled = RUN.running && rows.every((r) => r.status !== 'done' && r.status !== 'failed' && r.status !== 'cancelled');
+  }
   const label = {
-    running: ['下载中', 'dl-b-run'],
-    queued: ['队列中', 'dl-b-idle'],
-    paused: ['已暂停', 'dl-b-warn'],
-    done: ['完成', 'dl-b-ok'],
-    failed: ['失败', 'dl-b-err'],
-    cancelled: ['已取消', 'dl-b-warn'],
+    running: ['下载中', 'dl-b-run'], queued: ['队列中', 'dl-b-idle'], paused: ['已暂停', 'dl-b-warn'],
+    done: ['完成', 'dl-b-ok'], failed: ['失败', 'dl-b-err'], cancelled: ['已取消', 'dl-b-warn'],
   };
-  box.innerHTML = list.slice(0, 12).map((t, i) => {
-    const [tx, cls] = label[t.status] || ['—', 'dl-b-idle'];
+  const list = (taskFilter === 'all' ? rows : rows.filter((r) => r.status === taskFilter)).slice(0, 20);
+  box.innerHTML = list.map((row, i) => {
+    const [tx, cls] = label[row.status] || ['—', 'dl-b-idle'];
+    const no = String(rows.length - i).padStart(2, '0');
+    if (row.type === 'item') {
+      const it = row.item;
+      return `<div class="dlc-task-row">
+        <span class="dlc-t-idx">${no}</span>
+        <span class="dl-badge ${cls}">${esc(tx)}</span>
+        <span class="dlc-t-title" title="${esc(row.title)}">${esc(row.title)}</span>
+        <span class="dlc-t-meta">批量队列 · 还没轮到</span>
+        <button class="dlc-t-open" type="button" data-dlc-task-priority="${esc(String(it.no || it.id))}" title="设为下一本优先下载">优先</button>
+      </div>`;
+    }
+    const t = row.t;
     const kind = t.kind === 'single' ? '单本' : '批量';
     const pct = t.total ? Math.min(100, Math.round(((t.done || 0) / t.total) * 100)) : (t.status === 'done' ? 100 : 0);
     const prog = t.total ? `${pct}% · ${t.done || 0}/${t.total} 册 · ${t.pages || 0} 页` : '';
@@ -457,7 +539,7 @@ function renderTasks() {
     if (t.status === 'queued') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-cancelqueue="${t.id}" title="取消排队（保持暂停）">取消排队</button>`);
     if (t.status === 'failed' || t.status === 'cancelled') acts.push(`<button class="dlc-t-open" type="button" data-dlc-task-resume="${t.id}" title="续传未完成册">重试</button>`);
     return `<div class="dlc-task-row">
-      <span class="dlc-t-idx">${String(list.length - i).padStart(2, '0')}</span>
+      <span class="dlc-t-idx">${no}</span>
       <span class="dl-badge ${cls}">${esc(tx)}</span>
       <span class="dlc-t-title" title="${esc(t.title)}">${esc(t.title)}</span>
       <span class="dlc-t-meta">${kind}${prog ? ' · ' + prog : ''} · ${hm}</span>
@@ -465,7 +547,7 @@ function renderTasks() {
       ${acts.join('')}
       <button class="dlc-t-open" type="button" data-dlc-task-dir="${esc(t.dir || '')}" title="打开这本书的下载文件夹">↗</button>
     </div>`;
-  }).join('');
+  }).join('') || '<div class="dlc-empty">当前筛选下没有任务。</div>';
 }
 
 function renderDrawer() {

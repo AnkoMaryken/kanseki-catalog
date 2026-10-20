@@ -291,6 +291,94 @@ async function runRecord(rec) {
   return true;
 }
 
+// ---------------------------------------------------------------- V2.1 清空记录 / 批量中插入单本
+// 用户第 3 条：
+//   · 下载中心支持「清空下载列表」——只清已结束的记录，正在下载/排队/暂停的不动；
+//   · 批量下载进行中插入单本下载——加入同一队列（下载中心可见），当前这本跑完后执行。
+const INSERT_QUEUE = [];
+let drainingInserted = false;
+
+/** 清空已结束的下载记录（running/queued/paused 保留），返回清掉条数 */
+export function clearFinishedRunTasks() {
+  const keep = new Set(['running', 'queued', 'paused']);
+  const before = RUN.tasks.length;
+  const kept = RUN.tasks.filter((t) => keep.has(t.status));
+  RUN.tasks.length = 0;
+  for (const r of kept) RUN.tasks.push(r);
+  emit('progress', { cleared: before - kept.length });
+  return before - kept.length;
+}
+
+/** 下载中心：把一本单本下载任务插入当前队列（批量进行中调用；状态先显示「队列中」） */
+export function insertSingleTask(task) {
+  if (!task) return null;
+  const rec = regTask('single', task);
+  rec.status = 'queued';
+  rec.error = '';
+  INSERT_QUEUE.push(rec);
+  emit('progress', { task, rec });
+  return rec;
+}
+
+export function insertedQueueLength() { return INSERT_QUEUE.length; }
+
+/** 下载中心：取消一条「插入的单本」（回到已暂停，不执行） */
+export function removeInsertedTask(rec) {
+  const i = INSERT_QUEUE.indexOf(rec);
+  if (i >= 0) INSERT_QUEUE.splice(i, 1);
+  if (rec && rec.status === 'queued') rec.status = 'paused';
+  emit('progress', { rec });
+  return i >= 0;
+}
+
+/** 执行一条插入的单本任务（不改 RUN.running：批量循环仍持有引擎） */
+async function runInsertedRecord(rec) {
+  const task = rec.task;
+  if (!task) return;
+  task._paused = false;
+  RUN.current = { book: task.book, task, dir: taskDir(task), startedAt: Date.now() };
+  RUN.currentRec = rec;
+  rec.status = 'running';
+  rec.error = '';
+  rec.endedAt = 0;
+  if (!rec.startedAt) rec.startedAt = Date.now();
+  emit('bookStart', { book: task.book, task });
+  emit('progress', { task, rec });
+  try {
+    const res = await executeTask(task);
+    if (res && res.paused) {
+      rec.status = 'paused';
+    } else {
+      rec.status = res && res.ok ? 'done' : 'failed';
+      rec.error = res && res.ok ? '' : ((((res.audit || {}).problems) || []).slice(0, 3).join('；') || '下载未完成');
+    }
+  } catch (e) {
+    rec.status = 'failed';
+    rec.error = String((e && e.message) || e);
+  }
+  RUN.current = null; RUN.currentRec = null;
+  emit('bookEnd', {
+    book: task.book, task, dir: taskDir(task),
+    ok: rec.status === 'done', paused: rec.status === 'paused', error: rec.error, rec,
+  });
+  emit('progress', { task, rec });
+}
+
+/** 批量循环在每本书之间调用：把插入的单本依次跑完（幂等并发保护） */
+export async function drainInsertedQueue() {
+  if (drainingInserted) return;
+  drainingInserted = true;
+  try {
+    while (INSERT_QUEUE.length && !RUN.cancelled) {
+      const rec = INSERT_QUEUE.shift();
+      if (!rec || !rec.task) continue;
+      await runInsertedRecord(rec);
+    }
+  } finally {
+    drainingInserted = false;
+  }
+}
+
 async function fetchText(url) {
   const resp = await invoke('naj_fetch', { url, timeoutSecs: 60 });
   if (!resp || resp.status >= 400) throw new Error(`原站返回 HTTP ${resp ? resp.status : '?'}`);
@@ -860,7 +948,7 @@ export async function openBookDownload(record) {
   el('najDlRun').hidden = true;
   el('najDlStart').hidden = false;
   el('najDlStart').disabled = true;
-  el('najDlStart').textContent = '开始下载';
+  el('najDlStart').textContent = RUN.running ? '加入下载队列（当前有任务在下载）' : '开始下载';
   el('najDlResume').hidden = true;
   el('najDlRetry').hidden = true;
   el('najDlReveal').hidden = true;
@@ -1017,7 +1105,20 @@ function buildTaskFromPlan(overrides = {}) {
 }
 
 async function onStart() {
-  if (RUN.running) { toast('已有下载任务在进行，请在「下载中心」查看', 'warn'); return; }
+  // V2.1（用户第 3 条）：批量下载进行中，单本下载请求**插入同一队列**，不打断批量；
+  // 下载中心里会以「队列中 → 下载中」的状态出现，当前这本跑完后执行。
+  if (RUN.running) {
+    S.kind = el('najDlKind').value === '__iiif' ? 'iiif-only' : el('najDlKind').value;
+    S.makeZip = !!el('najDlZip').checked;
+    saveTemplates(currentTemplates());
+    rememberOutDir(el('najDlOut').value.replace(/[\\/]+$/, ''));
+    const task = buildTaskFromPlan();
+    if (!task.options.outDir) { toast('请先选择下载位置', 'err'); return; }
+    insertSingleTask(task);
+    toast('已插入下载队列：当前任务结束后开始这一本，可在「下载中心」查看', 'ok');
+    closeOverlay();
+    return;
+  }
   S.kind = el('najDlKind').value === '__iiif' ? 'iiif-only' : el('najDlKind').value;
   S.makeZip = !!el('najDlZip').checked;
   saveTemplates(currentTemplates());   // 三套命名模板都记住，下次沿用

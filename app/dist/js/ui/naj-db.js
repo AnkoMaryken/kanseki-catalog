@@ -54,6 +54,7 @@ async function najFetch(url, timeoutSecs) {
 
 /** 打开原网页（桌面版交给系统浏览器，避免在应用内框住整个站点） */
 export async function openExternal(url) {
+  if (typeof window.__kansekiOpenExternal === 'function') { window.__kansekiOpenExternal(url); return; }
   if (isTauri) {
     try {
       await tauriInvoke('open_external', { url });

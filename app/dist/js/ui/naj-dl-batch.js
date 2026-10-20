@@ -13,7 +13,7 @@
 import {
   RUN, invoke, esc, toast, onEngine, runBook, resolveBookPlan, taskDir, saveTask,
   pickFolder, defaultOutRoot, lastOutDir, rememberOutDir, dlAvailable,
-  effectiveTemplates, saveTemplates, pumpResumeQueue,
+  effectiveTemplates, saveTemplates, pumpResumeQueue, drainInsertedQueue,
 } from './naj-dl.js';
 import { buildSearchUrl, parseSearchPage } from '../core/naj-parse.js';
 import {
@@ -93,12 +93,14 @@ function ensurePanel() {
             <label class="dl-field"><span>批量输入（每行一条：# 开头为注释）</span>
               <textarea id="dlbInput" class="dlb-textarea" spellcheck="false"
                 placeholder="591091&#10;https://www.digital.archives.go.jp/file/1081945&#10;別０３８－０００１-0002"></textarea></label>
+            <div class="dlb-run-hint" id="dlbRunHint" hidden></div>
             <div class="dlb-list-head">
               <b>书目清单</b>
               <span id="dlbCount" class="dl-dim"></span>
               <span class="dlb-list-act">
                 <button class="av-btn" type="button" id="dlbCheckAll">全选</button>
                 <button class="av-btn" type="button" id="dlbCheckNone">全不选</button>
+                <button class="av-btn" type="button" id="dlbClear">清空清单</button>
               </span>
             </div>
             <div class="dlb-list" id="dlbList">
@@ -161,6 +163,7 @@ function ensurePanel() {
   el('dlbStart').addEventListener('click', () => startBatch());
   el('dlbCheckAll').addEventListener('click', () => { toggleAll(true); });
   el('dlbCheckNone').addEventListener('click', () => { toggleAll(false); });
+  el('dlbClear').addEventListener('click', () => clearBatchList());
   el('dlbList').addEventListener('change', (e) => {
     const cb = e.target.closest('input[data-dlb-check]');
     if (cb && B.batch) {
@@ -284,6 +287,7 @@ export async function openBatchPanel() {
   if (!dlAvailable()) { toast('批量下载仅在 Windows 桌面版可用', 'err'); return; }
   ensurePanel();
   fillPresets();
+  if (!B.batch && RUN.batch) B.batch = RUN.batch;    // 引擎里已有队列时直接接管显示
   B.open = true;
   el('dlbOverlay').hidden = false;
   el('dlbOut').value = lastOutDir() || await defaultOutRoot();
@@ -295,8 +299,9 @@ export async function openBatchPanel() {
   }
   if (B.batch) renderList();
   renderTplPreview();
-  // 有历史队列时给「恢复」入口
-  try {
+  renderBatchRunState();
+  // 有历史队列时给「恢复」入口（正在下载时不需要：队列就在内存里）
+  if (!RUN.running) try {
     const dir = (el('dlbOut').value || '').replace(/[\\/]+$/, '');
     const txt = dir ? await invoke('naj_dl_read_text', { path: `${dir}/_批量队列.json` }) : null;
     if (txt) {
@@ -306,7 +311,7 @@ export async function openBatchPanel() {
         const btn = el('dlbRestore');
         btn.hidden = false;
         btn.textContent = `恢复上次队列（剩 ${rest} 本）`;
-        btn.onclick = () => { B.batch = old; renderList(); toast('已恢复上次队列，可继续下载', 'ok'); };
+        btn.onclick = () => { B.batch = old; renderList(); renderBatchRunState(); toast('已恢复上次队列，可继续下载', 'ok'); };
       }
     }
   } catch (_) { /* 无历史即忽略 */ }
@@ -354,16 +359,27 @@ async function readAll() {
   if (!opts.outDir) { toast('请先选择下载位置', 'err'); return; }
   const mode = el('dlbMode').value;
 
-  B.batch = newBatch();
-  B.batch.outDir = opts.outDir;
-  B.batch.options = opts;
-  B.batch.items = lines.map((l, i) => ({
-    no: i + 1, input: l.raw, mode: mode === 'auto' ? l.mode : mode, id: l.id, title: '',
+  // V2.1（用户第 3 条）：下载进行中/已有清单时，再次读取 = **追加到队尾**，不打断当前下载；
+  // 想从头开始可先点「清空清单」。追加的条目会实时出现在清单与下载中心里。
+  const appending = !!(B.batch && B.batch.items.length);
+  if (!appending) {
+    B.batch = newBatch();
+    B.batch.outDir = opts.outDir;
+    B.batch.options = opts;
+  } else if (!RUN.running) {
+    // 没在下载时可以更新输出位置/参数；下载中不改（已开始的任务沿用原参数）
+    B.batch.outDir = opts.outDir;
+    B.batch.options = opts;
+  }
+  const base = B.batch.items.length;
+  const added = lines.map((l, i) => ({
+    no: base + i + 1, input: l.raw, mode: mode === 'auto' ? l.mode : mode, id: l.id, title: '',
     levels: 0, volumes: 0, status: 'pending', error: '', checked: true,
   }));
+  B.batch.items.push(...added);
   renderList();
 
-  for (const it of B.batch.items) {
+  for (const it of added) {
     it.status = 'resolving';
     renderList();
     try {
@@ -375,7 +391,30 @@ async function readAll() {
     renderList();
     await sleep(120);
   }
-  toast('书目信息已读取，请核对后开始下载', 'ok');
+  toast(appending
+    ? `已追加 ${added.length} 条到队列（共 ${B.batch.items.length} 条），当前下载不受影响`
+    : '书目信息已读取，请核对后开始下载', 'ok');
+}
+
+/** 清空清单（下载进行中不允许，避免把正在跑的队列拆掉） */
+function clearBatchList() {
+  if (RUN.running) { toast('下载进行中：不能清空清单（可先暂停/取消，或等本批结束）', 'warn'); return; }
+  B.batch = null;
+  renderList();
+  toast('清单已清空', 'ok');
+}
+
+/** 面板里提示「下载进行中，可继续追加」 */
+function renderBatchRunState() {
+  const hint = el('dlbRunHint');
+  const startBtn = el('dlbStart');
+  const running = !!RUN.running;
+  if (hint) {
+    hint.hidden = !running;
+    hint.textContent = running ? '下载进行中：再次「读取书目信息」会把新书目追加到队尾，不打断当前下载。' : '';
+  }
+  if (startBtn) startBtn.textContent = running ? '追加到队列' : '加入队列并开始';
+  if (el('dlbClear')) el('dlbClear').disabled = running;
 }
 
 /** 解析一条（索书号或 ID）→ 书名、册数；索书号命中多条时给出候选供选择 */
@@ -444,6 +483,7 @@ function renderList() {
     ready: ['已核对', 'dl-b-idle'],
     choose: ['待选候选', 'dl-b-warn'],
     downloading: ['下载中', 'dl-b-run'],
+    paused: ['已暂停', 'dl-b-warn'],
     done: ['完成', 'dl-b-ok'],
     skipped: ['已略过', 'dl-b-warn'],
     failed: ['失败', 'dl-b-err'],
@@ -451,6 +491,7 @@ function renderList() {
   box.innerHTML = B.batch.items.map((it, i) => {
     const [tx, cls] = map[it.status] || ['—', 'dl-b-idle'];
     const on = i === B.batch.cursor;
+    const pri = it.priority ? '<span class="dlb-pri" title="已设为下一本优先下载">优先</span>' : '';
     const titleCell = (it.candidates && it.candidates.length)
       ? `<select class="dlb-cand" data-dlb-cand="${i}" title="该索书号命中多条，请选择正确的一条">
            ${it.candidates.map((c, j) => `<option value="${j}" ${j === (it.candIdx || 0) ? 'selected' : ''}>${esc((c.code ? c.code + ' ' : '') + (c.title || c.id))}</option>`).join('')}
@@ -459,7 +500,7 @@ function renderList() {
     return `<div class="dlb-item ${on ? 'on' : ''}">
       <label class="dlb-check"><input type="checkbox" data-dlb-check="${i}" ${it.checked ? 'checked' : ''}></label>
       <span class="dlb-no">${String(i + 1).padStart(2, '0')}</span>
-      ${titleCell}
+      ${pri}${titleCell}
       <span class="dlb-vols dl-dim">${it.volumes ? `${it.volumes} 册` : ''}</span>
       <span class="dlb-input dl-dim" title="${esc(it.input)}">${esc(it.input)}</span>
       <span class="dl-badge ${cls}">${esc(tx)}</span>
@@ -468,7 +509,9 @@ function renderList() {
   }).join('');
   const ready = B.batch.items.filter((i) => i.status === 'ready').length;
   const done = B.batch.items.filter((i) => i.status === 'done').length;
-  el('dlbCount').textContent = `共 ${B.batch.items.length} 条 · 已核对 ${ready} · 完成 ${done}`;
+  const paused = B.batch.items.filter((i) => i.status === 'paused').length;
+  const left = B.batch.items.filter((i) => i.checked && !['done', 'skipped'].includes(i.status)).length;
+  el('dlbCount').textContent = `共 ${B.batch.items.length} 条 · 已核对 ${ready} · 待下载 ${left} · 完成 ${done}${paused ? ` · 暂停 ${paused}` : ''}`;
 }
 
 // ---------------------------------------------------------------- 队列执行
@@ -509,10 +552,75 @@ async function waitWhilePausedOrCancelled() {
   return !RUN.cancelled;
 }
 
-async function startBatch() {
+// ---------------------------------------------------------------- 队列调度（动态追加 / 优先 / 插入单本）
+const BATCH_TERMINAL = new Set(['done', 'skipped']);
+
+/** 这一条现在能不能开始下载（下载中追加的条目要等它读完书目信息） */
+function selectableItem(it) {
+  if (!it || !it.checked) return false;
+  if (BATCH_TERMINAL.has(it.status) || it.status === 'paused') return false;
+  if (it.status === 'resolving') return false;
+  if (it.status === 'pending' && !it.id) return false;
+  return true;
+}
+
+/** 取下一条要下载的书：优先队列 → 清单顺序；下载中新追加的条目也会被动态扫到 */
+function nextBatchItem(processed) {
+  const batch = B.batch;
+  if (!batch) return null;
+  if (Array.isArray(batch.priority) && batch.priority.length) {
+    while (batch.priority.length) {
+      const cand = batch.priority.shift();
+      if (!cand) continue;
+      cand.priority = false;
+      if (processed.has(cand)) continue;
+      if (!selectableItem(cand)) continue;
+      return cand;
+    }
+  }
+  for (const it of batch.items) {
+    if (processed.has(it)) continue;
+    if (!selectableItem(it)) continue;
+    return it;
+  }
+  return null;
+}
+
+/** 下载中心：把某一本设为「下一本优先下载」（批量进行中可用） */
+export function prioritizeBatchItem(item) {
+  const batch = B.batch || RUN.batch;      // 兼容：面板未打开时 RUN.batch 就是当前队列
+  if (!item || !batch) return false;
+  if (item.status === 'paused') return 'paused';      // 暂停的书交给引擎恢复队列（放回队尾）
+  if (!selectableItem(item)) return false;
+  batch.priority = Array.isArray(batch.priority) ? batch.priority : [];
+  if (!batch.priority.includes(item)) batch.priority.push(item);
+  item.priority = true;
+  renderList();
+  return 'queued';
+}
+
+/** 从下载中心启动队列（引擎空闲时） */
+export function startBatchIfIdle() {
+  if (RUN.running) return false;
+  if (!B.batch && RUN.batch) B.batch = RUN.batch;
+  startBatch(true);
+  return true;
+}
+
+async function startBatch(fromView) {
   if (!B.batch || !B.batch.items.length) { toast('请先「读取书目信息」', 'err'); return; }
-  if (RUN.running) { toast('已有任务在跑，请在「下载中心」查看', 'warn'); return; }
-  const opts = currentOptions();
+  if (RUN.running) {
+    // V2.1：下载进行中再次点「加入队列」= 只是追加（清单已实时追加，不重置队列）
+    if (RUN.batch === B.batch) {
+      toast('已追加到队列：当前下载不受影响，新条目会依次下载', 'ok');
+      closePanel();
+    } else {
+      toast('已有其它下载任务在进行，请先在「下载中心」查看/暂停', 'warn');
+    }
+    return;
+  }
+  // 从下载中心「开始队列」进入时沿用队列已保存的参数；从面板进入时以面板当前值为准
+  const opts = (fromView && B.batch.options && B.batch.outDir) ? B.batch.options : currentOptions();
   if (!opts.outDir) { toast('请先选择下载位置', 'err'); return; }
   B.batch.options = opts;
   B.batch.outDir = opts.outDir;
@@ -535,12 +643,17 @@ async function startBatch() {
   let skippedCount = 0;
   let pausedCount = 0;
 
-  for (let i = 0; i < B.batch.items.length; i++) {
-    const it = B.batch.items[i];
-    if (!it.checked || it.status === 'done' || it.status === 'skipped' || it.status === 'paused') continue;
+  // V2.1：动态队列（下载中可多次追加 / 设为优先 / 插入单本），不再用固定 for 下标
+  const processed = new Set();
+  while (!RUN.cancelled) {
     if (!(await waitWhilePausedOrCancelled())) break;
-
-    B.batch.cursor = i;
+    // 第 7 条：穿插执行「批量中插入的单本下载」（进度同样进下载中心）
+    try { await drainInsertedQueue(); } catch (_) { /* 单本插入失败不影响批量 */ }
+    if (RUN.cancelled) break;
+    const it = nextBatchItem(processed);
+    if (!it) break;
+    processed.add(it);
+    B.batch.cursor = B.batch.items.indexOf(it);
     renderList();
     await saveBatch(B.batch);
 
@@ -627,24 +740,29 @@ async function startBatch() {
     await sleep(Math.max(0, Number(opts.delayMs) || 0));
   }
 
+  // 队列跑完（或取消）后，若还有「插入的单本」没跑，接着跑完（取消时 drain 内部会立刻退出）
+  try { await drainInsertedQueue(); } catch (_) { /* 忽略 */ }
+
   RUN.running = false;
   RUN.batch = B.batch;
   B.batch.cursor = -1;
   renderList();
   await saveBatch(B.batch);
   const pausedLeft = B.batch.items.filter((i) => i.status === 'paused').length;
+  const skippedTotal = B.batch.items.filter((i) => i.status === 'skipped').length;
+  const failedTotal = B.batch.items.filter((i) => i.status === 'failed').length;
   // 全部成功：清掉队列文件，输出目录里只留各书的 PDF/压缩包（用户要求「只留 PDF」）
   const allOk = B.batch.items.every((i) => i.status === 'done' || i.status === 'skipped');
   if (allOk && !RUN.cancelled) {
     try { await invoke('naj_dl_remove', { path: `${(opts.outDir || '').replace(/[\\/]+$/, '')}/_批量队列.json` }); } catch (_) { /* 忽略 */ }
   }
-  const summary = `完成 ${doneCount} · 暂停 ${pausedLeft} · 略过 ${skippedCount} · 失败未决 ${Math.max(0, failedCount - skippedCount)}`;
+  const summary = `完成 ${doneCount} · 暂停 ${pausedLeft} · 略过 ${skippedTotal} · 失败 ${failedTotal}`;
   notify({
-    kind: RUN.cancelled ? 'warn' : (failedCount ? 'error' : (pausedLeft ? 'warn' : 'ok')),
+    kind: RUN.cancelled ? 'warn' : (failedTotal ? 'error' : (pausedLeft ? 'warn' : 'ok')),
     title: RUN.cancelled ? '批量下载已取消' : (pausedLeft ? '批量下载暂告一段落' : '批量下载结束'),
-    text: `共 ${todo.length} 本：${summary}${pausedLeft ? '（暂停的书可在「下载中心」继续）' : ''}（队列与逐本进度已存盘，可随时恢复续跑）`,
+    text: `共 ${B.batch.items.length} 本：${summary}${pausedLeft ? '（暂停的书可在「下载中心」继续）' : ''}（队列与逐本进度已存盘，可随时恢复续跑）`,
     dir: opts.outDir,
-    sticky: !!(failedCount || pausedLeft),
+    sticky: !!(failedTotal || pausedLeft),
   });
   // 批量结束后立刻尝试启动「排队恢复」的书（若用户已经在下载中心点了继续）
   try { pumpResumeQueue(); } catch (_) { /* 忽略 */ }
@@ -654,6 +772,16 @@ async function startBatch() {
 
 /** 在「国立公文书馆」检索条里插入「批量下载」入口 */
 export function initBatchUi() {
+  // 显示件数：选中 20/50/100/200 后立即按新件数重查一次（原逻辑只改标签，用户觉得“没生效”）。
+  // 这段不依赖桌面版，网页版也要生效，所以放在 dlAvailable 判断之前。
+  const rowsSel = el('najRows');
+  if (rowsSel && rowsSel.dataset.rowsBound !== '1') {
+    rowsSel.dataset.rowsBound = '1';
+    rowsSel.addEventListener('change', () => {
+      const kw = (el('najKw')?.value || '').trim();
+      if (kw) el('najSearchBtn')?.click();
+    });
+  }
   if (!dlAvailable()) return;
   const form = el('najForm');
   if (!form || el('najBatchBtn')) return;

@@ -318,7 +318,8 @@ function renderDetail(rec, truncatedNote, posText) {
   if (openBtn) {
     openBtn.addEventListener('click', () => {
       if (!rec.url) return;
-      if (isTauri) tauriInvoke('open_external', { url: rec.url }).catch(() => {});
+      if (typeof window.__kansekiOpenExternal === 'function') window.__kansekiOpenExternal(rec.url);
+      else if (isTauri) tauriInvoke('open_external', { url: rec.url }).catch(() => {});
       else window.open(rec.url, '_blank');
     });
   }

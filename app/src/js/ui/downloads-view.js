@@ -1,25 +1,28 @@
 // ================================================
-// js/ui/downloads-view.js — 下载中心（V2.0：按本暂停/继续 + 每本具体进度）
+// js/ui/downloads-view.js — 下载中心（V2.1：全队列 + 状态筛选 + 清空 + 选新书 + 插入单本）
 // ================================================
-// 用户第 13 条：
-//   ① 每个任务（每本书）可单独「暂停 / 继续」，暂停一本时其它书继续；
-//      状态区分：队列中 / 下载中 / 已暂停 / 已完成 / 失败；
-//   ② 每本显示具体进度：百分比、已下载/总册数、已落盘页数、当前文件/册、
-//      速度与剩余时间（桌面版有引擎实测数据时）、失败原因；
-//   ③ 不再显示顶部说明文字；
-//   ④ 「打开文件夹」打开**当前这本书**的下载目录（reveal_path；网页版提示不可用）；
-//   ⑤ 与批量引擎兼容：批量里暂停一本 → 队列继续下一本；恢复时重新入队，
-//      零缺册审计与打包仍由 executeTask / finalizeTask 原流程保证。
+// 用户第 3 条：
+//   · 展示**所有队列条目**（批量里的每一本 + 单本任务 + 批量还没轮到的书）；
+//   · 状态筛选：全部 / 下载中 / 队列中 / 已暂停 / 已完成 / 失败 / 取消；
+//   · 「清空列表」只清已结束的记录（二次确认），不影响正在下载/排队/暂停的任务；
+//   · 暂停某本后可从「选择新书开始」里挑一本优先下载，或把暂停的书放回队尾；
+//   · 「打开文件夹」用 reveal_path 传**这本书**的任务目录（网页版提示不可用）。
 // 数据：全部来自 naj-dl.js 的 RUN / listRunTasks()（真实下载状态），不另存一份。
 // ================================================
 import {
   RUN, listRunTasks, pauseRun, resumeRun, cancelRun, taskDir, onEngine, invoke, esc, toast,
   dlAvailable, pauseRecord, resumeRecord, cancelQueuedResume, pumpResumeQueue,
+  clearFinishedRunTasks,
 } from './naj-dl.js';
+import { prioritizeBatchItem, startBatchIfIdle } from './naj-dl-batch.js';
 
 const el = (id) => document.getElementById(id);
 let inited = false;
 let timer = null;
+let disarmedTimer = null;
+
+// 视图局部状态（定时重渲染时保持）
+const UI = { filter: 'all', pickerOpen: false, clearArmed: false };
 
 // 引擎实时进度（Rust 侧 naj_dl_progress；网页版拿不到 → 只显示逐册状态）
 let live = {
@@ -35,6 +38,10 @@ const STATE = {
   failed: ['失败', 'err'],
   cancelled: ['已取消', 'cancel'],
 };
+const FILTERS = [
+  ['all', '全部'], ['running', '下载中'], ['queued', '队列中'],
+  ['paused', '已暂停'], ['done', '已完成'], ['failed', '失败'], ['cancelled', '取消'],
+];
 
 function fmtTime(ts) {
   if (!ts) return '—';
@@ -90,11 +97,40 @@ function fmtEta() {
   return fmtDur(((total - done) / speed) * 1000);
 }
 
-// ---------------------------------------------------------------- 状态 / 进度文案
+// ---------------------------------------------------------------- 统一行数据（记录 + 批量队列条目）
 
-function statusOf(rec) {
-  return STATE[rec.status] || [rec.status === 'idle' ? '队列中' : '—', 'idle'];
+const ITEM_STATUS = {
+  pending: 'queued', ready: 'queued', resolving: 'queued', choose: 'queued',
+  downloading: 'running', paused: 'paused', done: 'done', failed: 'failed', skipped: 'cancelled',
+};
+
+/**
+ * 下载中心要展示「所有队列条目」：
+ *   ① RUN.tasks 里的每条下载记录（单本 + 批量里的每一本，含暂停/完成/失败）；
+ *   ② 批量队列里**还没轮到、也还没建记录**的书 → 以「队列中」出现（不会显得丢单）。
+ */
+function collectRows() {
+  const recs = (listRunTasks() || []).slice(0, 60);
+  const rows = recs.map((rec) => ({ type: 'rec', rec, status: rec.status, title: rec.title || '（未命名）' }));
+  const batch = RUN.batch;
+  if (batch && Array.isArray(batch.items) && batch.items.length) {
+    const linked = new Set();
+    for (const rec of recs) {
+      if (!rec.task) continue;
+      for (const it of batch.items) {
+        if (it.rec === rec || (rec.task.book && it.id && String(it.id) === String(rec.task.book.id) && it.status === 'paused')) linked.add(it);
+      }
+    }
+    for (const it of batch.items) {
+      if (linked.has(it)) continue;
+      const status = ITEM_STATUS[it.status] || 'queued';
+      rows.push({ type: 'item', item: it, status, title: it.title || it.input || '（待核对）' });
+    }
+  }
+  return rows;
 }
+
+// ---------------------------------------------------------------- 文案
 
 function currentText(rec) {
   const v = activeVolume(rec);
@@ -102,7 +138,7 @@ function currentText(rec) {
     if (v) return volLabel(v);
     return '准备下一册…';
   }
-  if (rec.status === 'queued') return '等待当前任务结束后继续';
+  if (rec.status === 'queued') return '等待前面的任务结束后继续';
   if (rec.status === 'paused') {
     return v ? `停在第 ${v.no} 册 · ${esc(v.title || v.fileName || '')}` : '已暂停（可随时继续）';
   }
@@ -115,7 +151,6 @@ function currentText(rec) {
   return '';
 }
 
-/** 第二行：速度 / 剩余时间 / 已落盘体积 / 失败原因 */
 function detailText(rec) {
   const bits = [];
   const doneBytes = ((rec.task && rec.task.volumes) || [])
@@ -126,80 +161,12 @@ function detailText(rec) {
     if (sp) bits.push(sp);
     const eta = fmtEta();
     if (eta) bits.push(`剩余约 ${eta}`);
-    if (live.bytes_total > 0 && live.bytes_done > 0) {
-      bits.push(`${Math.round((live.bytes_done / live.bytes_total) * 100)}% 当前册`);
-    }
+    if (live.bytes_total > 0 && live.bytes_done > 0) bits.push(`${Math.round((live.bytes_done / live.bytes_total) * 100)}% 当前册`);
   }
   return bits.join(' · ');
 }
 
-function rowsHtml(tasks) {
-  return tasks.map((rec) => {
-    const [tx, cls] = statusOf(rec);
-    const pct = fmtPct(rec);
-    const kind = rec.kind === 'batch' ? '批量' : '单本';
-    const started = fmtTime(rec.startedAt);
-    const dur = rec.endedAt && rec.startedAt ? ` · 用时 ${fmtDur(rec.endedAt - rec.startedAt)}` : '';
-    const err = rec.error ? `<div class="dlv-err" title="${esc(String(rec.error))}">${esc(String(rec.error).slice(0, 120))}</div>` : '';
-    const dir = dirOf(rec);
-    const ops = [];
-    if (rec.status === 'running') ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；其它书继续">暂停</button>`);
-    if (rec.status === 'paused') {
-      ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}">继续</button>`);
-      ops.push(`<button type="button" class="dlv-op" data-act="cancel" data-id="${rec.id}">取消</button>`);
-    }
-    if (rec.status === 'queued') ops.push(`<button type="button" class="dlv-op" data-act="cancelqueued" data-id="${rec.id}" title="取消排队（保持暂停）">取消排队</button>`);
-    if (rec.status === 'failed' || rec.status === 'cancelled') {
-      ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="续传未完成册；完成后照常审计、打包">重试</button>`);
-    }
-    if (dir) ops.push(`<button type="button" class="dlv-op" data-act="reveal" data-dir="${esc(dir)}" title="${esc(dir)}">打开文件夹</button>`);
-
-    const prog = rec.total
-      ? `${rec.done || 0}/${rec.total} 册 · ${rec.pages || 0} 页`
-      : (rec.status === 'done' ? '已完成' : '—');
-    return `<tr class="dlv-row dlv-row-${esc(rec.status || '')}">
-      <td><span class="dlv-badge ${cls}">${esc(tx)}</span></td>
-      <td>
-        <div class="dlv-title" title="${esc(rec.title || '')}">${esc(rec.title || '（未命名）')}</div>
-        <div class="dlv-sub">${kind} · ${started}${dur}</div>
-        ${err}
-      </td>
-      <td>
-        <div class="dlv-progline"><b class="dlv-pct">${pct}%</b><span class="dlv-bar"><i style="width:${pct}%"></i></span></div>
-        <div class="dlv-sub">${prog}</div>
-      </td>
-      <td>
-        <div class="dlv-cur">${currentText(rec)}</div>
-        <div class="dlv-sub">${detailText(rec)}</div>
-      </td>
-      <td class="dlv-ops">${ops.join('') || '<span class="dlv-sub">—</span>'}</td>
-    </tr>`;
-  }).join('');
-}
-
-/** 批量队列里「还没轮到」的书：也给出 队列中 状态，避免用户以为丢了 */
-function queuedBatchHtml(tasks) {
-  const batch = RUN.batch;
-  if (!batch || !batch.items || !batch.items.length) return '';
-  const startedRecs = new Set(tasks.filter((t) => t.kind === 'batch').map((t) => (t.task && t.task.book && t.task.book.id) || ''));
-  const rows = batch.items
-    .filter((it) => it.checked && ['pending', 'ready', 'resolving', 'idle'].includes(it.status))
-    .filter((it) => !startedRecs.has(it.id))
-    .slice(0, 14)
-    .map((it) => `<tr class="dlv-row dlv-row-queued">
-      <td><span class="dlv-badge queued">队列中</span></td>
-      <td>
-        <div class="dlv-title">${esc(it.title || it.input || '（待核对）')}</div>
-        <div class="dlv-sub">批量队列 · 等待前面的书完成</div>
-      </td>
-      <td><div class="dlv-progline"><b class="dlv-pct">0%</b><span class="dlv-bar"><i style="width:0%"></i></span></div><div class="dlv-sub">—</div></td>
-      <td><div class="dlv-cur">排队中</div><div class="dlv-sub">开始后可单独暂停/继续</div></td>
-      <td class="dlv-ops"><span class="dlv-sub">—</span></td>
-    </tr>`);
-  return rows.join('');
-}
-
-// ---------------------------------------------------------------- 打开文件夹
+// ---------------------------------------------------------------- 打开文件夹 / 清空 / 选新书
 
 function revealDir(dir) {
   if (!dir) return;
@@ -210,7 +177,6 @@ function revealDir(dir) {
   invoke('reveal_path', { path: dir }).catch((e) => toast(`打开文件夹失败：${(e && e.message) || e}`, 'err'));
 }
 
-/** 当前这本书：优先正在下载的，其次暂停/排队，最后最近一条 */
 function currentRec(tasks) {
   return tasks.find((t) => t.status === 'running')
     || tasks.find((t) => t.status === 'paused')
@@ -228,30 +194,163 @@ function cancelRec(rec) {
   render();
 }
 
+/** 清空列表：只清已结束记录；第一次点变「再点一次确认」，3 秒后自动复原 */
+function clearList() {
+  if (!UI.clearArmed) {
+    UI.clearArmed = true;
+    render();
+    if (disarmedTimer) clearTimeout(disarmedTimer);
+    disarmedTimer = setTimeout(() => { UI.clearArmed = false; try { render(); } catch (_) { } }, 4000);
+    return;
+  }
+  UI.clearArmed = false;
+  if (disarmedTimer) { clearTimeout(disarmedTimer); disarmedTimer = null; }
+  const n = clearFinishedRunTasks();
+  toast(n ? `已清空 ${n} 条已结束记录` : '没有可清空的已结束记录', n ? 'ok' : 'warn');
+  render();
+}
+
+/** 「选择新书开始」候选：暂停的书（放回队尾）+ 批量里还没开始的书（优先下载） */
+function pickCandidates() {
+  const out = [];
+  for (const rec of (listRunTasks() || [])) {
+    if (rec.status === 'paused') out.push({ kind: 'rec', rec, title: rec.title, status: '已暂停' });
+  }
+  const batch = RUN.batch;
+  if (batch && Array.isArray(batch.items)) {
+    for (const it of batch.items) {
+      if (it.rec) continue;
+      if (['pending', 'ready', 'resolving', 'choose'].includes(it.status)) {
+        out.push({ kind: 'item', item: it, title: it.title || it.input, status: it.status === 'ready' ? '待下载' : '队列中' });
+      }
+    }
+  }
+  return out;
+}
+
+function pickNewBook() {
+  UI.pickerOpen = !UI.pickerOpen;
+  render();
+}
+
+function doPick(cand) {
+  UI.pickerOpen = false;
+  if (cand.kind === 'rec') {
+    const r = resumeRecord(cand.rec);
+    toast(r === 'queued' ? '已放回队尾：当前任务结束后继续这一本' : '已继续下载这一本', 'ok');
+  } else if (cand.kind === 'item') {
+    if (RUN.running) {
+      const r = prioritizeBatchItem(cand.item);
+      toast(r === 'queued' ? `已设为下一本优先下载：${cand.item.title || cand.item.input}` : '这一本暂不可优先', r === 'queued' ? 'ok' : 'warn');
+    } else {
+      prioritizeBatchItem(cand.item);
+      if (startBatchIfIdle()) toast('已开始队列下载', 'ok');
+      else toast('队列暂时无法启动', 'warn');
+    }
+  }
+  render();
+}
+
+// ---------------------------------------------------------------- 行渲染
+
+function recOps(rec) {
+  const ops = [];
+  const dir = dirOf(rec);
+  if (rec.status === 'running') {
+    ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；其它书继续">暂停</button>`);
+  } else if (rec.status === 'paused') {
+    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="重新入队：当前任务结束后继续">${RUN.running ? '放回队尾' : '继续'}</button>`);
+    ops.push(`<button type="button" class="dlv-op" data-act="cancel" data-id="${rec.id}">取消</button>`);
+  } else if (rec.status === 'queued') {
+    ops.push(`<button type="button" class="dlv-op" data-act="cancelqueued" data-id="${rec.id}" title="取消排队（保持暂停）">取消排队</button>`);
+  } else if (rec.status === 'failed' || rec.status === 'cancelled') {
+    ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="续传未完成册；完成后照常审计、打包">重试</button>`);
+  }
+  if (dir) ops.push(`<button type="button" class="dlv-op" data-act="reveal" data-dir="${esc(dir)}" title="${esc(dir)}">打开文件夹</button>`);
+  return ops.join('');
+}
+
+function recRow(rec) {
+  const [tx, cls] = STATE[rec.status] || ['—', 'idle'];
+  const pct = fmtPct(rec);
+  const kind = rec.kind === 'batch' ? '批量' : '单本';
+  const started = fmtTime(rec.startedAt);
+  const dur = rec.endedAt && rec.startedAt ? ` · 用时 ${fmtDur(rec.endedAt - rec.startedAt)}` : '';
+  const err = rec.error ? `<div class="dlv-err" title="${esc(String(rec.error))}">${esc(String(rec.error).slice(0, 120))}</div>` : '';
+  const prog = rec.total ? `${rec.done || 0}/${rec.total} 册 · ${rec.pages || 0} 页` : (rec.status === 'done' ? '已完成' : '—');
+  return `<tr class="dlv-row dlv-row-${esc(rec.status || '')}">
+    <td><span class="dlv-badge ${cls}">${esc(tx)}</span></td>
+    <td>
+      <div class="dlv-title" title="${esc(rec.title || '')}">${esc(rec.title || '（未命名）')}</div>
+      <div class="dlv-sub">${kind} · ${started}${dur}</div>
+      ${err}
+    </td>
+    <td>
+      <div class="dlv-progline"><b class="dlv-pct">${pct}%</b><span class="dlv-bar"><i style="width:${pct}%"></i></span></div>
+      <div class="dlv-sub">${prog}</div>
+    </td>
+    <td>
+      <div class="dlv-cur">${currentText(rec)}</div>
+      <div class="dlv-sub">${detailText(rec)}</div>
+    </td>
+    <td class="dlv-ops">${recOps(rec) || '<span class="dlv-sub">—</span>'}</td>
+  </tr>`;
+}
+
+function itemRow(row) {
+  const it = row.item;
+  const [tx, cls] = STATE[row.status] || ['队列中', 'queued'];
+  const pri = it.priority ? '<span class="dlv-pri" title="已设为下一本优先下载">优先</span>' : '';
+  const ops = [];
+  if (row.status === 'queued' && RUN.running) {
+    ops.push(`<button type="button" class="dlv-op" data-act="priority" data-key="${esc(String(it.no || it.id))}" title="设为下一本优先下载">优先下载</button>`);
+  }
+  return `<tr class="dlv-row dlv-row-${esc(row.status)}">
+    <td><span class="dlv-badge ${cls}">${esc(tx)}</span></td>
+    <td>
+      <div class="dlv-title">${esc(row.title)}${pri}</div>
+      <div class="dlv-sub">批量队列 · 还没轮到</div>
+    </td>
+    <td><div class="dlv-progline"><b class="dlv-pct">0%</b><span class="dlv-bar"><i style="width:0%"></i></span></div><div class="dlv-sub">—</div></td>
+    <td><div class="dlv-cur">排队中，前面的书下完后自动开始</div><div class="dlv-sub">可点「优先下载」提前</div></td>
+    <td class="dlv-ops">${ops.join('') || '<span class="dlv-sub">—</span>'}</td>
+  </tr>`;
+}
+
 // ---------------------------------------------------------------- 渲染
 
 function render() {
   const root = el('dlvRoot');
   if (!root) return;
-  const tasks = (listRunTasks() || []).slice(0, 40);
-  // 把批量队列条目的状态与下载记录里的状态同步（恢复/重试后条目会重新跑）
+  const rows = collectRows();
+  // 把批量队列条目状态与下载记录同步（恢复/重试后条目会重新跑）
   if (RUN.batch && RUN.batch.items) {
     for (const it of RUN.batch.items) {
       if (!it.rec) continue;
-      const rec = it.rec;
       const map = { running: 'downloading', queued: 'pending', paused: 'paused', done: 'done', failed: 'failed', cancelled: 'skipped' };
-      if (map[rec.status]) it.status = map[rec.status];
+      if (map[it.rec.status]) it.status = map[it.rec.status];
     }
   }
-  const count = (s) => tasks.filter((t) => t.status === s).length;
-  const queuedExtra = (RUN.batch && RUN.batch.items ? RUN.batch.items.filter((it) => it.checked && ['pending', 'ready', 'resolving'].includes(it.status)).length : 0);
-  const running = count('running');
-  const queued = count('queued') + queuedExtra;
-  const paused = count('paused');
-  const done = count('done');
-  const failed = count('failed');
+  const countOf = (s) => rows.filter((r) => r.status === s).length;
+  const filtered = UI.filter === 'all' ? rows : rows.filter((r) => r.status === UI.filter);
+  const tasks = (listRunTasks() || []);
   const cur = currentRec(tasks);
   const curDir = dirOf(cur);
+  const pickList = pickCandidates();
+
+  const filterHtml = FILTERS.map(([key, label]) => {
+    const n = key === 'all' ? rows.length : rows.filter((r) => r.status === key).length;
+    return `<button type="button" class="dlv-filter${UI.filter === key ? ' on' : ''}" data-filter="${key}" role="tab" aria-selected="${UI.filter === key}">${label}<span class="n">${n}</span></button>`;
+  }).join('');
+
+  const pickHtml = UI.pickerOpen ? `
+    <div class="dlv-pickmenu" role="menu" aria-label="选择要开始的书">
+      <div class="dlv-pickhead">选择新书开始 / 放回队尾</div>
+      ${pickList.length ? pickList.slice(0, 20).map((c, i) => `<button type="button" class="dlv-pickitem" data-pick="${i}" role="menuitem">
+        <span class="dlv-picktitle">${esc(c.title || '（未命名）')}</span>
+        <span class="dlv-picksub">${esc(c.status)}${c.kind === 'rec' ? ' · 放回队尾' : (RUN.running ? ' · 优先下载' : ' · 立即开始')}</span>
+      </button>`).join('') : '<div class="dlv-picksub" style="padding:10px 12px">没有可选择的待下载/暂停书目</div>'}
+    </div>` : '';
 
   root.innerHTML = `
     <div class="dlv-head">
@@ -263,26 +362,37 @@ function render() {
       </div>
     </div>
 
+    <div class="dlv-toolbar">
+      <div class="dlv-filters" role="tablist" aria-label="按状态筛选">${filterHtml}</div>
+      <div class="dlv-tools">
+        <span class="dlv-pickwrap">
+          <button type="button" class="av-btn" id="dlvPickBtn" aria-haspopup="true" aria-expanded="${UI.pickerOpen}">选择新书开始…</button>
+          ${pickHtml}
+        </span>
+        <button type="button" class="av-btn${UI.clearArmed ? ' dlv-danger' : ''}" id="dlvClear">${UI.clearArmed ? '再点一次确认清空' : '清空列表'}</button>
+      </div>
+    </div>
+
     <div class="dlv-stats">
-      <div class="dlv-stat"><b>${running}</b><span>下载中</span></div>
-      <div class="dlv-stat"><b>${queued}</b><span>队列中</span></div>
-      <div class="dlv-stat"><b>${paused}</b><span>已暂停</span></div>
-      <div class="dlv-stat"><b>${done}</b><span>已完成</span></div>
-      <div class="dlv-stat"><b>${failed}</b><span>失败</span></div>
+      <div class="dlv-stat"><b>${countOf('running')}</b><span>下载中</span></div>
+      <div class="dlv-stat"><b>${countOf('queued')}</b><span>队列中</span></div>
+      <div class="dlv-stat"><b>${countOf('paused')}</b><span>已暂停</span></div>
+      <div class="dlv-stat"><b>${countOf('done')}</b><span>已完成</span></div>
+      <div class="dlv-stat"><b>${countOf('failed')}</b><span>失败</span></div>
     </div>
 
     <div class="dlv-card">
-      <div class="dlv-card-h"><b>任务列表</b><span>${tasks.length ? `最近 ${tasks.length} 本 · 每本可单独暂停/继续` : ''}</span></div>
-      ${tasks.length || queuedExtra ? `<table class="dlv-tbl dlv-tbl2">
+      <div class="dlv-card-h"><b>任务列表</b><span>${rows.length ? `共 ${rows.length} 条 · 每本可单独暂停/继续` : ''}</span></div>
+      ${filtered.length ? `<table class="dlv-tbl dlv-tbl2">
         <thead><tr><th>状态</th><th>书名</th><th>进度</th><th>当前 / 速度</th><th>操作</th></tr></thead>
-        <tbody>${rowsHtml(tasks)}${queuedBatchHtml(tasks)}</tbody>
+        <tbody>${filtered.map((r) => (r.type === 'rec' ? recRow(r.rec) : itemRow(r))).join('')}</tbody>
       </table>` : `<div class="dlv-empty">
-        <b>还没有下载任务</b>
-        在「日本国立公文书馆」检索结果里点条目右侧的「下载」，<br>
-        或用「批量下载」一次提交多本；下载进度会实时显示在这里。
+        <b>${rows.length ? '当前筛选下没有任务' : '还没有下载任务'}</b>
+        ${rows.length ? '换个状态筛选看看。' : '在「日本国立公文书馆」检索结果里点条目右侧的「下载」，<br>或用「批量下载」一次提交多本；下载进度会实时显示在这里。'}
       </div>`}
     </div>`;
 
+  // 动作
   el('dlvPause')?.addEventListener('click', () => {
     if (RUN.paused) resumeRun(); else pauseRun();
     render();
@@ -292,9 +402,26 @@ function render() {
     const dir = (RUN.current && RUN.current.dir) || dirOf(currentRec(listRunTasks() || []));
     revealDir(dir);
   });
+  el('dlvClear')?.addEventListener('click', clearList);
+  el('dlvPickBtn')?.addEventListener('click', (e) => { e.stopPropagation(); pickNewBook(); });
+  root.querySelectorAll('.dlv-filter').forEach((b) => {
+    b.addEventListener('click', () => { UI.filter = b.getAttribute('data-filter') || 'all'; render(); });
+  });
+  root.querySelectorAll('[data-pick]').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cand = pickList[Number(b.getAttribute('data-pick'))];
+      if (cand) doPick(cand);
+    });
+  });
+  // 点面板外关闭「选择新书」浮层
+  if (UI.pickerOpen && !root._pickOutside) {
+    root._pickOutside = (e) => { if (!e.target.closest('.dlv-pickwrap')) { UI.pickerOpen = false; render(); } };
+    document.addEventListener('click', root._pickOutside, { once: true });
+  }
 }
 
-// 事件委托：渲染后不用重复绑定
+// 事件委托：渲染后不用重复绑定（行内暂停/继续/优先/打开文件夹）
 function bindOnce(root) {
   if (root.dataset.bound === '1') return;
   root.dataset.bound = '1';
@@ -303,6 +430,17 @@ function bindOnce(root) {
     if (!b) return;
     const act = b.getAttribute('data-act');
     if (act === 'reveal') { revealDir(b.getAttribute('data-dir') || ''); return; }
+    if (act === 'priority') {
+      const key = b.getAttribute('data-key');
+      const batch = RUN.batch;
+      const it = batch && (batch.items || []).find((x) => String(x.no || x.id) === key);
+      if (it) {
+        const r = prioritizeBatchItem(it);
+        toast(r === 'queued' ? `已设为下一本优先下载：${it.title || it.input}` : '无法设置优先', r === 'queued' ? 'ok' : 'warn');
+        render();
+      }
+      return;
+    }
     const id = Number(b.getAttribute('data-id'));
     const rec = (listRunTasks() || []).find((t) => t.id === id);
     if (!rec) return;
@@ -312,7 +450,7 @@ function bindOnce(root) {
       render();
     } else if (act === 'resume') {
       const r = resumeRecord(rec);
-      if (r === 'queued') toast('已加入队列：当前任务结束后继续这一本', 'ok');
+      if (r === 'queued') toast('已放回队尾：当前任务结束后继续这一本', 'ok');
       else if (r === 'started') toast('已继续下载这一本', 'ok');
       render();
     } else if (act === 'cancelqueued') {
@@ -344,6 +482,7 @@ export function initDownloadsView() {
   if (!timer) {
     timer = setInterval(async () => {
       if (!el('view-downloads')?.classList.contains('active')) return;
+      if (UI.pickerOpen) return;   // 浮层展开时不重渲染，避免菜单闪掉
       if (dlAvailable()) {
         try {
           const p = await invoke('naj_dl_progress');
