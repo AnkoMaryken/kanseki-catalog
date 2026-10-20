@@ -741,7 +741,7 @@ function toggleWinMenu(force) {
 function closeWinMenu() { toggleWinMenu(false); }
 
 // 关于页的版本 / 环境 / 窗口尺寸信息
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.0';
 
 // V1.4：给工作台/内嵌页使用的全局能力
 try {
@@ -770,13 +770,14 @@ function refreshAboutInfo() {
 
 // ---------- 视图切换 ----------
 // 11 个视图；iframe 视图按需懒加载（data-src -> src）
-const VIEWS = ['wb', 'downloads', 'query', 'jump', 'catalog', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
+const VIEWS = ['wb', 'downloads', 'query', 'jump', 'catalog', 'seal', 'kanseki', 'kansekidb', 'najdb', 'guide', 'changelog', 'login', 'account', 'records', 'sync', 'about'];
 
 // 视图 -> iframe id（懒加载用）
 const FRAMES = {
   query: 'queryFrame',
   jump: 'jumpFrame',
   catalog: 'catalogFrame',
+  seal: 'sealFrame',
   kanseki: 'kansekiFrame',
   guide: 'guideFrame',
   changelog: 'changelogFrame',

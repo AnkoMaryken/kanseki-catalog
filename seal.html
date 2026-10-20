@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小篆检字 — 古代史及汉籍研究工具</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/swxz.woff2" crossorigin>
+<style>
+@font-face {
+  font-family: "ShuoWenZhuan";
+  src: url("assets/fonts/swxz.woff2") format("woff2");
+  font-display: swap;
+}
+:root {
+  --bg: #F2F3F5;
+  --card: #fff;
+  --t1: #171A1F;
+  --t2: #5F6672;
+  --t3: #8F959E;
+  --line: #ECEEF1;
+  --fill: #F7F8FA;
+  --accent: #C8F169;
+  --seal-font: "ShuoWenZhuan", "KaiTi", "STKaiti", serif;
+}
+[data-theme="dark"] {
+  --bg: #14161A;
+  --card: #1C1F24;
+  --t1: #F2F3F5;
+  --t2: #B7BDC7;
+  --t3: #838A96;
+  --line: #2A2E35;
+  --fill: #232730;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--t1);
+  font: 13.5px/1.7 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  padding: 18px 18px 28px;
+}
+.page-head {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 10px 0 14px;
+}
+.page-head .ph-text { flex: 1 1 auto; min-width: 0; }
+.page-head h2 { font-size: 20px; font-weight: 700; line-height: 1.35; letter-spacing: -.01em; margin: 0; }
+.page-head p { margin: 4px 0 0; font-size: 12px; color: var(--t3); }
+.ph-actions { display: flex; gap: 8px; align-items: center; }
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.05);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+.card-h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.card-h b { font-size: 14.5px; font-weight: 700; }
+.card-h .hint { font-size: 12px; color: var(--t3); }
+.card-h .spacer { flex: 1 1 auto; }
+.inp {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--t1);
+  font: inherit;
+  padding: 10px 14px;
+  outline: none;
+  transition: box-shadow .16s, border-color .16s;
+}
+.inp:focus { border-color: var(--t1); box-shadow: 0 0 0 3px rgba(23,26,31,.06); }
+textarea.inp { min-height: 66px; resize: vertical; }
+.btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--t2);
+  font: inherit;
+  font-size: 12.5px;
+  padding: 7px 15px;
+  cursor: pointer;
+  transition: background .16s, color .16s, border-color .16s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--t1); color: var(--t1); }
+.btn.primary { background: var(--t1); border-color: var(--t1); color: #fff; }
+.btn.primary:hover { opacity: .88; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 单字查篆 */
+.char-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; min-height: 120px; }
+.char-cell {
+  width: 132px;
+  border-radius: 16px;
+  background: var(--fill);
+  border: 1px solid transparent;
+  padding: 10px 8px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .16s, border-color .16s, background .16s;
+}
+.char-cell:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--card); }
+.char-cell .seal {
+  font-family: var(--seal-font);
+  font-size: var(--seal-size, 64px);
+  line-height: 1.15;
+  height: calc(var(--seal-size, 64px) * 1.25);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t1);
+  overflow: hidden;
+}
+.char-cell .kai { font-size: 13px; color: var(--t2); margin-top: 2px; }
+.char-cell .u { font-size: 10.5px; color: var(--t3); font-family: ui-monospace, Consolas, monospace; }
+.char-empty { color: var(--t3); font-size: 13px; padding: 26px 4px; }
+
+/* 部件检字 */
+.comp-box { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; max-height: 148px; overflow: auto; padding: 2px 0; }
+.comp-chip {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--fill);
+  color: var(--t2);
+  font: inherit;
+  font-size: 12.5px;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+.comp-chip .seal { font-family: var(--seal-font); font-size: 15px; margin-right: 4px; }
+.comp-chip:hover { border-color: var(--t1); color: var(--t1); }
+.comp-chip.on { background: var(--accent); border-color: var(--accent); color: #171A1F; font-weight: 600; }
+.picked { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-height: 34px; }
+.picked .tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent);
+  color: #171A1F;
+  border-radius: 10px;
+  padding: 3px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.picked .tag .seal { font-family: var(--seal-font); font-size: 17px; }
+.picked .tag button { border: 0; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; color: #171A1F; padding: 0; }
+.result-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; max-height: 360px; overflow: auto; }
+.result-cell {
+  width: 74px; padding: 6px 4px 5px;
+  border-radius: 12px;
+  background: var(--fill);
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .14s, border-color .14s, background .14s;
+}
+.result-cell:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--card); }
+.result-cell .seal { font-family: var(--seal-font); font-size: 36px; line-height: 1.2; height: 44px; display: flex; align-items: center; justify-content: center; }
+.result-cell .kai { font-size: 12px; color: var(--t2); }
+.result-empty { color: var(--t3); font-size: 13px; padding: 18px 4px; }
+
+/* 详情浮层 */
+.seal-modal[hidden] { display: none !important; }
+.seal-modal {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(12,14,18,.42);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.seal-modal-card {
+  position: relative;
+  width: min(560px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--card);
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.32);
+  padding: 22px 24px;
+  text-align: center;
+}
+.seal-modal-card .big { font-family: var(--seal-font); font-size: 168px; line-height: 1.1; margin: 4px 0 6px; }
+.seal-modal-card .kai-big { font-size: 26px; font-weight: 700; letter-spacing: .04em; }
+.seal-modal-card .meta { margin-top: 8px; font-size: 12.5px; color: var(--t2); line-height: 1.9; word-break: break-all; }
+.seal-modal-card .meta code { font-family: ui-monospace, Consolas, monospace; color: var(--t3); }
+.seal-modal-x {
+  position: absolute; top: 10px; right: 12px;
+  width: 32px; height: 32px; border: 0; border-radius: 10px;
+  background: rgba(0,0,0,.06); color: var(--t2); font-size: 20px; line-height: 1; cursor: pointer;
+}
+[data-theme="dark"] .seal-modal-x { background: rgba(255,255,255,.1); }
+.modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.note { margin: 12px 0 0; font-size: 11.5px; color: var(--t3); line-height: 1.8; }
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(10px);
+  background: #171A1F; color: #fff; font-size: 12.5px;
+  padding: 8px 16px; border-radius: 999px;
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 120;
+}
+.toast.on { opacity: .95; transform: translateX(-50%) translateY(0); }
+@media (max-width: 640px) {
+  .char-cell { width: calc(33.333% - 8px); }
+  .page-head { flex-wrap: wrap; }
+}
+</style>
+<script>
+try { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); } catch (e) { }
+</script>
+</head>
+<body>
+<header class="page-head">
+  <div class="ph-text">
+    <h2>小篆检字</h2>
+    <p>《说文解字》小篆字形 · 按字直查 / 按部件检字 · 字形以《说文》为准</p>
+  </div>
+  <div class="ph-actions">
+    <button class="btn" id="plusSize" type="button" title="放大字形">A＋</button>
+    <button class="btn" id="minusSize" type="button" title="缩小字形">A−</button>
+  </div>
+</header>
+
+<!-- 一、按字查篆 -->
+<section class="card">
+  <div class="card-h">
+    <b>按字查篆</b>
+    <span class="hint">输入一个或多个汉字（建议繁体），即时显示小篆字形；点字形可放大、复制</span>
+    <span class="spacer"></span>
+    <button class="btn" id="clearChar" type="button">清空</button>
+  </div>
+  <textarea class="inp" id="charInput" maxlength="120" placeholder="例如：說文解字　（可一次输入多个字）"></textarea>
+  <div class="char-grid" id="charGrid"></div>
+  <p class="note">字体：说文小篆（swxz）· 字形标准以《说文解字》为准；简体会按原字显示，遇缺字回退楷体。</p>
+</section>
+
+<!-- 二、按部件检字 -->
+<section class="card">
+  <div class="card-h">
+    <b>按部件检字</b>
+    <span class="hint">选择 1–3 个部件（如「水」「木」），列出包含这些部件的字</span>
+    <span class="spacer"></span>
+    <button class="btn primary" id="compSearch" type="button">查字</button>
+  </div>
+  <input class="inp" id="compFilter" placeholder="筛选部件，例如：水、木、人、心…" autocomplete="off">
+  <div class="comp-box" id="compBox"></div>
+  <div class="picked" id="picked"><span class="hint" style="font-size:12px;color:var(--t3)">已选部件：</span></div>
+  <div class="result-grid" id="resultGrid"></div>
+  <p class="note" id="resultNote">部件数据来自 CJKVI / CHISE IDS 数据库，按字形拆解统计，仅供参考。</p>
+</section>
+
+<!-- 详情浮层 -->
+<div class="seal-modal" id="sealModal" hidden>
+  <div class="seal-modal-card" role="dialog" aria-modal="true" aria-label="字形详情">
+    <button class="seal-modal-x" id="sealModalX" type="button" title="关闭">×</button>
+    <div class="big" id="modalSeal">—</div>
+    <div class="kai-big" id="modalKai">—</div>
+    <div class="meta" id="modalMeta"></div>
+    <div class="modal-actions">
+      <button class="btn" id="modalCopy" type="button">复制汉字</button>
+      <button class="btn" id="modalPng" type="button">下载字形 PNG</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+let DATA = null;
+try { DATA = await import('./seal-ids-data.js'); } catch (e) { /* 数据未就绪时降级 */ }
+
+const $ = (s) => document.querySelector(s);
+const fontStack = '"ShuoWenZhuan", "KaiTi", "STKaiti", serif';
+let sealSize = 64;
+let picked = [];
+let lastChar = '';
+
+function toast(msg) {
+  const t = $('#toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('on'), 1600);
+}
+
+function isHan(ch) {
+  const cp = ch.codePointAt(0);
+  return (cp >= 0x3400 && cp <= 0x4DBF) || (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF) || (cp >= 0x20000 && cp <= 0x3134F);
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('已复制：' + text);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制：' + text); } catch (_) { toast('复制失败'); }
+    ta.remove();
+  }
+}
+
+function hexU(ch) {
+  return 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+}
+
+// ---------- 详情 ----------
+function openDetail(ch) {
+  lastChar = ch;
+  $('#modalSeal').textContent = ch;
+  $('#modalKai').textContent = ch;
+  const info = charInfo(ch);
+  const parts = info && info.parts && info.parts.length ? info.parts.join('　') : '—';
+  $('#modalMeta').innerHTML =
+    'Unicode：<code>' + hexU(ch) + '</code><br>' +
+    '结构：' + (info && info.ids ? info.ids : '（无部件拆分数据）') + '<br>' +
+    '部件：' + parts;
+  $('#sealModal').hidden = false;
+}
+function closeDetail() { $('#sealModal').hidden = true; }
+
+function charInfo(ch) {
+  if (!DATA || !DATA.SEAL_CHARS) return null;
+  return DATA.SEAL_MAP ? DATA.SEAL_MAP[ch] : null;
+}
+
+function downloadPng(ch) {
+  const size = 512;
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#111111';
+  ctx.font = '400 ' + Math.round(size * 0.78) + 'px ' + fontStack;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(ch, size / 2, size / 2 + size * 0.03);
+  const a = document.createElement('a');
+  a.href = c.toDataURL('image/png');
+  a.download = '小篆_' + ch + '_' + hexU(ch).replace('+', '') + '.png';
+  a.click();
+  toast('已下载 PNG');
+}
+
+// ---------- 按字查篆 ----------
+function renderChars() {
+  const raw = ($('#charInput').value || '').trim();
+  const grid = $('#charGrid');
+  if (!grid) return;
+  const chars = [...raw].filter((c) => !/\s/.test(c));
+  if (!chars.length) {
+    grid.innerHTML = '<div class="char-empty">输入汉字后，这里会即时显示对应的小篆字形。</div>';
+    return;
+  }
+  const uniq = [];
+  const seen = new Set();
+  for (const ch of chars) { if (!seen.has(ch)) { seen.add(ch); uniq.push(ch); } }
+  grid.innerHTML = uniq.slice(0, 60).map((ch) => (
+    '<div class="char-cell" data-ch="' + ch.replace(/"/g, '&quot;') + '" title="点击查看详情">' +
+      '<div class="seal" style="font-size:' + sealSize + 'px">' + ch + '</div>' +
+      '<div class="kai">' + ch + '</div>' +
+      '<div class="u">' + (isHan(ch) ? hexU(ch) : '') + '</div>' +
+    '</div>'
+  )).join('');
+  grid.querySelectorAll('.char-cell').forEach((el) => {
+    el.addEventListener('click', () => openDetail(el.dataset.ch));
+  });
+}
+
+// ---------- 部件检字 ----------
+function renderCompChips(keyword) {
+  const box = $('#compBox');
+  if (!box) return;
+  if (!DATA || !DATA.SEAL_COMPONENTS) {
+    box.innerHTML = '<span class="hint" style="color:var(--t3);font-size:12px">部件数据正在载入…（若长时间无内容，说明 seal-ids-data.js 未就绪）</span>';
+    return;
+  }
+  const kw = String(keyword || '').trim();
+  const list = DATA.SEAL_COMPONENTS.filter((it) => !kw || it.c.includes(kw) || (it.name || '').includes(kw)).slice(0, 160);
+  box.innerHTML = list.map((it) =>
+    '<button type="button" class="comp-chip' + (picked.includes(it.c) ? ' on' : '') + '" data-c="' + it.c + '" title="' + (it.n || '') + ' 字">' +
+      '<span class="seal">' + it.c + '</span>' + it.c +
+    '</button>'
+  ).join('') || '<span class="hint" style="color:var(--t3);font-size:12px">没有匹配的部件</span>';
+  box.querySelectorAll('.comp-chip').forEach((el) => {
+    el.addEventListener('click', () => toggleComp(el.dataset.c));
+  });
+}
+
+function renderPicked() {
+  const box = $('#picked');
+  if (!box) return;
+  box.innerHTML = '<span class="hint" style="font-size:12px;color:var(--t3)">已选部件：</span>' +
+    (picked.length ? picked.map((c) =>
+      '<span class="tag"><span class="seal">' + c + '</span>' + c + '<button type="button" data-drop="' + c + '" title="移除">×</button></span>'
+    ).join('') : '<span style="font-size:12px;color:var(--t3)">（可点上方部件选择，最多 3 个）</span>');
+  box.querySelectorAll('[data-drop]').forEach((b) => b.addEventListener('click', () => toggleComp(b.dataset.drop)));
+}
+
+function toggleComp(c) {
+  const i = picked.indexOf(c);
+  if (i >= 0) picked.splice(i, 1);
+  else {
+    if (picked.length >= 3) { toast('最多选 3 个部件'); return; }
+    picked.push(c);
+  }
+  renderCompChips($('#compFilter').value);
+  renderPicked();
+}
+
+function runCompSearch() {
+  const grid = $('#resultGrid');
+  const note = $('#resultNote');
+  if (!grid) return;
+  if (!DATA || !DATA.SEAL_BY_COMP) { toast('部件数据未就绪'); return; }
+  if (!picked.length) { grid.innerHTML = ''; note.textContent = '请先选择部件。'; return; }
+  let sets = picked.map((c) => new Set(DATA.SEAL_BY_COMP[c] || []));
+  let base = [...sets[0]];
+  for (let k = 1; k < sets.length; k++) base = base.filter((ch) => sets[k].has(ch));
+  const total = base.length;
+  const shown = base.slice(0, 400);
+  grid.innerHTML = shown.length
+    ? shown.map((ch) => (
+        '<div class="result-cell" data-ch="' + ch + '" title="' + ch + ' ' + hexU(ch) + '">' +
+          '<div class="seal">' + ch + '</div><div class="kai">' + ch + '</div>' +
+        '</div>'
+      )).join('')
+    : '<div class="result-empty">没有找到同时包含这些部件的字。</div>';
+  grid.querySelectorAll('.result-cell').forEach((el) => el.addEventListener('click', () => openDetail(el.dataset.ch)));
+  note.textContent = total ? ('共 ' + total + ' 字' + (total > shown.length ? '（显示前 ' + shown.length + ' 个）' : '')) : '没有找到匹配的字。';
+}
+
+// ---------- 字号 ----------
+function applySize() {
+  document.documentElement.style.setProperty('--seal-size', sealSize + 'px');
+  renderChars();
+}
+
+// ---------- 事件 ----------
+$('#charInput').addEventListener('input', (e) => { renderChars(); });
+$('#clearChar').addEventListener('click', () => { $('#charInput').value = ''; renderChars(); });
+$('#compFilter').addEventListener('input', (e) => renderCompChips(e.target.value));
+$('#compSearch').addEventListener('click', runCompSearch);
+$('#plusSize').addEventListener('click', () => { sealSize = Math.min(140, sealSize + 12); applySize(); });
+$('#minusSize').addEventListener('click', () => { sealSize = Math.max(32, sealSize - 12); applySize(); });
+$('#sealModalX').addEventListener('click', closeDetail);
+$('#sealModal').addEventListener('click', (e) => { if (e.target.id === 'sealModal') closeDetail(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+$('#modalCopy').addEventListener('click', () => copyText(lastChar));
+$('#modalPng').addEventListener('click', () => downloadPng(lastChar));
+
+// ---------- 启动 ----------
+renderChars();
+renderCompChips('');
+renderPicked();
+if (!DATA) {
+  const note = $('#resultNote');
+  if (note) note.textContent = '部件数据 seal-ids-data.js 未加载：按字查篆仍可使用，部件检字暂不可用。';
+}
+</script>
+</body>
+</html>

@@ -57,11 +57,12 @@ function copyFileIfExists(src, dest) {
 const PAGES_DIR = join(DIST, 'pages');
 
 // 静态站页面（iframe 承载）
-const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 'guide.html', 'changelog.html', 'settings.html'];
+const SITE_PAGES = ['index.html', 'catalog.html', 'kanseki.html', 'embed.html', 'guide.html', 'changelog.html', 'settings.html', 'seal.html'];
 // 账号体系页面（页内登录/注册链接指向，缺失会 404）
 const ACCOUNT_PAGES = ['login.html', 'signup.html', 'terms.html', 'privacy.html', 'profile.html'];
 // 页面依赖的脚本（根目录同名）
 const SITE_SCRIPTS = [
+  'seal-ids-data.js',  // 小篆检字：部件检字索引
   'user-state.js',      // V7.0 用户态（页面菜单）
   'overlay.js',         // 遮罩层
   'mobile-nav.js',      // 移动端抽屉
@@ -94,6 +95,9 @@ function syncSiteFiles(stats) {
   // /pages/assets/logo.png。故把前端 assets 同步一份到 pages/assets，
   // 否则每个内嵌页面的 logo 都会 404（实测 dist 内 index.html 首屏即报）。
   copyDir(join(SRC, 'assets'), join(PAGES_DIR, 'assets'));
+  // V1.7 小篆检字字体（根 assets/fonts → pages/assets/fonts，供内嵌页相对引用）
+  try { copyDir(join(ROOT, 'assets', 'fonts'), join(PAGES_DIR, 'assets', 'fonts')); } catch (e) { }
+  try { copyDir(join(ROOT, 'assets', 'fonts'), join(DIST, 'assets', 'fonts')); } catch (e) { }
   return missing;
 }
 
@@ -132,6 +136,7 @@ const EMBED_RULES = {
     hideSelectors: ['.back-link', '.phead-kicker'],
   },
   'changelog.html': { hideHeaderAll: true },
+  'seal.html': { hideHeaderAll: true },
 };
 
 function embedStyleFor(rule) {

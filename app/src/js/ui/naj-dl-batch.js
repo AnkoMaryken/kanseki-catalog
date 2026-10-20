@@ -14,6 +14,7 @@ import {
   RUN, invoke, esc, toast, onEngine, runBook, resolveBookPlan, taskDir, saveTask,
   pickFolder, defaultOutRoot, lastOutDir, rememberOutDir, dlAvailable,
   effectiveTemplates, saveTemplates, pumpResumeQueue, drainInsertedQueue,
+  pauseRecord, cancelRecord, forgetRunTask, requeueInserted,
 } from './naj-dl.js';
 import { buildSearchUrl, parseSearchPage } from '../core/naj-parse.js';
 import {
@@ -538,8 +539,10 @@ async function saveBatch(batch) {
     const dir = (batch.outDir || '').replace(/[\\/]+$/, '');
     if (!dir) return;
     await invoke('naj_dl_mkdir', { path: dir });
+    // 运行期字段（优先抢占状态、已处理集合）不进队列文件
+    const { preempted, preemptPriorityItem, _processed, ...rest } = batch;
     const slim = {
-      ...batch,
+      ...rest,
       options: batch.options,
       items: batch.items.map((i) => ({ ...i })),
     };
@@ -586,7 +589,9 @@ function nextBatchItem(processed) {
   return null;
 }
 
-/** 下载中心：把某一本设为「下一本优先下载」（批量进行中可用） */
+/** 下载中心：把某一本设为「下一本优先下载」（批量进行中可用）
+ *  V2.2：**即时抢占** —— 若批量正在下载另一本，先把它按本暂停（当前册下完即停、状态「已暂停」），
+ *  马上开始优先这本；优先这本处理完（完成/失败/暂停/取消）后自动恢复被抢占的那一本（回到队首）。 */
 export function prioritizeBatchItem(item) {
   const batch = B.batch || RUN.batch;      // 兼容：面板未打开时 RUN.batch 就是当前队列
   if (!item || !batch) return false;
@@ -595,8 +600,83 @@ export function prioritizeBatchItem(item) {
   batch.priority = Array.isArray(batch.priority) ? batch.priority : [];
   if (!batch.priority.includes(item)) batch.priority.push(item);
   item.priority = true;
+  // ② 即时抢占：暂停当前正在下载的那一本，记下来等优先这本处理完再自动恢复
+  const cur = RUN.currentRec;
+  let preempted = false;
+  if (RUN.running && cur && cur.task && cur.task !== (item.rec && item.rec.task) && cur !== item.rec) {
+    // 当前这本可能刚开跑、batch item 还没来得及挂 rec → 按 book.id 找到对应的队列条目
+    const curBookId = cur.task.book && cur.task.book.id;
+    const curItem = (batch.items || []).find((x) => x.rec === cur)
+      || (batch.items || []).find((x) => curBookId != null && String(x.id) === String(curBookId))
+      || null;
+    if (!batch.preempted || batch.preempted.rec !== cur) {
+      batch.preempted = { item: curItem, rec: cur };
+      batch.preemptPriorityItem = item;
+      try { pauseRecord(cur); } catch (_) { /* 忽略 */ }
+      preempted = true;
+      toast(`已暂停当前这本（${cur.title || '当前任务'}），优先开始：${item.title || item.input}`, 'warn');
+    }
+  }
+  if (!preempted) toast(`已设为下一本优先下载：${item.title || item.input}`, 'ok');
   renderList();
   return 'queued';
+}
+
+/** 优先这本处理完后，把被抢占的那一本恢复：待下载书放回队首；插入单本放回插入队列最前 */
+function resumePreemptedBatch(processed) {
+  const batch = B.batch;
+  if (!batch || !batch.preempted) return false;
+  const set = processed || batch._processed;
+  const pre = batch.preempted;
+  batch.preempted = null;
+  batch.preemptPriorityItem = null;
+  if (pre.item) {
+    if (set && set.delete) set.delete(pre.item);
+    pre.item.status = 'ready';
+    pre.item.priority = true;
+    pre.item._resumeRec = pre.rec || null;    // 批量循环据此复用原记录（不产生重复行）
+    batch.priority = Array.isArray(batch.priority) ? batch.priority : [];
+    if (!batch.priority.includes(pre.item)) batch.priority.unshift(pre.item);
+    if (pre.rec && pre.rec.task) {
+      pre.rec.task._paused = false;
+      pre.rec.status = 'queued';       // 显示「队列中」，等批量循环复用原任务继续
+    }
+    renderList();
+    return true;
+  }
+  if (pre.rec && pre.rec.task) {
+    pre.rec.task._paused = false;
+    try { requeueInserted(pre.rec); } catch (_) { /* 忽略 */ }
+    return true;
+  }
+  return false;
+}
+
+/** 每本「取消当前」：从批量队列删除这一本（未开始/下载中/已暂停都可删），并从下载中心列表移出 */
+export function removeBatchItem(item) {
+  const batch = B.batch || RUN.batch;
+  if (!item) return false;
+  if (batch) {
+    const i = (batch.items || []).indexOf(item);
+    if (i >= 0) batch.items.splice(i, 1);
+    if (Array.isArray(batch.priority)) {
+      const j = batch.priority.indexOf(item);
+      if (j >= 0) batch.priority.splice(j, 1);
+    }
+    if (batch.preempted && batch.preempted.item === item) batch.preempted = null;
+    if (batch.preemptPriorityItem === item) {
+      batch.preemptPriorityItem = null;
+      // 被取消的恰好是「优先这本」→ 立刻恢复之前被抢占的那一本
+      if (batch.preempted) resumePreemptedBatch();
+    }
+  }
+  if (item.rec) {
+    try { cancelRecord(item.rec); } catch (_) { /* 忽略 */ }
+    try { forgetRunTask(item.rec); } catch (_) { /* 忽略 */ }
+  }
+  renderList();
+  if (batch) { try { saveBatch(batch); } catch (_) { /* 忽略 */ } }
+  return true;
 }
 
 /** 从下载中心启动队列（引擎空闲时） */
@@ -645,11 +725,10 @@ async function startBatch(fromView) {
 
   // V2.1：动态队列（下载中可多次追加 / 设为优先 / 插入单本），不再用固定 for 下标
   const processed = new Set();
+  B.batch._processed = processed;      // 供「优先抢占自动恢复」在循环外也能定位已处理项
   while (!RUN.cancelled) {
     if (!(await waitWhilePausedOrCancelled())) break;
-    // 第 7 条：穿插执行「批量中插入的单本下载」（进度同样进下载中心）
-    try { await drainInsertedQueue(); } catch (_) { /* 单本插入失败不影响批量 */ }
-    if (RUN.cancelled) break;
+    // V2.2 第 4 条：插入的单本默认排到**队尾** —— 这里不再穿插，等整批跑完后统一执行（见循环后 drain）
     const it = nextBatchItem(processed);
     if (!it) break;
     processed.add(it);
@@ -658,6 +737,9 @@ async function startBatch(fromView) {
     await saveBatch(B.batch);
 
     let attempt = 0;
+    // V2.2：被「优先下载」抢占后自动恢复的那一本，复用原任务/原下载记录（不产生重复记录、不重下已完成册）
+    const reuse = (it._resumeRec && it._resumeRec.task) ? { task: it._resumeRec.task, rec: it._resumeRec } : null;
+    if (reuse) delete it._resumeRec;
     for (;;) {
       it.status = 'downloading';
       renderList();
@@ -669,9 +751,20 @@ async function startBatch(fromView) {
           delayMs: opts.delayMs,
           outDir: opts.outDir,
           templates: opts.templates,
-        });
+        }, reuse);
       } catch (e) {
         res = { ok: false, error: (e && e.message) ? e.message : String(e), audit: { problems: [String(e)] } };
+      }
+      if (res && res.taskCancelled) {
+        // V2.2 第 3 条「取消当前」：这一本已在取消时移出队列/记录；这里兜底再清一次，继续下一本
+        if (res.rec) { try { forgetRunTask(res.rec); } catch (_) { /* 忽略 */ } }
+        const k = B.batch.items.indexOf(it);
+        if (k >= 0) B.batch.items.splice(k, 1);
+        if (B.batch.preempted && B.batch.preempted.item === it) B.batch.preempted = null;
+        if (B.batch.preemptPriorityItem === it) { B.batch.preemptPriorityItem = null; resumePreemptedBatch(processed); }
+        renderList();
+        await saveBatch(B.batch);
+        break;
       }
       if (res && res.paused) {
         // V2.0 按本暂停：这一本在当前册下完后停下 → 记 paused，队列直接继续下一本
@@ -736,6 +829,11 @@ async function startBatch(fromView) {
     }
     await saveBatch(B.batch);
     renderList();
+    // V2.2 第 2 条：优先这本处理完（完成/失败/暂停/取消）→ 自动恢复被抢占的那一本（放回队首）
+    if (B.batch.preemptPriorityItem === it) resumePreemptedBatch(processed);
+    else if (B.batch.preempted && B.batch.preemptPriorityItem && (B.batch.items || []).indexOf(B.batch.preemptPriorityItem) < 0) {
+      resumePreemptedBatch(processed);
+    }
     if (RUN.cancelled) break;
     await sleep(Math.max(0, Number(opts.delayMs) || 0));
   }
@@ -809,5 +907,8 @@ export function batchState() {
 
 // 供自动化测试构造批量面板（浏览器/非 Tauri 环境无法从入口打开批量下载）
 if (typeof window !== 'undefined') {
-  window.__najBatchTest = { ensurePanel, renderTplPreview, toggleTokMenu };
+  window.__najBatchTest = {
+    ensurePanel, renderTplPreview, toggleTokMenu,
+    nextBatchItem, resumePreemptedBatch, prioritizeBatchItem, removeBatchItem, saveBatch,
+  };
 }

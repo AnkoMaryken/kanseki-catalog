@@ -11,10 +11,10 @@
 // ================================================
 import {
   RUN, listRunTasks, pauseRun, resumeRun, cancelRun, taskDir, onEngine, invoke, esc, toast,
-  dlAvailable, pauseRecord, resumeRecord, cancelQueuedResume, pumpResumeQueue,
-  clearFinishedRunTasks,
+  dlAvailable, pauseRecord, resumeRecord, cancelQueuedResume, pumpResumeQueue, pumpQueuedSingles,
+  clearFinishedRunTasks, cancelRecord, forgetRunTask,
 } from './naj-dl.js';
-import { prioritizeBatchItem, startBatchIfIdle } from './naj-dl-batch.js';
+import { prioritizeBatchItem, startBatchIfIdle, removeBatchItem } from './naj-dl-batch.js';
 
 const el = (id) => document.getElementById(id);
 let inited = false;
@@ -107,10 +107,13 @@ const ITEM_STATUS = {
 /**
  * 下载中心要展示「所有队列条目」：
  *   ① RUN.tasks 里的每条下载记录（单本 + 批量里的每一本，含暂停/完成/失败）；
- *   ② 批量队列里**还没轮到、也还没建记录**的书 → 以「队列中」出现（不会显得丢单）。
+ *   ② 批量队列里**还没轮到、也还没建记录**的书 → 以「队列中」出现（不会显得丢单）；
+ *   ③ V2.2：批量中插入的单本默认排到**队尾** → 未开始的插入记录排在批量队列条目之后。
  */
 function collectRows() {
-  const recs = (listRunTasks() || []).slice(0, 60);
+  const allRecs = (listRunTasks() || []).slice(0, 60);
+  const tailRecs = allRecs.filter((r) => r._inserted && (r.status === 'queued' || r.status === 'paused'));
+  const recs = allRecs.filter((r) => !tailRecs.includes(r));
   const rows = recs.map((rec) => ({ type: 'rec', rec, status: rec.status, title: rec.title || '（未命名）' }));
   const batch = RUN.batch;
   if (batch && Array.isArray(batch.items) && batch.items.length) {
@@ -127,6 +130,8 @@ function collectRows() {
       rows.push({ type: 'item', item: it, status, title: it.title || it.input || '（待核对）' });
     }
   }
+  // 队尾：批量中插入的单本（尚未开始）
+  for (const rec of tailRecs) rows.push({ type: 'rec', rec, status: rec.status, title: rec.title || '（未命名）' });
   return rows;
 }
 
@@ -187,10 +192,20 @@ function currentRec(tasks) {
 
 function cancelRec(rec) {
   if (!rec) return;
-  cancelQueuedResume(rec);
-  if (rec.task) rec.task._paused = true;
-  rec.status = 'cancelled';
-  rec.endedAt = rec.endedAt || Date.now();
+  // V2.2 第 3 条「取消当前」：从下载队列删除这一本（未开始/下载中/已暂停都能删），并从列表移出
+  const batch = RUN.batch;
+  const it = (batch && Array.isArray(batch.items)) ? (batch.items.find((x) => x.rec === rec) || null) : null;
+  if (it) removeBatchItem(it);              // 会取消任务 + 从批量清单删除 + 从下载中心记录移除
+  else { cancelRecord(rec); forgetRunTask(rec); }
+  toast(`已从下载队列移除：${rec.title || '这一本'}`, 'warn');
+  render();
+}
+
+/** 已结束记录只从列表移除（不影响文件） */
+function removeFromList(rec) {
+  if (!rec) return;
+  forgetRunTask(rec);
+  toast('已从列表移除', 'ok');
   render();
 }
 
@@ -240,8 +255,7 @@ function doPick(cand) {
     toast(r === 'queued' ? '已放回队尾：当前任务结束后继续这一本' : '已继续下载这一本', 'ok');
   } else if (cand.kind === 'item') {
     if (RUN.running) {
-      const r = prioritizeBatchItem(cand.item);
-      toast(r === 'queued' ? `已设为下一本优先下载：${cand.item.title || cand.item.input}` : '这一本暂不可优先', r === 'queued' ? 'ok' : 'warn');
+      prioritizeBatchItem(cand.item);         // 模块内部会提示「已抢占当前这本 / 已设为优先」
     } else {
       prioritizeBatchItem(cand.item);
       if (startBatchIfIdle()) toast('已开始队列下载', 'ok');
@@ -256,15 +270,17 @@ function doPick(cand) {
 function recOps(rec) {
   const ops = [];
   const dir = dirOf(rec);
+  const active = rec.status === 'running' || rec.status === 'paused' || rec.status === 'queued';
   if (rec.status === 'running') {
-    ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；其它书继续">暂停</button>`);
+    ops.push(`<button type="button" class="dlv-op" data-act="pause" data-id="${rec.id}" title="只暂停这一本；队列立刻跳过它开始下一本">暂停</button>`);
   } else if (rec.status === 'paused') {
     ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="重新入队：当前任务结束后继续">${RUN.running ? '放回队尾' : '继续'}</button>`);
-    ops.push(`<button type="button" class="dlv-op" data-act="cancel" data-id="${rec.id}">取消</button>`);
-  } else if (rec.status === 'queued') {
-    ops.push(`<button type="button" class="dlv-op" data-act="cancelqueued" data-id="${rec.id}" title="取消排队（保持暂停）">取消排队</button>`);
   } else if (rec.status === 'failed' || rec.status === 'cancelled') {
     ops.push(`<button type="button" class="dlv-op primary" data-act="resume" data-id="${rec.id}" title="续传未完成册；完成后照常审计、打包">重试</button>`);
+  }
+  if (active) ops.push(`<button type="button" class="dlv-op" data-act="cancelcurrent" data-id="${rec.id}" title="从下载队列删除这一本（当前册下完即停）">取消当前</button>`);
+  if (!active && (rec.status === 'done' || rec.status === 'failed' || rec.status === 'cancelled')) {
+    ops.push(`<button type="button" class="dlv-op" data-act="remove" data-id="${rec.id}" title="只从列表移除，不影响已下载文件">从列表移除</button>`);
   }
   if (dir) ops.push(`<button type="button" class="dlv-op" data-act="reveal" data-dir="${esc(dir)}" title="${esc(dir)}">打开文件夹</button>`);
   return ops.join('');
@@ -302,8 +318,11 @@ function itemRow(row) {
   const [tx, cls] = STATE[row.status] || ['队列中', 'queued'];
   const pri = it.priority ? '<span class="dlv-pri" title="已设为下一本优先下载">优先</span>' : '';
   const ops = [];
-  if (row.status === 'queued' && RUN.running) {
-    ops.push(`<button type="button" class="dlv-op" data-act="priority" data-key="${esc(String(it.no || it.id))}" title="设为下一本优先下载">优先下载</button>`);
+  if (row.status === 'queued') {
+    if (RUN.running) {
+      ops.push(`<button type="button" class="dlv-op" data-act="priority" data-key="${esc(String(it.no || it.id))}" title="立即抢占：暂停当前这本，先下这一本">优先下载</button>`);
+    }
+    ops.push(`<button type="button" class="dlv-op" data-act="cancelitem" data-key="${esc(String(it.no || it.id))}" title="从下载队列删除这一本">取消当前</button>`);
   }
   return `<tr class="dlv-row dlv-row-${esc(row.status)}">
     <td><span class="dlv-badge ${cls}">${esc(tx)}</span></td>
@@ -435,8 +454,18 @@ function bindOnce(root) {
       const batch = RUN.batch;
       const it = batch && (batch.items || []).find((x) => String(x.no || x.id) === key);
       if (it) {
-        const r = prioritizeBatchItem(it);
-        toast(r === 'queued' ? `已设为下一本优先下载：${it.title || it.input}` : '无法设置优先', r === 'queued' ? 'ok' : 'warn');
+        prioritizeBatchItem(it);              // 即时抢占；提示由 batch 模块统一给出
+        render();
+      }
+      return;
+    }
+    if (act === 'cancelitem') {
+      const key = b.getAttribute('data-key');
+      const batch = RUN.batch;
+      const it = batch && (batch.items || []).find((x) => String(x.no || x.id) === key);
+      if (it) {
+        removeBatchItem(it);
+        toast(`已从下载队列移除：${it.title || it.input || '这一本'}`, 'warn');
         render();
       }
       return;
@@ -446,20 +475,17 @@ function bindOnce(root) {
     if (!rec) return;
     if (act === 'pause') {
       pauseRecord(rec);
-      toast('已暂停这一本；其它书继续下载', 'warn');
+      toast('已暂停这一本；队列会立刻跳过它开始下一本', 'warn');
       render();
     } else if (act === 'resume') {
       const r = resumeRecord(rec);
       if (r === 'queued') toast('已放回队尾：当前任务结束后继续这一本', 'ok');
       else if (r === 'started') toast('已继续下载这一本', 'ok');
       render();
-    } else if (act === 'cancelqueued') {
-      cancelQueuedResume(rec);
-      toast('已取消排队（仍保持暂停）', 'warn');
-      render();
-    } else if (act === 'cancel') {
+    } else if (act === 'cancelcurrent') {
       cancelRec(rec);
-      toast('已取消这一本', 'warn');
+    } else if (act === 'remove') {
+      removeFromList(rec);
     }
   });
 }
@@ -490,6 +516,7 @@ export function initDownloadsView() {
         } catch (_) { /* 网页版/未开始：保持默认 */ }
       }
       try { pumpResumeQueue(); } catch (_) { /* 忽略 */ }
+      try { pumpQueuedSingles(); } catch (_) { /* 队列尾部的插入单本 */ }
       render();
     }, 1000);
   }
